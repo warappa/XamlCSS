@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>XamlCSS</id>
+    <version>0.8.0-beta</version>
+    <title>XamlCSS</title>
+    <authors>David Rettenbacher</authors>
+    <owners></owners>
+    <description>
+		Style Xaml-apps with Css
+	</description>
+    <releaseNotes>
+    </releaseNotes>
+    <summary>
+      Style Xaml-apps with Css
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/warappa/XamlCSS</projectUrl>
+    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <copyright>Copyright David Rettenbacher 2016</copyright>
+    <dependencies>
+        <group>
+          <dependency id="AngleSharp" version="0.9.6" />
+        </group>
+    </dependencies>
+    <references></references>
+    <tags>xaml css style</tags>
+  </metadata>
+  <files>
+    <file src="..\XamlCSS\bin\Release\XamlCSS.dll" target="lib" />
+    <file src="tools\" target="tools" />
+    <file src="content\" target="content" />
+  </files>
+</package>

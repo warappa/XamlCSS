@@ -1,0 +1,6 @@
+.vs/**/*
+**/bin/**/*
+**/obj/**/*
+**/*.lock.json
+packages/**/*
+**/*.nupkg

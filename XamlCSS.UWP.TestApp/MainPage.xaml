@@ -1,0 +1,19 @@
+﻿<Page
+    x:Class="XamlCSS.UWP.TestApp.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:XamlCSS.UWP.TestApp"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+	xmlns:cssUWP="using:XamlCSS.UWP"
+    mc:Ignorable="d">
+	<Grid Name="thegrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Right" Width="433">
+		<StackPanel Name="stack">
+			<StackPanel Name="thestack2" cssUWP:Css.Class="container">
+				<TextBlock Name="thetextblock" cssUWP:Css.Class="jumbo">Hello World</TextBlock>
+				<Button Name="theinnerbutton" Click="Button_Click_1">Inner Button</Button>
+			</StackPanel>
+			<Button Name="thebutton" Click="Button_Click">Change Style</Button>
+		</StackPanel>
+	</Grid>
+</Page>

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="XamlCSS.XamarinForms.TestApp.MainPage"
+			 xmlns:cssXF="clr-namespace:XamlCSS.XamarinForms;assembly=XamlCSS.XamarinForms">
+	<StackLayout x:Name="stack" cssXF:Css.Id="stack">
+		<StackLayout x:Name="thestack2" cssXF:Css.Id="thestack2" cssXF:Css.Class="container">
+			<Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>
+			<Button x:Name="theinnerbutton" cssXF:Css.Id="theinnerbutton" Clicked="Button_Click_1" Text="Inner Button"></Button>
+		</StackLayout>
+		<Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
+	</StackLayout>
+</ContentPage>

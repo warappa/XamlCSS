@@ -1,0 +1,20 @@
+﻿<Window 
+		x:Class="XamlCSS.WPF.TestApp.MainWindow"
+		x:Name="root"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:XamlCSS.WPF.TestApp"
+		xmlns:cssWPF="clr-namespace:XamlCSS.WPF;assembly=XamlCSS.WPF"
+        Title="MainWindow" Height="350" Width="525">
+	<Grid HorizontalAlignment="Right" Width="433">
+		<StackPanel x:Name="stack">
+			<StackPanel cssWPF:Css.Class="container">
+				<TextBlock cssWPF:Css.Class="jumbo">Hello World</TextBlock>
+				<Button Click="Button_Click_1">Inner Button</Button>
+			</StackPanel>
+			<Button Name="thebutton" Click="Button_Click">Change Style</Button>
+		</StackPanel>
+	</Grid>
+</Window>

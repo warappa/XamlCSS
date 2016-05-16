@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<package >
+	<metadata>
+		<id>XamlCSS.UWP</id>
+		<version>0.8.0-beta</version>
+		<title>XamlCSS.UWP</title>
+		<authors>David Rettenbacher</authors>
+		<owners></owners>
+		<description>
+			Style UWP-apps with Css
+		</description>
+		<releaseNotes>
+		</releaseNotes>
+		<summary>
+			Style UWP-apps with Css
+		</summary>
+		<language>en-US</language>
+		<projectUrl>https://github.com/warappa/XamlCSS</projectUrl>
+		<iconUrl>https://github.com/warappa/XamlCSS/raw/master/Content/logo.jpg</iconUrl>
+		<requireLicenseAcceptance>false</requireLicenseAcceptance>
+		<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+		<copyright>© 2016 David Rettenbacher</copyright>
+		<dependencies>
+			<group>
+				<dependency id="XamlCSS" version="0.8.0-beta" />
+			</group>
+		</dependencies>
+		<references></references>
+		<tags>xaml css style uwp</tags>
+	</metadata>
+	<files>
+		<file src="..\XamlCSS.UWP\bin\Release\XamlCSS.UWP.dll" target="lib" />
+		<file src="tools\" target="tools" />
+		<file src="content\" target="content" />
+	</files>
+</package>
