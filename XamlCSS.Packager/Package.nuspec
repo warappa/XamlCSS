@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XamlCSS</id>
-    <version>0.8.0-beta</version>
+    <version>0.8.0-beta-2</version>
     <title>XamlCSS</title>
     <authors>David Rettenbacher</authors>
     <owners></owners>
@@ -16,10 +16,10 @@
     </summary>
     <language>en-US</language>
     <projectUrl>https://github.com/warappa/XamlCSS</projectUrl>
-    <iconUrl>https://nuget.org/Content/Images/packageDefaultIcon-50x50.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/warappa/XamlCSS/master/Content/Logo.jpg</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
-    <copyright>Copyright David Rettenbacher 2016</copyright>
+    <copyright>© 2016 David Rettenbacher</copyright>
     <dependencies>
         <group>
           <dependency id="AngleSharp" version="0.9.6" />

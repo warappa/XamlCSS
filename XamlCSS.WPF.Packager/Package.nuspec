@@ -16,7 +16,7 @@
 		</summary>
 		<language>en-US</language>
 		<projectUrl>https://github.com/warappa/XamlCSS</projectUrl>
-		<iconUrl>https://github.com/warappa/XamlCSS/raw/master/Content/logo.jpg</iconUrl>
+		<iconUrl>https://raw.githubusercontent.com/warappa/XamlCSS/master/Content/Logo.jpg</iconUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
 		<copyright>© 2016 David Rettenbacher</copyright>
