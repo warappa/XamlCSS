@@ -48,5 +48,15 @@ namespace XamlCSS.Tests.CssParsing
 
 			Assert.AreEqual(1, styleSheet.Rules.Count);
 		}
+
+		[Test]
+		public void TestParseCssWithoutSpaces()
+		{
+			var styleSheet = CssParser.Parse("Button{Foreground:Red;}");
+
+			Assert.AreEqual(1, styleSheet.Rules.Count);
+			Assert.AreEqual("Button", styleSheet.Rules[0].Selector);
+			Assert.AreEqual("Foreground", styleSheet.Rules[0].DeclarationBlock[0].Property);
+		}
 	}
 }

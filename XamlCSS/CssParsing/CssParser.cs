@@ -365,6 +365,8 @@ namespace XamlCSS.CssParsing
 				.SplitThem('(')
 				.SplitThem(' ')
 				.SplitThem('#')
+				.SplitThem('{')
+				.SplitThem('}')
 				.ToArray();
 			var strsIndex = 0;
 
