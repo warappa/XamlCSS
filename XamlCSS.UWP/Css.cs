@@ -1,4 +1,6 @@
 ﻿using Windows.UI.Xaml;
+using Windows.UI.Xaml.Data;
+using XamlCSS.CssParsing;
 
 namespace XamlCSS.UWP
 {
@@ -85,7 +87,10 @@ namespace XamlCSS.UWP
 			typeof(Css), new PropertyMetadata(null, StyleSheetPropertyAttached));
 		public static StyleSheet GetStyleSheet(DependencyObject obj)
 		{
-			return obj.ReadLocalValue(StyleSheetProperty) as StyleSheet;
+			var read = obj.ReadLocalValue(StyleSheetProperty);
+			if (read is BindingExpression)
+				read = obj.GetValue(StyleSheetProperty);
+			return read as StyleSheet;
 		}
 		public static void SetStyleSheet(DependencyObject obj, StyleSheet value)
 		{
