@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.UWP</id>
-		<version>0.8.0-beta</version>
+		<version>0.8.0-beta-3</version>
 		<title>XamlCSS.UWP</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,6 +10,8 @@
 			Style UWP-apps with Css
 		</description>
 		<releaseNotes>
+			0.8.0-beta-3:
+			Fixed UWP nuget-package
 		</releaseNotes>
 		<summary>
 			Style UWP-apps with Css
@@ -22,15 +24,47 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="0.8.0-beta" />
+				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+			</group>
+			<group targetFramework="Xamarin.iOS10">
+				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+			</group>
+			<group targetFramework="MonoAndroid10">
+				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+			</group>
+			<group targetFramework="wp8">
+				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+			</group>
+			<group targetFramework="wpa81">
+				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+			</group>
+			<group targetFramework="uap10.0">
+				<dependency id="XamlCSS" version="0.8.0-beta-3" />
 			</group>
 		</dependencies>
 		<references></references>
 		<tags>xaml css style uwp</tags>
 	</metadata>
 	<files>
-		<file src="..\XamlCSS.UWP\bin\Release\XamlCSS.UWP.dll" target="lib" />
-		<file src="tools\" target="tools" />
-		<file src="content\" target="content" />
+		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\dotnet" />
+		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\portable-net45+win8+wpa81+wp8" />
+
+		<!-- PCL -->
+		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\portable-win+net45+wp8+win8+wpa81" />
+
+		<!-- android -->
+		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\MonoAndroid10" />
+
+		<!-- ios -->
+		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\Xamarin.iOS10" />
+
+		<!-- wp8 -->
+		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\wp8" />
+
+		<!-- wpa81 -->
+		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\wpa81" />
+
+		<!-- uwp -->
+		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\uap10.0" />
 	</files>
 </package>
