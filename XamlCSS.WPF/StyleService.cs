@@ -32,7 +32,10 @@ namespace XamlCSS.WPF
 
 		public void SetStyle(DependencyObject visualElement, Style s)
 		{
-			(visualElement as FrameworkElement).Style = s;
+			if (visualElement is FrameworkElement)
+				(visualElement as FrameworkElement).Style = s;
+			else if (visualElement is FrameworkContentElement)
+				(visualElement as FrameworkContentElement).Style = s;
 		}
 
 		public string GetStyleResourceKey(Type type, string selector)
