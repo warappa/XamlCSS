@@ -23,7 +23,7 @@ namespace XamlCSS.CssParsing
 
 						if (currentNode.Type == CssNodeType.Document)
 						{
-							n = new CssNode(CssNodeType.NamespaceDeclaration, currentNode, t.Text);
+							n = new CssNode(CssNodeType.NamespaceDeclaration, currentNode, "");
 							currentNode.Children.Add(n);
 							currentNode = n;
 						}
@@ -32,10 +32,20 @@ namespace XamlCSS.CssParsing
 					case CssTokenType.Identifier:
 						if (currentNode.Type == CssNodeType.NamespaceDeclaration)
 						{
-							if (t.Text == "namespace")
-								currentNode.Children.Add(new CssNode(CssNodeType.NamespaceKeyword, currentNode, "@" + t.Text));
-							else if (currentNode.Children.Count == 1)
-								currentNode.Children.Add(new CssNode(CssNodeType.NamespaceAlias, currentNode, t.Text));
+							n = new CssNode(CssNodeType.NamespaceKeyword, currentNode, "@" + t.Text);
+							currentNode.Children.Add(n);
+							currentNode = n;							
+						}
+						else if (currentNode.Type == CssNodeType.NamespaceKeyword)
+						{
+							currentNode = currentNode.Parent;
+							n = new CssNode(CssNodeType.NamespaceAlias, currentNode, t.Text);
+							currentNode.Children.Add(n);
+							currentNode = n;
+						}
+						else if (currentNode.Type == CssNodeType.NamespaceValue)
+						{
+							currentNode.Text += t.Text;
 						}
 						else if (currentNode.Type == CssNodeType.Selectors)
 						{
@@ -55,7 +65,6 @@ namespace XamlCSS.CssParsing
 						{
 							currentNode.Text += t.Text;
 						}
-
 						else if (currentNode.Type == CssNodeType.StyleDeclarationBlock)
 						{
 							n = new CssNode(CssNodeType.StyleDeclaration, currentNode, "");
@@ -71,6 +80,10 @@ namespace XamlCSS.CssParsing
 							n = new CssNode(CssNodeType.Value, currentNode, t.Text);
 							currentNode.Children.Add(n);
 							currentNode = n;
+						}
+						else if (currentNode.Type == CssNodeType.Key)
+						{
+							currentNode.Text += t.Text;
 						}
 						else if (currentNode.Type == CssNodeType.Value)
 						{
@@ -100,6 +113,17 @@ namespace XamlCSS.CssParsing
 							currentNode.Children.Add(new CssNode(CssNodeType.NamespaceAlias, currentNode, tokens[i++].Text));
 							i++;
 						}
+						else if (currentNode.Type == CssNodeType.NamespaceAlias)
+						{
+							currentNode = currentNode.Parent;
+							n = new CssNode(CssNodeType.NamespaceValue, currentNode, t.Text);
+							currentNode.Children.Add(n);
+							currentNode = n;
+						}
+						else if (currentNode.Type == CssNodeType.NamespaceValue)
+						{
+							currentNode.Text += t.Text;
+						}
 						break;
 					case CssTokenType.SingleQuotes:
 						if (currentNode.Type == CssNodeType.StyleDeclaration)
@@ -128,6 +152,10 @@ namespace XamlCSS.CssParsing
 						{
 							currentNode = currentNode.Parent;
 						}
+						else if (currentNode.Type == CssNodeType.NamespaceValue)
+						{
+							currentNode = currentNode.Parent;
+						}
 						currentNode = currentNode.Parent;
 						break;
 					case CssTokenType.Dot:
@@ -148,6 +176,14 @@ namespace XamlCSS.CssParsing
 							currentNode.Children.Add(selectorFragment);
 							currentNode = selectorFragment;
 						}
+						else if (currentNode.Type == CssNodeType.NamespaceAlias)
+						{
+							currentNode.Text += t.Text;
+						}
+						else if (currentNode.Type == CssNodeType.NamespaceValue)
+						{
+							currentNode.Text += t.Text;
+						}
 						else if (currentNode.Type == CssNodeType.Selectors)
 						{
 							var selector = new CssNode(CssNodeType.Selector, currentNode, "");
@@ -162,6 +198,10 @@ namespace XamlCSS.CssParsing
 							currentNode = selectorFragment;
 						}
 						else if (currentNode.Type == CssNodeType.SelectorFragment)
+						{
+							currentNode.Text += t.Text;
+						}
+						else if (currentNode.Type == CssNodeType.Key)
 						{
 							currentNode.Text += t.Text;
 						}
@@ -242,9 +282,17 @@ namespace XamlCSS.CssParsing
 						{
 							currentNode.Text += t.Text;
 						}
+						else if (currentNode.Type == CssNodeType.NamespaceValue)
+						{
+							currentNode.Text += t.Text;
+						}
 						break;
 					case CssTokenType.Pipe:
 						if (currentNode.Type == CssNodeType.SelectorFragment)
+						{
+							currentNode.Text += t.Text;
+						}
+						else if (currentNode.Type == CssNodeType.Key)
 						{
 							currentNode.Text += t.Text;
 						}
@@ -285,9 +333,16 @@ namespace XamlCSS.CssParsing
 			var ast = GetAst(cssDocument);
 
 			var styleSheet = new StyleSheet();
+			styleSheet.Namespaces = ast.Children.Where(x => x.Type == CssNodeType.NamespaceDeclaration)
+					.Select(x => new CssNamespace(
+						x.Children.First(y => y.Type == CssNodeType.NamespaceAlias).Text.Trim(),
+						x.Children.First(y => y.Type == CssNodeType.NamespaceValue).Text.Trim('"')))
+					.ToList();
+
 			foreach (var astRule in ast.Children.Where(x => x.Type == CssNodeType.StyleRule).ToArray())
 			{
 				var rule = new StyleRule();
+
 				rule.SelectorType = SelectorType.LogicalTree;
 				var selectors = astRule.Children.Single(x => x.Type == CssNodeType.Selectors);
 				string[] selectorTexts = selectors

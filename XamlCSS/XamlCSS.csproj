@@ -90,6 +90,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="BaseCss.cs" />
+    <Compile Include="CssParsing\CssNamespace.cs" />
     <Compile Include="CssParsing\CssNode.cs" />
     <Compile Include="CssParsing\CssNodeType.cs" />
     <Compile Include="CssParsing\CssParser.cs" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using XamlCSS.Dom;
 
 namespace XamlCSS
@@ -77,13 +78,27 @@ namespace XamlCSS
 
 					foreach (var i in rule.DeclarationBlock)
 					{
-						var property = dependencyPropertyService.GetBindableProperty(type, i.Property);
-						if (property == null)
-							continue;
+						TDependencyProperty property = null;
+						if (i.Property.Contains("|"))
+						{
+							var strs = i.Property.Split('|', '.');
+							var alias = strs[0];
+							var namespaceFragments = styleSheet.Namespaces.First(x => x.Alias == alias).Namespace.Split(',');
+							var typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
+							property = dependencyPropertyService.GetBindableProperty(Type.GetType(typename),strs[2]);
+						}
+						else
+						{
+							property = dependencyPropertyService.GetBindableProperty(type, i.Property);
+						}
 
+						if (property == null)
+						{
+							continue;
+						}
 						var propertyValue = dependencyPropertyService.GetBindablePropertyValue(type, property, i.Value);
 
-						dict.Add(property, propertyValue);
+						dict[property] =  propertyValue;
 					}
 
 					if (dict.Keys.Count == 0)
@@ -109,7 +124,7 @@ namespace XamlCSS
 			
 			ApplyMatchingStyles(startFrom ?? styleResourceReferenceHolder);
 		}
-		
+
 		public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
 		{
 			UnapplyMatchingStyles(styleResourceReferenceHolder);
@@ -199,6 +214,7 @@ namespace XamlCSS
 
 			dependencyPropertyService.SetMatchingStyles(bindableObject, null);
 			dependencyPropertyService.SetAppliedMatchingStyles(bindableObject, null);
+			nativeStyleService.SetStyle(bindableObject, null);
 		}
 
 		public void UpdateElement(TDependencyObject sender)
