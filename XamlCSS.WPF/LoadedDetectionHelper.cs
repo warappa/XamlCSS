@@ -18,7 +18,8 @@ namespace XamlCSS.WPF
 
 		private static void UpdateStyle(FrameworkElement sender)
 		{
-			if (sender.TemplatedParent == null)
+			if (sender != null &&
+				sender.TemplatedParent == null)
 				Css.instance.UpdateElement(sender);
 		}
 
