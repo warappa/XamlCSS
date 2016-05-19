@@ -67,16 +67,5 @@ Button
 			LoadedDetectionHelper.Initialize();
 			
 		}
-		bool initialized = false;
-		private void App_Activated(object sender, EventArgs e)
-		{
-			this.Activated -= App_Activated;
-			if (initialized)
-				return;
-
-			initialized = true;
-
-			currentStyle = cssStyle1;
-		}
 	}
 }
