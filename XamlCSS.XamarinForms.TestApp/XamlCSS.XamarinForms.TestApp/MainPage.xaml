@@ -8,6 +8,18 @@
 			<Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>
 			<Button x:Name="theinnerbutton" cssXF:Css.Id="theinnerbutton" Clicked="Button_Click_1" Text="Inner Button"></Button>
 		</StackLayout>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="1*" />
+				<RowDefinition Height="1*" />
+			</Grid.RowDefinitions>
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="1*" />
+				<ColumnDefinition Width="1*" />
+			</Grid.ColumnDefinitions>
+			<Label>Text 1</Label>
+			<Label>Text 2</Label>
+		</Grid>
 		<Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
 	</StackLayout>
 </ContentPage>

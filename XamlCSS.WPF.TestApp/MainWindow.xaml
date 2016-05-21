@@ -14,6 +14,18 @@
 				<TextBlock cssWPF:Css.Class="jumbo">Hello World</TextBlock>
 				<Button Click="Button_Click_1">Inner Button</Button>
 			</StackPanel>
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="1*" />
+					<RowDefinition Height="1*" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+				</Grid.ColumnDefinitions>
+				<TextBlock>Text 1</TextBlock>
+				<TextBlock>Text 2</TextBlock>
+			</Grid>
 			<Button Name="thebutton" Click="Button_Click">Change Style</Button>
 		</StackPanel>
 	</Grid>

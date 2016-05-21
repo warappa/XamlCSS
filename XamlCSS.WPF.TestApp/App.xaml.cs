@@ -25,6 +25,16 @@ Button
 {
 	FontSize: 50;
 }
+Grid TextBlock:nth-of-type(1)
+{
+	Grid.Row: 0;
+	Grid.Column: 1;
+}
+Grid TextBlock:nth-of-type(2)
+{
+	Grid.Row: 1;
+	Grid.Column: 0;
+}
 ";
 
 		public string cssStyle2 = @"
@@ -56,6 +66,16 @@ Button
 	FontSize: 50;
 	FontStyle: Italic;
 	HorizontalAlignment: Center;
+}
+Grid TextBlock:nth-of-type(1)
+{
+	Grid.Row: 1;
+	Grid.Column: 1;
+}
+Grid TextBlock:nth-of-type(2)
+{
+	Grid.Row: 0;
+	Grid.Column: 0;
 }
 ";
 		public string currentStyle;
