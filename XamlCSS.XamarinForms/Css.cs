@@ -1,5 +1,12 @@
 ﻿using System;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Xml;
 using Xamarin.Forms;
+using Xamarin.Forms.Xaml;
+using Xamarin.Forms.Xaml.Internals;
 using XamlCSS.Dom;
 using XamlCSS.Windows.Media;
 
@@ -13,14 +20,10 @@ namespace XamlCSS.XamarinForms
 				new TreeNodeProvider(),
 				new StyleResourceService(),
 				new StyleService(),
-				DomElementBase<BindableObject, VisualElement>.GetPrefix(typeof(Button))
+				DomElementBase<BindableObject, VisualElement>.GetPrefix(typeof(Button)),
+				new MarkupExtensionParser()
 				);
-
-		static Css()
-		{
-			
-		}
-
+		
 		public static void Initialize()
 		{
 			VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
@@ -164,7 +167,7 @@ namespace XamlCSS.XamarinForms
 		{
 			obj.SetValue(ClassProperty, value);
 		}
-		
+
 		private static void VisualTreeHelper_ChildAdded(object sender, EventArgs e)
 		{
 			instance.UpdateElement(sender as BindableObject);
@@ -173,7 +176,7 @@ namespace XamlCSS.XamarinForms
 		{
 			instance.UnapplyMatchingStyles(sender as VisualElement);
 		}
-		
+
 		private static void StyleSheetPropertyAttached(BindableObject d, object oldValue, object newValue)
 		{
 			var frameworkElement = d as VisualElement;

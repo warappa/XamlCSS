@@ -110,5 +110,20 @@ namespace XamlCSS.Tests.CssParsing
 			Assert.AreEqual("ui|Grid.Row", styleSheet.Rules[0].DeclarationBlock[0].Property);
 			Assert.AreEqual("ui|Grid.Column", styleSheet.Rules[0].DeclarationBlock[1].Property);
 		}
+
+		[Test]
+		public void Test_can_parse_markupExtensions()
+		{
+			var styleSheet = CssParser.Parse(@"
+.test
+{
+	Text: {Binding testValue};
+	Background: Green;
+}");
+
+			Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
+			Assert.AreEqual("{Binding testValue}", styleSheet.Rules[0].DeclarationBlock[0].Value);
+			Assert.AreEqual("Green", styleSheet.Rules[0].DeclarationBlock[1].Value);
+		}
 	}
 }

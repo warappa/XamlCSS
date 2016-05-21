@@ -18,18 +18,21 @@ namespace XamlCSS
 		public readonly IStyleResourcesService applicationResourcesService;
 		public readonly INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService;
 		private string defaultCssNamespace;
+		private IMarkupExtensionParser markupExpressionParser;
 
 		public BaseCss(IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
 			ITreeNodeProvider<TDependencyObject> treeNodeProvider,
 			IStyleResourcesService applicationResourcesService,
 			INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
-			string defaultCssNamespace)
+			string defaultCssNamespace,
+			IMarkupExtensionParser markupExpressionParser)
 		{
 			this.dependencyPropertyService = dependencyPropertyService;
 			this.treeNodeProvider = treeNodeProvider;
 			this.applicationResourcesService = applicationResourcesService;
 			this.nativeStyleService = nativeStyleService;
 			this.defaultCssNamespace = defaultCssNamespace;
+			this.markupExpressionParser = markupExpressionParser;
 
 			CssParser.Initialize(defaultCssNamespace);
 		}
@@ -126,7 +129,14 @@ namespace XamlCSS
 						{
 							continue;
 						}
-						var propertyValue = dependencyPropertyService.GetBindablePropertyValue(type, property, i.Value);
+						object propertyValue = null;
+						if (i.Value is string &&
+							((string)i.Value).StartsWith("{"))
+						{
+							propertyValue = markupExpressionParser.ProvideValue((string)i.Value, startFrom ?? styleResourceReferenceHolder);
+						}
+						else
+							propertyValue = dependencyPropertyService.GetBindablePropertyValue(type, property, i.Value);
 
 						dict[property] = propertyValue;
 					}

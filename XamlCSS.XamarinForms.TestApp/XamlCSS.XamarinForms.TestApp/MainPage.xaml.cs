@@ -9,6 +9,11 @@ namespace XamlCSS.XamarinForms.TestApp
 		{
 			InitializeComponent();
 
+			this.BindingContext = new
+			{
+				Test = "Hello World from BindingContext!"
+			};
+
 			this.Appearing += MainPage_Appearing;
 		}
 

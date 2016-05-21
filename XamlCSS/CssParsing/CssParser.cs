@@ -309,25 +309,39 @@ namespace XamlCSS.CssParsing
 						break;
 					case CssTokenType.BraceOpen:
 						currentNode.Text = currentNode.Text.Trim();
-
-						if (currentNode.Type == CssNodeType.SelectorFragment)
+						if (currentNode.Type == CssNodeType.StyleDeclaration)
 						{
-							currentNode = currentNode.Parent;
+							n = new CssNode(CssNodeType.Value, currentNode, t.Text);
+							currentNode.Children.Add(n);
+							currentNode = n;
 						}
-						if (currentNode.Type == CssNodeType.Selector)
+						else
 						{
-							currentNode = currentNode.Parent;
+							if (currentNode.Type == CssNodeType.SelectorFragment)
+							{
+								currentNode = currentNode.Parent;
+							}
+							if (currentNode.Type == CssNodeType.Selector)
+							{
+								currentNode = currentNode.Parent;
+							}
+							if (currentNode.Type == CssNodeType.Selectors)
+							{
+								currentNode = currentNode.Parent;
+							}
+							n = new CssNode(CssNodeType.StyleDeclarationBlock, currentNode, "");
+							currentNode.Children.Add(n);
+							currentNode = n;
 						}
-						if (currentNode.Type == CssNodeType.Selectors)
-						{
-							currentNode = currentNode.Parent;
-						}
-						n = new CssNode(CssNodeType.StyleDeclarationBlock, currentNode, "");
-						currentNode.Children.Add(n);
-						currentNode = n;
 						break;
 					case CssTokenType.BraceClose:
-						currentNode = currentNode.Parent.Parent;
+						if(currentNode.Type == CssNodeType.Value)
+						{
+							currentNode.Text += t.Text;
+							currentNode = currentNode.Parent;
+						}
+						else
+							currentNode = currentNode.Parent.Parent;
 						break;
 					case CssTokenType.Whitespace:
 						currentNode.Text += t.Text;
