@@ -1,6 +1,8 @@
 ﻿using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using XamlCSS.CssParsing;
+using XamlCSS.Dom;
 
 namespace XamlCSS.UWP
 {
@@ -11,7 +13,8 @@ namespace XamlCSS.UWP
 				new DependencyPropertyService(),
 				new TreeNodeProvider(),
 				new StyleResourceService(),
-				new StyleService()
+				new StyleService(),
+				DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button))
 				);
 
 		#region dependency properties

@@ -93,18 +93,20 @@ namespace XamlCSS.Tests.CssParsing
 		[Test]
 		public void Test_can_parse_namespace3()
 		{
-			var styleSheet = CssParser.Parse(@"@namespace ui ""System.Windows.Controls, PresentationFramework, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = 31bf3856ad364e35"";
+			var styleSheet = CssParser.Parse(@"
+@namespace ""default"";
+@namespace ui ""System.Windows.Controls, PresentationFramework, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = 31bf3856ad364e35"";
 .test
 {
 	ui|Grid.Row: 0;
 	ui|Grid.Column: 1;
-}
+}");
 
-");
-
-			Assert.AreEqual(1, styleSheet.Namespaces.Count());
-			Assert.AreEqual("ui", styleSheet.Namespaces[0].Alias);
-			Assert.AreEqual("System.Windows.Controls, PresentationFramework, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = 31bf3856ad364e35", styleSheet.Namespaces[0].Namespace);
+			Assert.AreEqual(2, styleSheet.Namespaces.Count());
+			Assert.AreEqual("", styleSheet.Namespaces[0].Alias);
+			Assert.AreEqual("ui", styleSheet.Namespaces[1].Alias);
+			Assert.AreEqual("default", styleSheet.Namespaces[0].Namespace);
+			Assert.AreEqual("System.Windows.Controls, PresentationFramework, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = 31bf3856ad364e35", styleSheet.Namespaces[1].Namespace);
 			Assert.AreEqual("ui|Grid.Row", styleSheet.Rules[0].DeclarationBlock[0].Property);
 			Assert.AreEqual("ui|Grid.Column", styleSheet.Rules[0].DeclarationBlock[1].Property);
 		}

@@ -6,26 +6,98 @@ using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Dom.Css;
 using AngleSharp.Dom.Events;
+using AngleSharp.Dom.Html;
 using AngleSharp.Parser.Css;
+using System.Text.RegularExpressions;
+using AngleSharp.Css;
 
 namespace XamlCSS.Dom
 {
-	public abstract class DomElementBase<TDependencyObject, TDependencyProperty> : IDomElement<TDependencyObject>
+	public abstract class DomElementBase<TDependencyObject, TDependencyProperty> : IDomElement<TDependencyObject>, IDocument
 		where TDependencyObject : class
 		where TDependencyProperty : class
 	{
 		protected readonly TDependencyObject dependencyObject;
 		protected string id;
-		protected readonly CssParser parser;
+		protected static readonly CssParser Parser = new CssParser(new CssParserOptions()
+		{
+			IsIncludingUnknownDeclarations = true,
+			IsStoringTrivia = false,
+			IsIncludingUnknownRules = true,
+			IsToleratingInvalidConstraints = true,
+			IsToleratingInvalidSelectors = true,
+			IsToleratingInvalidValues = true
+		});
+
+		public event DomEventHandler ReadyStateChanged;
+		public event DomEventHandler Aborted;
+		public event DomEventHandler Blurred;
+		public event DomEventHandler Cancelled;
+		public event DomEventHandler CanPlay;
+		public event DomEventHandler CanPlayThrough;
+		public event DomEventHandler Changed;
+		public event DomEventHandler Clicked;
+		public event DomEventHandler CueChanged;
+		public event DomEventHandler DoubleClick;
+		public event DomEventHandler Drag;
+		public event DomEventHandler DragEnd;
+		public event DomEventHandler DragEnter;
+		public event DomEventHandler DragExit;
+		public event DomEventHandler DragLeave;
+		public event DomEventHandler DragOver;
+		public event DomEventHandler DragStart;
+		public event DomEventHandler Dropped;
+		public event DomEventHandler DurationChanged;
+		public event DomEventHandler Emptied;
+		public event DomEventHandler Ended;
+		public event DomEventHandler Error;
+		public event DomEventHandler Focused;
+		public event DomEventHandler Input;
+		public event DomEventHandler Invalid;
+		public event DomEventHandler KeyDown;
+		public event DomEventHandler KeyPress;
+		public event DomEventHandler KeyUp;
+		public event DomEventHandler Loaded;
+		public event DomEventHandler LoadedData;
+		public event DomEventHandler LoadedMetadata;
+		public event DomEventHandler Loading;
+		public event DomEventHandler MouseDown;
+		public event DomEventHandler MouseEnter;
+		public event DomEventHandler MouseLeave;
+		public event DomEventHandler MouseMove;
+		public event DomEventHandler MouseOut;
+		public event DomEventHandler MouseOver;
+		public event DomEventHandler MouseUp;
+		public event DomEventHandler MouseWheel;
+		public event DomEventHandler Paused;
+		public event DomEventHandler Played;
+		public event DomEventHandler Playing;
+		public event DomEventHandler Progress;
+		public event DomEventHandler RateChanged;
+		public event DomEventHandler Resetted;
+		public event DomEventHandler Resized;
+		public event DomEventHandler Scrolled;
+		public event DomEventHandler Seeked;
+		public event DomEventHandler Seeking;
+		public event DomEventHandler Selected;
+		public event DomEventHandler Shown;
+		public event DomEventHandler Stalled;
+		public event DomEventHandler Submitted;
+		public event DomEventHandler Suspended;
+		public event DomEventHandler TimeUpdated;
+		public event DomEventHandler Toggled;
+		public event DomEventHandler VolumeChanged;
+		public event DomEventHandler Waiting;
 
 		public DomElementBase(
 			TDependencyObject dependencyObject,
 			IElement parentElement
 			)
 		{
+			this.XamlCssStyleSheets = new List<StyleSheet>();
+
 			this.dependencyObject = dependencyObject;
 			this.Attributes = CreateNamedNodeMap(dependencyObject);
-			this.BaseUri = dependencyObject.GetType().Namespace;
 			this.ChildNodes = GetChildNodes(dependencyObject);
 			this.ClassList = GetClassList(dependencyObject);
 			this.id = GetId(dependencyObject);
@@ -33,20 +105,14 @@ namespace XamlCSS.Dom
 			this.NamespaceUri = dependencyObject.GetType().Namespace;
 			this.NodeName = dependencyObject.GetType().Name;
 			this.NodeType = NodeType.Element;
-			//this.Owner = ...
 			this.Parent = parentElement;
 			this.ParentElement = parentElement;
 			this.TagName = dependencyObject.GetType().Name;
+		}
 
-			this.parser = new CssParser(new CssParserOptions()
-			{
-				IsIncludingUnknownDeclarations = true,
-				IsStoringTrivia = false,
-				IsIncludingUnknownRules = true,
-				IsToleratingInvalidConstraints = true,
-				IsToleratingInvalidSelectors = true,
-				IsToleratingInvalidValues = true
-			});
+		public static string GetPrefix(Type type)
+		{
+			return type.AssemblyQualifiedName.Replace($".{type.Name},", ",");
 		}
 
 		public TDependencyObject Element { get { return dependencyObject; } }
@@ -64,7 +130,7 @@ namespace XamlCSS.Dom
 		abstract protected ITokenList GetClassList(TDependencyObject dependencyObject);
 
 		abstract protected string GetId(TDependencyObject dependencyObject);
-		
+
 		public IElement AssignedSlot { get { return null; } }
 
 		public INamedNodeMap Attributes { get; protected set; }
@@ -161,7 +227,14 @@ namespace XamlCSS.Dom
 		{
 			get
 			{
-				throw new NotImplementedException();
+				INode parent = this;
+				while (true)
+				{
+					if (parent.Parent == null)
+						break;
+					parent = parent.Parent;
+				}
+				return parent as IDocument;
 			}
 		}
 
@@ -169,7 +242,16 @@ namespace XamlCSS.Dom
 
 		public IElement ParentElement { get; protected set; }
 
-		public string Prefix { get; protected set; }
+		protected string prefix = "UNDEFINED";
+		public string Prefix
+		{
+			get
+			{
+				if (prefix == "UNDEFINED")
+					prefix = Owner.LookupPrefix(GetPrefix(dependencyObject.GetType()));
+				return prefix;
+			}
+		}
 
 		public IElement PreviousElementSibling
 		{
@@ -238,6 +320,354 @@ namespace XamlCSS.Dom
 			}
 
 			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlAllCollection All
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlCollection<IHtmlAnchorElement> Anchors
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IImplementation Implementation
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string DesignMode
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string Direction
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string DocumentUri
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string CharacterSet
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string CompatMode
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string Url
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string ContentType
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IDocumentType Doctype
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IElement DocumentElement
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string LastModified
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public DocumentReadyState ReadyState
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public ILocation Location
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlCollection<IHtmlFormElement> Forms
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlCollection<IHtmlImageElement> Images
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlCollection<IHtmlScriptElement> Scripts
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlCollection<IHtmlEmbedElement> Plugins
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlCollection<IElement> Commands
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlCollection<IElement> Links
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string Title
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlHeadElement Head
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlElement Body
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string Cookie
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string Origin
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string Domain
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string Referrer
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IElement ActiveElement
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IHtmlScriptElement CurrentScript
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IWindow DefaultView
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IBrowsingContext Context
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IDocument ImportAncestor
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+		public class StyleSheetList : List<IStyleSheet>, IStyleSheetList
+		{
+			public int Length
+			{
+				get
+				{
+					return this.Count;
+				}
+			}
+		}
+		public IStyleSheetList StyleSheets
+		{
+			get
+			{
+				return new StyleSheetList();
+			}
+		}
+
+		public string SelectedStyleSheetSet
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+
+			set
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string LastStyleSheetSet
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public string PreferredStyleSheetSet
+		{
+			get
+			{
+				throw new NotImplementedException();
+			}
+		}
+
+		public IStringList StyleSheetSets
+		{
+			get
 			{
 				throw new NotImplementedException();
 			}
@@ -362,22 +792,33 @@ namespace XamlCSS.Dom
 
 		public bool IsDefaultNamespace(string namespaceUri)
 		{
-			return true;
+			return LookupPrefix(namespaceUri) == "";
 		}
 
+		public List<StyleSheet> XamlCssStyleSheets { get; protected set; }
+
+		//public static IDictionary<string, string> NamespaceUris = new Dictionary<string, string>();
 		public string LookupNamespaceUri(string prefix)
 		{
-			throw new NotImplementedException();
+			return XamlCssStyleSheets
+				.SelectMany(x => x.Namespaces)
+				.Where(x => x.Alias == prefix)
+				.Select(x => x.Namespace)
+				.FirstOrDefault();
 		}
 
 		public string LookupPrefix(string namespaceUri)
 		{
-			throw new NotImplementedException();
+			return XamlCssStyleSheets
+				.SelectMany(x => x.Namespaces)
+				.Where(x => x.Namespace == namespaceUri)
+				.Select(x => x.Alias)
+				.FirstOrDefault();
 		}
 
 		public bool Matches(string selectors)
 		{
-			return parser.ParseSelector(selectors).Match(this);
+			return Parser.ParseSelector(selectors).Match(this);
 		}
 
 		public void Normalize()
@@ -397,26 +838,38 @@ namespace XamlCSS.Dom
 
 		public IElement QuerySelector(string selectors)
 		{
-			return ChildNodes.QuerySelector(selectors, parser);
+			if (selectors.Contains("|"))
+				selectors = selectors.Replace("|", "\\:");
+
+			return ChildNodes.QuerySelector(selectors, Parser);
 		}
 
 		public IElement QuerySelectorWithSelf(string selectors)
 		{
+			if (selectors.Contains("|"))
+				selectors = selectors.Replace("|", "\\:");
+
 			if (this.Matches(selectors))
 				return this;
 
-			var res = ChildNodes.QuerySelector(selectors, parser);
+			var res = ChildNodes.QuerySelector(selectors, Parser);
 			return res;
 		}
 
 		public IHtmlCollection<IElement> QuerySelectorAll(string selectors)
 		{
-			return CreateCollection(ChildNodes.QuerySelectorAll(selectors, parser));
+			//if (selectors.Contains("|"))
+			//	selectors = selectors.Replace("|", "\\:");
+
+			return CreateCollection(ChildNodes.QuerySelectorAll(selectors, Parser));
 		}
 
 		public IHtmlCollection<IElement> QuerySelectorAllWithSelf(string selectors)
 		{
-			var res = ChildNodes.QuerySelectorAll(selectors, parser);
+			//if (selectors.Contains("|"))
+			//	selectors = selectors.Replace("|", "\\:");
+
+			var res = ChildNodes.QuerySelectorAll(selectors, Parser);
 			if (this.Matches(selectors))
 				res.Add(this);
 			return CreateCollection(res);
@@ -468,6 +921,161 @@ namespace XamlCSS.Dom
 		}
 
 		public void ToHtml(TextWriter writer, IMarkupFormatter formatter)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IDocument Open(string type = "text/html", string replace = null)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Close()
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Write(string content)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void WriteLine(string content)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Load(string url)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IHtmlCollection<IElement> GetElementsByName(string name)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IHtmlCollection<IElement> GetElementsByTagName(string namespaceUri, string tagName)
+		{
+			throw new NotImplementedException();
+		}
+
+		public Event CreateEvent(string type)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IRange CreateRange()
+		{
+			throw new NotImplementedException();
+		}
+
+		public IComment CreateComment(string data)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IDocumentFragment CreateDocumentFragment()
+		{
+			throw new NotImplementedException();
+		}
+
+		public IElement CreateElement(string name)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IElement CreateElement(string namespaceUri, string name)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IAttr CreateAttribute(string name)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IAttr CreateAttribute(string namespaceUri, string name)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IProcessingInstruction CreateProcessingInstruction(string target, string data)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IText CreateTextNode(string data)
+		{
+			throw new NotImplementedException();
+		}
+
+		public INodeIterator CreateNodeIterator(INode root, FilterSettings settings = FilterSettings.All, NodeFilter filter = null)
+		{
+			throw new NotImplementedException();
+		}
+
+		public ITreeWalker CreateTreeWalker(INode root, FilterSettings settings = FilterSettings.All, NodeFilter filter = null)
+		{
+			throw new NotImplementedException();
+		}
+
+		public INode Import(INode externalNode, bool deep = true)
+		{
+			throw new NotImplementedException();
+		}
+
+		public INode Adopt(INode externalNode)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool HasFocus()
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool ExecuteCommand(string commandId, bool showUserInterface = false, string value = "")
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool IsCommandEnabled(string commandId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool IsCommandIndeterminate(string commandId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool IsCommandExecuted(string commandId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public bool IsCommandSupported(string commandId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public string GetCommandValue(string commandId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void EnableStyleSheetsForSet(string name)
+		{
+			throw new NotImplementedException();
+		}
+
+		public IElement GetElementById(string elementId)
+		{
+			throw new NotImplementedException();
+		}
+
+		public void Dispose()
 		{
 			throw new NotImplementedException();
 		}

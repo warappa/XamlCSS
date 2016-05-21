@@ -126,6 +126,7 @@ namespace XamlCSS.Tests.Dom
 			this.ClassList.Add((@class ?? "").Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
 			this.Id = id;
 			this.LocalName = this.NodeName = this.TagName = tagname;
+			this.prefix = "ui";
 			this.Attributes = new TestNamedNodeMap(attributes ?? new Dictionary<string, string>());
 		}
 		protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)

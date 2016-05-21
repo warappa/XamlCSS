@@ -5,6 +5,13 @@ namespace XamlCSS.CssParsing
 {
 	public class CssParser
 	{
+		private static string defaultCssNamespace;
+
+		public static void Initialize(string defaultCssNamespace)
+		{
+			CssParser.defaultCssNamespace = defaultCssNamespace;
+		}
+
 		internal static CssNode GetAst(string cssDocument)
 		{
 			var doc = new CssNode(CssNodeType.Document, null, "");
@@ -34,7 +41,7 @@ namespace XamlCSS.CssParsing
 						{
 							n = new CssNode(CssNodeType.NamespaceKeyword, currentNode, "@" + t.Text);
 							currentNode.Children.Add(n);
-							currentNode = n;							
+							currentNode = n;
 						}
 						else if (currentNode.Type == CssNodeType.NamespaceKeyword)
 						{
@@ -108,10 +115,13 @@ namespace XamlCSS.CssParsing
 						}
 						break;
 					case CssTokenType.DoubleQuotes:
-						if (currentNode.Type == CssNodeType.NamespaceDeclaration)
+						if (currentNode.Type == CssNodeType.NamespaceKeyword)
 						{
-							currentNode.Children.Add(new CssNode(CssNodeType.NamespaceAlias, currentNode, tokens[i++].Text));
-							i++;
+							currentNode = currentNode.Parent;
+							currentNode.Children.Add(new CssNode(CssNodeType.NamespaceAlias, currentNode, ""));
+							n = new CssNode(CssNodeType.NamespaceValue, currentNode, t.Text);
+							currentNode.Children.Add(n);
+							currentNode = n;
 						}
 						else if (currentNode.Type == CssNodeType.NamespaceAlias)
 						{
@@ -142,7 +152,7 @@ namespace XamlCSS.CssParsing
 						{
 							currentNode = currentNode.Parent;
 						}
-						else if(currentNode.Type == CssNodeType.SelectorFragment)
+						else if (currentNode.Type == CssNodeType.SelectorFragment)
 						{
 							currentNode.Text += t.Text;
 						}
@@ -270,7 +280,7 @@ namespace XamlCSS.CssParsing
 						}
 						break;
 					case CssTokenType.Comma:
-						if(currentNode.Type == CssNodeType.SelectorFragment)
+						if (currentNode.Type == CssNodeType.SelectorFragment)
 						{
 							currentNode = currentNode.Parent;
 						}
@@ -328,16 +338,26 @@ namespace XamlCSS.CssParsing
 			return doc;
 		}
 
-		public static StyleSheet Parse(string cssDocument)
+		public static StyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
 		{
 			var ast = GetAst(cssDocument);
 
 			var styleSheet = new StyleSheet();
+
 			styleSheet.Namespaces = ast.Children.Where(x => x.Type == CssNodeType.NamespaceDeclaration)
 					.Select(x => new CssNamespace(
 						x.Children.First(y => y.Type == CssNodeType.NamespaceAlias).Text.Trim(),
 						x.Children.First(y => y.Type == CssNodeType.NamespaceValue).Text.Trim('"')))
 					.ToList();
+
+			if (string.IsNullOrEmpty(defaultCssNamespace) == true)
+				defaultCssNamespace = CssParser.defaultCssNamespace;
+
+			if (styleSheet.Namespaces.Any(x => x.Alias == "") == false &&
+				string.IsNullOrEmpty(defaultCssNamespace) == false)
+			{
+				styleSheet.Namespaces.Add(new CssNamespace("", defaultCssNamespace));
+			}
 
 			foreach (var astRule in ast.Children.Where(x => x.Type == CssNodeType.StyleRule).ToArray())
 			{

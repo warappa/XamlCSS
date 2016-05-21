@@ -1,5 +1,6 @@
 ﻿using System;
 using Xamarin.Forms;
+using XamlCSS.Dom;
 using XamlCSS.Windows.Media;
 
 namespace XamlCSS.XamarinForms
@@ -11,7 +12,8 @@ namespace XamlCSS.XamarinForms
 				new DependencyPropertyService(),
 				new TreeNodeProvider(),
 				new StyleResourceService(),
-				new StyleService()
+				new StyleService(),
+				DomElementBase<BindableObject, VisualElement>.GetPrefix(typeof(Button))
 				);
 
 		static Css()

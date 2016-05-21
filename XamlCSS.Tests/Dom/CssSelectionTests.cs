@@ -14,10 +14,16 @@ namespace XamlCSS.Tests.Dom
 	{
 		private CssParser selectorEngine;
 		string test1 = @"
+@namespace ""System.Windows.Controls"";
 @namespace xamlcss ""XamlCss"";
+@namespace ui ""System.Windows.Controls"";
 .main .sub>div xamlcss|Button {
 	background-color: red;
 	background: #00ff00;
+}
+xamlcss|Grid
+{
+	Background: red;
 }
 ";
 		private TestNode dom;
@@ -26,6 +32,7 @@ namespace XamlCSS.Tests.Dom
 		private TestNode label1;
 		private TestNode label2;
 		private TestNode label3;
+		private TestNode label4;
 		private TestNode section;
 
 		[TestFixtureSetUp]
@@ -44,7 +51,8 @@ namespace XamlCSS.Tests.Dom
 				{
 					(label1 = new TestNode(null, "label")),
 					(label2 = new TestNode(null, "label", null,null, "label2")),
-					(label3 = new TestNode(null, "label", null,null, null, "required"))
+					(label3 = new TestNode(null, "label", null,null, null, "required")),
+					(label4 = new TestNode(null, "Grid", null,null, null))
 				}))
 				}))
 			}));
@@ -130,6 +138,20 @@ namespace XamlCSS.Tests.Dom
 
 			Assert.AreEqual(1, nodes.Count());
 			Assert.AreEqual(label2, nodes.First());
+		}
+
+		[Test]
+		public void Test_select_with_namespace()
+		{
+			var styleSheet = CssParser.Parse(test1);
+
+			var nodes = dom.QuerySelectorAllWithSelf("ui|Grid");
+
+			Assert.AreEqual(3, styleSheet.Namespaces.Count());
+			Assert.AreEqual("", styleSheet.Namespaces[0].Alias);
+			Assert.AreEqual("System.Windows.Controls", styleSheet.Namespaces[0].Namespace);
+			Assert.AreEqual(1, nodes.Count());
+			Assert.AreEqual(label4, nodes.First());
 		}
 	}
 }
