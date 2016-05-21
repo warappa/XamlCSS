@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.UWP</id>
-		<version>0.8.0-beta-3</version>
+		<version>0.8.0</version>
 		<title>XamlCSS.UWP</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,6 +10,10 @@
 			Style UWP-apps with Css
 		</description>
 		<releaseNotes>
+			0.8.0
+			- Support for attached properties
+			- Support for CSS-namespaces
+			
 			0.8.0-beta-3:
 			Fixed UWP nuget-package
 		</releaseNotes>
@@ -24,22 +28,22 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+				<dependency id="XamlCSS" version="0.8.0" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+				<dependency id="XamlCSS" version="0.8.0" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+				<dependency id="XamlCSS" version="0.8.0" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+				<dependency id="XamlCSS" version="0.8.0" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+				<dependency id="XamlCSS" version="0.8.0" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="0.8.0-beta-3" />
+				<dependency id="XamlCSS" version="0.8.0" />
 			</group>
 		</dependencies>
 		<references></references>
