@@ -7,7 +7,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XamlCSS.WPF.TestApp"
 		xmlns:cssWPF="clr-namespace:XamlCSS.WPF;assembly=XamlCSS.WPF"
+		xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="MainWindow" Height="350" Width="525">
+	<Window.Resources>
+		<ResourceDictionary>
+			<sys:String x:Key="testString">Hello World from StaticResource!</sys:String>
+		</ResourceDictionary>
+	</Window.Resources>
 	<Grid HorizontalAlignment="Right" Width="433">
 		<StackPanel x:Name="stack">
 			<StackPanel cssWPF:Css.Class="container">
@@ -23,8 +29,8 @@
 					<ColumnDefinition Width="1*" />
 					<ColumnDefinition Width="1*" />
 				</Grid.ColumnDefinitions>
-				<TextBlock>Text 1</TextBlock>
-				<TextBlock>Text 2</TextBlock>
+				<TextBlock></TextBlock>
+				<TextBlock></TextBlock>
 			</Grid>
 			<Button Name="thebutton" Click="Button_Click">Change Style</Button>
 		</StackPanel>

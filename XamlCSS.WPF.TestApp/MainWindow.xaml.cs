@@ -14,6 +14,11 @@ namespace XamlCSS.WPF.TestApp
 		{
 			InitializeComponent();
 
+			this.DataContext = new
+			{
+				Test = "Hello World from DataContext!"
+			};
+
 			SwitchLayout();
 		}
 

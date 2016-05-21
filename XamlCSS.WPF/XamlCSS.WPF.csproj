@@ -93,6 +93,7 @@
     <Compile Include="Dom\NamedNodeMap.cs" />
     <Compile Include="LoadedDetectionHelper.cs" />
     <Compile Include="Dom\LogicalDomElement.cs" />
+    <Compile Include="MarkupExtensionParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Dom\VisualDomElement.cs" />
     <Compile Include="StyleResourceService.cs" />
