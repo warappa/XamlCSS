@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.XamarinForms</id>
-		<version>0.8.0</version>
+		<version>0.9.0-alpha</version>
 		<title>XamlCSS.XamarinForms</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,6 +10,9 @@
 			Style XamarinForms-apps with Css
 		</description>
 		<releaseNotes>
+			0.9.0-alpha
+			- experimental support for MarkupExtensions
+
 			0.8.0
 			- Support for attached properties
 			- Support for CSS-namespaces
@@ -25,22 +28,22 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="0.8.0" />
+				<dependency id="XamlCSS" version="0.9.0-alpha" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="0.8.0" />
+				<dependency id="XamlCSS" version="0.9.0-alpha" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="0.8.0" />
+				<dependency id="XamlCSS" version="0.9.0-alpha" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="0.8.0" />
+				<dependency id="XamlCSS" version="0.9.0-alpha" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="0.8.0" />
+				<dependency id="XamlCSS" version="0.9.0-alpha" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="0.8.0" />
+				<dependency id="XamlCSS" version="0.9.0-alpha" />
 			</group>
 		</dependencies>
 		<references></references>

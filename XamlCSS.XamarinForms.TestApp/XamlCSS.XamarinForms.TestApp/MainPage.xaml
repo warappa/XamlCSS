@@ -10,23 +10,25 @@
 		<sys:String x:Key="testString">Hello World from StaticResource!</sys:String>
 		</ResourceDictionary>
 	</ContentPage.Resources>
-	<StackLayout x:Name="stack" cssXF:Css.Id="stack">
-		<StackLayout x:Name="thestack2" cssXF:Css.Id="thestack2" cssXF:Css.Class="container">
-			<Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>
-			<Button x:Name="theinnerbutton" cssXF:Css.Id="theinnerbutton" Clicked="Button_Click_1" Text="Inner Button"></Button>
+	<Grid x:Name="thegrid" WidthRequest="433">
+		<StackLayout x:Name="stack" cssXF:Css.Id="stack">
+			<StackLayout x:Name="thestack2" cssXF:Css.Id="thestack2" cssXF:Css.Class="container">
+				<Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>
+				<Button x:Name="theinnerbutton" cssXF:Css.Id="theinnerbutton" Clicked="Button_Click_1" Text="Inner Button"></Button>
+			</StackLayout>
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="1*" />
+					<RowDefinition Height="1*" />
+				</Grid.RowDefinitions>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*" />
+					<ColumnDefinition Width="1*" />
+				</Grid.ColumnDefinitions>
+				<Label></Label>
+				<Label></Label>
+			</Grid>
+			<Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
 		</StackLayout>
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="1*" />
-				<RowDefinition Height="1*" />
-			</Grid.RowDefinitions>
-			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="1*" />
-				<ColumnDefinition Width="1*" />
-			</Grid.ColumnDefinitions>
-			<Label></Label>
-			<Label></Label>
-		</Grid>
-		<Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
-	</StackLayout>
+	</Grid>
 </ContentPage>

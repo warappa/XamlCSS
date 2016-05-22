@@ -48,13 +48,13 @@ Button
 {
 	FontSize: 50;
 }
-Grid TextBlock:nth-of-type(1)
+Grid Grid TextBlock:nth-of-type(1)
 {
 	Grid.Row: 0;
 	Grid.Column: 1;
 	Text: {Binding Test};
 }
-Grid TextBlock:nth-of-type(2)
+Grid Grid TextBlock:nth-of-type(2)
 {
 	Grid.Row: 1;
 	Grid.Column: 0;
@@ -92,12 +92,12 @@ Button
 	FontStyle: Italic;
 	HorizontalAlignment: Center;
 }
-Grid TextBlock:nth-of-type(1)
+Grid Grid TextBlock:nth-of-type(1)
 {
 	Grid.Row: 1;
 	Grid.Column: 1;
 }
-Grid TextBlock:nth-of-type(2)
+Grid Grid TextBlock:nth-of-type(2)
 {
 	Grid.Row: 0;
 	Grid.Column: 0;
