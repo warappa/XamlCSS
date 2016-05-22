@@ -7,6 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 	xmlns:cssUWP="using:XamlCSS.UWP"
     mc:Ignorable="d">
+	<Page.Resources>
+		<ResourceDictionary>
+			<x:String x:Key="testString">Hello World from StaticResource!</x:String>
+		</ResourceDictionary>
+	</Page.Resources>
 	<Grid Name="thegrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Right" Width="433">
 		<StackPanel Name="stack">
 			<StackPanel Name="thestack2" cssUWP:Css.Class="container">
@@ -22,8 +27,8 @@
 					<ColumnDefinition Width="1*" />
 					<ColumnDefinition Width="1*" />
 				</Grid.ColumnDefinitions>
-				<TextBlock>Text 1</TextBlock>
-				<TextBlock>Text 2</TextBlock>
+				<TextBlock></TextBlock>
+				<TextBlock></TextBlock>
 			</Grid>
 			<Button Name="thebutton" Click="Button_Click">Change Style</Button>
 		</StackPanel>

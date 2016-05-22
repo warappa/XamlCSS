@@ -14,7 +14,8 @@ namespace XamlCSS.UWP
 				new TreeNodeProvider(),
 				new StyleResourceService(),
 				new StyleService(),
-				DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button))
+				DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button)),
+				new MarkupExtensionParser()
 				);
 
 		#region dependency properties

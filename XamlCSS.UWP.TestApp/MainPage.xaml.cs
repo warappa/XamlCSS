@@ -17,13 +17,18 @@ namespace XamlCSS.UWP.TestApp
 
 			this.InitializeComponent();
 
+			this.DataContext = new
+			{
+				Test = "Test String from DataContext!"
+			};
+
 			SwitchLayout();
 		}
 
 		private void SwitchLayout()
 		{
 			var app = Application.Current as App;
-			var main = Window.Current.Content as FrameworkElement;
+			var main = this;
 
 			app.currentStyle = app.currentStyle == app.cssStyle1 ? app.cssStyle2 : app.cssStyle1;
 
