@@ -2,15 +2,21 @@
 Style Xaml-applications with CSS
 
 Supported platforms:
-- WPF
-- Universal Windows Platform
-- XamarinForms
+- XamarinForms https://www.nuget.org/packages/XamlCSS.XamarinForms
+- WPF https://www.nuget.org/packages/XamlCSS.WPF
+- Universal Windows Platform https://www.nuget.org/packages/XamlCSS.UWP
 
 Supported:
 - Set simple values like Foreground, FontSize, FontStyle,... by CSS
 - CSS selectors
 - Remove and reapply styles
 - Detect new elements and apply matching styles
+
+Next:
+- Support Binding
+- Support StaticResource
+- Support DynamicResource (except UWP)
+- Maybe more MarkupExtensions
 
 Not (yet) supported:
 - Reference resources
