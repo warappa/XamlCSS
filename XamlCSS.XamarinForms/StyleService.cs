@@ -32,7 +32,8 @@ namespace XamlCSS.XamarinForms
 
 		public void SetStyle(BindableObject visualElement, Style s)
 		{
-			(visualElement as VisualElement).Style = s;
+			if (visualElement is VisualElement)
+				(visualElement as VisualElement).Style = s;
 		}
 
 		public string GetStyleResourceKey(Type type, string selector)

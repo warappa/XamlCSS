@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.UWP</id>
-		<version>0.9.0-alpha</version>
+		<version>0.9.0-alpha-2</version>
 		<title>XamlCSS.UWP</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,6 +10,9 @@
 			Style UWP-apps with Css
 		</description>
 		<releaseNotes>
+			0.9.0-alpha-2
+			- fixed NullReferenceException
+
 			0.9.0-alpha
 			- experimental support for MarkupExtensions (only StaticResource)
 
@@ -31,22 +34,22 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="0.9.0-alpha" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-2" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="0.9.0-alpha" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-2" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="0.9.0-alpha" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-2" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="0.9.0-alpha" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-2" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="0.9.0-alpha" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-2" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="0.9.0-alpha" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-2" />
 			</group>
 		</dependencies>
 		<references></references>

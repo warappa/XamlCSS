@@ -17,7 +17,7 @@ namespace XamlCSS.UWP
 			for (int i = 0; i < count; i++)
 			{
 				var child = VisualTreeHelper.GetChild(element, i);
-				
+
 				list.Add(child);
 			}
 

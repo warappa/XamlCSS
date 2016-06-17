@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS</id>
-		<version>0.9.0-alpha</version>
+		<version>0.9.0-alpha-2</version>
 		<title>XamlCSS</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
