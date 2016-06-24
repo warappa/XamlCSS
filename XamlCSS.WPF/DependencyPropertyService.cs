@@ -5,7 +5,7 @@ using System.Windows;
 
 namespace XamlCSS.WPF
 {
-	public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, FrameworkElement, Style, DependencyProperty>
+	public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty>
 	{
 		public DependencyProperty GetBindableProperty(DependencyObject frameworkElement, string propertyName)
 		{
@@ -31,10 +31,8 @@ namespace XamlCSS.WPF
 				Type propertyType = property.PropertyType;
 				TypeConverter converter = null;
 
-				var dpProperties = TypeHelpers.DeclaredProperties(propertyType);
-
 				converter = TypeDescriptor.GetConverter(propertyType);
-				var instance = Activator.CreateInstance(frameworkElementType);
+
 				if (converter == null)
 					converter = TypeDescriptor.GetConverter(propertyType);
 				if (converter != null)
@@ -139,21 +137,43 @@ namespace XamlCSS.WPF
 			obj.SetValue(Css.StyleSheetProperty, value);
 		}
 
-		public bool IsLoaded(FrameworkElement obj)
+		public bool IsLoaded(DependencyObject obj)
 		{
-			return obj.IsLoaded ||
-				DesignerProperties.GetIsInDesignMode(obj);
+			if (obj is FrameworkElement)
+				return (obj as FrameworkElement).IsLoaded;
+			if (obj is FrameworkContentElement)
+				return (obj as FrameworkContentElement).IsLoaded;
+
+			return DesignerProperties.GetIsInDesignMode(obj);
 		}
 
-		public void RegisterLoadedOnce(FrameworkElement frameworkElement, Action<object> func)
+		public void RegisterLoadedOnce(DependencyObject element, Action<object> func)
 		{
-			RoutedEventHandler handler = null;
-			handler = (s, e) =>
+			var frameworkElement = element as FrameworkElement;
+			if (frameworkElement != null)
 			{
-				frameworkElement.Loaded -= handler;
-				func(s);
-			};
-			frameworkElement.Loaded += handler;
+				RoutedEventHandler handler = null;
+				handler = (s, e) =>
+				{
+					frameworkElement.Loaded -= handler;
+					func(s);
+				};
+				frameworkElement.Loaded += handler;
+			}
+			else
+			{
+				var frameworkContentElement = element as FrameworkContentElement;
+				if (frameworkContentElement != null)
+				{
+					RoutedEventHandler handler = null;
+					handler = (s, e) =>
+					{
+						frameworkContentElement.Loaded -= handler;
+						func(s);
+					};
+					frameworkContentElement.Loaded += handler;
+				}
+			}
 		}
 	}
 }

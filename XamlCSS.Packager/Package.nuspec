@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS</id>
-		<version>0.9.0-alpha-2</version>
+		<version>0.9.0-alpha-3</version>
 		<title>XamlCSS</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -12,7 +12,7 @@
 		<releaseNotes>
 			0.9.0-alpha
 			- experimental support for MarkupExtensions (best supported on Xamarin.Forms and WPF)
-			
+
 			0.8.0
 			- Support for attached properties
 			- Support for CSS-namespaces

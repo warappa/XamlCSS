@@ -6,8 +6,8 @@ namespace XamlCSS.WPF
 {
 	public class Css
 	{
-		public readonly static BaseCss<DependencyObject, FrameworkElement, Style, DependencyProperty> instance =
-			new BaseCss<DependencyObject, FrameworkElement, Style, DependencyProperty>(
+		public readonly static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance =
+			new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
 				new DependencyPropertyService(),
 				new TreeNodeProvider(),
 				new StyleResourceService(),
@@ -105,24 +105,22 @@ namespace XamlCSS.WPF
 				typeof(StyleSheet),
 				typeof(Css),
 			new PropertyMetadata(null, Css.StyleSheetPropertyAttached));
-		private static void StyleSheetPropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
+		private static void StyleSheetPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
 		{
-			var frameworkElement = d as FrameworkElement;
-
 			var newStyleSheet = (StyleSheet)e.NewValue;
 
 			if (newStyleSheet == null)
 			{
-				instance.RemoveStyleResources(frameworkElement, (StyleSheet)e.OldValue);
+				instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
 				return;
 			}
 
-			if (instance.dependencyPropertyService.IsLoaded(frameworkElement))
-				instance.EnqueueRenderStyleSheet(frameworkElement, e.NewValue as StyleSheet, frameworkElement);
+			if (instance.dependencyPropertyService.IsLoaded(element))
+				instance.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet, element);
 			else
 			{
 				instance.dependencyPropertyService.RegisterLoadedOnce(
-					frameworkElement, 
+					element,
 					f => instance.EnqueueRenderStyleSheet(f as FrameworkElement, e.NewValue as StyleSheet, f as FrameworkElement));
 			}
 		}

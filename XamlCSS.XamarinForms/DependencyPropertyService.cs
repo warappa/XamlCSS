@@ -6,7 +6,7 @@ using XamlCSS.ComponentModel;
 
 namespace XamlCSS.XamarinForms
 {
-	public class DependencyPropertyService : IDependencyPropertyService<BindableObject, VisualElement, Style, BindableProperty>
+	public class DependencyPropertyService : IDependencyPropertyService<BindableObject, Element, Style, BindableProperty>
 	{
 		private ITypeConverterProvider<TypeConverter> typeConverterProvider;
 
@@ -29,7 +29,7 @@ namespace XamlCSS.XamarinForms
 				return dpField.GetValue(null) as BindableProperty;
 			return null;
 		}
-		
+
 		public object GetBindablePropertyValue(BindableObject frameworkElement, BindableProperty bindableProperty, object propertyValue)
 		{
 			return GetBindablePropertyValue(frameworkElement.GetType(), bindableProperty, propertyValue);
@@ -42,7 +42,7 @@ namespace XamlCSS.XamarinForms
 			{
 				Type propertyType = bindableProperty.ReturnType;
 				TypeConverter converter = null;
-				
+
 				converter = typeConverterProvider.GetConverterFromProperty(bindableProperty.PropertyName, frameworkElementType);
 
 				if (converter == null)
@@ -145,12 +145,12 @@ namespace XamlCSS.XamarinForms
 			obj.SetValue(Css.StyleSheetProperty, value);
 		}
 
-		public bool IsLoaded(VisualElement obj)
+		public bool IsLoaded(Element obj)
 		{
 			return obj.Parent != null;
 		}
 
-		public void RegisterLoadedOnce(VisualElement frameworkElement, Action<object> func)
+		public void RegisterLoadedOnce(Element frameworkElement, Action<object> func)
 		{
 			EventHandler handler = null;
 			handler = (s, e) =>

@@ -15,9 +15,9 @@ namespace XamlCSS.XamarinForms
 			if (forType != null)
 				style = new Style(forType);
 			else
-				style = new Style(typeof(VisualElement));
+				style = new Style(typeof(Element));
 
-			foreach(var i in dict)
+			foreach (var i in dict)
 			{
 				style.Setters.Add(new Setter() { Property = i.Key, Value = i.Value });
 			}
@@ -41,6 +41,6 @@ namespace XamlCSS.XamarinForms
 			return $"{StyleSheetStyleKey}_${type.FullName}_{selector}";
 		}
 
-		public string BaseStyleResourceKey {  get { return StyleSheetStyleKey; } }
+		public string BaseStyleResourceKey { get { return StyleSheetStyleKey; } }
 	}
 }

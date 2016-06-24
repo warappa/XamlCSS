@@ -14,25 +14,25 @@ namespace XamlCSS.XamarinForms
 {
 	public class Css
 	{
-		public readonly static BaseCss<BindableObject, VisualElement, Style, BindableProperty> instance =
-			new BaseCss<BindableObject, VisualElement, Style, BindableProperty>(
+		public readonly static BaseCss<BindableObject, Element, Style, BindableProperty> instance =
+			new BaseCss<BindableObject, Element, Style, BindableProperty>(
 				new DependencyPropertyService(),
 				new TreeNodeProvider(),
 				new StyleResourceService(),
 				new StyleService(),
-				DomElementBase<BindableObject, VisualElement>.GetPrefix(typeof(Button)),
+				DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
 				new MarkupExtensionParser()
 				);
-		
+
 		public static void Initialize()
 		{
 			VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
 			VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
 		}
 
-		public static void EnqueueRenderStyleSheet(VisualElement styleSheetHolder, StyleSheet styleSheet, Element startFrom)
+		public static void EnqueueRenderStyleSheet(Element styleSheetHolder, StyleSheet styleSheet, Element startFrom)
 		{
-			instance.EnqueueRenderStyleSheet(styleSheetHolder, styleSheet, startFrom as VisualElement);
+			instance.EnqueueRenderStyleSheet(styleSheetHolder, styleSheet, startFrom as Element);
 		}
 
 		public static readonly BindableProperty MatchingStylesProperty =
@@ -179,8 +179,9 @@ namespace XamlCSS.XamarinForms
 
 		private static void StyleSheetPropertyAttached(BindableObject d, object oldValue, object newValue)
 		{
-			var frameworkElement = d as VisualElement;
-
+			var frameworkElement = d as Element;
+			if (frameworkElement == null)
+				return;
 			var newStyleSheet = (StyleSheet)newValue;
 
 			if (newStyleSheet == null)
@@ -203,7 +204,9 @@ namespace XamlCSS.XamarinForms
 
 		private static void StylePropertyAttached(BindableObject d, object oldValue, object newValue)
 		{
-			var frameworkElement = d as VisualElement;
+			var frameworkElement = d as Element;
+			if (frameworkElement == null)
+				return;
 			instance.UpdateElement(frameworkElement);
 		}
 	}

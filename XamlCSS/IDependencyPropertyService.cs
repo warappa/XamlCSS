@@ -5,7 +5,7 @@ namespace XamlCSS
 	public interface IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
 		where TUIElement : class, TDependencyObject
 		where TDependencyObject : class
-		where TStyle : class 
+		where TStyle : class
 		where TDependencyProperty : class
 	{
 		bool IsLoaded(TUIElement obj);
@@ -17,7 +17,7 @@ namespace XamlCSS
 
 		string[] GetAppliedMatchingStyles(TDependencyObject obj);
 		void SetAppliedMatchingStyles(TDependencyObject obj, string[] value);
-		
+
 		string GetName(TDependencyObject obj);
 		void SetName(TDependencyObject obj, string value);
 
