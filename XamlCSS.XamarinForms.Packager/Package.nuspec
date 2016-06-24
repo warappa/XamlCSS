@@ -10,6 +10,9 @@
 			Style XamarinForms-apps with Css
 		</description>
 		<releaseNotes>
+			0.9.0-alpha-3
+			- Support more general UI types
+
 			0.9.0-alpha-2
 			- fixed NullReferenceException
 
