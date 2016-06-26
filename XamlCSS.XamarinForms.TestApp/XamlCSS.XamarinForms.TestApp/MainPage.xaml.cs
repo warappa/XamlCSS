@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Xamarin.Forms;
 
 namespace XamlCSS.XamarinForms.TestApp
@@ -11,7 +12,8 @@ namespace XamlCSS.XamarinForms.TestApp
 
 			this.BindingContext = new
 			{
-				Test = "Hello World from BindingContext!"
+				Test = "Hello World from BindingContext!",
+				TestList = new List<string> { "a", "b", "c" }
 			};
 
 			this.Appearing += MainPage_Appearing;

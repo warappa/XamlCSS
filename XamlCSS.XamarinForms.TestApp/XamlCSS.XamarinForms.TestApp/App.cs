@@ -13,7 +13,7 @@ namespace XamlCSS.XamarinForms.TestApp
 			VisualTreeHelper.Initialize(this);
 			Css.Initialize();
 		}
-		
+
 
 		public string cssStyle1 = @"
 Button
@@ -43,6 +43,10 @@ Grid Grid Label:nth-of-type(2)
 	Grid.Row: 1;
 	Grid.Column: 0;
 	Text: {StaticResource testString};
+}
+.listViewItem Label
+{
+	FontSize: 50;
 }
 ";
 

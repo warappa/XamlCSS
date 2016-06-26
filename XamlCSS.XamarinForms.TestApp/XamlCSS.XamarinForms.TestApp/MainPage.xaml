@@ -29,6 +29,15 @@
 				<Label></Label>
 			</Grid>
 			<Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
+			<ListView ItemsSource="{Binding TestList}">
+				<ListView.ItemTemplate>
+					<DataTemplate>
+						<ViewCell cssXF:VisualTreeCell.Include="true" cssXF:Css.Class="listViewItem">
+							<Label Text="{Binding}" />
+						</ViewCell>
+					</DataTemplate>
+				</ListView.ItemTemplate>
+			</ListView>
 		</StackLayout>
 	</Grid>
 </ContentPage>

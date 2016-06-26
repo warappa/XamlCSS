@@ -23,8 +23,8 @@ namespace XamlCSS.XamarinForms
 
 		public BindableObject GetParent(BindableObject tUIElement)
 		{
-			if (tUIElement is VisualElement)
-				return (tUIElement as VisualElement).Parent;
+			if (tUIElement is Element)
+				return (tUIElement as Element).Parent;
 
 			return null;
 		}
