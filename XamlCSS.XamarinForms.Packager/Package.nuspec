@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.XamarinForms</id>
-		<version>0.9.0-alpha-4</version>
+		<version>0.9.0-alpha-5</version>
 		<title>XamlCSS.XamarinForms</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,6 +10,9 @@
 			Style XamarinForms-apps with Css
 		</description>
 		<releaseNotes>
+			0.9.0-alpha-5
+			- Fix partial updates: not finding all parents while executing css-parser
+
 			0.9.0-alpha-4
 			- VisualTreeHelper.Include didn't work due to bug converting Element to VisualElement - always resulted in null
 
@@ -37,22 +40,22 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="0.9.0-alpha-4" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-5" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="0.9.0-alpha-4" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-5" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="0.9.0-alpha-4" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-5" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="0.9.0-alpha-4" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-5" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="0.9.0-alpha-4" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-5" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="0.9.0-alpha-4" />
+				<dependency id="XamlCSS" version="0.9.0-alpha-5" />
 			</group>
 		</dependencies>
 		<references></references>
@@ -60,24 +63,33 @@
 	</metadata>
 	<files>
 		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\dotnet" />
+		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\dotnet" />
+
 		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\portable-net45+win8+wpa81+wp8" />
+		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\portable-net45+win8+wpa81+wp8" />
 
 		<!-- PCL -->
 		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\portable-win+net45+wp8+win8+wpa81" />
+		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\portable-win+net45+wp8+win8+wpa81" />
 
 		<!-- android -->
 		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\MonoAndroid10" />
+		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\MonoAndroid10" />
 
 		<!-- ios -->
 		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\Xamarin.iOS10" />
+		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\Xamarin.iOS10" />
 
 		<!-- wp8 -->
 		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\wp8" />
+		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\wp8" />
 
 		<!-- wpa81 -->
 		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\wpa81" />
+		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\wpa81" />
 
 		<!-- uwp -->
 		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\uap10.0" />
+		<file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\uap10.0" />
 	</files>
 </package>
