@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Windows.UI.Xaml;
 using XamlCSS.Dom;
 
@@ -11,7 +12,11 @@ namespace XamlCSS.UWP.Dom
 			base(dependencyObject, parent)
 		{
 		}
-		
+		public VisualDomElement(DependencyObject dependencyObject, Func<DependencyObject, IDomElement<DependencyObject>> getParent)
+			: base(dependencyObject, getParent)
+		{
+
+		}
 		public override bool Equals(object obj)
 		{
 			var otherNode = obj as VisualDomElement;

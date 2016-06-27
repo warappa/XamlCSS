@@ -204,7 +204,8 @@ namespace XamlCSS
 				{
 					s = applicationResourcesService.GetResource(matchingStyles[0]);
 				}
-				nativeStyleService.SetStyle(visualElement, (TStyle)s);
+				if (s != null)
+					nativeStyleService.SetStyle(visualElement, (TStyle)s);
 			}
 			else if (matchingStyles?.Length > 1)
 			{
@@ -232,10 +233,6 @@ namespace XamlCSS
 				if (dict.Keys.Count > 0)
 				{
 					nativeStyleService.SetStyle(visualElement, nativeStyleService.CreateFrom(dict, visualElement.GetType()));
-				}
-				else
-				{
-					nativeStyleService.SetStyle(visualElement, null);
 				}
 			}
 

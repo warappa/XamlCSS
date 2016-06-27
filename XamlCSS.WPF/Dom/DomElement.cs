@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using AngleSharp.Dom;
 using XamlCSS.Dom;
@@ -12,6 +13,12 @@ namespace XamlCSS.WPF.Dom
 		{
 
 		}
+		public DomElement(DependencyObject dependencyObject, Func<DependencyObject, IElement> getParent)
+			: base(dependencyObject, getParent)
+		{
+
+		}
+
 		protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
 		{
 			return new ElementCollection(list);

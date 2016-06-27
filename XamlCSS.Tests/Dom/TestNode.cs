@@ -117,7 +117,7 @@ namespace XamlCSS.Tests.Dom
 	{
 		public TestNode(UIElement dependencyObject, string tagname, IEnumerable<IElement> children = null,
 			IDictionary<string, string> attributes = null, string id = null, string @class = null)
-			: base(dependencyObject ?? new UIElement(), null)
+			: base(dependencyObject ?? new UIElement(), (IElement)null)
 		{
 			this.ChildNodes = CreateNodeList(children ?? new List<IElement>());
 			foreach (TestNode c in ChildNodes)

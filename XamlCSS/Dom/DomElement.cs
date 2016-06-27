@@ -110,6 +110,26 @@ namespace XamlCSS.Dom
 			this.TagName = dependencyObject.GetType().Name;
 		}
 
+		public DomElementBase(
+			TDependencyObject dependencyObject
+			)
+			:this(dependencyObject, (IElement)null)
+		{
+
+		}
+
+		public DomElementBase(
+			TDependencyObject dependencyObject,
+			Func<TDependencyObject, IElement> getParentElement
+			)
+			:this(dependencyObject)
+		{
+			var parent = getParentElement(dependencyObject);
+
+			this.Parent = parent;
+			this.ParentElement = parent;
+		}
+
 		public static string GetPrefix(Type type)
 		{
 			return type.AssemblyQualifiedName.Replace($".{type.Name},", ",");

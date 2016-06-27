@@ -41,14 +41,30 @@ namespace XamlCSS.WPF
 			throw new InvalidOperationException("No parent found!");
 		}
 
+		public IDomElement<DependencyObject> GetLogicalTreeParent(DependencyObject obj)
+		{
+			if (obj is FrameworkElement)
+				return new LogicalDomElement((obj as FrameworkElement).Parent, GetLogicalTreeParent);
+			if (obj is FrameworkContentElement)
+				return new LogicalDomElement((obj as FrameworkContentElement).Parent, GetLogicalTreeParent);
+			return null;
+		}
 		public IDomElement<DependencyObject> GetLogicalTree(DependencyObject obj, DependencyObject parent)
 		{
-			return new LogicalDomElement(obj, parent != null ? new LogicalDomElement(parent, null) : null);
+			return new LogicalDomElement(obj, GetLogicalTreeParent);
 		}
 
+		public IDomElement<DependencyObject> GetVisualTreeParent(DependencyObject obj)
+		{
+			if (obj is FrameworkElement)
+				return new VisualDomElement((obj as FrameworkElement).Parent, GetVisualTreeParent);
+			if (obj is FrameworkContentElement)
+				return new VisualDomElement((obj as FrameworkContentElement).Parent, GetVisualTreeParent);
+			return null;
+		}
 		public IDomElement<DependencyObject> GetVisualTree(DependencyObject obj, DependencyObject parent)
 		{
-			return new VisualDomElement(obj, parent != null ? new VisualDomElement(parent, null) : null);
+			return new VisualDomElement(obj, GetVisualTreeParent);
 		}
 	}
 }

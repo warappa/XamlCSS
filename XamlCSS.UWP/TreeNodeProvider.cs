@@ -39,14 +39,28 @@ namespace XamlCSS.UWP
 			throw new InvalidOperationException("No parent found!");
 		}
 
+		public IDomElement<DependencyObject> GetLogicalTreeParent(DependencyObject obj)
+		{
+			if (!(obj is FrameworkElement) ||
+				(obj as FrameworkElement).Parent == null)
+				return null;
+			return new LogicalDomElement((obj as FrameworkElement).Parent, GetLogicalTreeParent);
+		}
 		public IDomElement<DependencyObject> GetLogicalTree(DependencyObject obj, DependencyObject parent)
 		{
-			return new LogicalDomElement(obj, parent != null ? new LogicalDomElement(parent, null) : null);
+			return new LogicalDomElement(obj, GetLogicalTreeParent);
 		}
 
+		public IDomElement<DependencyObject> GetVisualTreeParent(DependencyObject obj)
+		{
+			if (!(obj is FrameworkElement) ||
+				(obj as FrameworkElement).Parent == null)
+				return null;
+			return new VisualDomElement((obj as FrameworkElement).Parent, GetVisualTreeParent);
+		}
 		public IDomElement<DependencyObject> GetVisualTree(DependencyObject obj, DependencyObject parent)
 		{
-			return new VisualDomElement(obj, parent != null ? new VisualDomElement(parent, null) : null);
+			return new VisualDomElement(obj, GetVisualTreeParent);
 		}
 	}
 }

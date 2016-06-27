@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 using XamlCSS.Dom;
 using System.Windows;
+using System;
 
 namespace XamlCSS.WPF.Dom
 {
@@ -9,6 +10,11 @@ namespace XamlCSS.WPF.Dom
 	{
 		public LogicalDomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent)
 			: base(dependencyObject, parent)
+		{
+
+		}
+		public LogicalDomElement(DependencyObject dependencyObject, Func<DependencyObject, IDomElement<DependencyObject>> getParent)
+			: base(dependencyObject, getParent)
 		{
 
 		}

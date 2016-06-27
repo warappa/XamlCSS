@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using XamlCSS.Dom;
 
@@ -11,7 +12,11 @@ namespace XamlCSS.WPF.Dom
 			base(dependencyObject, parent)
 		{
 		}
-		
+		public VisualDomElement(DependencyObject dependencyObject, Func<DependencyObject, IDomElement<DependencyObject>> getParent)
+			: base(dependencyObject, getParent)
+		{
+
+		}
 
 		public override bool Equals(object obj)
 		{

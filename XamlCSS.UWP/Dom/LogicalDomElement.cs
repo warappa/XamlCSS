@@ -1,6 +1,7 @@
 ﻿using Windows.UI.Xaml;
 using System.Diagnostics;
 using XamlCSS.Dom;
+using System;
 
 namespace XamlCSS.UWP.Dom
 {
@@ -9,6 +10,11 @@ namespace XamlCSS.UWP.Dom
 	{
 		public LogicalDomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent)
 			: base(dependencyObject, parent)
+		{
+
+		}
+		public LogicalDomElement(DependencyObject dependencyObject, Func<DependencyObject, IDomElement<DependencyObject>> getParent)
+			: base(dependencyObject, getParent)
 		{
 
 		}

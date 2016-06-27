@@ -2,6 +2,7 @@
 using AngleSharp.Dom;
 using XamlCSS.Dom;
 using Xamarin.Forms;
+using System;
 
 namespace XamlCSS.XamarinForms.Dom
 {
@@ -12,6 +13,12 @@ namespace XamlCSS.XamarinForms.Dom
 		{
 
 		}
+		public DomElement(BindableObject dependencyObject, Func<BindableObject, IElement> getParent)
+			: base(dependencyObject, getParent)
+		{
+
+		}
+
 		protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
 		{
 			return new ElementCollection(list);

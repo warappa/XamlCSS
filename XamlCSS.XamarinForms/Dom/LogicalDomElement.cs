@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using Xamarin.Forms;
 using XamlCSS.Dom;
 
@@ -9,6 +10,12 @@ namespace XamlCSS.XamarinForms.Dom
 	{
 		public LogicalDomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent)
 			: base(dependencyObject, parent)
+		{
+
+		}
+
+		public LogicalDomElement(BindableObject dependencyObject, Func<BindableObject, IDomElement<BindableObject>> getParent)
+			: base(dependencyObject, getParent)
 		{
 
 		}

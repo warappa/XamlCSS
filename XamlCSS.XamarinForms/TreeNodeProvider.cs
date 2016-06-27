@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using AngleSharp.Dom;
 using Xamarin.Forms;
 using XamlCSS.Dom;
 using XamlCSS.Windows.Media;
@@ -29,14 +31,28 @@ namespace XamlCSS.XamarinForms
 			return null;
 		}
 
+		public IDomElement<BindableObject> GetLogicalTreeParent(BindableObject obj)
+		{
+			if (!(obj is Element) ||
+				(obj as Element).Parent == null)
+				return null;
+			return new LogicalDomElement((obj as Element).Parent, GetLogicalTreeParent);
+		}
 		public IDomElement<BindableObject> GetLogicalTree(BindableObject obj, BindableObject parent)
 		{
-			return new LogicalDomElement(obj, parent != null ? new LogicalDomElement(parent, null) : null);
+			return new LogicalDomElement(obj, GetLogicalTreeParent);
 		}
 
+		public IDomElement<BindableObject> GetVisualTreeParent(BindableObject obj)
+		{
+			if (!(obj is Element) ||
+				(obj as Element).Parent == null)
+				return null;
+			return new VisualDomElement((obj as Element).Parent, GetVisualTreeParent);
+		}
 		public IDomElement<BindableObject> GetVisualTree(BindableObject obj, BindableObject parent)
 		{
-			return new VisualDomElement(obj, parent != null ? new VisualDomElement(parent, null) : null);
+			return new VisualDomElement(obj, GetVisualTreeParent);
 		}
 	}
 }

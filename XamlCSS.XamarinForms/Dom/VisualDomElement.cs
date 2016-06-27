@@ -1,12 +1,17 @@
-﻿using Xamarin.Forms;
+﻿using System;
+using Xamarin.Forms;
 using XamlCSS.Dom;
 
 namespace XamlCSS.XamarinForms.Dom
 {
 	public class VisualDomElement : DomElement
 	{
-		public VisualDomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent) :
-			base(dependencyObject, parent)
+		public VisualDomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent)
+			: base(dependencyObject, parent)
+		{
+		}
+		public VisualDomElement(BindableObject dependencyObject, Func<BindableObject, IDomElement<BindableObject>> getParent)
+			: base(dependencyObject, getParent)
 		{
 		}
 
