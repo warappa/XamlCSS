@@ -17,6 +17,8 @@
 		StyleRule = 12,
 		StyleDeclarationBlock = 13,
 		StyleDeclaration = 14,
-		SelectorFragment = 15
+		SelectorFragment = 15,
+		DoubleQuoteText = 16,
+		SingleQuoteText = 17
 	}
 }
