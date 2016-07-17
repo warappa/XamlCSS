@@ -35,9 +35,9 @@ namespace XamlCSS.ComponentModel
 			else if (t == typeof(bool))
 			{
 				s = s.ToLowerInvariant();
-				if (s == bool.TrueString)
+				if (s == "true")
 					res = true;
-				else if (s == bool.FalseString)
+				else if (s == "false")
 					res = false;
 				else
 					throw new InvalidOperationException($"'{o}' is not a valid value for bool!");
