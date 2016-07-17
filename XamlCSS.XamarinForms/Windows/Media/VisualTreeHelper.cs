@@ -120,12 +120,27 @@ namespace XamlCSS.Windows.Media
 			}
 			var app = child as Application;
 			if (app != null)
+			{
 				AttachedChild(app.MainPage);
+				app.ModalPushing += App_ModalPushing;
+				app.ModalPopped += App_ModalPopped;
+			}
 
 			child.ChildAdded += ChildAddedHandler;
 			child.ChildRemoved += ChildRemovedHandler;
 
 			return true;
+		}
+
+		private static void App_ModalPushing(object sender, ModalPushingEventArgs e)
+		{
+			e.Modal.Parent = sender as Application;
+			AttachChildInternal(e.Modal);
+		}
+
+		private static void App_ModalPopped(object sender, ModalPoppedEventArgs e)
+		{
+			RemoveChildInternal(e.Modal);
 		}
 
 		private static void ChildRemovedHandler(object sender, ElementEventArgs e)
@@ -141,10 +156,17 @@ namespace XamlCSS.Windows.Media
 			}
 		}
 
+		private static void AttachChildInternal(Element element)
+		{
+			if (AttachedChild(element))
+			{
+				SubTreeAdded?.Invoke(element, new EventArgs());
+			}
+		}
+
 		private static void ChildAddedHandler(object sender, ElementEventArgs e)
 		{
-			if (AttachedChild(e.Element))
-				SubTreeAdded?.Invoke(e.Element, new EventArgs());
+			AttachChildInternal(e.Element);
 		}
 
 		private static bool CanUnattachChild(Element child)
