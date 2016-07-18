@@ -151,8 +151,9 @@ namespace XamlCSS.Windows.Media
 		{
 			if (CanUnattachChild(element))
 			{
-				SubTreeRemoved?.Invoke(element, new EventArgs());
 				UnattachedChild(element);
+				SubTreeRemoved?.Invoke(element, new EventArgs());
+				
 			}
 		}
 

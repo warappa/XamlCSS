@@ -192,7 +192,8 @@ namespace XamlCSS.XamarinForms
 
 			VisualTreeHelper.Include(frameworkElement);
 
-			if (frameworkElement.Parent != null)
+			if (frameworkElement.Parent != null ||
+				frameworkElement == Application.Current)
 			{
 				EnqueueRenderStyleSheet(frameworkElement, newStyleSheet, frameworkElement);
 			}
