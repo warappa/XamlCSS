@@ -37,16 +37,31 @@ namespace XamlCSS.XamarinForms
 			{
 				entry.Appearing += Entry_Appearing;
 				entry.Disappearing += Entry_Disappearing;
+				entry.PropertyChanged += Entry_PropertyChanged;
 			}
 			else
 			{
 				entry.Appearing -= Entry_Appearing;
 				entry.Disappearing -= Entry_Disappearing;
+				entry.PropertyChanged -= Entry_PropertyChanged;
+			}
+		}
+
+		private static void Entry_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+		{
+			if (e.PropertyName == "Parent")
+			{
+				var s = sender as Element;
+				if (s.Parent != null)
+					VisualTreeHelper.Include(sender as Element);
+				else
+					VisualTreeHelper.Exclude(sender as Element);
 			}
 		}
 
 		private static void Entry_Disappearing(object sender, EventArgs e)
 		{
+			//Debug.WriteLine("Entry_Disappearing");
 			VisualTreeHelper.Exclude(sender as Element);
 		}
 
