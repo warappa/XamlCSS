@@ -289,11 +289,6 @@ namespace XamlCSS
 
 				if (dict.Keys.Count > 0)
 				{
-					if (visualElement.GetType().Name == "FontLabel")
-					{
-
-					}
-
 					nativeStyleService.SetStyle(visualElement, nativeStyleService.CreateFrom(dict, visualElement.GetType()));
 				}
 			}
@@ -318,9 +313,13 @@ namespace XamlCSS
 
 		public void UpdateElement(TDependencyObject sender)
 		{
+			var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
+			if (parent == null)
+				return;
+
 			EnqueueRenderStyleSheet(
-				GetStyleSheetParent(sender as TDependencyObject) as TUIElement,
-				GetStyleSheetParentStyleSheet(sender as TUIElement),
+				parent,
+				dependencyPropertyService.GetStyleSheet(parent),
 				sender as TUIElement);
 		}
 
@@ -337,15 +336,6 @@ namespace XamlCSS
 			}
 
 			return null;
-		}
-
-		public StyleSheet GetStyleSheetParentStyleSheet(TDependencyObject obj)
-		{
-			var parent = GetStyleSheetParent(obj);
-			if (parent == null)
-				return null;
-
-			return dependencyPropertyService.GetStyleSheet(parent);
 		}
 	}
 }
