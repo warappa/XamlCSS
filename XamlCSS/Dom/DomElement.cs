@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using AngleSharp;
+﻿using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Dom.Css;
 using AngleSharp.Dom.Events;
 using AngleSharp.Dom.Html;
 using AngleSharp.Parser.Css;
-using System.Text.RegularExpressions;
-using AngleSharp.Css;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace XamlCSS.Dom
 {
@@ -89,6 +87,8 @@ namespace XamlCSS.Dom
 		public event DomEventHandler VolumeChanged;
 		public event DomEventHandler Waiting;
 
+		protected Func<TDependencyObject, IElement> getParentElement;
+
 		public DomElementBase(
 			TDependencyObject dependencyObject,
 			IElement parentElement
@@ -113,7 +113,7 @@ namespace XamlCSS.Dom
 		public DomElementBase(
 			TDependencyObject dependencyObject
 			)
-			:this(dependencyObject, (IElement)null)
+			: this(dependencyObject, (IElement)null)
 		{
 
 		}
@@ -122,12 +122,9 @@ namespace XamlCSS.Dom
 			TDependencyObject dependencyObject,
 			Func<TDependencyObject, IElement> getParentElement
 			)
-			:this(dependencyObject)
+			: this(dependencyObject)
 		{
-			var parent = getParentElement(dependencyObject);
-
-			this.Parent = parent;
-			this.ParentElement = parent;
+			this.getParentElement = getParentElement;
 		}
 
 		public static string GetPrefix(Type type)
@@ -258,9 +255,10 @@ namespace XamlCSS.Dom
 			}
 		}
 
-		public INode Parent { get; protected set; }
+		protected IElement parent = null;
+		public INode Parent { get { return parent ?? (parent = getParentElement?.Invoke(dependencyObject)); } protected set { parent = value as IElement; } }
 
-		public IElement ParentElement { get; protected set; }
+		public IElement ParentElement { get { return parent ?? (parent = getParentElement?.Invoke(dependencyObject)); } protected set { parent = value; } }
 
 		protected string prefix = "UNDEFINED";
 		public string Prefix
@@ -817,7 +815,6 @@ namespace XamlCSS.Dom
 
 		public List<StyleSheet> XamlCssStyleSheets { get; protected set; }
 
-		//public static IDictionary<string, string> NamespaceUris = new Dictionary<string, string>();
 		public string LookupNamespaceUri(string prefix)
 		{
 			return XamlCssStyleSheets
@@ -878,17 +875,11 @@ namespace XamlCSS.Dom
 
 		public IHtmlCollection<IElement> QuerySelectorAll(string selectors)
 		{
-			//if (selectors.Contains("|"))
-			//	selectors = selectors.Replace("|", "\\:");
-
 			return CreateCollection(ChildNodes.QuerySelectorAll(selectors, Parser));
 		}
 
 		public IHtmlCollection<IElement> QuerySelectorAllWithSelf(string selectors)
 		{
-			//if (selectors.Contains("|"))
-			//	selectors = selectors.Replace("|", "\\:");
-
 			var res = ChildNodes.QuerySelectorAll(selectors, Parser);
 			if (this.Matches(selectors))
 				res.Add(this);

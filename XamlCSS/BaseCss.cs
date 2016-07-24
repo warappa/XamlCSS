@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
+using Xamarin.Forms;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 
@@ -35,11 +37,62 @@ namespace XamlCSS
 			this.markupExpressionParser = markupExpressionParser;
 
 			CssParser.Initialize(defaultCssNamespace);
+
+			Device.StartTimer(TimeSpan.FromMilliseconds(16), () =>
+			{
+				if (items.Any() == false)
+					return true;
+
+				var copy = items.Distinct().ToList();
+
+				items = new ConcurrentBag<RenderInfo>();
+
+				var from = copy.First().StyleSheetHolder;
+				var styleSheet = copy.First().StyleSheet;
+				var holder = copy.First().StyleSheetHolder;
+
+				GenerateStyleResources(holder, styleSheet, from);
+
+				return true;
+			});
+		}
+
+		private ConcurrentBag<RenderInfo> items = new ConcurrentBag<RenderInfo>();
+
+		[DebuggerDisplay("{StartFrom.GetType().Name}")]
+		public class RenderInfo
+		{
+			public TUIElement StyleSheetHolder { get; set; }
+			public StyleSheet StyleSheet { get; set; }
+			public TUIElement StartFrom { get; set; }
+
+			public override bool Equals(object obj)
+			{
+				var other = obj as RenderInfo;
+				if (other == null)
+					return false;
+
+				return StyleSheetHolder == other.StyleSheetHolder &&
+					StyleSheet == other.StyleSheet &&
+					StartFrom == other.StartFrom;
+			}
+
+			public override int GetHashCode()
+			{
+				return (StyleSheetHolder?.GetHashCode() ?? 0) ^
+					(StyleSheet?.GetHashCode() ?? 0) ^
+					(StartFrom?.GetHashCode() ?? 0);
+			}
 		}
 
 		public void EnqueueRenderStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
 		{
-			GenerateStyleResources(styleSheetHolder, styleSheet, startFrom);
+			items.Add(new RenderInfo
+			{
+				StyleSheetHolder = styleSheetHolder,
+				StyleSheet = styleSheet,
+				StartFrom = startFrom
+			});
 		}
 
 		protected void GenerateStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
@@ -76,13 +129,15 @@ namespace XamlCSS
 
 				// apply our selector
 				var matchingNodes = root.QuerySelectorAllWithSelf(rule.Selector)
+					//new[] { root.QuerySelectorWithSelf(rule.Selector) }
+					.Where(x => x != null)
 					.Cast<IDomElement<TDependencyObject>>()
 					.ToArray();
 
 				var matchingTypes = matchingNodes
 					.Select(x => x.Element.GetType())
 					.Distinct()
-					.ToArray();
+					.ToList();
 
 				applicationResourcesService.EnsureResources();
 
@@ -146,6 +201,7 @@ namespace XamlCSS
 
 					var style = nativeStyleService.CreateFrom(dict, type);
 					applicationResourcesService.SetResource(resourceKey, style);
+
 				}
 
 				foreach (var n in matchingNodes)
@@ -160,6 +216,7 @@ namespace XamlCSS
 						dependencyPropertyService.SetMatchingStyles(element, matchingStyles.Concat(new[] { key }).Distinct().ToArray());
 					}
 				}
+
 			}
 
 			ApplyMatchingStyles(startFrom ?? styleResourceReferenceHolder);
@@ -232,6 +289,11 @@ namespace XamlCSS
 
 				if (dict.Keys.Count > 0)
 				{
+					if (visualElement.GetType().Name == "FontLabel")
+					{
+
+					}
+
 					nativeStyleService.SetStyle(visualElement, nativeStyleService.CreateFrom(dict, visualElement.GetType()));
 				}
 			}
