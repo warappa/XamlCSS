@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
 
 namespace XamlCSS.CssParsing
 {
@@ -13,11 +14,11 @@ namespace XamlCSS.CssParsing
 		{
 			Type = type;
 			Parent = parent;
-			Text = text;
+			Text = new StringBuilder(text);
 		}
 
 		public CssNodeType Type { get; set; }
-		public string Text { get; set; }
+		public StringBuilder Text { get; set; }
 		public CssNode Parent { get; set; }
 
 		public List<CssNode> Children { get; set; } = new List<CssNode>();
@@ -42,7 +43,7 @@ namespace XamlCSS.CssParsing
 		{
 			return nodes
 				.SelectMany(x =>
-					new[] { new String(' ', level * 5), x.Text }
+					new[] { new String(' ', level * 5), x.Text.ToString() }
 						.Concat(AllChildrenText(x.Children, level + 1)))
 				.ToArray();
 		}

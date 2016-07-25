@@ -153,7 +153,6 @@ namespace XamlCSS.Windows.Media
 			{
 				UnattachedChild(element);
 				SubTreeRemoved?.Invoke(element, new EventArgs());
-				
 			}
 		}
 
@@ -197,6 +196,13 @@ namespace XamlCSS.Windows.Media
 			{
 				foreach (var i in layout.Children)
 					UnattachedChild(i);
+			}
+			var app = child as Application;
+			if (app != null)
+			{
+				UnattachedChild(app.MainPage);
+				app.ModalPushing -= App_ModalPushing;
+				app.ModalPopped -= App_ModalPopped;
 			}
 
 			Element parent = null;

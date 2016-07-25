@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace XamlCSS.CssParsing
 {
@@ -37,7 +38,7 @@ namespace XamlCSS.CssParsing
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						break;
 
@@ -57,7 +58,7 @@ namespace XamlCSS.CssParsing
 						}
 						else if (currentNode.Type == CssNodeType.NamespaceValue)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.Selectors)
 						{
@@ -75,7 +76,7 @@ namespace XamlCSS.CssParsing
 						}
 						else if (currentNode.Type == CssNodeType.SelectorFragment)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.StyleDeclarationBlock)
 						{
@@ -95,11 +96,11 @@ namespace XamlCSS.CssParsing
 						}
 						else if (currentNode.Type == CssNodeType.Key)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.Value)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.Document)
 						{
@@ -121,7 +122,7 @@ namespace XamlCSS.CssParsing
 						if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						break;
 					case CssTokenType.DoubleQuotes:
@@ -142,7 +143,7 @@ namespace XamlCSS.CssParsing
 						}
 						else if (currentNode.Type == CssNodeType.NamespaceValue)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.StyleDeclaration)
 						{
@@ -198,16 +199,16 @@ namespace XamlCSS.CssParsing
 						}
 						else if (currentNode.Type == CssNodeType.SelectorFragment)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.Value)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						break;
 					case CssTokenType.Semicolon:
@@ -222,7 +223,7 @@ namespace XamlCSS.CssParsing
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						currentNode = currentNode.Parent;
 						break;
@@ -246,11 +247,11 @@ namespace XamlCSS.CssParsing
 						}
 						else if (currentNode.Type == CssNodeType.NamespaceAlias)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.NamespaceValue)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.Selectors)
 						{
@@ -267,16 +268,16 @@ namespace XamlCSS.CssParsing
 						}
 						else if (currentNode.Type == CssNodeType.SelectorFragment)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.Key)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						break;
 					case CssTokenType.Hash:
@@ -312,7 +313,7 @@ namespace XamlCSS.CssParsing
 						}
 						else if (currentNode.Type == CssNodeType.SelectorFragment)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.StyleDeclaration)
 						{
@@ -323,7 +324,7 @@ namespace XamlCSS.CssParsing
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						break;
 					case CssTokenType.AngleBraketClose:
@@ -338,23 +339,23 @@ namespace XamlCSS.CssParsing
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						break;
 					case CssTokenType.ParenthesisOpen:
 					case CssTokenType.ParenthesisClose:
 						if (currentNode.Type == CssNodeType.Value)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.SelectorFragment)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						break;
 					case CssTokenType.Comma:
@@ -368,35 +369,35 @@ namespace XamlCSS.CssParsing
 						}
 						if (currentNode.Type == CssNodeType.Value)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.NamespaceValue)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						break;
 					case CssTokenType.Pipe:
 						if (currentNode.Type == CssNodeType.SelectorFragment)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.Key)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						break;
 					case CssTokenType.BraceOpen:
-						currentNode.Text = currentNode.Text.Trim();
+						currentNode.Text = new StringBuilder(currentNode.Text.ToString().Trim());
 						if (currentNode.Type == CssNodeType.StyleDeclaration)
 						{
 							n = new CssNode(CssNodeType.Value, currentNode, t.Text);
@@ -406,7 +407,7 @@ namespace XamlCSS.CssParsing
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else
 						{
@@ -430,19 +431,19 @@ namespace XamlCSS.CssParsing
 					case CssTokenType.BraceClose:
 						if(currentNode.Type == CssNodeType.Value)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 							currentNode = currentNode.Parent;
 						}
 						else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
 							currentNode.Type == CssNodeType.SingleQuoteText)
 						{
-							currentNode.Text += t.Text;
+							currentNode.Text.Append(t.Text);
 						}
 						else
 							currentNode = currentNode.Parent.Parent;
 						break;
 					case CssTokenType.Whitespace:
-						currentNode.Text += t.Text;
+						currentNode.Text.Append(t.Text);
 						break;
 				}
 			}
@@ -458,8 +459,8 @@ namespace XamlCSS.CssParsing
 
 			styleSheet.Namespaces = ast.Children.Where(x => x.Type == CssNodeType.NamespaceDeclaration)
 					.Select(x => new CssNamespace(
-						x.Children.First(y => y.Type == CssNodeType.NamespaceAlias).Text.Trim(),
-						x.Children.First(y => y.Type == CssNodeType.NamespaceValue).Text.Trim('"')))
+						x.Children.First(y => y.Type == CssNodeType.NamespaceAlias).Text.ToString().Trim(),
+						x.Children.First(y => y.Type == CssNodeType.NamespaceValue).Text.ToString().Trim('"')))
 					.ToList();
 
 			if (string.IsNullOrEmpty(defaultCssNamespace) == true)
@@ -488,10 +489,10 @@ namespace XamlCSS.CssParsing
 
 				var styleDeclarations = astBlock.Children.Select(x => new StyleDeclaration
 				{
-					Property = x.Children.Single(y => y.Type == CssNodeType.Key).Text,
-					Value = x.Children.Single(y => y.Type == CssNodeType.Value).Text != ""
-						? x.Children.Single(y => y.Type == CssNodeType.Value).Text
-						: x.Children.Single(y => y.Type == CssNodeType.Value).Children.Select(y => y.Text).Aggregate("", (a,b) => a + (a != "" ? " " : "") + b)
+					Property = x.Children.Single(y => y.Type == CssNodeType.Key).Text.ToString(),
+					Value = x.Children.Single(y => y.Type == CssNodeType.Value).Text.ToString() != ""
+						? x.Children.Single(y => y.Type == CssNodeType.Value).Text.ToString()
+						: x.Children.Single(y => y.Type == CssNodeType.Value).Children.Select(y => y.Text.ToString()).Aggregate("", (a,b) => a + (a != "" ? " " : "") + b)
 				})
 				.ToArray();
 
