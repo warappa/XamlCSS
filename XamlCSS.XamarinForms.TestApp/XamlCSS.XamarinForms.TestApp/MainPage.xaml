@@ -18,8 +18,8 @@
 			</StackLayout>
 			<Grid>
 				<Grid.RowDefinitions>
-					<RowDefinition Height="1*" />
-					<RowDefinition Height="1*" />
+					<RowDefinition Height="20" />
+					<RowDefinition Height="20" />
 				</Grid.RowDefinitions>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="1*" />

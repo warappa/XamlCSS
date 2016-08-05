@@ -1,4 +1,6 @@
-﻿using Windows.UI.Xaml;
+﻿using System;
+using System.Windows.Threading;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using XamlCSS.CssParsing;
@@ -15,8 +17,14 @@ namespace XamlCSS.UWP
 				new StyleResourceService(),
 				new StyleService(),
 				DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button)),
-				new MarkupExtensionParser()
+				new MarkupExtensionParser(),
+				RunOnUIThread
 				);
+
+		public static void RunOnUIThread(Action action)
+		{
+			Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => action()).AsTask().Wait();
+		}
 
 		#region dependency properties
 

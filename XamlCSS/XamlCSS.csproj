@@ -119,6 +119,7 @@
     <Compile Include="StyleRuleCollection.cs" />
     <Compile Include="StyleSheet.cs" />
     <Compile Include="TypeHelpers.cs" />
+    <Compile Include="Utils\Timer.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="AngleSharp, Version=0.9.6.41832, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">

@@ -43,9 +43,11 @@ namespace XamlCSS.WPF
 
 		public IDomElement<DependencyObject> GetLogicalTreeParent(DependencyObject obj)
 		{
-			if (obj is FrameworkElement)
+			if (obj is FrameworkElement &&
+				(obj as FrameworkElement).Parent != null)
 				return new LogicalDomElement((obj as FrameworkElement).Parent, GetLogicalTreeParent);
-			if (obj is FrameworkContentElement)
+			if (obj is FrameworkContentElement &&
+				(obj as FrameworkContentElement).Parent != null)
 				return new LogicalDomElement((obj as FrameworkContentElement).Parent, GetLogicalTreeParent);
 			return null;
 		}

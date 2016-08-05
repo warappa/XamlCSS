@@ -21,7 +21,8 @@ namespace XamlCSS.XamarinForms
 				new StyleResourceService(),
 				new StyleService(),
 				DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
-				new MarkupExtensionParser()
+				new MarkupExtensionParser(),
+				Device.BeginInvokeOnMainThread
 				);
 
 		public static void Initialize()

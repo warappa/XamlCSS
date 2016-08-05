@@ -3,9 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Xamarin.Forms;
+using System.Threading.Tasks;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 
 namespace XamlCSS
 {
@@ -27,7 +28,8 @@ namespace XamlCSS
 			IStyleResourcesService applicationResourcesService,
 			INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
 			string defaultCssNamespace,
-			IMarkupExtensionParser markupExpressionParser)
+			IMarkupExtensionParser markupExpressionParser,
+			Action<Action> uiInvoker)
 		{
 			this.dependencyPropertyService = dependencyPropertyService;
 			this.treeNodeProvider = treeNodeProvider;
@@ -37,27 +39,30 @@ namespace XamlCSS
 			this.markupExpressionParser = markupExpressionParser;
 
 			CssParser.Initialize(defaultCssNamespace);
-
-			Device.StartTimer(TimeSpan.FromMilliseconds(16), () =>
+			
+			this.timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
 			{
-				if (items.Any() == false)
-					return true;
+				uiInvoker(() =>
+				{
+					if (items.Any() == false)
+						return;
 
-				var copy = items.Distinct().ToList();
+					var copy = items.Distinct().ToList();
 
-				items = new ConcurrentBag<RenderInfo>();
+					items = new List<RenderInfo>();
 
-				var from = copy.First().StyleSheetHolder;
-				var styleSheet = copy.First().StyleSheet;
-				var holder = copy.First().StyleSheetHolder;
+					var from = copy.First().StyleSheetHolder;
+					var styleSheet = copy.First().StyleSheet;
+					var holder = copy.First().StyleSheetHolder;
 
-				GenerateStyleResources(holder, styleSheet, from);
-
-				return true;
-			});
+					GenerateStyleResources(holder, styleSheet, from);
+				});
+				return;
+			}, null);
 		}
 
-		private ConcurrentBag<RenderInfo> items = new ConcurrentBag<RenderInfo>();
+		private List<RenderInfo> items = new List<RenderInfo>();
+		private Timer timer;
 
 		[DebuggerDisplay("{StartFrom.GetType().Name}")]
 		public class RenderInfo

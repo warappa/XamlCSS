@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using XamlCSS.Dom;
 
 namespace XamlCSS.WPF
@@ -13,7 +14,8 @@ namespace XamlCSS.WPF
 				new StyleResourceService(),
 				new StyleService(),
 				DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(System.Windows.Controls.Button)),
-				new MarkupExtensionParser()
+				new MarkupExtensionParser(),
+				Application.Current.Dispatcher.Invoke
 				);
 
 		public static readonly DependencyProperty MatchingStylesProperty =
