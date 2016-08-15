@@ -118,6 +118,17 @@ namespace XamlCSS.Windows.Media
 			{
 				AttachedChild(contentPage.Content);
 			}
+			var navigationPage = child as NavigationPage;
+			if (navigationPage != null)
+			{
+				AttachedChild(navigationPage.CurrentPage);
+			}
+			var masterDetailPage = child as MasterDetailPage;
+			if (masterDetailPage != null)
+			{
+				AttachedChild(masterDetailPage.Master);
+				AttachedChild(masterDetailPage.Detail);
+			}
 			var app = child as Application;
 			if (app != null)
 			{
