@@ -36,6 +36,11 @@ namespace XamlCSS.XamarinForms
 			instance.EnqueueRenderStyleSheet(styleSheetHolder, styleSheet, startFrom as Element);
 		}
 
+		public static void EnqueueRemoveStyleSheet(Element styleSheetHolder, StyleSheet styleSheet, Element startFrom)
+		{
+			instance.EnqueueRemoveStyleSheet(styleSheetHolder, styleSheet, startFrom as Element);
+		}
+
 		public static readonly BindableProperty MatchingStylesProperty =
 			BindableProperty.CreateAttached(
 				"MatchingStyles",
@@ -192,6 +197,13 @@ namespace XamlCSS.XamarinForms
 			}
 
 			VisualTreeHelper.Include(frameworkElement);
+
+			var oldStyleSheet = GetStyleSheet(frameworkElement);
+
+			if (oldStyleSheet != null)
+			{
+				EnqueueRemoveStyleSheet(frameworkElement, oldStyleSheet, frameworkElement);
+			}
 
 			if (frameworkElement.Parent != null ||
 				frameworkElement == Application.Current)

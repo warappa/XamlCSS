@@ -20,7 +20,7 @@ namespace XamlCSS.XamarinForms
 
 		public IEnumerable<object> GetKeys()
 		{
-			return Application.Current.Resources.Keys.Cast<object>();
+			return Application.Current.Resources?.Keys.Cast<object>() ?? Enumerable.Empty<object>();
 		}
 
 		public object GetResource(object key)

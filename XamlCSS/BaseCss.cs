@@ -37,25 +37,36 @@ namespace XamlCSS
 			this.nativeStyleService = nativeStyleService;
 			this.defaultCssNamespace = defaultCssNamespace;
 			this.markupExpressionParser = markupExpressionParser;
+			this.uiInvoker = uiInvoker;
 
 			CssParser.Initialize(defaultCssNamespace);
-			
+
 			this.timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
 			{
 				uiInvoker(() =>
 				{
 					if (items.Any() == false)
 						return;
-
+					
 					var copy = items.Distinct().ToList();
 
 					items = new List<RenderInfo>();
 
+					var invalidateItem = copy.FirstOrDefault(x => x.Remove);
+					if (invalidateItem != null)
+					{
+						RemoveStyleResourcesInternal(invalidateItem.StyleSheetHolder, invalidateItem.StyleSheet);
+						copy.Remove(invalidateItem);
+					}
+
+					if (copy.Any() == false)
+						return;
+					
 					var from = copy.First().StyleSheetHolder;
 					var styleSheet = copy.First().StyleSheet;
 					var holder = copy.First().StyleSheetHolder;
 
-					GenerateStyleResources(holder, styleSheet, from);
+					GenerateStyleResourcesInternal(holder, styleSheet, from);
 				});
 				return;
 			}, null);
@@ -63,6 +74,7 @@ namespace XamlCSS
 
 		private List<RenderInfo> items = new List<RenderInfo>();
 		private Timer timer;
+		private Action<Action> uiInvoker;
 
 		[DebuggerDisplay("{StartFrom.GetType().Name}")]
 		public class RenderInfo
@@ -70,6 +82,7 @@ namespace XamlCSS
 			public TUIElement StyleSheetHolder { get; set; }
 			public StyleSheet StyleSheet { get; set; }
 			public TUIElement StartFrom { get; set; }
+			public bool Remove { get; set; }
 
 			public override bool Equals(object obj)
 			{
@@ -86,7 +99,8 @@ namespace XamlCSS
 			{
 				return (StyleSheetHolder?.GetHashCode() ?? 0) ^
 					(StyleSheet?.GetHashCode() ?? 0) ^
-					(StartFrom?.GetHashCode() ?? 0);
+					(StartFrom?.GetHashCode() ?? 0) ^
+					(Remove.GetHashCode());
 			}
 		}
 
@@ -96,11 +110,29 @@ namespace XamlCSS
 			{
 				StyleSheetHolder = styleSheetHolder,
 				StyleSheet = styleSheet,
-				StartFrom = startFrom
+				StartFrom = startFrom,
+				Remove = false
+			});
+		}
+		public void EnqueueRemoveStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
+		{
+			items.Add(new RenderInfo
+			{
+				StyleSheetHolder = styleSheetHolder,
+				StyleSheet = styleSheet,
+				StartFrom = startFrom,
+				Remove = true
 			});
 		}
 
 		protected void GenerateStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
+		{
+			uiInvoker(() =>
+			{
+				GenerateStyleResourcesInternal(styleResourceReferenceHolder, styleSheet, startFrom);
+			});
+		}
+		protected void GenerateStyleResourcesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
 		{
 			if (styleResourceReferenceHolder == null ||
 				styleSheet == null)
@@ -206,7 +238,6 @@ namespace XamlCSS
 
 					var style = nativeStyleService.CreateFrom(dict, type);
 					applicationResourcesService.SetResource(resourceKey, style);
-
 				}
 
 				foreach (var n in matchingNodes)
@@ -221,7 +252,6 @@ namespace XamlCSS
 						dependencyPropertyService.SetMatchingStyles(element, matchingStyles.Concat(new[] { key }).Distinct().ToArray());
 					}
 				}
-
 			}
 
 			ApplyMatchingStyles(startFrom ?? styleResourceReferenceHolder);
@@ -229,7 +259,14 @@ namespace XamlCSS
 
 		public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
 		{
-			UnapplyMatchingStyles(styleResourceReferenceHolder);
+			uiInvoker(() =>
+			{
+				RemoveStyleResourcesInternal(styleResourceReferenceHolder, styleSheet);
+			});
+		}
+		protected void RemoveStyleResourcesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
+		{
+			UnapplyMatchingStylesInternal(styleResourceReferenceHolder);
 
 			var resourceKeys = applicationResourcesService.GetKeys().Cast<object>()
 				.OfType<string>()
@@ -303,12 +340,19 @@ namespace XamlCSS
 
 		public void UnapplyMatchingStyles(TDependencyObject bindableObject)
 		{
+			uiInvoker(() =>
+			{
+				UnapplyMatchingStylesInternal(bindableObject);
+			});
+		}
+		protected void UnapplyMatchingStylesInternal(TDependencyObject bindableObject)
+		{
 			if (bindableObject == null)
 				return;
 
-			foreach (var child in treeNodeProvider.GetChildren(bindableObject).ToArray())
+			foreach (var child in treeNodeProvider.GetChildren(bindableObject).ToList())
 			{
-				UnapplyMatchingStyles(child);
+				UnapplyMatchingStylesInternal(child);
 			}
 
 			dependencyPropertyService.SetMatchingStyles(bindableObject, null);
