@@ -21,7 +21,10 @@ namespace XamlCSS.Windows.Media
 		public static string PrintRealPath(Element e)
 		{
 			if (e == null)
+			{
 				return "";
+			}
+
 			return $".({e.GetType().Name} {e.Id}).{GetRealParent(e)}";
 		}
 
@@ -30,7 +33,10 @@ namespace XamlCSS.Windows.Media
 			var realParent = e.GetType().GetRuntimeProperties().Single(x => x.Name == "RealParent").GetValue(e) as Element;
 
 			if (realParent == null)
+			{
 				return $"(ROOT)";
+			}
+
 			return GetRealParent(realParent) + $".({realParent.GetType().Name} {realParent.Id})";
 		}
 
@@ -47,7 +53,9 @@ namespace XamlCSS.Windows.Media
 		public static void Include(Element cell)
 		{
 			if (AttachedChild(cell))
+			{
 				SubTreeAdded?.Invoke(cell, new EventArgs());
+			}
 		}
 
 		public static IEnumerable<Element> GetChildren(Element e)
@@ -57,6 +65,7 @@ namespace XamlCSS.Windows.Media
 			{
 				return list;
 			}
+
 			return Enumerable.Empty<Element>();
 		}
 
@@ -65,23 +74,18 @@ namespace XamlCSS.Windows.Media
 			return e.Parent;
 		}
 
-		private static void Root_DescendantRemoved(object sender, ElementEventArgs e)
-		{
-			RemoveChildInternal(e.Element);
-		}
-
-		private static void Root_DescendantAdded(object sender, ElementEventArgs e)
-		{
-			AttachedChild(e.Element);
-		}
-
 		private static bool AttachedChild(Element child)
 		{
 			if (child == null)
+			{
 				return false;
+			}
+
 			Element dummy = null;
-			if (childParentAssociations.TryGetValue(child, out dummy) == true)
+			if (childParentAssociations.TryGetValue(child, out dummy))
+			{
 				return false;
+			}
 
 			if (child.Parent != null)
 			{
@@ -93,7 +97,9 @@ namespace XamlCSS.Windows.Media
 					list = new List<Element>();
 					parentChildAssociations.Add(p, list);
 				}
+
 				list?.Add(child);
+
 				try
 				{
 					childParentAssociations.Add(child, p);
@@ -107,32 +113,40 @@ namespace XamlCSS.Windows.Media
 
 				AttachedChild(cell.View);
 			}
+
 			var layout = child as ILayoutController;
 			if (layout != null)
 			{
 				foreach (var i in layout.Children)
+				{
 					AttachedChild(i);
+				}
 			}
+
 			var contentPage = child as ContentPage;
 			if (contentPage != null)
 			{
 				AttachedChild(contentPage.Content);
 			}
+
 			var navigationPage = child as NavigationPage;
 			if (navigationPage != null)
 			{
 				AttachedChild(navigationPage.CurrentPage);
 			}
+
 			var masterDetailPage = child as MasterDetailPage;
 			if (masterDetailPage != null)
 			{
 				AttachedChild(masterDetailPage.Master);
 				AttachedChild(masterDetailPage.Detail);
 			}
+
 			var app = child as Application;
 			if (app != null)
 			{
 				AttachedChild(app.MainPage);
+
 				app.ModalPushing += App_ModalPushing;
 				app.ModalPopped += App_ModalPopped;
 			}
@@ -146,6 +160,7 @@ namespace XamlCSS.Windows.Media
 		private static void App_ModalPushing(object sender, ModalPushingEventArgs e)
 		{
 			e.Modal.Parent = sender as Application;
+
 			AttachChildInternal(e.Modal);
 		}
 
@@ -163,6 +178,7 @@ namespace XamlCSS.Windows.Media
 			if (CanUnattachChild(element))
 			{
 				UnattachedChild(element);
+
 				SubTreeRemoved?.Invoke(element, new EventArgs());
 			}
 		}
@@ -183,15 +199,20 @@ namespace XamlCSS.Windows.Media
 		private static bool CanUnattachChild(Element child)
 		{
 			Element dummy = null;
-			if (childParentAssociations.TryGetValue(child, out dummy) == false)
+			if (!childParentAssociations.TryGetValue(child, out dummy))
+			{
 				return false;
+			}
+
 			return true;
 		}
 		private static bool UnattachedChild(Element child)
 		{
 			Element dummy = null;
-			if (childParentAssociations.TryGetValue(child, out dummy) == false)
+			if (!childParentAssociations.TryGetValue(child, out dummy))
+			{
 				return false;
+			}
 
 			child.ChildAdded -= ChildAddedHandler;
 			child.ChildRemoved -= ChildRemovedHandler;
@@ -202,16 +223,40 @@ namespace XamlCSS.Windows.Media
 
 				UnattachedChild(cell.View);
 			}
+
 			var layout = child as ILayoutController;
 			if (layout != null)
 			{
 				foreach (var i in layout.Children)
+				{
 					UnattachedChild(i);
+				}
 			}
+
+			var contentPage = child as ContentPage;
+			if (contentPage != null)
+			{
+				UnattachedChild(contentPage.Content);
+			}
+
+			var navigationPage = child as NavigationPage;
+			if (navigationPage != null)
+			{
+				UnattachedChild(navigationPage.CurrentPage);
+			}
+
+			var masterDetailPage = child as MasterDetailPage;
+			if (masterDetailPage != null)
+			{
+				UnattachedChild(masterDetailPage.Master);
+				UnattachedChild(masterDetailPage.Detail);
+			}
+
 			var app = child as Application;
 			if (app != null)
 			{
 				UnattachedChild(app.MainPage);
+
 				app.ModalPushing -= App_ModalPushing;
 				app.ModalPopped -= App_ModalPopped;
 			}
@@ -220,19 +265,26 @@ namespace XamlCSS.Windows.Media
 
 			childParentAssociations.TryGetValue(child, out parent);
 			if (parent == null)
+			{
 				parent = child.Parent;
+			}
+
 			childParentAssociations.Remove(child);
 
 			if (parent != null)
 			{
-				List<Element> list = null;
-				if (parentChildAssociations.TryGetValue(parent, out list) == false)
+				List<Element> list;
+				if (!parentChildAssociations.TryGetValue(parent, out list))
 				{
 					return true;
 				}
+
 				list.Remove(child);
+
 				if (list.Count == 0)
+				{
 					parentChildAssociations.Remove(parent);
+				}
 			}
 
 			return true;
