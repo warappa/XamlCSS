@@ -27,8 +27,10 @@ namespace XamlCSS.ComponentModel
 
 		public void RegisterEnum<TEnum>()
 		{
-			if (typeof(Enum).GetTypeInfo().IsAssignableFrom(typeof(TEnum).GetTypeInfo()) == false)
-				throw new InvalidOperationException($"Type '{typeof(TEnum).FullName}' is not an enum!");
+            if (!typeof(Enum).GetTypeInfo().IsAssignableFrom(typeof(TEnum).GetTypeInfo()))
+            {
+                throw new InvalidOperationException($"Type '{typeof(TEnum).FullName}' is not an enum!");
+            }
 
 			Register<TEnum, EnumTypeConverter<TEnum>>();
 		}
@@ -36,22 +38,31 @@ namespace XamlCSS.ComponentModel
 		public void Register<TTargetType>(TypeConverter converter)
 		{
 			if (converter == null)
-				throw new ArgumentNullException(nameof(converter));
+            {
+                throw new ArgumentNullException(nameof(converter));
+            }
 
-			var key = typeof(TTargetType);
-			if (converterMapping.ContainsKey(key))
-				throw new InvalidOperationException($"Converter for type '{key.FullName}' is already registered!");
-			converterMapping[key] = converter;
+            var key = typeof(TTargetType);
+
+            if (converterMapping.ContainsKey(key))
+            {
+                throw new InvalidOperationException($"Converter for type '{key.FullName}' is already registered!");
+            }
+
+            converterMapping[key] = converter;
 		}
 
 		public void Register<TTargetType, TTypeConverter>()
 			where TTypeConverter : TypeConverter, new()
 		{
 			var key = typeof(TTargetType);
-			if (converterMapping.ContainsKey(key))
-				throw new InvalidOperationException($"Converter for type '{key.FullName}' is already registered!");
 
-			converterMapping[key] = Activator.CreateInstance<TTypeConverter>();
+			if (converterMapping.ContainsKey(key))
+            {
+                throw new InvalidOperationException($"Converter for type '{key.FullName}' is already registered!");
+            }
+
+            converterMapping[key] = Activator.CreateInstance<TTypeConverter>();
 		}
 
 		public TypeConverter GetConverterFromProperty(string propertyName, Type type)
@@ -62,9 +73,11 @@ namespace XamlCSS.ComponentModel
 		public TypeConverter GetConverter(Type targetDataType)
 		{
 			if (converterMapping.ContainsKey(targetDataType))
-				return converterMapping[targetDataType];
+            {
+                return converterMapping[targetDataType];
+            }
 
-			return null;
+            return null;
 		}
 	}
 }

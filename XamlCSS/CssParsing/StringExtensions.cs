@@ -1,25 +1,35 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace XamlCSS.CssParsing
 {
 	public static class StringExtensions
 	{
-		public static string[] SplitThem(this string[] strs, char sep)
+		public static IEnumerable<string> SplitThem(this IEnumerable<string> strings, char separator)
 		{
-			return strs.SelectMany(x =>
-			{
-				var res = x.Split(new[] { sep }, StringSplitOptions.RemoveEmptyEntries)
-					.SelectMany(y => new[] { sep.ToString(), y });
+			var stringSeparator = separator.ToString();
+			
+			return strings
+				.SelectMany(value =>
+				{
+					var stringValues = value
+						.Split(new[] { separator }, StringSplitOptions.RemoveEmptyEntries)
+						.SelectMany(subValue => new[] { stringSeparator, subValue });
 
-				if (x.StartsWith(sep.ToString(), StringComparison.Ordinal) == false)
-					res = res.Skip(1);
-				if (x.EndsWith(sep.ToString(), StringComparison.Ordinal))
-					res = res.Concat(new[] { sep.ToString() });
+					if (!value.StartsWith(stringSeparator, StringComparison.Ordinal))
+					{
+						stringValues = stringValues.Skip(1);
+					}
 
-				return res;
-			})
-			.ToArray();
+					if (value.EndsWith(stringSeparator, StringComparison.Ordinal))
+					{
+						stringValues = stringValues.Concat(new[] { stringSeparator });
+					}
+
+					return stringValues;
+				})
+				.ToList();
 		}
 	}
 }

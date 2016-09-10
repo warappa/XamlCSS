@@ -14,10 +14,14 @@ namespace XamlCSS.Dom
 
 		public NamedNodeMapBase(TDependencyObject dependencyObject)
 		{
-			var vals = GetProperties(dependencyObject)
-				.Select(x => CreateAttribute(dependencyObject, x))
-				.ToList();
-			this.attributes = vals;
+			InitAttributes(dependencyObject);
+		}
+
+		private void InitAttributes(TDependencyObject dependencyObject)
+		{
+			this.attributes = GetProperties(dependencyObject)
+							.Select(x => CreateAttribute(dependencyObject, x))
+							.ToList();
 		}
 
 		public NamedNodeMapBase(IEnumerable<IAttr> attributes)
@@ -32,7 +36,8 @@ namespace XamlCSS.Dom
 			var dps = TypeHelpers.DeclaredFields(dependencyObject.GetType())
 				.Where(x => x.FieldType == typeof(TDependencyProperty))
 				.Select(x => x.GetValue(dependencyObject) as TDependencyProperty)
-				.ToArray();
+				.ToList();
+
 			return dps;
 		}
 

@@ -11,6 +11,7 @@ namespace XamlCSS.ComponentModel
 			{
 				throw new ArgumentNullException(nameof(sourceType));
 			}
+
 			return sourceType == typeof(string);
 		}
 

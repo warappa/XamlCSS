@@ -118,7 +118,9 @@ namespace XamlCSS.WPF
 			}
 
 			if (instance.dependencyPropertyService.IsLoaded(element))
+			{
 				instance.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet, element);
+			}
 			else
 			{
 				instance.dependencyPropertyService.RegisterLoadedOnce(

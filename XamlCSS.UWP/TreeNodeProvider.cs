@@ -13,6 +13,7 @@ namespace XamlCSS.UWP
 		public IEnumerable<DependencyObject> GetChildren(DependencyObject element)
 		{
 			var list = new List<DependencyObject>();
+
 			var count = VisualTreeHelper.GetChildrenCount(element);
 			for (int i = 0; i < count; i++)
 			{
@@ -33,17 +34,22 @@ namespace XamlCSS.UWP
 
 		public DependencyObject GetParent(DependencyObject tUIElement)
 		{
-			if (tUIElement is FrameworkElement)
-				return (tUIElement as FrameworkElement).Parent;
+            if (tUIElement is FrameworkElement)
+            {
+                return (tUIElement as FrameworkElement).Parent;
+            }
 
 			throw new InvalidOperationException("No parent found!");
 		}
 
 		public IDomElement<DependencyObject> GetLogicalTreeParent(DependencyObject obj)
 		{
-			if (!(obj is FrameworkElement) ||
-				(obj as FrameworkElement).Parent == null)
-				return null;
+            if (!(obj is FrameworkElement) ||
+                (obj as FrameworkElement).Parent == null)
+            {
+                return null;
+            }
+
 			return new LogicalDomElement((obj as FrameworkElement).Parent, GetLogicalTreeParent);
 		}
 		public IDomElement<DependencyObject> GetLogicalTree(DependencyObject obj, DependencyObject parent)
@@ -55,8 +61,11 @@ namespace XamlCSS.UWP
 		{
 			if (!(obj is FrameworkElement) ||
 				(obj as FrameworkElement).Parent == null)
+            { 
 				return null;
-			return new VisualDomElement((obj as FrameworkElement).Parent, GetVisualTreeParent);
+            }
+
+            return new VisualDomElement((obj as FrameworkElement).Parent, GetVisualTreeParent);
 		}
 		public IDomElement<DependencyObject> GetVisualTree(DependencyObject obj, DependencyObject parent)
 		{

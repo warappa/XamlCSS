@@ -23,7 +23,9 @@ namespace XamlCSS.XamarinForms.Dom
 		public override bool Equals(object obj)
 		{
 			LogicalDomElement otherNode = obj as LogicalDomElement;
-			return otherNode != null ? otherNode.dependencyObject.Equals(dependencyObject) : false;
+			return otherNode != null ?
+				otherNode.dependencyObject.Equals(dependencyObject) : 
+				false;
 		}
 
 		public override int GetHashCode()

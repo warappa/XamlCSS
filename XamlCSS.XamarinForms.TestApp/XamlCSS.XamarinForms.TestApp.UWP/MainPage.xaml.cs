@@ -6,7 +6,7 @@
 		{
 			this.InitializeComponent();
 
-			LoadApplication(new XamlCSS.XamarinForms.TestApp.App());
+			LoadApplication(new TestApp.App());
 
 			Css.Initialize();
 		}

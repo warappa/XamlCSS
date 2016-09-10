@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -20,10 +17,14 @@ namespace XamlCSS.WPF
 			var test = "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" Text=\"" + myBindingExpression + "\" />";
 
 			var result = XamlReader.Parse(test) as TextBlock;
+
 			var bindingExpression = result.ReadLocalValue(TextBlock.TextProperty);
 			var binding = bindingExpression;
+
 			if (binding is BindingExpression)
+			{
 				binding = ((BindingExpression)binding).ParentBinding;
+			}
 
 			return binding;
 		}
@@ -39,8 +40,7 @@ namespace XamlCSS.WPF
 				
 				inner = doc.Descendants().First().Descendants().First().ToString();
 			}
-
-
+			
 			var test = $@"
 <StackPanel xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"">
 	<StackPanel.Resources>
@@ -51,9 +51,13 @@ namespace XamlCSS.WPF
 
 			var result = (XamlReader.Parse(test) as StackPanel).Children[0];
 			var bindingExpression = result.ReadLocalValue(TextBlock.TextProperty);
+
 			var binding = bindingExpression;
+
 			if (binding is BindingExpression)
+			{
 				binding = ((BindingExpression)binding).ParentBinding;
+			}
 
 			return binding;
 		}
@@ -61,21 +65,30 @@ namespace XamlCSS.WPF
 		public object ProvideValue(string expression, object obj)
 		{
 			ResourceDictionary resDict = null;
+
 			if (obj is FrameworkElement)
+			{
 				resDict = (obj as FrameworkElement).Resources;
+			}
 			else if (obj is FrameworkContentElement)
+			{
 				resDict = (obj as FrameworkContentElement).Resources;
+			}
 
 			var binding = Parse(expression, resDict);
 
 			if (binding is Binding)
+			{
 				return (binding as Binding).ProvideValue(null);
+			}
+
 			if (binding.GetType().Name == "ResourceReferenceExpression")
 			{
 				var a = binding.GetType().GetProperty("ResourceKey");
 
 				return new DynamicResourceExtension(a.GetValue(binding));
 			}
+
 			return binding;
 		}
 	}

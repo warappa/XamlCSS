@@ -13,15 +13,16 @@ namespace XamlCSS.UWP
 		public DependencyProperty GetBindableProperty(Type bindableObjectType, string propertyName)
 		{
 			string dpName = propertyName + "Property";
-			var dpProperties = TypeHelpers.DeclaredProperties(bindableObjectType);
+
+            var dpProperties = TypeHelpers.DeclaredProperties(bindableObjectType);
 			var dpProperty = dpProperties.FirstOrDefault(i => i.Name == dpName);
 
 			if (dpProperty != null)
-				return dpProperty.GetValue(null) as DependencyProperty;
+            {
+                return dpProperty.GetValue(null) as DependencyProperty;
+            }
 
-			var dpFields = TypeHelpers.DeclaredFields(bindableObjectType);
-			var dpField = dpFields.FirstOrDefault(i => i.Name == dpName);
-			return null;
+            return null;
 		}
 
 		public object GetBindablePropertyValue(Type frameworkElementType, DependencyProperty property, object propertyValue)
@@ -128,6 +129,7 @@ namespace XamlCSS.UWP
 				SetIsLoaded(frameworkElement, true);
 				func(s);
 			};
+
 			frameworkElement.Loaded += handler;
 		}
 	}

@@ -209,11 +209,19 @@ namespace XamlCSS.Dom
 			get
 			{
 				if (ParentElement == null)
+				{
 					return null;
+				}
+
 				var children = ParentElement.Children;
+
 				var thisIndex = children.IndexOf(this);
+
 				if (thisIndex == children.Length - 1)
+				{
 					return null;
+				}
+
 				return children[thisIndex + 1];
 			}
 		}
@@ -223,11 +231,18 @@ namespace XamlCSS.Dom
 			get
 			{
 				if (Parent == null)
+				{
 					return null;
+				}
+
 				var children = Parent.ChildNodes;
 				var thisIndex = children.IndexOf(this);
+
 				if (thisIndex == children.Length - 1)
+				{
 					return null;
+				}
+
 				return children[thisIndex + 1];
 			}
 		}
@@ -244,18 +259,20 @@ namespace XamlCSS.Dom
 		{
 			get
 			{
-				INode parent = this;
+				INode currentNode = this;
 				while (true)
 				{
-					if (parent.Parent == null)
+					if (currentNode.Parent == null)
 						break;
-					parent = parent.Parent;
+
+					currentNode = currentNode.Parent;
 				}
-				return parent as IDocument;
+
+				return currentNode as IDocument;
 			}
 		}
 
-		protected IElement parent = null;
+		protected IElement parent;
 		public INode Parent { get { return parent ?? (parent = getParentElement?.Invoke(dependencyObject)); } protected set { parent = value as IElement; } }
 
 		public IElement ParentElement { get { return parent ?? (parent = getParentElement?.Invoke(dependencyObject)); } protected set { parent = value; } }
@@ -266,7 +283,10 @@ namespace XamlCSS.Dom
 			get
 			{
 				if (prefix == "UNDEFINED")
+				{
 					prefix = Owner.LookupPrefix(GetPrefix(dependencyObject.GetType()));
+				}
+
 				return prefix;
 			}
 		}
@@ -276,11 +296,18 @@ namespace XamlCSS.Dom
 			get
 			{
 				if (ParentElement == null)
+				{
 					return null;
+				}
+
 				var children = ParentElement.Children;
 				var thisIndex = children.IndexOf(this);
+
 				if (thisIndex == 0)
+				{
 					return null;
+				}
+
 				return children[thisIndex - 1];
 			}
 		}
@@ -290,11 +317,18 @@ namespace XamlCSS.Dom
 			get
 			{
 				if (Parent == null)
+				{
 					return null;
+				}
+
 				var children = ParentElement.ChildNodes;
 				var thisIndex = children.IndexOf(this);
+
 				if (thisIndex == 0)
+				{
 					return null;
+				}
+
 				return children[thisIndex - 1];
 			}
 		}
@@ -744,10 +778,14 @@ namespace XamlCSS.Dom
 		public bool Equals(INode otherNode)
 		{
 			if (otherNode == null)
+			{
 				return false;
+			}
 
 			if (object.ReferenceEquals(this, otherNode))
+			{
 				return true;
+			}
 
 			return dependencyObject == (otherNode as DomElementBase<TDependencyObject, TDependencyProperty>).dependencyObject;
 		}
@@ -765,21 +803,27 @@ namespace XamlCSS.Dom
 		public IHtmlCollection<IElement> GetElementsByClassName(string classNames)
 		{
 			var list = new List<IElement>();
+
 			ChildNodes.GetElementsByClassName(classNames.Split(' '), list);
+
 			return CreateCollection(list);
 		}
 
 		public IHtmlCollection<IElement> GetElementsByTagName(string tagName)
 		{
 			var list = new List<IElement>();
+
 			ChildNodes.GetElementsByTagName(tagName.Is("*") ? null : tagName, list);
+
 			return CreateCollection(list);
 		}
 
 		public IHtmlCollection<IElement> GetElementsByTagNameNS(string namespaceUri, string tagName)
 		{
 			var list = new List<IElement>();
+
 			ChildNodes.GetElementsByTagName(namespaceUri, tagName.Is("*") ? null : tagName, list);
+
 			return CreateCollection(list);
 		}
 
@@ -856,7 +900,9 @@ namespace XamlCSS.Dom
 		public IElement QuerySelector(string selectors)
 		{
 			if (selectors.Contains("|"))
+			{
 				selectors = selectors.Replace("|", "\\:");
+			}
 
 			return ChildNodes.QuerySelector(selectors, Parser);
 		}
@@ -864,13 +910,16 @@ namespace XamlCSS.Dom
 		public IElement QuerySelectorWithSelf(string selectors)
 		{
 			if (selectors.Contains("|"))
+			{
 				selectors = selectors.Replace("|", "\\:");
+			}
 
 			if (this.Matches(selectors))
+			{
 				return this;
+			}
 
-			var res = ChildNodes.QuerySelector(selectors, Parser);
-			return res;
+			return ChildNodes.QuerySelector(selectors, Parser);
 		}
 
 		public IHtmlCollection<IElement> QuerySelectorAll(string selectors)
@@ -882,7 +931,10 @@ namespace XamlCSS.Dom
 		{
 			var res = ChildNodes.QuerySelectorAll(selectors, Parser);
 			if (this.Matches(selectors))
+			{
 				res.Add(this);
+			}
+
 			return CreateCollection(res);
 		}
 

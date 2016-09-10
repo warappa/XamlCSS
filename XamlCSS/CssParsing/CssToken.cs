@@ -20,7 +20,9 @@ namespace XamlCSS.CssParsing
 			var other = obj as CssToken;
 
 			if (object.ReferenceEquals(other, null))
+			{
 				return false;
+			}
 
 			return this.Type == other.Type &&
 				this.Text == other.Text;

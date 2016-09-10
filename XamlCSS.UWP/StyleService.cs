@@ -12,6 +12,7 @@ namespace XamlCSS.UWP
 		public Style CreateFrom(IDictionary<DependencyProperty, object> dict, Type forType)
 		{
 			var style = new Style(typeof(FrameworkElement));
+
 			foreach (var i in dict)
 			{
 				style.Setters.Add(new Setter(i.Key, i.Value));
@@ -27,8 +28,10 @@ namespace XamlCSS.UWP
 
 		public void SetStyle(DependencyObject visualElement, Style s)
 		{
-			if (visualElement is FrameworkElement)
-				(visualElement as FrameworkElement).Style = s;
+            if (visualElement is FrameworkElement)
+            {
+                (visualElement as FrameworkElement).Style = s;
+            }
 		}
 
 		public string GetStyleResourceKey(Type type, string selector)

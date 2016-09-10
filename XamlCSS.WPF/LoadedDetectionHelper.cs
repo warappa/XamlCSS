@@ -20,7 +20,9 @@ namespace XamlCSS.WPF
 		{
 			if (sender != null &&
 				sender.TemplatedParent == null)
+			{
 				Css.instance.UpdateElement(sender);
+			}
 		}
 
 		private static void OnSizeChanged(object sender, RoutedEventArgs e)
@@ -48,16 +50,24 @@ namespace XamlCSS.WPF
 			if ((bool)ev.NewValue == true)
 			{
 				if (dpo is FrameworkElement)
+				{
 					(dpo as FrameworkElement).Loaded += LoadedEventHandler;
+				}
 				else if (dpo is FrameworkContentElement)
+				{
 					(dpo as FrameworkContentElement).Loaded += LoadedEventHandler;
+				}
 			}
 			else
 			{
 				if (dpo is FrameworkElement)
+				{
 					(dpo as FrameworkElement).Loaded -= LoadedEventHandler;
+				}
 				else if (dpo is FrameworkContentElement)
+				{
 					(dpo as FrameworkContentElement).Loaded -= LoadedEventHandler;
+				}
 			}
 		}
 

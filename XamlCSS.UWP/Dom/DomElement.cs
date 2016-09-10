@@ -43,10 +43,14 @@ namespace XamlCSS.UWP.Dom
 		protected override ITokenList GetClassList(DependencyObject dependencyObject)
 		{
 			var list = new TokenList();
-			var strs = Css.GetClass(dependencyObject)?.Split(' ');
-			if (strs != null)
-				list.AddRange(strs);
-			return list;
+			var classNames = Css.GetClass(dependencyObject)?.Split(' ');
+
+            if (classNames != null)
+            {
+                list.AddRange(classNames);
+            }
+
+            return list;
 		}
 		protected override string GetId(DependencyObject dependencyObject)
 		{

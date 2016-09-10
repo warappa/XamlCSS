@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 
 namespace XamlCSS
 {
-	public class BaseCss<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+    public class BaseCss<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
 		where TDependencyObject : class
 		where TUIElement : class, TDependencyObject
 		where TStyle : class
@@ -46,8 +44,10 @@ namespace XamlCSS
 				uiInvoker(() =>
 				{
 					if (items.Any() == false)
+					{
 						return;
-					
+					}
+
 					var copy = items.Distinct().ToList();
 
 					items = new List<RenderInfo>();
@@ -60,8 +60,10 @@ namespace XamlCSS
 					}
 
 					if (copy.Any() == false)
+					{
 						return;
-					
+					}
+
 					var from = copy.First().StyleSheetHolder;
 					var styleSheet = copy.First().StyleSheet;
 					var holder = copy.First().StyleSheetHolder;
@@ -88,7 +90,9 @@ namespace XamlCSS
 			{
 				var other = obj as RenderInfo;
 				if (other == null)
+				{
 					return false;
+				}
 
 				return StyleSheetHolder == other.StyleSheetHolder &&
 					StyleSheet == other.StyleSheet &&
@@ -136,7 +140,9 @@ namespace XamlCSS
 		{
 			if (styleResourceReferenceHolder == null ||
 				styleSheet == null)
+			{
 				return;
+			}
 
 			IDomElement<TDependencyObject> root = null;
 
@@ -152,6 +158,7 @@ namespace XamlCSS
 						visualTree = treeNodeProvider.GetVisualTree(startFrom ?? styleResourceReferenceHolder, startFrom != null ? treeNodeProvider.GetParent(startFrom) : null);
 						visualTree.XamlCssStyleSheets.Add(styleSheet);
 					}
+
 					root = visualTree;
 				}
 				else
@@ -161,12 +168,12 @@ namespace XamlCSS
 						logicalTree = treeNodeProvider.GetLogicalTree(startFrom ?? styleResourceReferenceHolder, startFrom != null ? treeNodeProvider.GetParent(startFrom) : null);
 						logicalTree.XamlCssStyleSheets.Add(styleSheet);
 					}
+
 					root = logicalTree;
 				}
 
 				// apply our selector
 				var matchingNodes = root.QuerySelectorAllWithSelf(rule.Selector)
-					//new[] { root.QuerySelectorWithSelf(rule.Selector) }
 					.Where(x => x != null)
 					.Cast<IDomElement<TDependencyObject>>()
 					.ToArray();
@@ -189,7 +196,8 @@ namespace XamlCSS
 
 					foreach (var i in rule.DeclarationBlock)
 					{
-						TDependencyProperty property = null;
+						TDependencyProperty property;
+
 						if (i.Property.Contains("."))
 						{
 							string typename = null;
@@ -199,17 +207,28 @@ namespace XamlCSS
 							{
 								var strs = i.Property.Split('|', '.');
 								var alias = strs[0];
-								var namespaceFragments = styleSheet.Namespaces.First(x => x.Alias == alias).Namespace.Split(',');
+								var namespaceFragments = styleSheet
+									.Namespaces
+									.First(x => x.Alias == alias)
+									.Namespace
+									.Split(',');
+
 								typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
 								propertyName = strs[2];
 							}
 							else
 							{
 								var strs = i.Property.Split('.');
-								var namespaceFragments = styleSheet.Namespaces.First(x => x.Alias == "").Namespace.Split(',');
+								var namespaceFragments = styleSheet
+									.Namespaces
+									.First(x => x.Alias == "")
+									.Namespace
+									.Split(',');
+
 								typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
 								propertyName = strs[1];
 							}
+
 							property = dependencyPropertyService.GetBindableProperty(Type.GetType(typename), propertyName);
 						}
 						else
@@ -221,20 +240,25 @@ namespace XamlCSS
 						{
 							continue;
 						}
+
 						object propertyValue = null;
 						if (i.Value is string &&
-							((string)i.Value).StartsWith("{"))
+							((string)i.Value).StartsWith("{", StringComparison.Ordinal))
 						{
 							propertyValue = markupExpressionParser.ProvideValue((string)i.Value, startFrom ?? styleResourceReferenceHolder);
 						}
 						else
+						{
 							propertyValue = dependencyPropertyService.GetBindablePropertyValue(type, property, i.Value);
+						}
 
 						dict[property] = propertyValue;
 					}
 
 					if (dict.Keys.Count == 0)
+					{
 						continue;
+					}
 
 					var style = nativeStyleService.CreateFrom(dict, type);
 					applicationResourcesService.SetResource(resourceKey, style);
@@ -242,7 +266,7 @@ namespace XamlCSS
 
 				foreach (var n in matchingNodes)
 				{
-					var element = n.Element as TDependencyObject;
+					var element = n.Element;
 
 					var matchingStyles = dependencyPropertyService.GetMatchingStyles(element) ?? new string[0];
 
@@ -268,7 +292,7 @@ namespace XamlCSS
 		{
 			UnapplyMatchingStylesInternal(styleResourceReferenceHolder);
 
-			var resourceKeys = applicationResourcesService.GetKeys().Cast<object>()
+			var resourceKeys = applicationResourcesService.GetKeys()
 				.OfType<string>()
 				.Where(x => x.StartsWith(nativeStyleService.BaseStyleResourceKey, StringComparison.Ordinal))
 				.ToArray();
@@ -282,7 +306,9 @@ namespace XamlCSS
 		private void ApplyMatchingStyles(TUIElement visualElement)
 		{
 			if (visualElement == null)
+			{
 				return;
+			}
 
 			foreach (var child in treeNodeProvider.GetChildren(visualElement).ToArray())
 			{
@@ -293,8 +319,14 @@ namespace XamlCSS
 			var appliedMatchingStyles = dependencyPropertyService.GetAppliedMatchingStyles(visualElement);
 
 			if (matchingStyles == appliedMatchingStyles ||
-				(matchingStyles != null && appliedMatchingStyles != null && matchingStyles.SequenceEqual(appliedMatchingStyles)))
+				(
+					matchingStyles != null && 
+					appliedMatchingStyles != null && 
+					matchingStyles.SequenceEqual(appliedMatchingStyles)
+				))
+			{
 				return;
+			}
 
 			if (matchingStyles?.Length == 1)
 			{
@@ -303,8 +335,11 @@ namespace XamlCSS
 				{
 					s = applicationResourcesService.GetResource(matchingStyles[0]);
 				}
+
 				if (s != null)
+				{
 					nativeStyleService.SetStyle(visualElement, (TStyle)s);
+				}
 			}
 			else if (matchingStyles?.Length > 1)
 			{
@@ -348,7 +383,9 @@ namespace XamlCSS
 		protected void UnapplyMatchingStylesInternal(TDependencyObject bindableObject)
 		{
 			if (bindableObject == null)
+			{
 				return;
+			}
 
 			foreach (var child in treeNodeProvider.GetChildren(bindableObject).ToList())
 			{
@@ -364,7 +401,9 @@ namespace XamlCSS
 		{
 			var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
 			if (parent == null)
+			{
 				return;
+			}
 
 			EnqueueRenderStyleSheet(
 				parent,

@@ -11,18 +11,22 @@ namespace XamlCSS.ComponentModel
 		public GenericTypeConverter(Func<object, Tout> convert, Func<Type, bool> canConvert = null)
 		{
 			if (convert == null)
-				throw new ArgumentNullException(nameof(convert));
+            {
+                throw new ArgumentNullException(nameof(convert));
+            }
 
-			this.canConvert = canConvert ?? (_ => true);
+            this.canConvert = canConvert ?? (_ => true);
 			this.convert = (c, o) => convert(o);
 		}
 
 		public GenericTypeConverter(Func<CultureInfo, object, Tout> convert, Func<Type, bool> canConvert = null)
 		{
 			if (convert == null)
-				throw new ArgumentNullException(nameof(convert));
+            {
+                throw new ArgumentNullException(nameof(convert));
+            }
 
-			this.canConvert = canConvert ?? (_ => true);
+            this.canConvert = canConvert ?? (_ => true);
 			this.convert = convert;
 		}
 

@@ -25,25 +25,33 @@ namespace XamlCSS.WPF
 		public object GetBindablePropertyValue(Type frameworkElementType, DependencyProperty property, object propertyValue)
 		{
 			if (property != null &&
-				!(property.PropertyType
-				.IsAssignableFrom(propertyValue.GetType())))
+				!(property.PropertyType.IsAssignableFrom(propertyValue.GetType())))
 			{
-				Type propertyType = property.PropertyType;
-				TypeConverter converter = null;
-
-				converter = TypeDescriptor.GetConverter(propertyType);
+				var propertyType = property.PropertyType;
+				
+				var converter = TypeDescriptor.GetConverter(propertyType);
 
 				if (converter == null)
+				{
 					converter = TypeDescriptor.GetConverter(propertyType);
-				if (converter != null)
-					propertyValue = converter.ConvertFrom(propertyValue as string);
+				}
 
+				if (converter != null)
+				{
+					propertyValue = converter.ConvertFrom(propertyValue as string);
+				}
 				else if (propertyType == typeof(bool))
+				{
 					propertyValue = propertyValue.Equals("true");
+				}
 				else if (propertyType.IsEnum)
+				{
 					propertyValue = Enum.Parse(propertyType, propertyValue as string);
+				}
 				else
+				{
 					propertyValue = Convert.ChangeType(propertyValue, propertyType);
+				}
 			}
 
 			return propertyValue;
@@ -53,7 +61,10 @@ namespace XamlCSS.WPF
 		{
 			var val = obj.ReadLocalValue(property);
 			if (val == DependencyProperty.UnsetValue)
+			{
 				return null;
+			}
+
 			return val;
 		}
 
@@ -140,9 +151,14 @@ namespace XamlCSS.WPF
 		public bool IsLoaded(DependencyObject obj)
 		{
 			if (obj is FrameworkElement)
+			{
 				return (obj as FrameworkElement).IsLoaded;
+			}
+
 			if (obj is FrameworkContentElement)
+			{
 				return (obj as FrameworkContentElement).IsLoaded;
+			}
 
 			return DesignerProperties.GetIsInDesignMode(obj);
 		}
@@ -158,6 +174,7 @@ namespace XamlCSS.WPF
 					frameworkElement.Loaded -= handler;
 					func(s);
 				};
+
 				frameworkElement.Loaded += handler;
 			}
 			else
@@ -171,6 +188,7 @@ namespace XamlCSS.WPF
 						frameworkContentElement.Loaded -= handler;
 						func(s);
 					};
+
 					frameworkContentElement.Loaded += handler;
 				}
 			}

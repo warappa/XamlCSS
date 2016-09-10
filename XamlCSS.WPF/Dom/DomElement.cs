@@ -43,15 +43,22 @@ namespace XamlCSS.WPF.Dom
 		protected override ITokenList GetClassList(DependencyObject dependencyObject)
 		{
 			var list = new TokenList();
+
 			var strs = Css.GetClass(dependencyObject)?.Split(' ');
 			if (strs != null)
+			{
 				list.AddRange(strs);
+			}
+
 			return list;
 		}
 		protected override string GetId(DependencyObject dependencyObject)
 		{
 			if (dependencyObject is FrameworkElement)
+			{
 				return dependencyObject.ReadLocalValue(FrameworkElement.NameProperty) as string;
+			}
+
 			return dependencyObject.ReadLocalValue(FrameworkContentElement.NameProperty) as string;
 		}
 	}

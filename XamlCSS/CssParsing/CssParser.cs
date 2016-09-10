@@ -24,7 +24,9 @@ namespace XamlCSS.CssParsing
 			for (var i = 0; i < tokens.Length;)
 			{
 				var t = tokens[i++];
-				CssNode n = null;
+
+				CssNode n;
+
 				switch (t.Type)
 				{
 					case CssTokenType.At:
@@ -464,7 +466,9 @@ namespace XamlCSS.CssParsing
 					.ToList();
 
 			if (string.IsNullOrEmpty(defaultCssNamespace) == true)
+			{
 				defaultCssNamespace = CssParser.defaultCssNamespace;
+			}
 
 			if (styleSheet.Namespaces.Any(x => x.Alias == "") == false &&
 				string.IsNullOrEmpty(defaultCssNamespace) == false)
@@ -477,24 +481,33 @@ namespace XamlCSS.CssParsing
 				var rule = new StyleRule();
 
 				rule.SelectorType = SelectorType.LogicalTree;
-				var selectors = astRule.Children.Single(x => x.Type == CssNodeType.Selectors);
-				string[] selectorTexts = selectors
-					.Children
-						.Select(x => string.Join(" ", x.Children // selector
-							.Select(y => y.Text)))
+
+				var selectors = astRule.Children
+					.Single(x => x.Type == CssNodeType.Selectors);
+
+				string[] selectorTexts = selectors.Children
+					.Select(x => string.Join(" ", x.Children /* selectors */.Select(y => y.Text)))
 					.ToArray();
+
 				rule.Selector = string.Join(",", selectorTexts);
 
-				var astBlock = astRule.Children.Single(x => x.Type == CssNodeType.StyleDeclarationBlock);
+				var astBlock = astRule.Children
+					.Single(x => x.Type == CssNodeType.StyleDeclarationBlock);
 
-				var styleDeclarations = astBlock.Children.Select(x => new StyleDeclaration
-				{
-					Property = x.Children.Single(y => y.Type == CssNodeType.Key).Text.ToString(),
-					Value = x.Children.Single(y => y.Type == CssNodeType.Value).Text.ToString() != ""
-						? x.Children.Single(y => y.Type == CssNodeType.Value).Text.ToString()
-						: x.Children.Single(y => y.Type == CssNodeType.Value).Children.Select(y => y.Text.ToString()).Aggregate("", (a,b) => a + (a != "" ? " " : "") + b)
-				})
-				.ToArray();
+				var styleDeclarations = astBlock.Children
+					.Select(x => new StyleDeclaration
+					{
+						Property = x.Children
+							.Single(y => y.Type == CssNodeType.Key).Text.ToString(),
+
+						Value = x.Children
+							.Single(y => y.Type == CssNodeType.Value).Text.ToString() != "" ?
+								x.Children.Single(y => y.Type == CssNodeType.Value).Text.ToString() :
+								x.Children.Single(y => y.Type == CssNodeType.Value).Children
+									.Select(y => y.Text.ToString())
+									.Aggregate("", (a,b) => a + (a != "" ? " " : "") + b)
+					})
+					.ToList();
 
 				rule.DeclarationBlock.AddRange(styleDeclarations);
 
@@ -508,8 +521,8 @@ namespace XamlCSS.CssParsing
 				{
 					Selector = x.Key,
 					SelectorType = x.First().SelectorType,
-					DeclarationBlock = new StyleDeclarationBlock(x.SelectMany(y =>
-						y.DeclarationBlock.Select(z => z).ToArray()))
+					DeclarationBlock = new StyleDeclarationBlock(x
+						.SelectMany(y => y.DeclarationBlock.ToList()))
 				})
 				.ToList();
 
@@ -521,26 +534,32 @@ namespace XamlCSS.CssParsing
 
 		internal static IEnumerable<CssToken> Tokenize(string cssDocument)
 		{
-			var strs = cssDocument.Split(new[] { ' ', '\t', '\n', '\r' }).SelectMany(x => new[] { " ", x }).ToArray();
-			strs = strs.Select(x => x == "" ? " " : x).ToArray();
-			var strs2 = new List<string>(strs.Length);
+			var rawTokens = cssDocument.Split(new[] { ' ', '\t', '\n', '\r' })
+				.SelectMany(x => new[] { " ", x })
+				.ToList();
+
+			rawTokens = rawTokens
+				.Select(x => x == "" ? " " : x)
+				.ToList();
+
+			var strs2 = new List<string>(rawTokens.Count);
 
 			var prevousWasWhitespace = false;
-			for (var i = 0; i < strs.Length; i++)
+			for (var i = 0; i < rawTokens.Count; i++)
 			{
-				var isWhitespace = string.IsNullOrWhiteSpace(strs[i]);
+				var isWhitespace = string.IsNullOrWhiteSpace(rawTokens[i]);
 				if (isWhitespace == false)
-					strs2.Add(strs[i]);
+					strs2.Add(rawTokens[i]);
 				if (isWhitespace &&
 					prevousWasWhitespace == false)
 				{
-					strs2.Add(strs[i]);
+					strs2.Add(rawTokens[i]);
 				}
 				prevousWasWhitespace = isWhitespace;
 			}
-			strs = strs2.ToArray();
+			rawTokens = strs2.ToList();
 
-			strs = strs
+			rawTokens = rawTokens
 				.SplitThem('.')
 				.SplitThem(';')
 				.SplitThem('|')
@@ -557,16 +576,17 @@ namespace XamlCSS.CssParsing
 				.SplitThem('#')
 				.SplitThem('{')
 				.SplitThem('}')
-				.ToArray();
+				.ToList();
+
 			var strsIndex = 0;
 
-			List<CssToken> tokens = new List<CssToken>();
+			var tokens = new List<CssToken>();
 
 			string c;
-			while (strsIndex < strs.Length)
+			while (strsIndex < rawTokens.Count)
 			{
-				c = strs[strsIndex++];
-				CssToken t = null;
+				c = rawTokens[strsIndex++];
+				CssToken t;
 
 				if (c == "@")
 				{
@@ -628,7 +648,8 @@ namespace XamlCSS.CssParsing
 				{
 					t = new CssToken(CssTokenType.Hash, c);
 				}
-				else if (c == " " ||
+				else if (
+					c == " " ||
 					c == "\t" ||
 					c == "\r" ||
 					c == "\n"
@@ -640,6 +661,7 @@ namespace XamlCSS.CssParsing
 				{
 					t = new CssToken(CssTokenType.Identifier, c);
 				}
+
 				tokens.Add(t);
 			}
 

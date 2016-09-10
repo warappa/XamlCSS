@@ -73,7 +73,9 @@ namespace XamlCSS.ComponentModel
 		public void RegisterEnum<TEnum>()
 		{
 			if (typeof(Enum).GetTypeInfo().IsAssignableFrom(typeof(TEnum).GetTypeInfo()) == false)
+			{
 				throw new InvalidOperationException($"Type '{typeof(TEnum).FullName}' is not an enum!");
+			}
 
 			Register<TEnum, EnumTypeConverter<TEnum>>();
 		}
@@ -81,11 +83,16 @@ namespace XamlCSS.ComponentModel
 		public void Register<TTargetType>(TypeConverter converter)
 		{
 			if (converter == null)
+			{
 				throw new ArgumentNullException(nameof(converter));
+			}
 
 			var key = typeof(TTargetType);
 			if (converterMapping.ContainsKey(key))
+			{
 				throw new InvalidOperationException($"Converter for type '{key.FullName}' is already registered!");
+			}
+
 			converterMapping[key] = converter;
 		}
 
@@ -94,28 +101,33 @@ namespace XamlCSS.ComponentModel
 		{
 			var key = typeof(TTargetType);
 			if (converterMapping.ContainsKey(key))
+			{
 				throw new InvalidOperationException($"Converter for type '{key.FullName}' is already registered!");
+			}
 
 			converterMapping[key] = Activator.CreateInstance<TTypeConverter>();
 		}
 
 		public TypeConverter GetConverterFromProperty(string propertyName, Type type)
 		{
-			PropertyInfo[] dpProperties = TypeHelpers.DeclaredProperties(type);
+			var dpProperties = TypeHelpers.DeclaredProperties(type);
 
-			var t = dpProperties.Where(x => x.Name == propertyName).ToArray();
-			return t.Where(x =>
-								x.GetCustomAttributes<TypeConverterAttribute>().Any())
-							.Select(x => x.GetCustomAttribute<TypeConverterAttribute>())
-							.Select(x => Type.GetType(x.ConverterTypeName))
-							.Select(x => (TypeConverter)Activator.CreateInstance(x))
-							.FirstOrDefault();
+			var property = dpProperties.Where(x => x.Name == propertyName).ToArray();
+
+			return property
+				.Where(x => x.GetCustomAttributes<TypeConverterAttribute>().Any())
+				.Select(x => x.GetCustomAttribute<TypeConverterAttribute>())
+				.Select(x => Type.GetType(x.ConverterTypeName))
+				.Select(x => (TypeConverter)Activator.CreateInstance(x))
+				.FirstOrDefault();
 		}
 
 		public TypeConverter GetConverter(Type targetDataType)
 		{
 			if (converterMapping.ContainsKey(targetDataType))
+			{
 				return converterMapping[targetDataType];
+			}
 
 			return null;
 		}

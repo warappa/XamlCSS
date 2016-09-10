@@ -21,8 +21,11 @@ namespace XamlCSS.WPF.Dom
 
 		public override bool Equals(object obj)
 		{
-			LogicalDomElement otherNode = obj as LogicalDomElement;
-			return otherNode != null ? otherNode.dependencyObject.Equals(dependencyObject) : false;
+			var otherNode = obj as LogicalDomElement;
+
+			return otherNode != null ? 
+				otherNode.dependencyObject.Equals(dependencyObject) : 
+				false;
 		}
 
 		public override int GetHashCode()

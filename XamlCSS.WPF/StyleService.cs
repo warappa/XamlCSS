@@ -11,13 +11,18 @@ namespace XamlCSS.WPF
 
 		public Style CreateFrom(IDictionary<DependencyProperty, object> dict, Type forType)
 		{
-			Style style = null;
-			if (forType != null)
-				style = new Style(forType);
-			else
-				style = new Style();
+			Style style;
 
-			foreach(var i in dict)
+			if (forType != null)
+			{
+				style = new Style(forType);
+			}
+			else
+			{
+				style = new Style();
+			}
+
+			foreach (var i in dict)
 			{
 				style.Setters.Add(new Setter(i.Key, i.Value));
 			}
@@ -33,9 +38,13 @@ namespace XamlCSS.WPF
 		public void SetStyle(DependencyObject visualElement, Style s)
 		{
 			if (visualElement is FrameworkElement)
+			{
 				(visualElement as FrameworkElement).Style = s;
+			}
 			else if (visualElement is FrameworkContentElement)
+			{
 				(visualElement as FrameworkContentElement).Style = s;
+			}
 		}
 
 		public string GetStyleResourceKey(Type type, string selector)

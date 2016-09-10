@@ -23,9 +23,13 @@ namespace XamlCSS.Dom
 		public bool Toggle(string token, bool force = false)
 		{
 			if (this.Contains(token))
+			{
 				Remove(token);
+			}
 			else
+			{
 				Add(token);
+			}
 
 			return true;
 		}

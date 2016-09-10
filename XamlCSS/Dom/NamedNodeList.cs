@@ -16,10 +16,14 @@ namespace XamlCSS.Dom
 
 		public NamedNodeListBase(IDomElement<TDependencyObject> node)
 		{
-			var vals = GetChildren(node.Element)
+			InitNodes(node);
+		}
+
+		private void InitNodes(IDomElement<TDependencyObject> node)
+		{
+			this.nodes = GetChildren(node.Element)
 				.Select(x => CreateNode(x, node))
 				.ToList();
-			this.nodes = vals;
 		}
 
 		public NamedNodeListBase(IEnumerable<INode> nodes)

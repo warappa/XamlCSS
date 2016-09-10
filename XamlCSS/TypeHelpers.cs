@@ -14,8 +14,9 @@ namespace XamlCSS
 			{
 				fields.AddRange(type.GetRuntimeFields());
 				
-				Type type2 = type.GetTypeInfo().BaseType;
-				type = type2 != null ? type2 : null;
+				var baseType = type.GetTypeInfo().BaseType;
+
+				type = baseType;
 			}
 
 			return fields.ToArray();
@@ -29,8 +30,9 @@ namespace XamlCSS
 			{
 				fields.AddRange(type.GetTypeInfo().DeclaredProperties);
 
-				Type type2 = type.GetTypeInfo().BaseType;
-				type = type2 != null ? type2 : null;
+				var baseType = type.GetTypeInfo().BaseType;
+
+				type = baseType;
 			}
 
 			return fields.ToArray();

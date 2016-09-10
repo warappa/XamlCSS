@@ -12,38 +12,62 @@ namespace XamlCSS.ComponentModel
 		}
 		public override object ConvertFrom(CultureInfo culture, object o)
 		{
-			var s = o as string;
+			var stringValue = o as string;
 
-			var t = typeof(Tout);
+			var outputType = typeof(Tout);
 
-			object res = null;
+			object convertedValue = null;
 
-			if (t == typeof(byte))
-				res = byte.Parse(s, culture);
-			else if (t == typeof(int))
-				res = int.Parse(s, culture);
-			else if (t == typeof(uint))
-				res = uint.Parse(s, culture);
-			else if (t == typeof(long))
-				res = long.Parse(s, culture);
-			else if (t == typeof(ulong))
-				res = ulong.Parse(s, culture);
-			else if (t == typeof(float))
-				res = float.Parse(s, culture);
-			else if (t == typeof(double))
-				res = double.Parse(s, culture);
-			else if (t == typeof(bool))
+			if (outputType == typeof(byte))
 			{
-				s = s.ToLowerInvariant();
-				if (s == "true")
-					res = true;
-				else if (s == "false")
-					res = false;
-				else
-					throw new InvalidOperationException($"'{o}' is not a valid value for bool!");
+				convertedValue = byte.Parse(stringValue, culture);
 			}
-			if (res != null)
-				return res;
+			else if (outputType == typeof(int))
+			{
+				convertedValue = int.Parse(stringValue, culture);
+			}
+			else if (outputType == typeof(uint))
+			{
+				convertedValue = uint.Parse(stringValue, culture);
+			}
+			else if (outputType == typeof(long))
+			{
+				convertedValue = long.Parse(stringValue, culture);
+			}
+			else if (outputType == typeof(ulong))
+			{
+				convertedValue = ulong.Parse(stringValue, culture);
+			}
+			else if (outputType == typeof(float))
+			{
+				convertedValue = float.Parse(stringValue, culture);
+			}
+			else if (outputType == typeof(double))
+			{
+				convertedValue = double.Parse(stringValue, culture);
+			}
+			else if (outputType == typeof(bool))
+			{
+				stringValue = stringValue.ToLowerInvariant();
+
+				if (stringValue == "true")
+				{
+					convertedValue = true;
+				}
+				else if (stringValue == "false")
+				{
+					convertedValue = false;
+				}
+				else
+				{
+					throw new InvalidOperationException($"'{o}' is not a valid value for bool!");
+				}
+			}
+
+			if (convertedValue != null)
+			{
+				return convertedValue;
+			}
 
 			throw new InvalidOperationException($"Unable to parse value '{o}' to ''");
 		}

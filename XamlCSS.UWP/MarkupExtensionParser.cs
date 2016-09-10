@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
-using System.Xml.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -22,17 +16,22 @@ namespace XamlCSS.UWP
 
 			var result = XamlReader.Load(test) as TextBlock;
 			var bindingExpression = result.ReadLocalValue(TextBlock.TextProperty);
+
 			var binding = bindingExpression;
+
 			if (binding is BindingExpression)
+			{
 				binding = ((BindingExpression)binding).ParentBinding;
+			}
 
 			return binding;
 		}
 		public object Parse(string expression, ResourceDictionary resourceDictionary)
 		{
 			string myBindingExpression = expression;
-			var list = new List<string>(resourceDictionary.Keys.Select(x=>
-			$@"<x:String x:Key=""{x.ToString()}"">{x.ToString()}</x:String>"));
+			var list = new List<string>(resourceDictionary.Keys.Select(x =>
+				$@"<x:String x:Key=""{x.ToString()}"">{x.ToString()}</x:String>"));
+
 			string inner = string.Join(" ", list);
 
 			var test = $@"
@@ -45,13 +44,21 @@ namespace XamlCSS.UWP
 </StackPanel>";
 
 			var result = (XamlReader.Load(test) as StackPanel).Children[0];
+
 			var bindingExpression = result.ReadLocalValue(TextBlock.TextProperty);
+
 			var binding = bindingExpression;
+
 			if (binding is BindingExpression)
+			{
 				binding = ((BindingExpression)binding).ParentBinding;
-			else if (binding is string &&
+			}
+			else if (
+				binding is string &&
 				resourceDictionary.Keys.Contains(binding as string))
+			{
 				binding = resourceDictionary[binding as string];
+			}
 
 			return binding;
 		}
@@ -59,7 +66,7 @@ namespace XamlCSS.UWP
 		protected IEnumerable<FrameworkElement> GetParents(FrameworkElement obj)
 		{
 			var parent = obj;
-			while(parent != null)
+			while (parent != null)
 			{
 				yield return parent;
 				parent = ((dynamic)parent).Parent;
@@ -71,7 +78,7 @@ namespace XamlCSS.UWP
 			var resDict = new ResourceDictionary();
 			foreach (var parent in GetParents(obj as FrameworkElement))
 			{
-				foreach(var i in parent.Resources)
+				foreach (var i in parent.Resources)
 				{
 					resDict.Add(i);
 				}
@@ -80,8 +87,10 @@ namespace XamlCSS.UWP
 			var binding = Parse(expression, resDict);
 
 			if (binding is Binding)
+			{
 				return (binding as Binding);
-			
+			}
+
 			return binding;
 		}
 	}

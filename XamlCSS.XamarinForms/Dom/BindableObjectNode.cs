@@ -43,9 +43,13 @@ namespace XamlCSS.XamarinForms.Dom
 		protected override ITokenList GetClassList(BindableObject dependencyObject)
 		{
 			var list = new TokenList();
-			var strs = Css.GetClass(dependencyObject)?.Split(' ');
-			if (strs != null)
-				list.AddRange(strs);
+
+			var classNames = Css.GetClass(dependencyObject)?.Split(' ');
+			if (classNames != null)
+			{
+				list.AddRange(classNames);
+			}
+
 			return list;
 		}
 		protected override string GetId(BindableObject dependencyObject)

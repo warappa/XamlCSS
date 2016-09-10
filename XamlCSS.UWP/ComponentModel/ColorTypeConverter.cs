@@ -13,22 +13,27 @@ namespace XamlCSS.ComponentModel
 		}
 		public override object ConvertFrom(object o)
 		{
-			if (o == null)
-				return null;
+            if (o == null)
+            {
+                return null;
+            }
 
-			if (o is Color)
-				return o;
+            if (o is Color)
+            {
+                return o;
+            }
 
 			if (o is string)
 			{
 				var value = o as string;
 
-				if (value.StartsWith("#"))
+				if (value.StartsWith("#", StringComparison.Ordinal))
 				{
 					string a = "ff";
 					var r = value.Substring(1, 2);
 					var g = value.Substring(3, 2);
 					var b = value.Substring(5, 2);
+
 					if (value.Length == 9) // alpha
 					{
 						a = r;
@@ -36,7 +41,9 @@ namespace XamlCSS.ComponentModel
 						g = b;
 						b = value.Substring(7, 2);
 					}
-					return Color.FromArgb(Convert.ToByte(a, 16),
+
+					return Color.FromArgb(
+                        Convert.ToByte(a, 16),
 						Convert.ToByte(r, 16),
 						Convert.ToByte(g, 16),
 						Convert.ToByte(b, 16));

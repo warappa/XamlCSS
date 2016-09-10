@@ -18,7 +18,6 @@ namespace XamlCSS.UWP.Dom
 			{
 				return this.dependencyObject.ReadLocalValue(property) as string;
 			}
-
 			set
 			{
 				throw new NotImplementedException();

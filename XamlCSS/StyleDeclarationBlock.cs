@@ -8,7 +8,8 @@ namespace XamlCSS
 		{
 
 		}
-		public StyleDeclarationBlock(IEnumerable<StyleDeclaration> collection) : base(collection)
+		public StyleDeclarationBlock(IEnumerable<StyleDeclaration> collection) 
+			: base(collection)
 		{
 		}
 	}

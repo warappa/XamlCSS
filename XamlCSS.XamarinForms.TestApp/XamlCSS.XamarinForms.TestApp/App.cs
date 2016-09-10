@@ -26,7 +26,7 @@ Button
 }
 .container Button
 {
-	TextColor: Green;
+	TextColor: Red;
 }
 .jumbo
 {

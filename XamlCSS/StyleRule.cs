@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace XamlCSS
+﻿namespace XamlCSS
 {
 	public class StyleRule
 	{

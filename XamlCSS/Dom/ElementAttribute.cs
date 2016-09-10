@@ -52,9 +52,14 @@ namespace XamlCSS.Dom
 		public bool Equals(IAttr other)
 		{
 			if (object.ReferenceEquals(this, other))
+			{
 				return true;
+			}
+
 			if (other == null)
+			{
 				return false;
+			}
 
 			return property == ((ElementAttributeBase<TDependencyObject, TDependencyProperty>)other).property;
 		}

@@ -11,12 +11,13 @@ namespace XamlCSS.Dom
 	{
 		public static int IndexOf<T>(this IEnumerable<T> list, T element)
 		{
-			var count = list.Count();
 			var counter = 0;
 			foreach (var item in list)
 			{
 				if (item?.Equals(element) == true)
+				{
 					return counter;
+				}
 
 				counter++;
 			}
@@ -49,13 +50,14 @@ namespace XamlCSS.Dom
 		{
 			for (int i = 0; i < elements.Length; i++)
 			{
-				IElement element = elements[i] as IElement;
+				var element = elements[i] as IElement;
 				if (element != null)
 				{
 					if (element.ClassList.Contains(classNames))
 					{
 						result.Add(element);
 					}
+
 					if (element.ChildElementCount != 0)
 					{
 						element.ChildNodes.GetElementsByClassName(classNames, result);
@@ -67,13 +69,14 @@ namespace XamlCSS.Dom
 		{
 			for (int i = 0; i < elements.Length; i++)
 			{
-				IElement element = elements[i] as IElement;
+				var element = elements[i] as IElement;
 				if (element != null)
 				{
 					if (tagName == null || tagName.Isi(element.LocalName))
 					{
 						result.Add(element);
 					}
+
 					if (element.ChildElementCount != 0)
 					{
 						element.ChildNodes.GetElementsByTagName(tagName, result);
@@ -85,13 +88,14 @@ namespace XamlCSS.Dom
 		{
 			for (int i = 0; i < elements.Length; i++)
 			{
-				IElement element = elements[i] as IElement;
+				var element = elements[i] as IElement;
 				if (element != null)
 				{
 					if (element.NamespaceUri.Is(namespaceUri) && (localName == null || localName.Isi(element.LocalName)))
 					{
 						result.Add(element);
 					}
+
 					if (element.ChildElementCount != 0)
 					{
 						element.ChildNodes.GetElementsByTagName(namespaceUri, localName, result);
@@ -102,20 +106,23 @@ namespace XamlCSS.Dom
 		public static IList<IElement> QuerySelectorAll(this INodeList elements, ISelector selector)
 		{
 			List<IElement> list = new List<IElement>();
+
 			elements.QuerySelectorAll(selector, list);
+
 			return list;
 		}
 		public static void QuerySelectorAll(this INodeList elements, ISelector selector, List<IElement> result)
 		{
 			for (int i = 0; i < elements.Length; i++)
 			{
-				IElement element = elements[i] as IElement;
+				var element = elements[i] as IElement;
 				if (element != null)
 				{
 					if (selector.Match(element))
 					{
 						result.Add(element);
 					}
+
 					if (element.HasChildNodes)
 					{
 						element.ChildNodes.QuerySelectorAll(selector, result);
@@ -127,16 +134,18 @@ namespace XamlCSS.Dom
 		{
 			for (int i = 0; i < elements.Length; i++)
 			{
-				IElement element = elements[i] as IElement;
+				var element = elements[i] as IElement;
 				if (element != null)
 				{
 					if (selector.Match(element))
 					{
 						return element;
 					}
+
 					if (element.HasChildNodes)
 					{
 						element = element.ChildNodes.QuerySelector(selector);
+
 						if (element != null)
 						{
 							return element;
@@ -144,6 +153,7 @@ namespace XamlCSS.Dom
 					}
 				}
 			}
+
 			return null;
 		}
 		public static T QuerySelector<T>(this INodeList elements, ISelector selectors) where T : class, IElement
@@ -152,22 +162,26 @@ namespace XamlCSS.Dom
 		}
 		public static IElement QuerySelector(this INodeList elements, string selectors, CssParser parser)
 		{
-			ISelector selector = parser.ParseSelector(selectors);
+			var selector = parser.ParseSelector(selectors);
 			if (selector == null)
 			{
 				throw new DomException(DomError.Syntax);
 			}
+
 			return elements.QuerySelector(selector);
 		}
 		public static IList<IElement> QuerySelectorAll(this INodeList elements, string selectors, CssParser parser)
 		{
-			ISelector selector = parser.ParseSelector(selectors);
+			var selector = parser.ParseSelector(selectors);
 			if (selector == null)
 			{
 				throw new DomException(DomError.Syntax);
 			}
-			List<IElement> list = new List<IElement>();
+
+			var list = new List<IElement>();
+
 			elements.QuerySelectorAll(selector, list);
+
 			return list;
 		}
 	}

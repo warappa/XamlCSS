@@ -6,14 +6,17 @@ using Windows.UI.Xaml.Controls;
 
 namespace XamlCSS.UWP
 {
-	public class LoadedDetectionHelper
+	public static class LoadedDetectionHelper
 	{
 		private static Type[] GetUITypesFromAssemblyByType(Type type)
 		{
-			return type.GetTypeInfo().Assembly.GetTypes()
-				.Where(x => x.GetTypeInfo().IsAbstract == false &&
-				x.GetTypeInfo().IsInterface == false &&
-				typeof(FrameworkElement).GetTypeInfo().IsAssignableFrom(x.GetTypeInfo()))
+			return type.GetTypeInfo().Assembly
+				.GetTypes()
+				.Where(x =>
+					x.GetTypeInfo().IsAbstract == false &&
+					x.GetTypeInfo().IsInterface == false &&
+					typeof(FrameworkElement).GetTypeInfo().IsAssignableFrom(x.GetTypeInfo())
+				)
 				.ToArray();
 		}
 		public static void Initialize()
@@ -21,14 +24,16 @@ namespace XamlCSS.UWP
 			var frame = Window.Current.Content as Frame;
 
 			var uiTypes = GetUITypesFromAssemblyByType(frame.GetType())
-				.Concat(GetUITypesFromAssemblyByType(typeof(Window).GetType()))
+				.Concat(GetUITypesFromAssemblyByType(typeof(Window)))
 				.ToArray();
 
 			var style = new Style(typeof(FrameworkElement));
-			style.Setters.Add(new Setter(LoadedDetectionHelper.LoadDetectionProperty, true));
+			style.Setters.Add(new Setter(LoadDetectionProperty, true));
 
 			foreach (var t in uiTypes)
+			{
 				frame.Resources.Add(t, style);
+			}
 		}
 
 		#region LoadDetection
@@ -36,13 +41,12 @@ namespace XamlCSS.UWP
 		public static readonly DependencyProperty LoadDetectionProperty =
 			DependencyProperty.RegisterAttached("LoadDetection", typeof(bool), typeof(LoadedDetectionHelper),
 												new PropertyMetadata(false, OnLoadDetectionChanged));
-		
+
 		public static bool GetLoadDetection(UIElement element)
 		{
 			var res = element.ReadLocalValue(LoadDetectionProperty);
-			if (res == DependencyProperty.UnsetValue)
-				return false;
-			return (bool)res;
+
+			return res == DependencyProperty.UnsetValue ? false : (bool)res;
 		}
 		public static void SetLoadDetection(UIElement element, bool value)
 		{
@@ -52,7 +56,8 @@ namespace XamlCSS.UWP
 		private static void OnLoadDetectionChanged(DependencyObject dpo, DependencyPropertyChangedEventArgs ev)
 		{
 			var obj = dpo as FrameworkElement;
-			if ((bool)ev.NewValue == true && Css.GetIsLoaded(dpo) == false)
+			if ((bool)ev.NewValue == true && 
+				Css.GetIsLoaded(dpo) == false)
 			{
 				if (dpo is FrameworkElement)
 				{
@@ -60,7 +65,7 @@ namespace XamlCSS.UWP
 
 					(dpo as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
 					(dpo as FrameworkElement).Unloaded += LoadedDetectionHelper_Unloaded;
-					Window.Current.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
+					Window.Current.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
 					{
 						Css.instance.UpdateElement(obj);
 					});
@@ -71,6 +76,7 @@ namespace XamlCSS.UWP
 		private static void LoadedDetectionHelper_Unloaded(object sender, RoutedEventArgs e)
 		{
 			(sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
+
 			Css.instance.UnapplyMatchingStyles(sender as FrameworkElement);
 		}
 

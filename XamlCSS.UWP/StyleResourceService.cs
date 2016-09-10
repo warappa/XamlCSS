@@ -13,8 +13,10 @@ namespace XamlCSS.UWP
 
 		public void EnsureResources()
 		{
-			if (Application.Current.Resources == null)
-				Application.Current.Resources = new ResourceDictionary();
+            if (Application.Current.Resources == null)
+            {
+                Application.Current.Resources = new ResourceDictionary();
+            }
 		}
 
 		public IEnumerable<object> GetKeys()
