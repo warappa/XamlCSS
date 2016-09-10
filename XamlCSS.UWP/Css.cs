@@ -21,7 +21,7 @@ namespace XamlCSS.UWP
 
 		public static void RunOnUIThread(Action action)
 		{
-			Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => action()).AsTask().Wait();
+			Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () => action());
 		}
 
 		#region dependency properties
