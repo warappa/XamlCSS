@@ -18,6 +18,9 @@ namespace XamlCSS
 		string[] GetAppliedMatchingStyles(TDependencyObject obj);
 		void SetAppliedMatchingStyles(TDependencyObject obj, string[] value);
 
+		bool GetHandledCss(TDependencyObject obj);
+		void SetHandledCss(TDependencyObject obj, bool value);
+
 		string GetName(TDependencyObject obj);
 		void SetName(TDependencyObject obj, string value);
 

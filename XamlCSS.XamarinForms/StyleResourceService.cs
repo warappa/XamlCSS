@@ -14,8 +14,10 @@ namespace XamlCSS.XamarinForms
 
 		public void EnsureResources()
 		{
-			if (Application.Current.Resources == null)
-				Application.Current.Resources = new ResourceDictionary();
+            if (Application.Current.Resources == null)
+            {
+                Application.Current.Resources = new ResourceDictionary();
+            }
 		}
 
 		public IEnumerable<object> GetKeys()
@@ -25,7 +27,6 @@ namespace XamlCSS.XamarinForms
 
 		public object GetResource(object key)
 		{
-
 			return Application.Current.Resources[key as string];
 		}
 

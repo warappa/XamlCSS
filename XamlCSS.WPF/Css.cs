@@ -1,5 +1,9 @@
-﻿using System.Windows;
+﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Threading;
 using XamlCSS.Dom;
 
@@ -18,6 +22,22 @@ namespace XamlCSS.WPF
 				Application.Current.Dispatcher.Invoke
 				);
 
+		private static TimeSpan _lastRendering;
+
+		static Css()
+		{
+			CompositionTarget.Rendering += (sender, e) =>
+			{
+				var evt = e as RenderingEventArgs;
+				if (evt.RenderingTime == _lastRendering)
+					return;
+
+				_lastRendering = evt.RenderingTime;
+
+				instance.ExecuteApplyStyles();
+			};
+		}
+		
 		public static readonly DependencyProperty MatchingStylesProperty =
 			DependencyProperty.RegisterAttached(
 				"MatchingStyles",
@@ -142,6 +162,21 @@ namespace XamlCSS.WPF
 		public static void SetClass(DependencyObject obj, string value)
 		{
 			obj.SetValue(ClassProperty, value);
+		}
+
+		public static readonly DependencyProperty HandledCssProperty =
+			DependencyProperty.RegisterAttached(
+				"HandledCss",
+				typeof(bool),
+				typeof(Css),
+				new PropertyMetadata(false));
+		public static string GetHandledCss(DependencyObject obj)
+		{
+			return obj.GetValue(HandledCssProperty) as string;
+		}
+		public static void SetHandledCss(DependencyObject obj, string value)
+		{
+			obj.SetValue(HandledCssProperty, value);
 		}
 	}
 }

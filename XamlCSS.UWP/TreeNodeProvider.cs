@@ -29,7 +29,7 @@ namespace XamlCSS.UWP
 		{
 			return this.GetChildren(node.Element as DependencyObject)
 				.Select(x => new LogicalDomElement(x, node as LogicalDomElement))
-				.ToArray();
+				.ToList();
 		}
 
 		public DependencyObject GetParent(DependencyObject tUIElement)

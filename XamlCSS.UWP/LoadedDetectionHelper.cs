@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Windows.UI.Xaml;
@@ -8,7 +9,7 @@ namespace XamlCSS.UWP
 {
 	public static class LoadedDetectionHelper
 	{
-		private static Type[] GetUITypesFromAssemblyByType(Type type)
+		private static IEnumerable<Type> GetUITypesFromAssemblyByType(Type type)
 		{
 			return type.GetTypeInfo().Assembly
 				.GetTypes()
@@ -17,15 +18,17 @@ namespace XamlCSS.UWP
 					x.GetTypeInfo().IsInterface == false &&
 					typeof(FrameworkElement).GetTypeInfo().IsAssignableFrom(x.GetTypeInfo())
 				)
-				.ToArray();
+				.ToList();
 		}
+
 		public static void Initialize()
 		{
 			var frame = Window.Current.Content as Frame;
 
 			var uiTypes = GetUITypesFromAssemblyByType(frame.GetType())
 				.Concat(GetUITypesFromAssemblyByType(typeof(Window)))
-				.ToArray();
+                .Distinct()
+				.ToList();
 
 			var style = new Style(typeof(FrameworkElement));
 			style.Setters.Add(new Setter(LoadDetectionProperty, true));

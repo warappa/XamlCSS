@@ -3,7 +3,7 @@ using XamlCSS.Windows.Media;
 
 namespace XamlCSS.XamarinForms.TestApp
 {
-	public class App : Application
+    public class App : Application
 	{
 		public App()
 		{

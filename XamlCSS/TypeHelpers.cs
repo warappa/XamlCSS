@@ -6,7 +6,7 @@ namespace XamlCSS
 {
 	public class TypeHelpers
 	{
-		public static FieldInfo[] DeclaredFields(Type type)
+		public static IEnumerable<FieldInfo> DeclaredFields(Type type)
 		{
 			var fields = new List<FieldInfo>();
 
@@ -19,10 +19,10 @@ namespace XamlCSS
 				type = baseType;
 			}
 
-			return fields.ToArray();
+			return fields;
 		}
 
-		public static PropertyInfo[] DeclaredProperties(Type type)
+		public static IEnumerable<PropertyInfo> DeclaredProperties(Type type)
 		{
 			var fields = new List<PropertyInfo>();
 
@@ -35,7 +35,7 @@ namespace XamlCSS
 				type = baseType;
 			}
 
-			return fields.ToArray();
+			return fields;
 		}
 	}
 }

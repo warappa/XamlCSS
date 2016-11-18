@@ -112,7 +112,7 @@ namespace XamlCSS.ComponentModel
 		{
 			var dpProperties = TypeHelpers.DeclaredProperties(type);
 
-			var property = dpProperties.Where(x => x.Name == propertyName).ToArray();
+			var property = dpProperties.Where(x => x.Name == propertyName).ToList();
 
 			return property
 				.Where(x => x.GetCustomAttributes<TypeConverterAttribute>().Any())

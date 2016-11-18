@@ -19,9 +19,9 @@ namespace XamlCSS.CssParsing
 
 			var currentNode = doc;
 
-			var tokens = Tokenize(cssDocument).ToArray();
+			var tokens = Tokenize(cssDocument).ToList();
 
-			for (var i = 0; i < tokens.Length;)
+			for (var i = 0; i < tokens.Count;)
 			{
 				var t = tokens[i++];
 
@@ -476,7 +476,7 @@ namespace XamlCSS.CssParsing
 				styleSheet.Namespaces.Add(new CssNamespace("", defaultCssNamespace));
 			}
 
-			foreach (var astRule in ast.Children.Where(x => x.Type == CssNodeType.StyleRule).ToArray())
+			foreach (var astRule in ast.Children.Where(x => x.Type == CssNodeType.StyleRule).ToList())
 			{
 				var rule = new StyleRule();
 
@@ -485,9 +485,9 @@ namespace XamlCSS.CssParsing
 				var selectors = astRule.Children
 					.Single(x => x.Type == CssNodeType.Selectors);
 
-				string[] selectorTexts = selectors.Children
+				var selectorTexts = selectors.Children
 					.Select(x => string.Join(" ", x.Children /* selectors */.Select(y => y.Text)))
-					.ToArray();
+					.ToList();
 
 				rule.Selector = string.Join(",", selectorTexts);
 

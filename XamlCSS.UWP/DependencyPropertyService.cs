@@ -132,5 +132,15 @@ namespace XamlCSS.UWP
 
 			frameworkElement.Loaded += handler;
 		}
-	}
+
+        public bool GetHandledCss(DependencyObject obj)
+        {
+            return Css.GetHandledCss(obj);
+        }
+
+        public void SetHandledCss(DependencyObject obj, bool value)
+        {
+            Css.SetHandledCss(obj, value);
+        }
+    }
 }

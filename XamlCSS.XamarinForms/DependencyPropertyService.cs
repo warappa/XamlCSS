@@ -67,82 +67,92 @@ namespace XamlCSS.XamarinForms
 
 		public string[] GetAppliedMatchingStyles(BindableObject obj)
 		{
-			return obj.GetValue(Css.AppliedMatchingStylesProperty) as string[];
+			return Css.GetAppliedMatchingStyles(obj);
 		}
 
 		public string GetClass(BindableObject obj)
 		{
-			return obj.GetValue(Css.ClassProperty) as string;
+			return Css.GetClass(obj);
 		}
 
 		public bool? GetHadStyle(BindableObject obj)
 		{
-			return obj.GetValue(Css.HadStyleProperty) as bool?;
+			return Css.GetHadStyle(obj);
 		}
 
 		public Style GetInitialStyle(BindableObject obj)
 		{
-			return obj.GetValue(Css.InitialStyleProperty) as Style;
+			return Css.GetInitialStyle(obj);
 		}
 
 		public string[] GetMatchingStyles(BindableObject obj)
 		{
-			return obj.GetValue(Css.MatchingStylesProperty) as string[];
+			return Css.GetMatchingStyles(obj);
 		}
 
 		public string GetName(BindableObject obj)
 		{
-			return obj.GetValue(Css.IdProperty) as string;
+			return Css.GetId(obj);
 		}
 
 		public StyleDeclarationBlock GetStyle(BindableObject obj)
 		{
-			return obj.GetValue(Css.StyleProperty) as StyleDeclarationBlock;
+			return Css.GetStyle(obj);
 		}
 
 		public StyleSheet GetStyleSheet(BindableObject obj)
 		{
-			return obj.GetValue(Css.StyleSheetProperty) as StyleSheet;
+			return Css.GetStyleSheet(obj);
+		}
+
+		public bool GetHandledCss(BindableObject obj)
+		{
+			return Css.GetHandledCss(obj);
 		}
 
 		public void SetAppliedMatchingStyles(BindableObject obj, string[] value)
 		{
-			obj.SetValue(Css.AppliedMatchingStylesProperty, value);
+			Css.SetAppliedMatchingStyles(obj, value);
 		}
 
 		public void SetClass(BindableObject obj, string value)
 		{
-			obj.SetValue(Css.ClassProperty, value);
+			Css.SetClass(obj, value);
 		}
 
 		public void SetHadStyle(BindableObject obj, bool? value)
 		{
-			obj.SetValue(Css.HadStyleProperty, value);
+			Css.SetHadStyle(obj, value);
 		}
 
 		public void SetInitialStyle(BindableObject obj, Style value)
 		{
-			obj.SetValue(Css.InitialStyleProperty, value);
+			Css.SetInitialStyle(obj, value);
 		}
 
 		public void SetMatchingStyles(BindableObject obj, string[] value)
 		{
-			obj.SetValue(Css.MatchingStylesProperty, value);
+			Css.SetMatchingStyles(obj, value);
 		}
 
 		public void SetName(BindableObject obj, string value)
 		{
-			obj.SetValue(Css.IdProperty, value);
+			Css.SetId(obj, value);
 		}
 
 		public void SetStyle(BindableObject obj, StyleDeclarationBlock value)
 		{
-			obj.SetValue(Css.StyleProperty, value);
+			Css.SetStyle(obj, value);
 		}
 
 		public void SetStyleSheet(BindableObject obj, StyleSheet value)
 		{
-			obj.SetValue(Css.StyleSheetProperty, value);
+			Css.SetStyleSheet(obj, value);
+		}
+
+		public void SetHandledCss(BindableObject obj, bool value)
+		{
+			Css.SetHandledCss(obj, value);
 		}
 
 		public bool IsLoaded(Element obj)

@@ -199,6 +199,12 @@ namespace XamlCSS.Windows.Media
 		private static bool CanUnattachChild(Element child)
 		{
 			Element dummy = null;
+
+			if (child == null)
+			{
+				return false;
+			}
+
 			if (!childParentAssociations.TryGetValue(child, out dummy))
 			{
 				return false;
@@ -209,6 +215,12 @@ namespace XamlCSS.Windows.Media
 		private static bool UnattachedChild(Element child)
 		{
 			Element dummy = null;
+
+			if (child == null)
+			{
+				return false;
+			}
+
 			if (!childParentAssociations.TryGetValue(child, out dummy))
 			{
 				return false;

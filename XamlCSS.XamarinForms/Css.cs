@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Globalization;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Xml;
 using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
-using Xamarin.Forms.Xaml.Internals;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 using XamlCSS.Windows.Media;
+using XamlCSS.XamarinForms.Internals;
 
 namespace XamlCSS.XamarinForms
 {
@@ -25,10 +20,20 @@ namespace XamlCSS.XamarinForms
 				Device.BeginInvokeOnMainThread
 				);
 
+		private static Timer timer;
+
 		public static void Initialize()
 		{
 			VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
 			VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
+
+			timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
+			{
+				Device.BeginInvokeOnMainThread(() =>
+				{
+					instance.ExecuteApplyStyles();
+				});
+			}, null);
 		}
 
 		public static void EnqueueRenderStyleSheet(Element styleSheetHolder, StyleSheet styleSheet, Element startFrom)
@@ -174,6 +179,22 @@ namespace XamlCSS.XamarinForms
 			obj.SetValue(ClassProperty, value);
 		}
 
+		public static readonly BindableProperty HandledCssProperty =
+			BindableProperty.CreateAttached(
+				"HandledCss",
+				typeof(bool),
+				typeof(Css),
+				false,
+				BindingMode.TwoWay);
+		public static bool GetHandledCss(BindableObject obj)
+		{
+			return ((bool?)obj.GetValue(HandledCssProperty) ?? false);
+		}
+		public static void SetHandledCss(BindableObject obj, bool value)
+		{
+			obj.SetValue(HandledCssProperty, value);
+		}
+
 		private static void VisualTreeHelper_ChildAdded(object sender, EventArgs e)
 		{
 			instance.UpdateElement(sender as BindableObject);
@@ -192,8 +213,9 @@ namespace XamlCSS.XamarinForms
 
 			if (newStyleSheet == null)
 			{
-				instance.RemoveStyleResources(frameworkElement, oldValue as StyleSheet);
-				return;
+                EnqueueRemoveStyleSheet(frameworkElement, oldValue as StyleSheet, null);
+
+                return;
 			}
 
 			VisualTreeHelper.Include(frameworkElement);

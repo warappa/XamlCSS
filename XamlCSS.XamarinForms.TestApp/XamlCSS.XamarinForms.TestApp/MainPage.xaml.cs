@@ -32,9 +32,8 @@ namespace XamlCSS.XamarinForms.TestApp
 			var app = Application.Current as App;
 			app.currentStyle = app.currentStyle == app.cssStyle1 ? app.cssStyle2 : app.cssStyle1;
 
-			var sheet = global::XamlCSS.CssParsing.CssParser.Parse(app.currentStyle);
-			Css.SetStyleSheet(main, null);
-			Css.SetStyleSheet(main, sheet);
+            var styler = new XamarinFormsStyler();
+            styler.ApplyStyleAsync(app.currentStyle);
 		}
 
 

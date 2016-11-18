@@ -108,6 +108,11 @@ namespace XamlCSS.WPF
 			return (StyleSheet)ReadSafe(obj, Css.StyleSheetProperty);
 		}
 
+		public bool GetHandledCss(DependencyObject obj)
+		{
+			return ((bool?)ReadSafe(obj, Css.HandledCssProperty) ?? false);
+		}
+
 		public void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
 		{
 			obj.SetValue(Css.AppliedMatchingStylesProperty, value);
@@ -146,6 +151,11 @@ namespace XamlCSS.WPF
 		public void SetStyleSheet(DependencyObject obj, StyleSheet value)
 		{
 			obj.SetValue(Css.StyleSheetProperty, value);
+		}
+		
+		public void SetHandledCss(DependencyObject obj, bool value)
+		{
+			obj.SetValue(Css.HandledCssProperty, value);
 		}
 
 		public bool IsLoaded(DependencyObject obj)

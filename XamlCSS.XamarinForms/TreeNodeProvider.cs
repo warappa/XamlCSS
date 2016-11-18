@@ -20,7 +20,7 @@ namespace XamlCSS.XamarinForms
 		{
 			return this.GetChildren(node.Element as BindableObject)
 				.Select(x => GetLogicalTree(x, node.Element as BindableObject))
-				.ToArray();
+				.ToList();
 		}
 
 		public BindableObject GetParent(BindableObject tUIElement)

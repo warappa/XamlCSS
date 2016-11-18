@@ -39,13 +39,13 @@ namespace XamlCSS.CssParsing
 			}
 		}
 
-		private string[] AllChildrenText(IEnumerable<CssNode> nodes, int level = 0)
+		private IEnumerable<string> AllChildrenText(IEnumerable<CssNode> nodes, int level = 0)
 		{
 			return nodes
 				.SelectMany(x =>
 					new[] { new String(' ', level * 5), x.Text.ToString() }
 						.Concat(AllChildrenText(x.Children, level + 1)))
-				.ToArray();
+				.ToList();
 		}
 	}
 }

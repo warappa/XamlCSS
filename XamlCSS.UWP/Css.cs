@@ -3,6 +3,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 
 namespace XamlCSS.UWP
 {
@@ -22,6 +23,17 @@ namespace XamlCSS.UWP
 		public static void RunOnUIThread(Action action)
 		{
 			Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () => action());
+		}
+
+		static Css()
+		{
+			timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
+			{
+				RunOnUIThread(() =>
+				{
+					instance.ExecuteApplyStyles();
+				});
+			}, null);
 		}
 
 		#region dependency properties
@@ -122,6 +134,8 @@ namespace XamlCSS.UWP
 		public static readonly DependencyProperty IsLoadedProperty =
 			DependencyProperty.RegisterAttached("IsLoaded", typeof(bool),
 			typeof(Css), new PropertyMetadata(null, null));
+		private static Timer timer;
+
 		public static bool GetIsLoaded(DependencyObject obj)
 		{
 			var res = obj.ReadLocalValue(IsLoadedProperty);
@@ -134,11 +148,27 @@ namespace XamlCSS.UWP
 			obj.SetValue(IsLoadedProperty, value == true ? true : DependencyProperty.UnsetValue);
 		}
 
-		#endregion
+        public static readonly DependencyProperty HandledCssProperty =
+            DependencyProperty.RegisterAttached("HandledCss", typeof(bool),
+            typeof(Css), new PropertyMetadata(null, null));
 
-		#region attached behaviours
+        public static bool GetHandledCss(DependencyObject obj)
+        {
+            var res = obj.ReadLocalValue(HandledCssProperty);
+            if (res == DependencyProperty.UnsetValue)
+                return false;
+            return (bool)res;
+        }
+        public static void SetHandledCss(DependencyObject obj, bool value)
+        {
+            obj.SetValue(HandledCssProperty, value == true ? true : DependencyProperty.UnsetValue);
+        }
 
-		private static void StyleSheetPropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        #endregion
+
+        #region attached behaviours
+
+        private static void StyleSheetPropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
 		{
 			FrameworkElement frameworkElement = d as FrameworkElement;
 

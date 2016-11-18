@@ -31,7 +31,7 @@ namespace XamlCSS.WPF
 		{
 			return this.GetChildren(node.Element as DependencyObject)
 				.Select(x => GetLogicalTree(x, node.Element as DependencyObject))
-				.ToArray();
+				.ToList();
 		}
 
 		public DependencyObject GetParent(DependencyObject tUIElement)
