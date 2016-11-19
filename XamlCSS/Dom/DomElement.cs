@@ -97,9 +97,6 @@ namespace XamlCSS.Dom
 			this.XamlCssStyleSheets = new List<StyleSheet>();
 
 			this.dependencyObject = dependencyObject;
-			this.Attributes = CreateNamedNodeMap(dependencyObject);
-			this.ChildNodes = GetChildNodes(dependencyObject);
-			this.ClassList = GetClassList(dependencyObject);
 			this.id = GetId(dependencyObject);
 			this.LocalName = dependencyObject.GetType().Name;
 			this.NamespaceUri = dependencyObject.GetType().Namespace;
@@ -110,9 +107,7 @@ namespace XamlCSS.Dom
 			this.TagName = dependencyObject.GetType().Name;
 		}
 
-		public DomElementBase(
-			TDependencyObject dependencyObject
-			)
+		public DomElementBase(TDependencyObject dependencyObject)
 			: this(dependencyObject, (IElement)null)
 		{
 
@@ -150,7 +145,8 @@ namespace XamlCSS.Dom
 
 		public IElement AssignedSlot { get { return null; } }
 
-		public INamedNodeMap Attributes { get; protected set; }
+        private INamedNodeMap attributes = null;
+        public INamedNodeMap Attributes => attributes ?? (attributes = CreateNamedNodeMap(dependencyObject));
 
 		public string BaseUri { get; protected set; }
 
@@ -158,29 +154,32 @@ namespace XamlCSS.Dom
 
 		public int ChildElementCount { get { return Children.Count(); } }
 
-		public INodeList ChildNodes { get; protected set; }
+        private INodeList childNodes = null;
+        public INodeList ChildNodes => childNodes ?? (childNodes = GetChildNodes(dependencyObject));
 
+        private IHtmlCollection<IElement> children = null;
 		public IHtmlCollection<IElement> Children
 		{
 			get
 			{
-				return CreateCollection(ChildNodes
+				return children ?? (children = CreateCollection(ChildNodes
 					.Where(x => x is IElement)
 					.Cast<IElement>()
 					.Where(x => x != null)
-					.ToList());
+					.ToList()));
 			}
 		}
 
-		public ITokenList ClassList { get; protected set; }
+        private ITokenList classList = null;
+        public ITokenList ClassList => classList ?? (classList = GetClassList(dependencyObject));
 
 		public string ClassName
 		{
 			get { return string.Join(" ", ClassList); }
 			set
 			{
-				ClassList = new TokenList();
-				ClassList.Add(value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+				classList = new TokenList();
+				classList.Add(value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
 			}
 		}
 
@@ -213,16 +212,16 @@ namespace XamlCSS.Dom
 					return null;
 				}
 
-				var children = ParentElement.Children;
+				var parentChildren = ParentElement.Children;
 
-				var thisIndex = children.IndexOf(this);
+				var thisIndex = parentChildren.IndexOf(this);
 
-				if (thisIndex == children.Length - 1)
+				if (thisIndex == parentChildren.Length - 1)
 				{
 					return null;
 				}
 
-				return children[thisIndex + 1];
+				return parentChildren[thisIndex + 1];
 			}
 		}
 
@@ -235,15 +234,15 @@ namespace XamlCSS.Dom
 					return null;
 				}
 
-				var children = Parent.ChildNodes;
-				var thisIndex = children.IndexOf(this);
+				var parentChildren = Parent.ChildNodes;
+				var thisIndex = parentChildren.IndexOf(this);
 
-				if (thisIndex == children.Length - 1)
+				if (thisIndex == parentChildren.Length - 1)
 				{
 					return null;
 				}
 
-				return children[thisIndex + 1];
+				return parentChildren[thisIndex + 1];
 			}
 		}
 
