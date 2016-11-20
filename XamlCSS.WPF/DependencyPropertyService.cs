@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq;
 using System.Windows;
+using XamlCSS.Dom;
 
 namespace XamlCSS.WPF
 {
@@ -13,7 +14,7 @@ namespace XamlCSS.WPF
 		}
 		public DependencyProperty GetBindableProperty(Type bindableObjectType, string propertyName)
 		{
-			string dpName = propertyName + "Property";
+			string dpName = $"{propertyName}Property";
 			var dpFields = TypeHelpers.DeclaredFields(bindableObjectType);
 			var dpField = dpFields.FirstOrDefault(i => i.Name == dpName);
 
@@ -111,9 +112,14 @@ namespace XamlCSS.WPF
 		public bool GetHandledCss(DependencyObject obj)
 		{
 			return ((bool?)ReadSafe(obj, Css.HandledCssProperty) ?? false);
-		}
+        }
 
-		public void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
+        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
+        {
+            return ReadSafe(obj, Css.DomElementProperty) as IDomElement<DependencyObject>;
+        }
+
+        public void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
 		{
 			obj.SetValue(Css.AppliedMatchingStylesProperty, value);
 		}
@@ -156,9 +162,14 @@ namespace XamlCSS.WPF
 		public void SetHandledCss(DependencyObject obj, bool value)
 		{
 			obj.SetValue(Css.HandledCssProperty, value);
-		}
+        }
 
-		public bool IsLoaded(DependencyObject obj)
+        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        {
+            obj.SetValue(Css.DomElementProperty, value);
+        }
+
+        public bool IsLoaded(DependencyObject obj)
 		{
 			if (obj is FrameworkElement)
 			{
@@ -203,5 +214,5 @@ namespace XamlCSS.WPF
 				}
 			}
 		}
-	}
+    }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using Xamarin.Forms;
 using XamlCSS.ComponentModel;
+using XamlCSS.Dom;
 
 namespace XamlCSS.XamarinForms
 {
@@ -21,7 +22,7 @@ namespace XamlCSS.XamarinForms
 		}
 		public BindableProperty GetBindableProperty(Type bindableObjectType, string propertyName)
 		{
-			string dpName = propertyName + "Property";
+			string dpName = $"{propertyName}Property";
 			var dpFields = TypeHelpers.DeclaredFields(bindableObjectType);
 			var dpField = dpFields.FirstOrDefault(i => i.Name == dpName);
 
@@ -170,5 +171,15 @@ namespace XamlCSS.XamarinForms
 			};
 			frameworkElement.BindingContextChanged += handler;
 		}
-	}
+
+        public IDomElement<BindableObject> GetDomElement(BindableObject obj)
+        {
+            return Css.GetDomElement(obj) as IDomElement<BindableObject>;
+        }
+
+        public void SetDomElement(BindableObject obj, IDomElement<BindableObject> value)
+        {
+            Css.SetDomElement(obj, value);
+        }
+    }
 }

@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows;
+﻿using System.Collections.Generic;
 using AngleSharp.Dom;
 using XamlCSS.Dom;
-using System.Windows.Media;
+using Xamarin.Forms;
+using System;
+using XamlCSS.Windows.Media;
 
-namespace XamlCSS.WPF.Dom
+namespace XamlCSS.XamarinForms.Dom
 {
-    public abstract class DomElement : DomElementBase<DependencyObject, DependencyProperty>
+    public abstract class DomElement : DomElementBase<BindableObject, BindableProperty>, IDisposable
     {
-        public DomElement(DependencyObject dependencyObject, IElement parent)
+        public DomElement(BindableObject dependencyObject, IElement parent)
             : base(dependencyObject, parent)
         {
             RegisterChildrenChangeHandler();
         }
-        public DomElement(DependencyObject dependencyObject, Func<DependencyObject, IElement> getParent)
+        public DomElement(BindableObject dependencyObject, Func<BindableObject, IElement> getParent)
             : base(dependencyObject, getParent)
         {
             RegisterChildrenChangeHandler();
@@ -22,8 +22,8 @@ namespace XamlCSS.WPF.Dom
 
         private void RegisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded += ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved += ElementAdded;
+            VisualTreeHelper.SubTreeAdded += ElementAdded;
+            VisualTreeHelper.SubTreeRemoved += ElementAdded;
         }
 
         public new void Dispose()
@@ -35,14 +35,13 @@ namespace XamlCSS.WPF.Dom
 
         private void UnregisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded -= ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved -= ElementAdded;
+            VisualTreeHelper.SubTreeAdded -= ElementAdded;
+            VisualTreeHelper.SubTreeRemoved -= ElementAdded;
         }
 
         private void ElementAdded(object sender, EventArgs e)
         {
-            var parentElement = (sender as FrameworkElement)?.Parent ??
-                (sender as FrameworkContentElement)?.Parent;
+            var parentElement = (sender as Element)?.Parent;
 
             if (parentElement == dependencyObject)
             {
@@ -54,16 +53,16 @@ namespace XamlCSS.WPF.Dom
         {
             return new ElementCollection(list);
         }
-        protected override INamedNodeMap CreateNamedNodeMap(DependencyObject dependencyObject)
+        protected override INamedNodeMap CreateNamedNodeMap(BindableObject dependencyObject)
         {
             return new NamedNodeMap(dependencyObject);
         }
 
-        protected override IHtmlCollection<IElement> GetChildElements(DependencyObject dependencyObject)
+        protected override IHtmlCollection<IElement> GetChildElements(BindableObject dependencyObject)
         {
             return new ElementCollection(this);
         }
-        protected override INodeList GetChildNodes(DependencyObject dependencyObject)
+        protected override INodeList GetChildNodes(BindableObject dependencyObject)
         {
             return new NamedNodeList(this);
         }
@@ -71,7 +70,7 @@ namespace XamlCSS.WPF.Dom
         {
             return new NamedNodeList(nodes);
         }
-        protected override ITokenList GetClassList(DependencyObject dependencyObject)
+        protected override ITokenList GetClassList(BindableObject dependencyObject)
         {
             var list = new TokenList();
 
@@ -83,14 +82,9 @@ namespace XamlCSS.WPF.Dom
 
             return list;
         }
-        protected override string GetId(DependencyObject dependencyObject)
+        protected override string GetId(BindableObject dependencyObject)
         {
-            if (dependencyObject is FrameworkElement)
-            {
-                return dependencyObject.ReadLocalValue(FrameworkElement.NameProperty) as string;
-            }
-
-            return dependencyObject.ReadLocalValue(FrameworkContentElement.NameProperty) as string;
+            return Css.GetId(dependencyObject);
         }
     }
 }

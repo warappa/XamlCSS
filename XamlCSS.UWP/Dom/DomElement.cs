@@ -10,16 +10,44 @@ namespace XamlCSS.UWP.Dom
 	{
 		public DomElement(DependencyObject dependencyObject, IElement parent)
 			: base(dependencyObject, parent)
-		{
-
-		}
+        {
+            RegisterChildrenChangeHandler();
+        }
 		public DomElement(DependencyObject dependencyObject, Func<DependencyObject, IElement> getParent)
 			: base(dependencyObject, getParent)
 		{
+            RegisterChildrenChangeHandler();
+        }
 
-		}
+        private void RegisterChildrenChangeHandler()
+        {
+            LoadedDetectionHelper.SubTreeAdded += VisualDomElement_ChildAdded;
+            LoadedDetectionHelper.SubTreeRemoved += VisualDomElement_ChildAdded;
+        }
 
-		protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
+        public new void Dispose()
+        {
+            UnregisterChildrenChangeHandler();
+
+            base.Dispose();
+        }
+
+        private void UnregisterChildrenChangeHandler()
+        {
+            LoadedDetectionHelper.SubTreeAdded -= VisualDomElement_ChildAdded;
+            LoadedDetectionHelper.SubTreeRemoved -= VisualDomElement_ChildAdded;
+        }
+
+        private void VisualDomElement_ChildAdded(object sender, EventArgs e)
+        {
+            if ((sender as FrameworkElement)?.Parent == dependencyObject)
+            { 
+                this.ResetChildren();
+            }
+        }
+
+
+        protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
 		{
 			return new ElementCollection(list);
 		}

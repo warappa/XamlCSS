@@ -129,7 +129,7 @@ namespace XamlCSS
                 {
                     if (visualTree == null)
                     {
-                        visualTree = treeNodeProvider.GetVisualTree(startFrom ?? styleResourceReferenceHolder, startFrom != null ? treeNodeProvider.GetParent(startFrom) : null);
+                        visualTree = treeNodeProvider.GetVisualTree(startFrom ?? styleResourceReferenceHolder);
                         visualTree.XamlCssStyleSheets.Add(styleSheet);
                     }
 
@@ -139,7 +139,7 @@ namespace XamlCSS
                 {
                     if (logicalTree == null)
                     {
-                        logicalTree = treeNodeProvider.GetLogicalTree(startFrom ?? styleResourceReferenceHolder, startFrom != null ? treeNodeProvider.GetParent(startFrom) : null);
+                        logicalTree = treeNodeProvider.GetLogicalTree(startFrom ?? styleResourceReferenceHolder);
                         logicalTree.XamlCssStyleSheets.Add(styleSheet);
                     }
 

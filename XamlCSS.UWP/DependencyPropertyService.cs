@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using Windows.UI.Xaml;
+using XamlCSS.Dom;
 
 namespace XamlCSS.UWP
 {
-	public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, FrameworkElement, Style, DependencyProperty>
+	public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty>
 	{
 		public DependencyProperty GetBindableProperty(DependencyObject frameworkElement, string propertyName)
 		{
@@ -12,7 +13,7 @@ namespace XamlCSS.UWP
 		}
 		public DependencyProperty GetBindableProperty(Type bindableObjectType, string propertyName)
 		{
-			string dpName = propertyName + "Property";
+			string dpName = $"{propertyName}Property";
 
             var dpProperties = TypeHelpers.DeclaredProperties(bindableObjectType);
 			var dpProperty = dpProperties.FirstOrDefault(i => i.Name == dpName);
@@ -50,7 +51,7 @@ namespace XamlCSS.UWP
 			return Css.GetInitialStyle(obj) as Style;
 		}
 
-		public bool IsLoaded(FrameworkElement obj)
+		public bool IsLoaded(DependencyObject obj)
 		{
 			return Css.GetIsLoaded(obj);
 		}
@@ -120,9 +121,11 @@ namespace XamlCSS.UWP
 			Css.SetStyleSheet(obj, value);
 		}
 
-		public void RegisterLoadedOnce(FrameworkElement frameworkElement, Action<object> func)
+		public void RegisterLoadedOnce(DependencyObject obj, Action<object> func)
 		{
-			RoutedEventHandler handler = null;
+            var frameworkElement = obj as FrameworkElement;
+
+            RoutedEventHandler handler = null;
 			handler = (s, e) =>
 			{
 				frameworkElement.Loaded -= handler;
@@ -141,6 +144,16 @@ namespace XamlCSS.UWP
         public void SetHandledCss(DependencyObject obj, bool value)
         {
             Css.SetHandledCss(obj, value);
+        }
+
+        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
+        {
+            return Css.GetDomElement(obj);
+        }
+
+        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        {
+            Css.SetDomElement(obj, value);
         }
     }
 }

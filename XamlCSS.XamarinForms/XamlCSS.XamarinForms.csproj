@@ -94,7 +94,7 @@
     <Compile Include="ComponentModel\NumberTypeConverter.cs" />
     <Compile Include="ComponentModel\XamarinTypeConverterProvider.cs" />
     <Compile Include="Css.cs" />
-    <Compile Include="Dom\BindableObjectNode.cs" />
+    <Compile Include="Dom\DomElement.cs" />
     <Compile Include="Dom\ElementAttribute.cs" />
     <Compile Include="Dom\ElementCollection.cs" />
     <Compile Include="Dom\NamedNodeList.cs" />

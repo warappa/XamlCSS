@@ -14,7 +14,7 @@ namespace XamlCSS.WPF
 		public readonly static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance =
 			new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
 				new DependencyPropertyService(),
-				new TreeNodeProvider(),
+				new TreeNodeProvider(new DependencyPropertyService()),
 				new StyleResourceService(),
 				new StyleService(),
 				DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(System.Windows.Controls.Button)),
@@ -178,5 +178,20 @@ namespace XamlCSS.WPF
 		{
 			obj.SetValue(HandledCssProperty, value);
 		}
-	}
+
+        public static readonly DependencyProperty DomElementProperty =
+            DependencyProperty.RegisterAttached(
+                "DomElement",
+                typeof(IDomElement<DependencyObject>),
+                typeof(Css),
+                new PropertyMetadata(null));
+        public static IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
+        {
+            return obj.GetValue(DomElementProperty) as IDomElement<DependencyObject>;
+        }
+        public static void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        {
+            obj.SetValue(DomElementProperty, value);
+        }
+    }
 }

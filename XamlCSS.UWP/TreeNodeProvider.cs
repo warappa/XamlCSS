@@ -10,7 +10,14 @@ namespace XamlCSS.UWP
 {
 	public class TreeNodeProvider : ITreeNodeProvider<DependencyObject>
 	{
-		public IEnumerable<DependencyObject> GetChildren(DependencyObject element)
+        readonly IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService;
+
+        public TreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
+        {
+            this.dependencyPropertyService = dependencyPropertyService;
+        }
+
+        public IEnumerable<DependencyObject> GetChildren(DependencyObject element)
 		{
 			var list = new List<DependencyObject>();
 
@@ -39,37 +46,62 @@ namespace XamlCSS.UWP
                 return (tUIElement as FrameworkElement).Parent;
             }
 
-			throw new InvalidOperationException("No parent found!");
+            return null;
 		}
 
 		public IDomElement<DependencyObject> GetLogicalTreeParent(DependencyObject obj)
 		{
-            if (!(obj is FrameworkElement) ||
-                (obj as FrameworkElement).Parent == null)
+            return GetLogicalTree(GetParent(obj));
+        }
+		public IDomElement<DependencyObject> GetLogicalTree(DependencyObject obj)
+		{
+            if (obj == null)
             {
                 return null;
             }
 
-			return new LogicalDomElement((obj as FrameworkElement).Parent, GetLogicalTreeParent);
-		}
-		public IDomElement<DependencyObject> GetLogicalTree(DependencyObject obj, DependencyObject parent)
-		{
-			return new LogicalDomElement(obj, GetLogicalTreeParent);
-		}
+            var cached = GetFromDependencyObject(obj);
+
+            if (cached != null &&
+                cached is LogicalDomElement)
+            {
+                return cached;
+            }
+
+            cached = new LogicalDomElement(obj, GetLogicalTreeParent);
+            dependencyPropertyService.SetDomElement(obj, cached);
+
+            return cached;
+        }
 
 		public IDomElement<DependencyObject> GetVisualTreeParent(DependencyObject obj)
 		{
-			if (!(obj is FrameworkElement) ||
-				(obj as FrameworkElement).Parent == null)
-            { 
-				return null;
+            return GetVisualTree(GetParent(obj));
+        }
+		public IDomElement<DependencyObject> GetVisualTree(DependencyObject obj)
+		{
+            if (obj == null)
+            {
+                return null;
             }
 
-            return new VisualDomElement((obj as FrameworkElement).Parent, GetVisualTreeParent);
-		}
-		public IDomElement<DependencyObject> GetVisualTree(DependencyObject obj, DependencyObject parent)
-		{
-			return new VisualDomElement(obj, GetVisualTreeParent);
-		}
-	}
+            var cached = GetFromDependencyObject(obj);
+
+            if (cached != null &&
+                cached is VisualDomElement)
+            {
+                return cached;
+            }
+
+            cached = new VisualDomElement(obj, GetVisualTreeParent);
+            dependencyPropertyService.SetDomElement(obj, cached);
+
+            return cached;
+        }
+
+        private IDomElement<DependencyObject> GetFromDependencyObject(DependencyObject obj)
+        {
+            return dependencyPropertyService.GetDomElement(obj);
+        }
+    }
 }

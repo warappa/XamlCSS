@@ -12,7 +12,7 @@ namespace XamlCSS.XamarinForms
 		public readonly static BaseCss<BindableObject, Element, Style, BindableProperty> instance =
 			new BaseCss<BindableObject, Element, Style, BindableProperty>(
 				new DependencyPropertyService(),
-				new TreeNodeProvider(),
+				new TreeNodeProvider(new DependencyPropertyService()),
 				new StyleResourceService(),
 				new StyleService(),
 				DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
@@ -170,7 +170,8 @@ namespace XamlCSS.XamarinForms
 				typeof(Css),
 				null,
 				BindingMode.TwoWay);
-		public static string GetClass(BindableObject obj)
+        
+        public static string GetClass(BindableObject obj)
 		{
 			return obj.GetValue(ClassProperty) as string;
 		}
@@ -195,7 +196,23 @@ namespace XamlCSS.XamarinForms
 			obj.SetValue(HandledCssProperty, value);
 		}
 
-		private static void VisualTreeHelper_ChildAdded(object sender, EventArgs e)
+        public static readonly BindableProperty DomElementProperty =
+            BindableProperty.CreateAttached(
+                "DomElement",
+                typeof(IDomElement<BindableObject>),
+                typeof(Css),
+                null,
+                BindingMode.TwoWay);
+        public static IDomElement<BindableObject> GetDomElement(BindableObject obj)
+        {
+            return obj?.GetValue(DomElementProperty) as IDomElement<BindableObject>;
+        }
+        public static void SetDomElement(BindableObject obj, IDomElement<BindableObject> value)
+        {
+            obj?.SetValue(DomElementProperty, value);
+        }
+
+        private static void VisualTreeHelper_ChildAdded(object sender, EventArgs e)
 		{
 			instance.UpdateElement(sender as BindableObject);
 		}

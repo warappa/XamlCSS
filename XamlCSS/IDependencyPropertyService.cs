@@ -1,4 +1,5 @@
 ﻿using System;
+using XamlCSS.Dom;
 
 namespace XamlCSS
 {
@@ -43,5 +44,8 @@ namespace XamlCSS
 
 		TDependencyProperty GetBindableProperty(TDependencyObject frameworkElement, string propertyName);
 		TDependencyProperty GetBindableProperty(Type uiElementType, string propertyName);
-	}
+
+        IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj);
+        void SetDomElement(TDependencyObject obj, IDomElement<TDependencyObject> value);
+    }
 }

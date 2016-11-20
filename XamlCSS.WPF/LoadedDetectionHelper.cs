@@ -1,10 +1,14 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 
 namespace XamlCSS.WPF
 {
 	public class LoadedDetectionHelper
-	{
-		public static void Initialize()
+    {
+        public static event EventHandler SubTreeAdded;
+        public static event EventHandler SubTreeRemoved;
+
+        public static void Initialize()
 		{
 			EventManager.RegisterClassHandler(typeof(Window), FrameworkElement.SizeChangedEvent, new RoutedEventHandler(OnSizeChanged));
 
@@ -49,7 +53,9 @@ namespace XamlCSS.WPF
 		{
 			if ((bool)ev.NewValue == true)
 			{
-				if (dpo is FrameworkElement)
+                SubTreeAdded?.Invoke(dpo, new EventArgs());
+
+                if (dpo is FrameworkElement)
 				{
 					(dpo as FrameworkElement).Loaded += LoadedEventHandler;
 				}
@@ -60,7 +66,9 @@ namespace XamlCSS.WPF
 			}
 			else
 			{
-				if (dpo is FrameworkElement)
+                SubTreeRemoved?.Invoke(dpo, new EventArgs());
+
+                if (dpo is FrameworkElement)
 				{
 					(dpo as FrameworkElement).Loaded -= LoadedEventHandler;
 				}

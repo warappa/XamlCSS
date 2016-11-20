@@ -15,7 +15,9 @@ namespace XamlCSS.Dom
 		where TDependencyObject : class
 		where TDependencyProperty : class
 	{
-		protected readonly TDependencyObject dependencyObject;
+        protected static char[] classSplitter = { ' ' };
+
+        protected readonly TDependencyObject dependencyObject;
 		protected string id;
 		protected static readonly CssParser Parser = new CssParser(new CssParserOptions()
 		{
@@ -122,6 +124,12 @@ namespace XamlCSS.Dom
 			this.getParentElement = getParentElement;
 		}
 
+        protected void ResetChildren()
+        {
+            this.childNodes = null;
+            this.children = null;
+        }
+
 		public static string GetPrefix(Type type)
 		{
 			return type.AssemblyQualifiedName.Replace($".{type.Name},", ",");
@@ -145,7 +153,7 @@ namespace XamlCSS.Dom
 
 		public IElement AssignedSlot { get { return null; } }
 
-        private INamedNodeMap attributes = null;
+        protected INamedNodeMap attributes = null;
         public INamedNodeMap Attributes => attributes ?? (attributes = CreateNamedNodeMap(dependencyObject));
 
 		public string BaseUri { get; protected set; }
@@ -154,7 +162,7 @@ namespace XamlCSS.Dom
 
 		public int ChildElementCount { get { return Children.Count(); } }
 
-        private INodeList childNodes = null;
+        protected INodeList childNodes = null;
         public INodeList ChildNodes => childNodes ?? (childNodes = GetChildNodes(dependencyObject));
 
         private IHtmlCollection<IElement> children = null;
@@ -170,7 +178,7 @@ namespace XamlCSS.Dom
 			}
 		}
 
-        private ITokenList classList = null;
+        protected ITokenList classList = null;
         public ITokenList ClassList => classList ?? (classList = GetClassList(dependencyObject));
 
 		public string ClassName
@@ -179,7 +187,7 @@ namespace XamlCSS.Dom
 			set
 			{
 				classList = new TokenList();
-				classList.Add(value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+				classList.Add(value.Split(classSplitter, StringSplitOptions.RemoveEmptyEntries));
 			}
 		}
 

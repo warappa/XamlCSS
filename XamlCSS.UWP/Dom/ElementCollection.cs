@@ -25,7 +25,7 @@ namespace XamlCSS.UWP.Dom
 		}
 		protected override IEnumerable<DependencyObject> GetChildren(DependencyObject dependencyObject)
 		{
-			return new TreeNodeProvider().GetChildren(dependencyObject);
+			return new TreeNodeProvider(new DependencyPropertyService()).GetChildren(dependencyObject);
 		}
 		protected override string GetId(DependencyObject dependencyObject)
 		{

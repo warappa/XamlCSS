@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using AngleSharp.Dom;
 using Xamarin.Forms;
 using XamlCSS.Dom;
 using XamlCSS.Windows.Media;
@@ -9,50 +7,81 @@ using XamlCSS.XamarinForms.Dom;
 
 namespace XamlCSS.XamarinForms
 {
-	public class TreeNodeProvider : ITreeNodeProvider<BindableObject>
-	{
-		public IEnumerable<BindableObject> GetChildren(BindableObject element)
-		{
-			return VisualTreeHelper.GetChildren(element as Element);
-		}
+    public class TreeNodeProvider : ITreeNodeProvider<BindableObject>
+    {
+        readonly IDependencyPropertyService<BindableObject, Element, Style, BindableProperty> dependencyPropertyService;
 
-		public IEnumerable<IDomElement<BindableObject>> GetChildren(IDomElement<BindableObject> node)
-		{
-			return this.GetChildren(node.Element as BindableObject)
-				.Select(x => GetLogicalTree(x, node.Element as BindableObject))
-				.ToList();
-		}
+        public TreeNodeProvider(IDependencyPropertyService<BindableObject, Element, Style, BindableProperty> dependencyPropertyService)
+        {
+            this.dependencyPropertyService = dependencyPropertyService;
+        }
+        public IEnumerable<BindableObject> GetChildren(BindableObject element)
+        {
+            return VisualTreeHelper.GetChildren(element as Element);
+        }
 
-		public BindableObject GetParent(BindableObject tUIElement)
-		{
-			if (tUIElement is Element)
-				return (tUIElement as Element).Parent;
+        public IEnumerable<IDomElement<BindableObject>> GetChildren(IDomElement<BindableObject> node)
+        {
+            return this.GetChildren(node.Element)
+                .Select(x => GetLogicalTree(x))
+                .ToList();
+        }
 
-			return null;
-		}
+        public BindableObject GetParent(BindableObject tUIElement)
+        {
+            if (tUIElement is Element)
+                return (tUIElement as Element).Parent;
 
-		public IDomElement<BindableObject> GetLogicalTreeParent(BindableObject obj)
-		{
-			if (!(obj is Element) ||
-				(obj as Element).Parent == null)
-				return null;
-			return new LogicalDomElement((obj as Element).Parent, GetLogicalTreeParent);
-		}
-		public IDomElement<BindableObject> GetLogicalTree(BindableObject obj, BindableObject parent)
-		{
-			return new LogicalDomElement(obj, GetLogicalTreeParent);
-		}
+            return null;
+        }
 
-		public IDomElement<BindableObject> GetVisualTreeParent(BindableObject obj)
-		{
-			if (!(obj is Element) ||
-				(obj as Element).Parent == null)
-				return null;
-			return new VisualDomElement((obj as Element).Parent, GetVisualTreeParent);
-		}
-		public IDomElement<BindableObject> GetVisualTree(BindableObject obj, BindableObject parent)
-		{
-			return new VisualDomElement(obj, GetVisualTreeParent);
-		}
-	}
+        public IDomElement<BindableObject> GetLogicalTreeParent(BindableObject obj)
+        {
+            return GetLogicalTree(GetParent(obj));
+        }
+        public IDomElement<BindableObject> GetLogicalTree(BindableObject obj)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            var cached = GetFromDependencyObject(obj);
+
+            if (cached != null &&
+                cached is LogicalDomElement)
+            {
+                return cached;
+            }
+            cached = new LogicalDomElement(obj, GetLogicalTreeParent);
+            dependencyPropertyService.SetDomElement(obj, cached);
+
+            return cached;
+        }
+
+        public IDomElement<BindableObject> GetVisualTreeParent(BindableObject obj)
+        {
+            return GetVisualTree((obj as Element)?.Parent);
+        }
+        public IDomElement<BindableObject> GetVisualTree(BindableObject obj)
+        {
+            var cached = GetFromDependencyObject(obj);
+
+            if (cached != null &&
+                cached is VisualDomElement)
+            {
+                return cached;
+            }
+
+            cached = new VisualDomElement(obj, GetVisualTreeParent);
+            dependencyPropertyService.SetDomElement(obj, cached);
+
+            return cached;
+        }
+
+        private IDomElement<BindableObject> GetFromDependencyObject(BindableObject obj)
+        {
+            return dependencyPropertyService.GetDomElement(obj);
+        }
+    }
 }

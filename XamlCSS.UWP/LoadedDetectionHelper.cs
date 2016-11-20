@@ -9,7 +9,9 @@ namespace XamlCSS.UWP
 {
 	public static class LoadedDetectionHelper
 	{
-		private static IEnumerable<Type> GetUITypesFromAssemblyByType(Type type)
+        public static event EventHandler SubTreeAdded;
+        public static event EventHandler SubTreeRemoved;
+        private static IEnumerable<Type> GetUITypesFromAssemblyByType(Type type)
 		{
 			return type.GetTypeInfo().Assembly
 				.GetTypes()
@@ -66,6 +68,8 @@ namespace XamlCSS.UWP
 				{
 					Css.SetIsLoaded(obj, true);
 
+                    SubTreeAdded?.Invoke(obj, new EventArgs());
+
 					(dpo as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
 					(dpo as FrameworkElement).Unloaded += LoadedDetectionHelper_Unloaded;
 					Window.Current.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
@@ -80,7 +84,9 @@ namespace XamlCSS.UWP
 		{
 			(sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
 
-			Css.instance.UnapplyMatchingStyles(sender as FrameworkElement);
+            SubTreeRemoved?.Invoke(sender, new EventArgs());
+
+            Css.instance.UnapplyMatchingStyles(sender as FrameworkElement);
 		}
 
 		#endregion
