@@ -48,6 +48,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="CssParsing\CssParserTests.cs" />
     <Compile Include="Dom\CssSelectionTests.cs" />
     <Compile Include="Dom\TestNode.cs" />

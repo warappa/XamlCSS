@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.UWP</id>
-		<version>0.9.0-beta-1</version>
+		<version>1.0.0</version>
 		<title>XamlCSS.UWP</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,30 +10,34 @@
 			Style UWP-apps with Css
 		</description>
 		<releaseNotes>
-			0.9.0-beta-1
-			- Added better css-quotes support
-			- Support modal pages
-			- fixed bool value support
-			- Fixed VisualTreeCell.Include="true"
-			- Performance improvement
-			- AngleSharp 0.9.8
-			
-			0.9.0-alpha-5
-			- Fix partial updates: not finding all parents while executing css-parser
+      1.0.0
+      - Performance/memory improvements: Caching dom-elements, dom-children,...
+      - Batch-Rendering
+      
+      0.9.0-beta-1
+      - Added better css-quotes support
+      - Support modal pages
+      - fixed bool value support
+      - Fixed VisualTreeCell.Include="true"
+      - Performance improvement
+      - AngleSharp 0.9.8
 
-			0.9.0-alpha-2
-			- fixed NullReferenceException
+      0.9.0-alpha-5
+      - Fix partial updates: not finding all parents while executing css-parser
 
-			0.9.0-alpha
-			- experimental support for MarkupExtensions (only StaticResource)
+      0.9.0-alpha-2
+      - fixed NullReferenceException
 
-			0.8.0
-			- Support for attached properties
-			- Support for CSS-namespaces
+      0.9.0-alpha
+      - experimental support for MarkupExtensions (only StaticResource)
 
-			0.8.0-beta-3:
-			Fixed UWP nuget-package
-		</releaseNotes>
+      0.8.0
+      - Support for attached properties
+      - Support for CSS-namespaces
+
+      0.8.0-beta-3:
+      Fixed UWP nuget-package
+    </releaseNotes>
 		<summary>
 			Style UWP-apps with Css
 		</summary>
@@ -45,22 +49,22 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="0.9.0-beta-1" />
+				<dependency id="XamlCSS" version="1.0.0" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="0.9.0-beta-1" />
+				<dependency id="XamlCSS" version="1.0.0" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="0.9.0-beta-1" />
+				<dependency id="XamlCSS" version="1.0.0" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="0.9.0-beta-1" />
+				<dependency id="XamlCSS" version="1.0.0" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="0.9.0-beta-1" />
+				<dependency id="XamlCSS" version="1.0.0" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="0.9.0-beta-1" />
+				<dependency id="XamlCSS" version="1.0.0" />
 			</group>
 		</dependencies>
 		<references></references>

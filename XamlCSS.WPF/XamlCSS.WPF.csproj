@@ -85,6 +85,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="Dom\DomElement.cs" />
     <Compile Include="Css.cs" />
     <Compile Include="Dom\ElementAttribute.cs" />

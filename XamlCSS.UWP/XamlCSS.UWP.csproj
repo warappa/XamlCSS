@@ -107,6 +107,9 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ComponentModel\ColorTypeConverter.cs" />
     <Compile Include="ComponentModel\EnumTypeConverter.cs" />
     <Compile Include="ComponentModel\GenericTypeConverter.cs" />

@@ -89,6 +89,9 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\SharedAssemblyInfo.cs">
+      <Link>Properties\SharedAssemblyInfo.cs</Link>
+    </Compile>
     <Compile Include="ComponentModel\EnumTypeConverter.cs" />
     <Compile Include="ComponentModel\GenericTypeConverter.cs" />
     <Compile Include="ComponentModel\NumberTypeConverter.cs" />
