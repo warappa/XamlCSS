@@ -72,7 +72,7 @@ namespace XamlCSS.XamarinForms.Internals
 				return Application.Current.Resources[this.Key];
 			}
 
-            return new DynamicResource(Key);
+            return null;
 		}
 	}
 }

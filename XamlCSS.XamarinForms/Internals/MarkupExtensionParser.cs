@@ -213,7 +213,11 @@ namespace XamlCSS.XamarinForms.Internals
 			{
 				this.markupExtension = new StaticResourceExtension();
 			}
-			else
+            else if (match == "DynamicResource")
+            {
+                this.markupExtension = new DynamicResourceExtension();
+            }
+            else
 			{
 				if (typeResolver == null)
 				{

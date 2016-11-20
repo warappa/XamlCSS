@@ -7,7 +7,7 @@
 			 >
 	<ContentPage.Resources>
 		<ResourceDictionary>
-		<sys:String x:Key="testString">Hello World from StaticResource!</sys:String>
+		  <sys:String x:Key="testString">Hello World from DynamicResource!</sys:String>
 		</ResourceDictionary>
 	</ContentPage.Resources>
 	<Grid x:Name="thegrid" WidthRequest="433">
@@ -15,7 +15,6 @@
 			<StackLayout x:Name="thestack2" cssXF:Css.Id="thestack2" cssXF:Css.Class="container">
 				<Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>
 				<Button x:Name="theinnerbutton" cssXF:Css.Id="theinnerbutton" Clicked="Button_Click_1" Text="Inner Button"></Button>
-        
 			</StackLayout>
 			<Grid>
 				<Grid.RowDefinitions>
@@ -28,6 +27,7 @@
 				</Grid.ColumnDefinitions>
 				<Label></Label>
 				<Label></Label>
+        <Label></Label>
 			</Grid>
 			<Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
 			<ListView ItemsSource="{Binding TestList}">

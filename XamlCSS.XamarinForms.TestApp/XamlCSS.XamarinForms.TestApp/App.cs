@@ -7,6 +7,8 @@ namespace XamlCSS.XamarinForms.TestApp
 	{
 		public App()
 		{
+            Resources = new ResourceDictionary();
+            Resources.Add("testString", "Hello World from StaticResource!");
 			// The root page of your application
 			MainPage = new MainPage();
 
@@ -43,6 +45,12 @@ Grid Grid Label:nth-of-type(2)
 	Grid.Row: 1;
 	Grid.Column: 0;
 	Text: {StaticResource testString};
+}
+Grid Grid Label:nth-of-type(3)
+{
+	Grid.Row: 1;
+	Grid.Column: 1;
+	Text: {DynamicResource testString};
 }
 .listViewItem Label
 {
