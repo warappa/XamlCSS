@@ -36,6 +36,11 @@ namespace XamlCSS.UWP
             }, null);
         }
 
+        public static void Initialize()
+        {
+            LoadedDetectionHelper.Initialize();
+        }
+
         #region dependency properties
 
         public static readonly DependencyProperty MatchingStylesProperty =

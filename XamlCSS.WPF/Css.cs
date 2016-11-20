@@ -37,6 +37,11 @@ namespace XamlCSS.WPF
 				instance.ExecuteApplyStyles();
 			};
 		}
+
+        public static void Initialize()
+        {
+            LoadedDetectionHelper.Initialize();
+        }
 		
 		public static readonly DependencyProperty MatchingStylesProperty =
 			DependencyProperty.RegisterAttached(
