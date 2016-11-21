@@ -3,7 +3,7 @@ using XamlCSS.CssParsing;
 
 namespace XamlCSS
 {
-	public class StyleSheet
+    public class StyleSheet
 	{
 		public static readonly StyleSheet Empty = new StyleSheet();
 
@@ -16,5 +16,21 @@ namespace XamlCSS
 			get { return _rules; }
 			set { _rules = value; }
 		}
-	}
+
+        private string content = null;
+        public string Content
+        {
+            get
+            {
+                return content;
+            }
+            set
+            {
+                content = value;
+                var sheet = CssParser.Parse(content);
+                this.Namespaces = sheet.Namespaces;
+                this.Rules = sheet.Rules;
+            }
+        }
+    }
 }
