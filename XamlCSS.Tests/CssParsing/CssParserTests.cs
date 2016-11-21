@@ -52,7 +52,7 @@ namespace XamlCSS.Tests.CssParsing
 			var styleSheet = CssParser.Parse("Button{Foreground:Red;}");
 
 			Assert.AreEqual(1, styleSheet.Rules.Count);
-			Assert.AreEqual("Button", styleSheet.Rules[0].Selector);
+			Assert.AreEqual("Button", styleSheet.Rules[0].SelectorString);
 			Assert.AreEqual("Foreground", styleSheet.Rules[0].DeclarationBlock[0].Property);
 		}
 
@@ -62,7 +62,7 @@ namespace XamlCSS.Tests.CssParsing
 			var styleSheet = CssParser.Parse("Button{Grid.Row:1;}");
 
 			Assert.AreEqual(1, styleSheet.Rules.Count);
-			Assert.AreEqual("Button", styleSheet.Rules[0].Selector);
+			Assert.AreEqual("Button", styleSheet.Rules[0].SelectorString);
 			Assert.AreEqual("Grid.Row", styleSheet.Rules[0].DeclarationBlock[0].Property);
 		}
 
@@ -121,5 +121,42 @@ namespace XamlCSS.Tests.CssParsing
 			Assert.AreEqual("{Binding testValue}", styleSheet.Rules[0].DeclarationBlock[0].Value);
 			Assert.AreEqual("Green", styleSheet.Rules[0].DeclarationBlock[1].Value);
 		}
-	}
+
+        [Test]
+        public void Rules_ordered_by_specificity()
+        {
+            var styleSheet = CssParser.Parse(@"
+
+.warning#some-element,
+#an-element,
+.warning
+{
+}
+.important
+{   
+}
+Button
+{
+
+}
+");
+
+            Assert.AreEqual(5, styleSheet.Rules.Count);
+            Assert.AreEqual("Button", styleSheet.Rules[0].Selectors[0].Value);
+            Assert.AreEqual("1", styleSheet.Rules[0].Selectors[0].Specificity);
+
+            Assert.AreEqual(".warning", styleSheet.Rules[1].Selectors[0].Value);
+            Assert.AreEqual("1,0", styleSheet.Rules[1].Selectors[0].Specificity);
+
+            Assert.AreEqual(".important", styleSheet.Rules[2].Selectors[0].Value);
+            Assert.AreEqual("1,0", styleSheet.Rules[2].Selectors[0].Specificity);
+
+            Assert.AreEqual("#an-element", styleSheet.Rules[3].Selectors[0].Value);
+            Assert.AreEqual("1,0,0", styleSheet.Rules[3].Selectors[0].Specificity);
+
+            Assert.AreEqual(".warning#some-element", styleSheet.Rules[4].Selectors[0].Value);
+            Assert.AreEqual("1,1,0", styleSheet.Rules[4].Selectors[0].Specificity);
+
+        }
+    }
 }

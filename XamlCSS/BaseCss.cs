@@ -147,7 +147,7 @@ namespace XamlCSS
                 }
 
                 // apply our selector
-                var matchingNodes = root.QuerySelectorAllWithSelf(rule.Selector)
+                var matchingNodes = root.QuerySelectorAllWithSelf(rule.SelectorString)
                     .Where(x => x != null)
                     .Cast<IDomElement<TDependencyObject>>()
                     .ToList();
@@ -161,7 +161,7 @@ namespace XamlCSS
 
                 foreach (var type in matchingTypes)
                 {
-                    var resourceKey = nativeStyleService.GetStyleResourceKey(type, rule.Selector);
+                    var resourceKey = nativeStyleService.GetStyleResourceKey(type, rule.SelectorString);
 
                     if (applicationResourcesService.Contains(resourceKey))
                         continue;
@@ -244,7 +244,7 @@ namespace XamlCSS
 
                     var matchingStyles = dependencyPropertyService.GetMatchingStyles(element) ?? new string[0];
 
-                    var key = nativeStyleService.GetStyleResourceKey(element.GetType(), rule.Selector);
+                    var key = nativeStyleService.GetStyleResourceKey(element.GetType(), rule.SelectorString);
                     if (applicationResourcesService.Contains(key))
                     {
                         dependencyPropertyService.SetMatchingStyles(element, matchingStyles.Concat(new[] { key }).Distinct().ToArray());
