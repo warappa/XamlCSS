@@ -158,5 +158,20 @@ Button
             Assert.AreEqual("1,1,0", styleSheet.Rules[4].Selectors[0].Specificity);
 
         }
+
+        [Test]
+        public void Test_can_parse_empty_string()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test
+{
+	Text: """";
+    Width: 0;
+}");
+
+            Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual(@"", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual("0", styleSheet.Rules[0].DeclarationBlock[1].Value);
+        }
     }
 }
