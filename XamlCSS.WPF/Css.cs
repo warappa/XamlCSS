@@ -1,16 +1,12 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
-using System.Windows.Threading;
 using XamlCSS.Dom;
 
 namespace XamlCSS.WPF
 {
-	public class Css
+    public class Css
 	{
 		public readonly static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance =
 			new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
@@ -27,7 +23,9 @@ namespace XamlCSS.WPF
 
 		static Css()
 		{
-			CompositionTarget.Rendering += (sender, e) =>
+            Initialize();
+
+            CompositionTarget.Rendering += (sender, e) =>
 			{
 				var evt = e as RenderingEventArgs;
 				if (evt.RenderingTime == _lastRendering)
@@ -174,7 +172,7 @@ namespace XamlCSS.WPF
 				"Class",
 				typeof(string),
 				typeof(Css),
-				new PropertyMetadata(null));
+				new PropertyMetadata(null, ClassPropertyAttached));
 		public static string GetClass(DependencyObject obj)
 		{
 			return obj.GetValue(ClassProperty) as string;
@@ -182,9 +180,18 @@ namespace XamlCSS.WPF
 		public static void SetClass(DependencyObject obj, string value)
 		{
 			obj.SetValue(ClassProperty, value);
-		}
+        }
 
-		public static readonly DependencyProperty HandledCssProperty =
+        private static void ClassPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
+        {
+            var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
+            domElement?.ResetClassList();
+
+            Css.instance.UpdateElement(element);
+        }
+
+
+        public static readonly DependencyProperty HandledCssProperty =
 			DependencyProperty.RegisterAttached(
 				"HandledCss",
 				typeof(bool),

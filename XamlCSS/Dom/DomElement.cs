@@ -178,6 +178,11 @@ namespace XamlCSS.Dom
 			}
 		}
 
+        public void ResetClassList()
+        {
+            classList = null;
+        }
+
         protected ITokenList classList = null;
         public ITokenList ClassList => classList ?? (classList = GetClassList(dependencyObject));
 

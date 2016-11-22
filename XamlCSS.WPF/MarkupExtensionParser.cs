@@ -14,11 +14,11 @@ namespace XamlCSS.WPF
 		public object Parse(string expression)
 		{
 			string myBindingExpression = expression;
-			var test = "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" Text=\"" + myBindingExpression + "\" />";
+			var test = "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" DataContext=\"" + myBindingExpression + "\" />";
 
 			var result = XamlReader.Parse(test) as TextBlock;
 
-			var bindingExpression = result.ReadLocalValue(TextBlock.TextProperty);
+			var bindingExpression = result.ReadLocalValue(TextBlock.DataContextProperty);
 			var binding = bindingExpression;
 
 			if (binding is BindingExpression)
@@ -82,7 +82,7 @@ namespace XamlCSS.WPF
             }
             else
             {
-                binding = Parse(expression, resDict);
+                binding = Parse(expression);
             }
 
 			if (binding is Binding)

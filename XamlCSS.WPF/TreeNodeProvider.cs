@@ -21,16 +21,19 @@ namespace XamlCSS.WPF
         {
             var list = new List<DependencyObject>();
 
-            for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
+            try
             {
-                var child = VisualTreeHelper.GetChild(element, i) as DependencyObject;
-
-                if (child != null)
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
                 {
-                    list.Add(child);
+                    var child = VisualTreeHelper.GetChild(element, i) as DependencyObject;
+
+                    if (child != null)
+                    {
+                        list.Add(child);
+                    }
                 }
             }
-
+            catch { }
             return list;
         }
 

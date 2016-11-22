@@ -112,6 +112,8 @@ namespace XamlCSS
         }
         protected void GenerateStyleResourcesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
+            UnapplyMatchingStylesInternal(startFrom ?? styleResourceReferenceHolder);
+
             if (styleResourceReferenceHolder == null ||
                 styleSheet == null)
             {
@@ -300,18 +302,19 @@ namespace XamlCSS
                 return;
             }
 
+            object styleToApply = null;
+
             if (matchingStyles?.Length == 1)
             {
-                object s = null;
                 if (applicationResourcesService.Contains(matchingStyles[0]) == true)
                 {
-                    s = applicationResourcesService.GetResource(matchingStyles[0]);
+                    styleToApply = applicationResourcesService.GetResource(matchingStyles[0]);
                 }
 
-                if (s != null)
-                {
-                    nativeStyleService.SetStyle(visualElement, (TStyle)s);
-                }
+                //if (styleToApply != null)
+                //{
+                nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
+                //}
             }
             else if (matchingStyles?.Length > 1)
             {
@@ -338,8 +341,10 @@ namespace XamlCSS
 
                 if (dict.Keys.Count > 0)
                 {
-                    nativeStyleService.SetStyle(visualElement, nativeStyleService.CreateFrom(dict, visualElement.GetType()));
+                    styleToApply = nativeStyleService.CreateFrom(dict, visualElement.GetType());
                 }
+
+                nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
             }
 
             dependencyPropertyService.SetHandledCss(visualElement, true);

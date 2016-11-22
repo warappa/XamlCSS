@@ -6,15 +6,48 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XamlCSS.WPF.TestApp"
+        xmlns:css="clr-namespace:XamlCSS;assembly=XamlCSS"
 		xmlns:cssWPF="clr-namespace:XamlCSS.WPF;assembly=XamlCSS.WPF"
 		xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Title="MainWindow" Height="350" Width="525">
 	<Window.Resources>
 		<ResourceDictionary>
-			<sys:String x:Key="testString">Hello World from StaticResource!</sys:String>
+            <css:StyleSheet x:Key="InternalStyle">
+                <css:StyleSheet.Content>
+                    Button
+{
+	Foreground: Green;
+}
+.container
+{
+	Background: Yellow;
+}
+.container Button
+{
+	Foreground: Brown;
+}
+.jumbo
+{
+	FontSize: 50;
+}
+Grid Grid TextBlock:nth-of-type(1)
+{
+	Grid.Row: 0;
+	Grid.Column: 1;
+	Text: {Binding Test};
+}
+Grid Grid TextBlock:nth-of-type(2)
+{
+	Grid.Row: 1;
+	Grid.Column: 0;
+	Text: {StaticResource testString};
+}
+                </css:StyleSheet.Content>
+            </css:StyleSheet>
 		</ResourceDictionary>
 	</Window.Resources>
-	<Grid HorizontalAlignment="Right" Width="433">
+	<Grid HorizontalAlignment="Right" Width="433"
+          cssWPF:Css.StyleSheet="{DynamicResource InternalStyle}">
 		<StackPanel x:Name="stack">
 			<StackPanel cssWPF:Css.Class="container">
 				<TextBlock cssWPF:Css.Class="jumbo">Hello World</TextBlock>
@@ -32,7 +65,7 @@
 				<TextBlock></TextBlock>
 				<TextBlock></TextBlock>
 			</Grid>
-			<Button Name="thebutton" Click="Button_Click">Change Style</Button>
-		</StackPanel>
+            <Button Name="thebutton" Click="Button_Click">Change Style</Button>
+        </StackPanel>
 	</Grid>
 </Window>

@@ -5,6 +5,7 @@
 			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-		<sys:String x:Key="AppStaticResource">App Static Resource</sys:String>
+        <sys:String x:Key="AppStaticResource">App Static Resource</sys:String>
+        <sys:String x:Key="testString">Hello World from StaticResource!</sys:String>
     </Application.Resources>
 </Application>
