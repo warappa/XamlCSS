@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.UWP</id>
-		<version>1.0.0</version>
+		<version>1.0.1</version>
 		<title>XamlCSS.UWP</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,10 +10,16 @@
 			Style UWP-apps with Css
 		</description>
 		<releaseNotes>
+      1.0.1
+      - Define stylesheet in Xaml-files with css text
+      - Fixed selector specificity
+
       1.0.0
       - Performance/memory improvements: Caching dom-elements, dom-children,...
       - Batch-Rendering
-      
+      - Define stylesheet in Xaml-files with css text
+      - Fixed selector specificity
+
       0.9.0-beta-1
       - Added better css-quotes support
       - Support modal pages
@@ -49,22 +55,22 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="1.0.0" />
+				<dependency id="XamlCSS" version="1.0.1" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="1.0.0" />
+				<dependency id="XamlCSS" version="1.0.1" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="1.0.0" />
+				<dependency id="XamlCSS" version="1.0.1" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="1.0.0" />
+				<dependency id="XamlCSS" version="1.0.1" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="1.0.0" />
+				<dependency id="XamlCSS" version="1.0.1" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="1.0.0" />
+				<dependency id="XamlCSS" version="1.0.1" />
 			</group>
 		</dependencies>
 		<references></references>
