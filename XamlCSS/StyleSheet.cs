@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using XamlCSS.CssParsing;
 
 namespace XamlCSS
 {
-    public class StyleSheet
+    public class StyleSheet :INotifyPropertyChanged
 	{
 		public static readonly StyleSheet Empty = new StyleSheet();
 
@@ -18,6 +19,9 @@ namespace XamlCSS
 		}
 
         private string content = null;
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
         public string Content
         {
             get
@@ -30,6 +34,8 @@ namespace XamlCSS
                 var sheet = CssParser.Parse(content);
                 this.Namespaces = sheet.Namespaces;
                 this.Rules = sheet.Rules;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
             }
         }
     }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -134,7 +135,18 @@ namespace XamlCSS.WPF
 			new PropertyMetadata(null, Css.StyleSheetPropertyAttached));
 		private static void StyleSheetPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
 		{
-			var newStyleSheet = (StyleSheet)e.NewValue;
+            PropertyChangedEventHandler handler = (s, evt) =>
+            {
+                instance.EnqueueRemoveStyleSheet(element, e.NewValue as StyleSheet, element);
+                instance.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet, element);                
+            };
+
+            if (e.OldValue != null)
+            {
+                (e.OldValue as StyleSheet).PropertyChanged -= handler;
+            }
+
+            var newStyleSheet = (StyleSheet)e.NewValue;
 
 			if (newStyleSheet == null)
 			{
@@ -142,9 +154,12 @@ namespace XamlCSS.WPF
 				return;
 			}
 
-			if (instance.dependencyPropertyService.IsLoaded(element))
-			{
-				instance.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet, element);
+            
+            newStyleSheet.PropertyChanged += handler;
+
+            if (instance.dependencyPropertyService.IsLoaded(element))
+			{   
+                instance.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet, element);
 			}
 			else
 			{
@@ -154,7 +169,7 @@ namespace XamlCSS.WPF
 			}
 		}
 
-		public static readonly DependencyProperty ClassProperty =
+        public static readonly DependencyProperty ClassProperty =
 			DependencyProperty.RegisterAttached(
 				"Class",
 				typeof(string),

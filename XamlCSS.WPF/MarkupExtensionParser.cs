@@ -38,19 +38,19 @@ namespace XamlCSS.WPF
 			{
 				var doc = XDocument.Parse(resDictString);
 				
-				inner = doc.Descendants().First().Descendants().First().ToString();
+				inner = doc.Descendants().First().Descendants().FirstOrDefault()?.ToString();
 			}
 			
 			var test = $@"
 <StackPanel xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"">
 	<StackPanel.Resources>
-		{ inner }
+		{ inner ?? "" }
 	</StackPanel.Resources>
-	<TextBlock Text=""{myBindingExpression}"" />
+	<TextBlock DataContext=""{myBindingExpression}"" />
 </StackPanel>";
 
 			var result = (XamlReader.Parse(test) as StackPanel).Children[0];
-			var bindingExpression = result.ReadLocalValue(TextBlock.TextProperty);
+			var bindingExpression = result.ReadLocalValue(TextBlock.DataContextProperty);
 
 			var binding = bindingExpression;
 
@@ -75,7 +75,15 @@ namespace XamlCSS.WPF
 				resDict = (obj as FrameworkContentElement).Resources;
 			}
 
-			var binding = Parse(expression, resDict);
+            object binding = null;
+            if (expression.Contains("Binding "))
+            {
+                binding = Parse(expression);
+            }
+            else
+            {
+                binding = Parse(expression, resDict);
+            }
 
 			if (binding is Binding)
 			{
