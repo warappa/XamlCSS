@@ -1,4 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
+using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -34,6 +37,18 @@ namespace XamlCSS.UWP
                     instance.ExecuteApplyStyles();
                 });
             }, null);
+        }
+
+        private static void ExecuteApplyIfInDesigner()
+        {
+            ExecuteNowIfInDesigner(instance.ExecuteApplyStyles);
+        }
+        private static void ExecuteNowIfInDesigner(Action action)
+        {
+            if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+            {
+                action();
+            }
         }
 
         public static void Initialize()
@@ -126,7 +141,17 @@ namespace XamlCSS.UWP
 
         public static readonly DependencyProperty ClassProperty =
             DependencyProperty.RegisterAttached("Class", typeof(string),
-            typeof(Css), new PropertyMetadata(null, null));
+            typeof(Css), new PropertyMetadata(null, ClassPropertyAttached));
+        private static void ClassPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
+        {
+            var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
+            domElement?.ResetClassList();
+
+            Css.instance.UpdateElement(element);
+
+            ExecuteApplyIfInDesigner();
+        }
+
         public static string GetClass(DependencyObject obj)
         {
             return obj.ReadLocalValue(ClassProperty) as string;
@@ -191,29 +216,54 @@ namespace XamlCSS.UWP
 
         private static void StyleSheetPropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
+            PropertyChangedEventHandler handler = (s, evt) =>
+            {
+                instance.EnqueueRemoveStyleSheet(d, e.NewValue as StyleSheet, d);
+                instance.EnqueueRenderStyleSheet(d, e.NewValue as StyleSheet, d);
+
+                ExecuteApplyIfInDesigner();
+            };
+
+            if (e.OldValue != null)
+            {
+                (e.OldValue as StyleSheet).PropertyChanged -= handler;
+            }
+
+
             FrameworkElement frameworkElement = d as FrameworkElement;
 
             var newStyleSheet = (StyleSheet)e.NewValue;
-
+            
             if (newStyleSheet == null)
             {
                 instance.RemoveStyleResources(frameworkElement, (StyleSheet)e.OldValue);
+
+                ExecuteApplyIfInDesigner();
+
                 return;
             }
+
+            newStyleSheet.PropertyChanged += handler;
+            
+
             if (GetIsLoaded(frameworkElement) ||
                 frameworkElement.Parent != null)
             {
-                instance.UpdateElement(d);
+                instance.EnqueueRenderStyleSheet(d, newStyleSheet, d);
             }
             else
             {
                 Css.SetIsLoaded(frameworkElement, true);
-                instance.UpdateElement(frameworkElement);
+                instance.EnqueueRenderStyleSheet(d, newStyleSheet, d);
             }
+
+            ExecuteApplyIfInDesigner();
         }
         private static void StylePropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             instance.UpdateElement(d as FrameworkElement);
+
+            ExecuteApplyIfInDesigner();
         }
 
         #endregion

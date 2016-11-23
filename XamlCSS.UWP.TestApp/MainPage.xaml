@@ -5,18 +5,56 @@
     xmlns:local="using:XamlCSS.UWP.TestApp"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:css="using:XamlCSS"
 	xmlns:cssUWP="using:XamlCSS.UWP"
     mc:Ignorable="d">
 	<Page.Resources>
-		<ResourceDictionary>
-			<x:String x:Key="testString">Hello World from StaticResource!</x:String>
-		</ResourceDictionary>
-	</Page.Resources>
-	<Grid Name="thegrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Right" Width="433">
+        <ResourceDictionary>
+        <css:StyleSheet x:Key="InternalStyle">
+            <css:StyleSheet.Content>
+                Button
+{
+	Foreground: Green;
+}
+.container
+{
+	Background: Yellow;
+}
+.container Button
+{
+	Foreground: Brown;
+}
+.jumbo
+{
+    Foreground:Blue;
+	FontSize: 50;
+}
+Grid Grid TextBlock:nth-of-type(1)
+{
+	Grid.Row: 0;
+	Grid.Column: 1;
+	Text: {Binding Test};
+}
+Grid Grid TextBlock:nth-of-type(2)
+{
+	Grid.Row: 1;
+	Grid.Column: 0;
+	Text: {StaticResource testString};
+}
+            </css:StyleSheet.Content>
+            </css:StyleSheet>
+        </ResourceDictionary>
+    </Page.Resources>
+	<Grid Name="thegrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+          HorizontalAlignment="Right" Width="433"
+          cssUWP:Css.StyleSheet="{StaticResource InternalStyle}"
+          >
 		<StackPanel Name="stack">
-			<StackPanel Name="thestack2" cssUWP:Css.Class="container">
-				<TextBlock Name="thetextblock" cssUWP:Css.Class="jumbo">Hello World</TextBlock>
-				<Button Name="theinnerbutton" Click="Button_Click_1">Inner Button</Button>
+            <StackPanel Name="thestack2" cssUWP:Css.Class="container">
+                <TextBlock Name="thetextblock" cssUWP:Css.Class="jumbo">Hello World</TextBlock>
+                <TextBlock Name="thetextblock2" cssUWP:Css.Class="jumbo">Hello World</TextBlock>
+                <TextBlock Name="thetextblock3" cssUWP:Css.Class="jumbo">Hello World</TextBlock>
+                <Button Name="theinnerbutton" Click="Button_Click_1">Inner Button</Button>
 			</StackPanel>
 			<Grid>
 				<Grid.RowDefinitions>

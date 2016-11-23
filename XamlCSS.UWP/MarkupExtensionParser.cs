@@ -12,10 +12,10 @@ namespace XamlCSS.UWP
 		public object Parse(string expression)
 		{
 			string myBindingExpression = expression;
-			var test = "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" Text=\"" + myBindingExpression + "\" />";
+			var test = "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" DataContext=\"" + myBindingExpression + "\" />";
 
 			var result = XamlReader.Load(test) as TextBlock;
-			var bindingExpression = result.ReadLocalValue(TextBlock.TextProperty);
+			var bindingExpression = result.ReadLocalValue(TextBlock.DataContextProperty);
 
 			var binding = bindingExpression;
 
@@ -40,12 +40,12 @@ namespace XamlCSS.UWP
 	<StackPanel.Resources>
 		{ inner }
 	</StackPanel.Resources>
-	<TextBlock Text=""{myBindingExpression}"" />
+	<TextBlock DataContext=""{myBindingExpression}"" />
 </StackPanel>";
 
 			var result = (XamlReader.Load(test) as StackPanel).Children[0];
 
-			var bindingExpression = result.ReadLocalValue(TextBlock.TextProperty);
+			var bindingExpression = result.ReadLocalValue(TextBlock.DataContextProperty);
 
 			var binding = bindingExpression;
 
@@ -84,7 +84,7 @@ namespace XamlCSS.UWP
 				}
 			}
 
-			var binding = Parse(expression, resDict);
+			var binding = Parse(expression);
 
 			if (binding is Binding)
 			{
