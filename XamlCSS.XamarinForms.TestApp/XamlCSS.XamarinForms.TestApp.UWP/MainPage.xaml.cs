@@ -3,12 +3,12 @@
 	public sealed partial class MainPage
 	{
 		public MainPage()
-		{
-			this.InitializeComponent();
+        {
+            Css.Initialize();
 
-			LoadApplication(new TestApp.App());
+            this.InitializeComponent();
 
-			Css.Initialize();
+            LoadApplication(new TestApp.App());
 		}
 	}
 }

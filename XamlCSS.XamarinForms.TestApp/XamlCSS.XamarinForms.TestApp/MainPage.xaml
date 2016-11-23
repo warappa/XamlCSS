@@ -2,15 +2,58 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="XamlCSS.XamarinForms.TestApp.MainPage"
+             xmlns:css="clr-namespace:XamlCSS;assembly=XamlCSS"
 			 xmlns:cssXF="clr-namespace:XamlCSS.XamarinForms;assembly=XamlCSS.XamarinForms"
 			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
 			 >
 	<ContentPage.Resources>
 		<ResourceDictionary>
 		  <sys:String x:Key="testString">Hello World from DynamicResource!</sys:String>
+      <css:StyleSheet x:Key="LocalStyle">
+        <css:StyleSheet.Content>
+Button
+{
+	TextColor: Green;
+}
+.container
+{
+	BackgroundColor: Yellow;
+}
+.container Button
+{
+	TextColor: Red;
+}
+.jumbo
+{
+	FontSize: 50;
+}
+Grid Grid Label:nth-of-type(1)
+{
+	Grid.Row: 0;
+	Grid.Column: 1;
+	Text: {Binding Test};
+}
+Grid Grid Label:nth-of-type(2)
+{
+	Grid.Row: 1;
+	Grid.Column: 0;
+	Text: {StaticResource testString};
+}
+Grid Grid Label:nth-of-type(3)
+{
+	Grid.Row: 1;
+	Grid.Column: 1;
+	Text: {DynamicResource testString};
+}
+.listViewItem Label
+{
+	FontSize: 50;
+}
+        </css:StyleSheet.Content>
+      </css:StyleSheet>
 		</ResourceDictionary>
 	</ContentPage.Resources>
-	<Grid x:Name="thegrid" WidthRequest="433">
+	<Grid x:Name="thegrid" WidthRequest="433" cssXF:Css.StyleSheet="{DynamicResource LocalStyle}">
 		<StackLayout x:Name="stack" cssXF:Css.Id="stack">
 			<StackLayout x:Name="thestack2" cssXF:Css.Id="thestack2" cssXF:Css.Class="container">
 				<Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>

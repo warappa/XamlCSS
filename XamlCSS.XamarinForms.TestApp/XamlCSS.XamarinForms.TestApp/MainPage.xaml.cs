@@ -15,15 +15,6 @@ namespace XamlCSS.XamarinForms.TestApp
 				Test = "Hello World from BindingContext!",
 				TestList = new List<string> { "a", "b", "c" }
 			};
-
-			this.Appearing += MainPage_Appearing;
-		}
-
-		private void MainPage_Appearing(object sender, EventArgs e)
-		{
-			this.Appearing -= MainPage_Appearing;
-
-			SwitchLayout();
 		}
 
 		private void SwitchLayout()
