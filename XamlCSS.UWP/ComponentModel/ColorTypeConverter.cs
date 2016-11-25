@@ -11,6 +11,8 @@ namespace XamlCSS.ComponentModel
 			return sourceType == typeof(string) ||
 				sourceType == typeof(Color);
 		}
+
+        [Obsolete]
 		public override object ConvertFrom(object o)
 		{
             if (o == null)

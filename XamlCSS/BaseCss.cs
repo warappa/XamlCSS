@@ -16,7 +16,7 @@ namespace XamlCSS
         public readonly ITreeNodeProvider<TDependencyObject> treeNodeProvider;
         public readonly IStyleResourcesService applicationResourcesService;
         public readonly INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService;
-        private IMarkupExtensionParser markupExpressionParser;
+        private readonly IMarkupExtensionParser markupExpressionParser;
         private Action<Action> uiInvoker;
         private List<RenderInfo<TDependencyObject, TUIElement>> items = new List<RenderInfo<TDependencyObject, TUIElement>>();
 
@@ -38,34 +38,54 @@ namespace XamlCSS
             CssParser.Initialize(defaultCssNamespace);
         }
 
+        protected bool executeApplyStylesExecuting;
+
         public void ExecuteApplyStyles()
         {
-            if (items.Any() == false)
+            if (executeApplyStylesExecuting)
             {
                 return;
             }
 
-            var copy = items.Distinct().ToList();
+            executeApplyStylesExecuting = true;
 
-            items = new List<RenderInfo<TDependencyObject, TUIElement>>();
-
-            var invalidateItem = copy.FirstOrDefault(x => x.Remove);
-            if (invalidateItem != null)
+            try
             {
-                RemoveStyleResourcesInternal(invalidateItem.StyleSheetHolder, invalidateItem.StyleSheet);
-                copy.Remove(invalidateItem);
+                List<RenderInfo<TDependencyObject, TUIElement>> copy;
+
+                lock (items)
+                {
+                    if (items.Any() == false)
+                    {
+                        return;
+                    }
+
+                    copy = items.Distinct().ToList();
+                    items = new List<RenderInfo<TDependencyObject, TUIElement>>();
+                }
+
+                var invalidateItem = copy.FirstOrDefault(x => x.Remove);
+                if (invalidateItem != null)
+                {
+                    RemoveStyleResourcesInternal(invalidateItem.StyleSheetHolder, invalidateItem.StyleSheet);
+                    copy.Remove(invalidateItem);
+                }
+
+                copy.RemoveAll(x => x.Remove);
+
+                if (copy.Any())
+                {
+                    foreach (var item in copy)
+                    {
+                        CalculateStylesInternal(item.StyleSheetHolder, item.StyleSheet, item.StartFrom);
+
+                        ApplyMatchingStyles(item.StartFrom ?? item.StyleSheetHolder);
+                    }
+                }
             }
-
-            copy.RemoveAll(x => x.Remove);
-
-            if (copy.Any() == false)
+            finally
             {
-                return;
-            }
-
-            foreach (var item in copy)
-            {
-                GenerateStyleResourcesInternal(item.StyleSheetHolder, item.StyleSheet, item.StartFrom);
+                executeApplyStylesExecuting = false;
             }
         }
 
@@ -77,13 +97,16 @@ namespace XamlCSS
                 return;
             }
 
-            items.Add(new RenderInfo<TDependencyObject, TUIElement>
+            lock (items)
             {
-                StyleSheetHolder = styleSheetHolder,
-                StyleSheet = styleSheet,
-                StartFrom = startFrom,
-                Remove = false
-            });
+                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                {
+                    StyleSheetHolder = styleSheetHolder,
+                    StyleSheet = styleSheet,
+                    StartFrom = startFrom,
+                    Remove = false
+                });
+            }
         }
 
         public void EnqueueRemoveStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
@@ -93,32 +116,27 @@ namespace XamlCSS
             {
                 return;
             }
-
-            items.Add(new RenderInfo<TDependencyObject, TUIElement>
+            lock (items)
             {
-                StyleSheetHolder = styleSheetHolder,
-                StyleSheet = styleSheet,
-                StartFrom = startFrom,
-                Remove = true
-            });
+                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                {
+                    StyleSheetHolder = styleSheetHolder,
+                    StyleSheet = styleSheet,
+                    StartFrom = startFrom,
+                    Remove = true
+                });
+            }
         }
 
-        protected void GenerateStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
+        protected void CalculateStylesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
-            uiInvoker(() =>
-            {
-                GenerateStyleResourcesInternal(styleResourceReferenceHolder, styleSheet, startFrom);
-            });
-        }
-        protected void GenerateStyleResourcesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
-        {
-            UnapplyMatchingStylesInternal(startFrom ?? styleResourceReferenceHolder);
-
             if (styleResourceReferenceHolder == null ||
                 styleSheet == null)
             {
                 return;
             }
+            
+            UnapplyMatchingStylesInternal(startFrom ?? styleResourceReferenceHolder);
 
             IDomElement<TDependencyObject> root = null;
 
@@ -132,6 +150,7 @@ namespace XamlCSS
                     if (visualTree == null)
                     {
                         visualTree = treeNodeProvider.GetVisualTree(startFrom ?? styleResourceReferenceHolder);
+                        visualTree.XamlCssStyleSheets.Clear();
                         visualTree.XamlCssStyleSheets.Add(styleSheet);
                     }
 
@@ -142,6 +161,7 @@ namespace XamlCSS
                     if (logicalTree == null)
                     {
                         logicalTree = treeNodeProvider.GetLogicalTree(startFrom ?? styleResourceReferenceHolder);
+                        logicalTree.XamlCssStyleSheets.Clear();
                         logicalTree.XamlCssStyleSheets.Add(styleSheet);
                     }
 
@@ -149,112 +169,127 @@ namespace XamlCSS
                 }
 
                 // apply our selector
-                var matchingNodes = root.QuerySelectorAllWithSelf(rule.SelectorString)
+                var matchedNodes = root.QuerySelectorAllWithSelf(rule.SelectorString)
                     .Where(x => x != null)
                     .Cast<IDomElement<TDependencyObject>>()
                     .ToList();
 
-                var matchingTypes = matchingNodes
+                var matchedElementTypes = matchedNodes
                     .Select(x => x.Element.GetType())
                     .Distinct()
                     .ToList();
 
                 applicationResourcesService.EnsureResources();
 
-                foreach (var type in matchingTypes)
+                foreach (var matchedElementType in matchedElementTypes)
                 {
-                    var resourceKey = nativeStyleService.GetStyleResourceKey(type, rule.SelectorString);
+                    var resourceKey = nativeStyleService.GetStyleResourceKey(matchedElementType, rule.SelectorString);
 
                     if (applicationResourcesService.Contains(resourceKey))
-                        continue;
-
-                    var dict = new Dictionary<TDependencyProperty, object>();
-
-                    foreach (var i in rule.DeclarationBlock)
-                    {
-                        TDependencyProperty property;
-
-                        if (i.Property.Contains("."))
-                        {
-                            string typename = null;
-                            string propertyName = null;
-
-                            if (i.Property.Contains("|"))
-                            {
-                                var strs = i.Property.Split('|', '.');
-                                var alias = strs[0];
-                                var namespaceFragments = styleSheet
-                                    .Namespaces
-                                    .First(x => x.Alias == alias)
-                                    .Namespace
-                                    .Split(',');
-
-                                typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                                propertyName = strs[2];
-                            }
-                            else
-                            {
-                                var strs = i.Property.Split('.');
-                                var namespaceFragments = styleSheet
-                                    .Namespaces
-                                    .First(x => x.Alias == "")
-                                    .Namespace
-                                    .Split(',');
-
-                                typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                                propertyName = strs[1];
-                            }
-
-                            property = dependencyPropertyService.GetBindableProperty(Type.GetType(typename), propertyName);
-                        }
-                        else
-                        {
-                            property = dependencyPropertyService.GetBindableProperty(type, i.Property);
-                        }
-
-                        if (property == null)
-                        {
-                            continue;
-                        }
-
-                        object propertyValue = null;
-                        if (i.Value is string &&
-                            ((string)i.Value).StartsWith("{", StringComparison.Ordinal))
-                        {
-                            propertyValue = markupExpressionParser.ProvideValue((string)i.Value, startFrom ?? styleResourceReferenceHolder);
-                        }
-                        else
-                        {
-                            propertyValue = dependencyPropertyService.GetBindablePropertyValue(type, property, i.Value);
-                        }
-
-                        dict[property] = propertyValue;
-                    }
-
-                    if (dict.Keys.Count == 0)
                     {
                         continue;
                     }
 
-                    var style = nativeStyleService.CreateFrom(dict, type);
+                    var propertyStyleValues = CreateStyleDictionaryFromDeclarationBlock(
+                        styleSheet.Namespaces,
+                        rule.DeclarationBlock,
+                        matchedElementType,
+                        startFrom ?? styleResourceReferenceHolder);
+
+                    if (propertyStyleValues.Keys.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var style = nativeStyleService.CreateFrom(propertyStyleValues, matchedElementType);
+
                     applicationResourcesService.SetResource(resourceKey, style);
                 }
 
-                foreach (var n in matchingNodes)
+                foreach (var matchingNode in matchedNodes)
                 {
-                    var element = n.Element;
+                    var element = matchingNode.Element;
 
                     var matchingStyles = dependencyPropertyService.GetMatchingStyles(element) ?? new string[0];
 
-                    var key = nativeStyleService.GetStyleResourceKey(element.GetType(), rule.SelectorString);
-                    if (applicationResourcesService.Contains(key))
+                    var resourceKey = nativeStyleService.GetStyleResourceKey(element.GetType(), rule.SelectorString);
+
+                    if (applicationResourcesService.Contains(resourceKey))
                     {
-                        dependencyPropertyService.SetMatchingStyles(element, matchingStyles.Concat(new[] { key }).Distinct().ToArray());
+                        dependencyPropertyService.SetMatchingStyles(element, matchingStyles.Concat(new[] { resourceKey }).Distinct().ToArray());
                     }
                 }
             }
+        }
 
-            ApplyMatchingStyles(startFrom ?? styleResourceReferenceHolder);
+        private Dictionary<TDependencyProperty, object> CreateStyleDictionaryFromDeclarationBlock(
+            List<CssNamespace> namespaces, 
+            StyleDeclarationBlock declarationBlock, 
+            Type matchedType,
+            TDependencyObject dependencyObject)
+        {
+            var propertyStyleValues = new Dictionary<TDependencyProperty, object>();
+
+            foreach (var i in declarationBlock)
+            {
+                TDependencyProperty property;
+
+                if (i.Property.Contains("."))
+                {
+                    string typename = null;
+                    string propertyName = null;
+
+                    if (i.Property.Contains("|"))
+                    {
+                        var strs = i.Property.Split('|', '.');
+                        var alias = strs[0];
+                        var namespaceFragments = namespaces
+                            .First(x => x.Alias == alias)
+                            .Namespace
+                            .Split(',');
+
+                        typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
+                        propertyName = strs[2];
+                    }
+                    else
+                    {
+                        var strs = i.Property.Split('.');
+                        var namespaceFragments = namespaces
+                            .First(x => x.Alias == "")
+                            .Namespace
+                            .Split(',');
+
+                        typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
+                        propertyName = strs[1];
+                    }
+
+                    property = dependencyPropertyService.GetBindableProperty(Type.GetType(typename), propertyName);
+                }
+                else
+                {
+                    property = dependencyPropertyService.GetBindableProperty(matchedType, i.Property);
+                }
+
+                if (property == null)
+                {
+                    continue;
+                }
+
+                object propertyValue = null;
+                if (i.Value is string &&
+                    ((string)i.Value).StartsWith("{", StringComparison.Ordinal))
+                {
+                    propertyValue = markupExpressionParser.ProvideValue((string)i.Value, dependencyObject);
+                }
+                else
+                {
+                    propertyValue = dependencyPropertyService.GetBindablePropertyValue(matchedType, property, i.Value);
+                }
+
+                propertyStyleValues[property] = propertyValue;
+            }
+
+            return propertyStyleValues;
         }
 
         public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
@@ -311,10 +346,10 @@ namespace XamlCSS
                     styleToApply = applicationResourcesService.GetResource(matchingStyles[0]);
                 }
 
-                //if (styleToApply != null)
-                //{
-                nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
-                //}
+                if (styleToApply != null)
+                {
+                    nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
+                }
             }
             else if (matchingStyles?.Length > 1)
             {
@@ -344,7 +379,10 @@ namespace XamlCSS
                     styleToApply = nativeStyleService.CreateFrom(dict, visualElement.GetType());
                 }
 
-                nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
+                if (styleToApply != null)
+                {
+                    nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
+                }
             }
 
             dependencyPropertyService.SetHandledCss(visualElement, true);
@@ -373,7 +411,7 @@ namespace XamlCSS
             dependencyPropertyService.SetHandledCss(bindableObject, false);
             dependencyPropertyService.SetMatchingStyles(bindableObject, null);
             dependencyPropertyService.SetAppliedMatchingStyles(bindableObject, null);
-            nativeStyleService.SetStyle(bindableObject, null);
+            nativeStyleService.SetStyle(bindableObject, dependencyPropertyService.GetInitialStyle(bindableObject));
         }
 
         public void UpdateElement(TDependencyObject sender)

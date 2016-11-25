@@ -6,7 +6,7 @@ using System;
 
 namespace XamlCSS.UWP.Dom
 {
-	public abstract class DomElement : DomElementBase<DependencyObject, DependencyProperty>
+	public abstract class DomElement : DomElementBase<DependencyObject, DependencyProperty>, IDisposable
 	{
 		public DomElement(DependencyObject dependencyObject, IElement parent)
 			: base(dependencyObject, parent)
@@ -25,7 +25,7 @@ namespace XamlCSS.UWP.Dom
             LoadedDetectionHelper.SubTreeRemoved += VisualDomElement_ChildAdded;
         }
 
-        public new void Dispose()
+        void IDisposable.Dispose()
         {
             UnregisterChildrenChangeHandler();
 

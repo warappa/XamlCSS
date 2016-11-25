@@ -478,7 +478,11 @@ namespace XamlCSS.CssParsing
                 styleSheet.Namespaces.Add(new CssNamespace("", defaultCssNamespace));
             }
 
-            foreach (var astRule in ast.Children.Where(x => x.Type == CssNodeType.StyleRule).ToList())
+            var styleRules = ast.Children
+                .Where(x => x.Type == CssNodeType.StyleRule)
+                .ToList();
+
+            foreach (var astRule in styleRules)
             {
                 var rule = new StyleRule();
 
@@ -522,7 +526,7 @@ namespace XamlCSS.CssParsing
                 styleSheet.Rules.Add(rule);
             }
 
-            var orderedRules = styleSheet.Rules
+            var splitAndOrderedRules = styleSheet.Rules
                 .SelectMany(rule =>
                 {
                     return rule.Selectors.Select(selector =>
@@ -542,7 +546,7 @@ namespace XamlCSS.CssParsing
                 .ToList();
 
             styleSheet.Rules.Clear();
-            styleSheet.Rules.AddRange(orderedRules);
+            styleSheet.Rules.AddRange(splitAndOrderedRules);
 
             return styleSheet;
         }

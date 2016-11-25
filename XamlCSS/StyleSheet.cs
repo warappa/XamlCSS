@@ -4,23 +4,17 @@ using XamlCSS.CssParsing;
 
 namespace XamlCSS
 {
-    public class StyleSheet :INotifyPropertyChanged
-	{
-		public static readonly StyleSheet Empty = new StyleSheet();
+    public class StyleSheet : INotifyPropertyChanged
+    {
+        public static readonly StyleSheet Empty = new StyleSheet();
 
-		private StyleRuleCollection _rules = new StyleRuleCollection();
+        public List<CssNamespace> Namespaces { get; set; } = new List<CssNamespace>();
 
-		public List<CssNamespace> Namespaces { get; set; }
-
-		public StyleRuleCollection Rules
-		{
-			get { return _rules; }
-			set { _rules = value; }
-		}
+        public StyleRuleCollection Rules { get; set; } = new StyleRuleCollection();
+        
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private string content = null;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public string Content
         {

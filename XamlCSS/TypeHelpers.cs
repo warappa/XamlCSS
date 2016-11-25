@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace XamlCSS
 {
-	public class TypeHelpers
+	public static class TypeHelpers
 	{
 		public static IEnumerable<FieldInfo> DeclaredFields(Type type)
 		{
@@ -24,18 +24,18 @@ namespace XamlCSS
 
 		public static IEnumerable<PropertyInfo> DeclaredProperties(Type type)
 		{
-			var fields = new List<PropertyInfo>();
+			var properties = new List<PropertyInfo>();
 
 			while (type != null)
 			{
-				fields.AddRange(type.GetTypeInfo().DeclaredProperties);
+				properties.AddRange(type.GetTypeInfo().DeclaredProperties);
 
 				var baseType = type.GetTypeInfo().BaseType;
 
 				type = baseType;
 			}
 
-			return fields;
+			return properties;
 		}
 	}
 }

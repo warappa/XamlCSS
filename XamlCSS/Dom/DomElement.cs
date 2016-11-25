@@ -15,21 +15,9 @@ namespace XamlCSS.Dom
 		where TDependencyObject : class
 		where TDependencyProperty : class
 	{
-        protected static char[] classSplitter = { ' ' };
+        #region eventhandlers
 
-        protected readonly TDependencyObject dependencyObject;
-		protected string id;
-		protected static readonly CssParser Parser = new CssParser(new CssParserOptions()
-		{
-			IsIncludingUnknownDeclarations = true,
-			IsStoringTrivia = false,
-			IsIncludingUnknownRules = true,
-			IsToleratingInvalidConstraints = true,
-			IsToleratingInvalidSelectors = true,
-			IsToleratingInvalidValues = true
-		});
-
-		public event DomEventHandler ReadyStateChanged;
+        public event DomEventHandler ReadyStateChanged;
 		public event DomEventHandler Aborted;
 		public event DomEventHandler Blurred;
 		public event DomEventHandler Cancelled;
@@ -89,15 +77,35 @@ namespace XamlCSS.Dom
 		public event DomEventHandler VolumeChanged;
 		public event DomEventHandler Waiting;
 
-		protected Func<TDependencyObject, IElement> getParentElement;
+        private const string Undefined = "UNDEFINED";
 
-		public DomElementBase(
+        #endregion
+
+        public List<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
+
+        protected Func<TDependencyObject, IElement> getParentElement;
+        protected readonly static char[] classSplitter = { ' ' };
+        protected readonly TDependencyObject dependencyObject;
+        protected string id;
+        protected INodeList childNodes = null;
+        protected IHtmlCollection<IElement> children = null;
+        protected string prefix = "UNDEFINED";
+
+        protected static readonly CssParser Parser = new CssParser(new CssParserOptions
+        {
+            IsIncludingUnknownDeclarations = true,
+            IsStoringTrivia = false,
+            IsIncludingUnknownRules = true,
+            IsToleratingInvalidConstraints = true,
+            IsToleratingInvalidSelectors = true,
+            IsToleratingInvalidValues = true
+        });
+
+        public DomElementBase(
 			TDependencyObject dependencyObject,
 			IElement parentElement
 			)
 		{
-			this.XamlCssStyleSheets = new List<StyleSheet>();
-
 			this.dependencyObject = dependencyObject;
 			this.id = GetId(dependencyObject);
 			this.LocalName = dependencyObject.GetType().Name;
@@ -130,7 +138,12 @@ namespace XamlCSS.Dom
             this.children = null;
         }
 
-		public static string GetPrefix(Type type)
+        public void ResetClassList()
+        {
+            classList = null;
+        }
+
+        public static string GetPrefix(Type type)
 		{
 			return type.AssemblyQualifiedName.Replace($".{type.Name},", ",");
 		}
@@ -162,10 +175,8 @@ namespace XamlCSS.Dom
 
 		public int ChildElementCount { get { return Children.Count(); } }
 
-        protected INodeList childNodes = null;
         public INodeList ChildNodes => childNodes ?? (childNodes = GetChildNodes(dependencyObject));
-
-        private IHtmlCollection<IElement> children = null;
+        
 		public IHtmlCollection<IElement> Children
 		{
 			get
@@ -177,11 +188,6 @@ namespace XamlCSS.Dom
 					.ToList()));
 			}
 		}
-
-        public void ResetClassList()
-        {
-            classList = null;
-        }
 
         protected ITokenList classList = null;
         public ITokenList ClassList => classList ?? (classList = GetClassList(dependencyObject));
@@ -288,13 +294,12 @@ namespace XamlCSS.Dom
 		public INode Parent { get { return parent ?? (parent = getParentElement?.Invoke(dependencyObject)); } protected set { parent = value as IElement; } }
 
 		public IElement ParentElement { get { return parent ?? (parent = getParentElement?.Invoke(dependencyObject)); } protected set { parent = value; } }
-
-		protected string prefix = "UNDEFINED";
+        
 		public string Prefix
 		{
 			get
 			{
-				if (prefix == "UNDEFINED")
+				if (prefix == Undefined)
 				{
 					prefix = Owner.LookupPrefix(GetPrefix(dependencyObject.GetType()));
 				}
@@ -312,15 +317,15 @@ namespace XamlCSS.Dom
 					return null;
 				}
 
-				var children = ParentElement.Children;
-				var thisIndex = children.IndexOf(this);
+				var parentChildren = ParentElement.Children;
+				var thisIndex = parentChildren.IndexOf(this);
 
 				if (thisIndex == 0)
 				{
 					return null;
 				}
 
-				return children[thisIndex - 1];
+				return parentChildren[thisIndex - 1];
 			}
 		}
 
@@ -333,15 +338,15 @@ namespace XamlCSS.Dom
 					return null;
 				}
 
-				var children = ParentElement.ChildNodes;
-				var thisIndex = children.IndexOf(this);
+				var parentChildren = ParentElement.ChildNodes;
+				var thisIndex = parentChildren.IndexOf(this);
 
 				if (thisIndex == 0)
 				{
 					return null;
 				}
 
-				return children[thisIndex - 1];
+				return parentChildren[thisIndex - 1];
 			}
 		}
 
@@ -682,16 +687,7 @@ namespace XamlCSS.Dom
 				throw new NotImplementedException();
 			}
 		}
-		public class StyleSheetList : List<IStyleSheet>, IStyleSheetList
-		{
-			public int Length
-			{
-				get
-				{
-					return this.Count;
-				}
-			}
-		}
+		
 		public IStyleSheetList StyleSheets
 		{
 			get
@@ -868,8 +864,6 @@ namespace XamlCSS.Dom
 		{
 			return LookupPrefix(namespaceUri) == "";
 		}
-
-		public List<StyleSheet> XamlCssStyleSheets { get; protected set; }
 
 		public string LookupNamespaceUri(string prefix)
 		{
@@ -1154,5 +1148,16 @@ namespace XamlCSS.Dom
 		{
 			throw new NotImplementedException();
 		}
-	}
+
+        public class StyleSheetList : List<IStyleSheet>, IStyleSheetList
+        {
+            public int Length
+            {
+                get
+                {
+                    return this.Count;
+                }
+            }
+        }
+    }
 }

@@ -21,13 +21,19 @@ namespace XamlCSS.UWP
 		{
 			var list = new List<DependencyObject>();
 
-			var count = VisualTreeHelper.GetChildrenCount(element);
-			for (int i = 0; i < count; i++)
-			{
-				var child = VisualTreeHelper.GetChild(element, i);
+            try
+            {
+                var count = VisualTreeHelper.GetChildrenCount(element);
+                for (int i = 0; i < count; i++)
+                {
+                    var child = VisualTreeHelper.GetChild(element, i);
 
-				list.Add(child);
-			}
+                    list.Add(child);
+                }
+            }
+            catch
+            {
+            }
 
 			return list;
 		}

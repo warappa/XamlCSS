@@ -9,7 +9,6 @@ namespace XamlCSS.CssParsing
 	[DebuggerDisplay("{Type} {Text} {FlatChildren}")]
 	public class CssNode
 	{
-		public CssNode() { }
 		public CssNode(CssNodeType type, CssNode parent, string text)
 		{
 			Type = type;

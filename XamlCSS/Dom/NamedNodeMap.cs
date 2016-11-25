@@ -10,20 +10,18 @@ namespace XamlCSS.Dom
 		where TDependencyObject : class
 		where TDependencyProperty : class
 	{
-		protected List<IAttr> attributes;
+		protected List<IAttr> attributes = null;
+        private TDependencyObject dependencyObject;
 
-		public NamedNodeMapBase(TDependencyObject dependencyObject)
+        public NamedNodeMapBase(TDependencyObject dependencyObject)
 		{
-			InitAttributes(dependencyObject);
+            this.dependencyObject = dependencyObject;
 		}
 
-		private void InitAttributes(TDependencyObject dependencyObject)
-		{
-			this.attributes = GetProperties(dependencyObject)
-							.Select(x => CreateAttribute(dependencyObject, x))
-							.ToList();
-		}
-
+        protected List<IAttr> Attributes => attributes ?? (attributes = GetProperties(dependencyObject)
+                            .Select(x => CreateAttribute(dependencyObject, x))
+                            .ToList());
+        
 		public NamedNodeMapBase(IEnumerable<IAttr> attributes)
 		{
 			this.attributes = attributes.ToList();
@@ -41,22 +39,20 @@ namespace XamlCSS.Dom
 			return dps;
 		}
 
-		public IAttr this[int index] { get { return attributes[index]; } }
+		public IAttr this[int index] { get { return Attributes[index]; } }
 
 		public IAttr this[string name] { get { return GetNamedItem(name); } }
 
-		public int Length { get { return attributes.Count; } }
+		public int Length { get { return Attributes.Count; } }
 
 		public IEnumerator<IAttr> GetEnumerator()
 		{
-			return attributes.GetEnumerator();
+			return Attributes.GetEnumerator();
 		}
 
 		public IAttr GetNamedItem(string name)
 		{
-			return attributes
-					.Where(x => x.Name == name)
-					.FirstOrDefault();
+			return Attributes.FirstOrDefault(x => x.Name == name);
 		}
 
 		public IAttr GetNamedItem(string namespaceUri, string localName)
@@ -86,7 +82,7 @@ namespace XamlCSS.Dom
 
 		IEnumerator IEnumerable.GetEnumerator()
 		{
-			return attributes.GetEnumerator();
+			return Attributes.GetEnumerator();
 		}
 	}
 }

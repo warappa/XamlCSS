@@ -9,7 +9,9 @@ namespace XamlCSS.ComponentModel
 		{
 			return sourceType == typeof(string);
 		}
-		public override object ConvertFrom(CultureInfo culture, object o)
+
+        [Obsolete]
+        public override object ConvertFrom(CultureInfo culture, object o)
 		{
 			var stringValue = o as string;
 
@@ -70,11 +72,15 @@ namespace XamlCSS.ComponentModel
 
             throw new InvalidOperationException($"Unable to parse value '{o}' to ''");
 		}
-		public override object ConvertFrom(object o)
+
+        [Obsolete]
+        public override object ConvertFrom(object o)
 		{
 			return this.ConvertFrom(CultureInfo.CurrentUICulture, o);
 		}
-		public override object ConvertFromInvariantString(string value)
+
+        [Obsolete]
+        public override object ConvertFromInvariantString(string value)
 		{
 			return ConvertFrom((object)value);
 		}

@@ -34,14 +34,19 @@ namespace XamlCSS.ComponentModel
 		{
 			return canConvert(sourceType);
 		}
-		public override object ConvertFrom(CultureInfo culture, object o)
+
+        [Obsolete]
+        public override object ConvertFrom(CultureInfo culture, object o)
 		{
 			return convert(culture, o);
 		}
-		public override object ConvertFrom(object o)
+
+        [Obsolete]
+        public override object ConvertFrom(object o)
 		{
 			return convert(CultureInfo.CurrentUICulture, o);
 		}
+
 		public override object ConvertFromInvariantString(string value)
 		{
 			return convert(CultureInfo.CurrentUICulture, (object)value);
