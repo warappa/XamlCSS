@@ -8,14 +8,18 @@ using XamlCSS.UWP.Dom;
 
 namespace XamlCSS.UWP
 {
-	public class TreeNodeProvider : ITreeNodeProvider<DependencyObject>
+    public abstract class TreeNodeProviderBase : ITreeNodeProvider<DependencyObject>
 	{
         readonly IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService;
 
-        public TreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
+        public TreeNodeProviderBase(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
         {
             this.dependencyPropertyService = dependencyPropertyService;
         }
+
+        protected abstract IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject);
+
+        protected abstract bool IsCorrectTreeNode(IDomElement<DependencyObject> node);
 
         public IEnumerable<DependencyObject> GetChildren(DependencyObject element)
 		{
@@ -38,10 +42,13 @@ namespace XamlCSS.UWP
 			return list;
 		}
 
-		public IEnumerable<IDomElement<DependencyObject>> GetChildren(IDomElement<DependencyObject> node)
+		public IEnumerable<IDomElement<DependencyObject>> GetDomElementChildren(IDomElement<DependencyObject> node)
 		{
-			return this.GetChildren(node.Element as DependencyObject)
-				.Select(x => new LogicalDomElement(x, node as LogicalDomElement))
+            if (node == null) throw new ArgumentNullException(nameof(node));
+            if (node.Element == null) throw new ArgumentNullException(nameof(node.Element));
+
+            return this.GetChildren(node.Element as DependencyObject)
+				.Select(x => new LogicalDomElement(x, this))
 				.ToList();
 		}
 
@@ -55,11 +62,11 @@ namespace XamlCSS.UWP
             return null;
 		}
 
-		public IDomElement<DependencyObject> GetLogicalTreeParent(DependencyObject obj)
+		public IDomElement<DependencyObject> GetTreeParentNode(DependencyObject obj)
 		{
-            return GetLogicalTree(GetParent(obj));
+            return GetDomElement(GetParent(obj));
         }
-		public IDomElement<DependencyObject> GetLogicalTree(DependencyObject obj)
+		public IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
 		{
             if (obj == null)
             {
@@ -69,37 +76,12 @@ namespace XamlCSS.UWP
             var cached = GetFromDependencyObject(obj);
 
             if (cached != null &&
-                cached is LogicalDomElement)
+                IsCorrectTreeNode(cached))
             {
                 return cached;
             }
 
-            cached = new LogicalDomElement(obj, GetLogicalTreeParent);
-            dependencyPropertyService.SetDomElement(obj, cached);
-
-            return cached;
-        }
-
-		public IDomElement<DependencyObject> GetVisualTreeParent(DependencyObject obj)
-		{
-            return GetVisualTree(GetParent(obj));
-        }
-		public IDomElement<DependencyObject> GetVisualTree(DependencyObject obj)
-		{
-            if (obj == null)
-            {
-                return null;
-            }
-
-            var cached = GetFromDependencyObject(obj);
-
-            if (cached != null &&
-                cached is VisualDomElement)
-            {
-                return cached;
-            }
-
-            cached = new VisualDomElement(obj, GetVisualTreeParent);
+            cached = CreateTreeNode(obj);
             dependencyPropertyService.SetDomElement(obj, cached);
 
             return cached;

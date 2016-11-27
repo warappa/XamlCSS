@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using XamlCSS.Dom;
 
 namespace XamlCSS.UWP
@@ -51,11 +52,6 @@ namespace XamlCSS.UWP
 			return Css.GetInitialStyle(obj) as Style;
 		}
 
-		public bool IsLoaded(DependencyObject obj)
-		{
-			return Css.GetIsLoaded(obj);
-		}
-
 		public string[] GetMatchingStyles(DependencyObject obj)
 		{
 			return Css.GetMatchingStyles(obj) as string[];
@@ -95,12 +91,7 @@ namespace XamlCSS.UWP
 		{
 			Css.SetInitialStyle(obj, value);
 		}
-
-		public void SetIsLoaded(FrameworkElement obj, bool value)
-		{
-			Css.SetIsLoaded(obj, value);
-		}
-
+        
 		public void SetMatchingStyles(DependencyObject obj, string[] value)
 		{
 			Css.SetMatchingStyles(obj, value);
@@ -129,7 +120,6 @@ namespace XamlCSS.UWP
 			handler = (s, e) =>
 			{
 				frameworkElement.Loaded -= handler;
-				SetIsLoaded(frameworkElement, true);
 				func(s);
 			};
 
@@ -154,6 +144,14 @@ namespace XamlCSS.UWP
         public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
         {
             Css.SetDomElement(obj, value);
+        }
+
+        public bool IsLoaded(DependencyObject obj)
+        {
+            var frameworkElement = obj as FrameworkElement;
+
+            return frameworkElement.Parent != null || 
+                frameworkElement is Frame;
         }
     }
 }

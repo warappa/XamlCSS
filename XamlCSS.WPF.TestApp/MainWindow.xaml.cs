@@ -19,21 +19,19 @@ namespace XamlCSS.WPF.TestApp
 				Test = "Hello World from DataContext!"
 			};
 
-			SwitchLayout();
+			//SwitchLayout();
 		}
 
 		private void SwitchLayout()
 		{
 			var app = Application.Current as App;
-			var main = Application.Current.MainWindow as FrameworkElement;
 
 			app.currentStyle = app.currentStyle == app.cssStyle1 ? app.cssStyle2 : app.cssStyle1;
 
 			var sheet = XamlCSS.CssParsing.CssParser.Parse(app.currentStyle);
 
-			Css.SetStyleSheet(main, null);
-			Css.SetStyleSheet(main, sheet);
-		}
+			Css.SetStyleSheet(thegrid, sheet);
+        }
 
 		private void Button_Click(object sender, RoutedEventArgs e)
 		{

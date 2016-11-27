@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 
 namespace XamlCSS.UWP
 {
@@ -12,6 +12,7 @@ namespace XamlCSS.UWP
     {
         public static event EventHandler SubTreeAdded;
         public static event EventHandler SubTreeRemoved;
+
         private static IEnumerable<Type> GetUITypesFromAssemblyByType(Type type)
         {
             if (type == null)
@@ -37,8 +38,13 @@ namespace XamlCSS.UWP
             }
 
             initialized = true;
-            FrameworkElement frame = Window.Current.Content as FrameworkElement;
-            
+
+            var frame = Window.Current?.Content as FrameworkElement;
+            if (frame == null)
+            {
+                return;
+            }
+
             var uiTypes = GetUITypesFromAssemblyByType(frame.GetType())
                 .Concat(GetUITypesFromAssemblyByType(typeof(Window)))
                 .Distinct()
@@ -72,33 +78,73 @@ namespace XamlCSS.UWP
 
         private static void OnLoadDetectionChanged(DependencyObject dpo, DependencyPropertyChangedEventArgs ev)
         {
-            var obj = dpo as FrameworkElement;
-            if ((bool)ev.NewValue == true &&
-                Css.GetIsLoaded(dpo) == false)
+            Debug.WriteLine("-----------------------");
+            Debug.WriteLine("OnLoadDetectionChanged");
+
+            var frameworkElement = dpo as FrameworkElement;
+
+            Debug.Write("Element: " + frameworkElement.Name);
+            
+            if ((bool)ev.NewValue)
             {
-                if (dpo is FrameworkElement)
+                Debug.WriteLine("Added");
+
+                SubTreeAdded?.Invoke(frameworkElement, new EventArgs());
+
+                if (frameworkElement.Parent != null)
                 {
-                    Css.SetIsLoaded(obj, true);
-
-                    SubTreeAdded?.Invoke(obj, new EventArgs());
-
-                    (dpo as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
-                    (dpo as FrameworkElement).Unloaded += LoadedDetectionHelper_Unloaded;
-                    Window.Current.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
-                    {
-                        Css.instance.UpdateElement(obj);
-                    });
+                    ApplyStyle(frameworkElement);
                 }
+
+                frameworkElement.Loaded -= Obj_Loaded;
+                frameworkElement.Loaded += Obj_Loaded;
+                frameworkElement.Unloaded -= LoadedDetectionHelper_Unloaded;
+                frameworkElement.Unloaded += LoadedDetectionHelper_Unloaded;
             }
+            else
+            {
+                Debug.WriteLine("Removed");
+
+                SubTreeRemoved?.Invoke(frameworkElement, new EventArgs());
+                frameworkElement.Loaded -= Obj_Loaded;
+                frameworkElement.Unloaded -= LoadedDetectionHelper_Unloaded;
+            }
+        }
+
+        private static void ApplyStyle(FrameworkElement obj)
+        {
+            if (obj == null)
+            {
+                return;
+            }
+
+            if (!Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+            {
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
+                {
+                    Css.instance.UpdateElement(obj);
+                });
+            }
+            else
+            {
+                Css.instance.UpdateElement(obj);
+            }
+        }
+
+        private static void Obj_Loaded(object sender, RoutedEventArgs e)
+        {
+            var element = sender as DependencyObject;
+            
+            ApplyStyle(sender as FrameworkElement);
         }
 
         private static void LoadedDetectionHelper_Unloaded(object sender, RoutedEventArgs e)
         {
             (sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
 
-            SubTreeRemoved?.Invoke(sender, new EventArgs());
-
             Css.instance.UnapplyMatchingStyles(sender as FrameworkElement);
+
+            SubTreeRemoved?.Invoke(sender, new EventArgs());
         }
 
         #endregion

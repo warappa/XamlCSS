@@ -6,9 +6,8 @@ namespace XamlCSS
 	public interface ITreeNodeProvider<TDependencyObject>
 		where TDependencyObject : class
 	{
-		IDomElement<TDependencyObject> GetVisualTree(TDependencyObject obj);
-		IDomElement<TDependencyObject> GetLogicalTree(TDependencyObject obj);
-		IEnumerable<IDomElement<TDependencyObject>> GetChildren(IDomElement<TDependencyObject> node);
+		IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj);
+		IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node);
 		IEnumerable<TDependencyObject> GetChildren(TDependencyObject element);
 		TDependencyObject GetParent(TDependencyObject tUIElement);
 	}

@@ -7,48 +7,48 @@ using System.Windows.Controls;
 
 namespace XamlCSS.WPF.Dom
 {
-	public class NamedNodeList : NamedNodeListBase<DependencyObject, DependencyProperty>
-	{
-		public NamedNodeList(DomElementBase<DependencyObject, DependencyProperty> node)
-			: base(node)
-		{
+    public class NamedNodeList : NamedNodeListBase<DependencyObject, DependencyProperty>
+    {
+        public NamedNodeList(DomElementBase<DependencyObject, DependencyProperty> node, ITreeNodeProvider<DependencyObject> treeNodeProvider)
+            : base(node, treeNodeProvider)
+        {
 
-		}
+        }
 
-		public NamedNodeList(IEnumerable<INode> nodes)
-			: base(nodes)
-		{
+        public NamedNodeList(IEnumerable<INode> nodes, ITreeNodeProvider<DependencyObject> treeNodeProvider)
+            : base(nodes, treeNodeProvider)
+        {
 
-		}
+        }
 
-		protected override INode CreateNode(DependencyObject dependencyObject, IDomElement<DependencyObject> parentNode)
-		{
-			return new LogicalDomElement(dependencyObject, parentNode);
-		}
-		protected override IEnumerable<DependencyObject> GetChildren(DependencyObject dependencyObject)
-		{
-			if (dependencyObject is Window)
-			{
-				return new List<DependencyObject>() { (dependencyObject as Window).Content as DependencyObject };
-			}
+        protected override INode CreateNode(DependencyObject dependencyObject, IDomElement<DependencyObject> parentNode)
+        {
+            return treeNodeProvider.GetDomElement(dependencyObject);
+        }
+        protected override IEnumerable<DependencyObject> GetChildren(DependencyObject dependencyObject)
+        {
+            if (dependencyObject is Window)
+            {
+                return new List<DependencyObject>() { (dependencyObject as Window).Content as DependencyObject };
+            }
 
-			if (dependencyObject is Page)
-			{
-				return new List<DependencyObject>() { (dependencyObject as Page).Content as DependencyObject };
-			}
+            if (dependencyObject is Page)
+            {
+                return new List<DependencyObject>() { (dependencyObject as Page).Content as DependencyObject };
+            }
 
-			if (dependencyObject is Panel)
-			{
-				return new List<DependencyObject>((dependencyObject as Panel).Children.Cast<DependencyObject>());
-			}
+            if (dependencyObject is Panel)
+            {
+                return new List<DependencyObject>((dependencyObject as Panel).Children.Cast<DependencyObject>());
+            }
 
-			var res = LogicalTreeHelper.GetChildren(dependencyObject);
-			if (res.Cast<object>().Any() == false)
-			{
-				return Enumerable.Empty<DependencyObject>();
-			}
+            var res = LogicalTreeHelper.GetChildren(dependencyObject);
+            if (res.Cast<object>().Any() == false)
+            {
+                return Enumerable.Empty<DependencyObject>();
+            }
 
-			return res.Cast<DependencyObject>().ToList();
-		}
-	}
+            return res.Cast<DependencyObject>().ToList();
+        }
+    }
 }

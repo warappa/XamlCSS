@@ -28,7 +28,6 @@ namespace XamlCSS.WPF
 
         private static void UpdateStyle(DependencyObject sender)
         {
-
             if (sender != null &&
                 ((sender as FrameworkElement)?.TemplatedParent == null) &&
                 ((sender as FrameworkContentElement)?.TemplatedParent == null))
@@ -71,6 +70,8 @@ namespace XamlCSS.WPF
                 {
                     (dpo as FrameworkContentElement).Loaded += LoadedEventHandler;
                 }
+
+                Css.instance.UpdateElement(dpo);
             }
             else
             {
@@ -84,6 +85,8 @@ namespace XamlCSS.WPF
                 {
                     (dpo as FrameworkContentElement).Loaded -= LoadedEventHandler;
                 }
+
+                Css.instance.UnapplyMatchingStyles(dpo);
             }
         }
 

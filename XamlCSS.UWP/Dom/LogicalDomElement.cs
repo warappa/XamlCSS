@@ -8,13 +8,8 @@ namespace XamlCSS.UWP.Dom
 	[DebuggerDisplay("Id={Id} Name={Name} Class={Class}")]
 	public class LogicalDomElement : DomElement
 	{
-		public LogicalDomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent)
-			: base(dependencyObject, parent)
-		{
-
-		}
-		public LogicalDomElement(DependencyObject dependencyObject, Func<DependencyObject, IDomElement<DependencyObject>> getParent)
-			: base(dependencyObject, getParent)
+		public LogicalDomElement(DependencyObject dependencyObject, ITreeNodeProvider<DependencyObject> treeNodeProvider)
+			: base(dependencyObject, treeNodeProvider)
 		{
 
 		}

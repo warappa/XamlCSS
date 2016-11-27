@@ -5,27 +5,26 @@ using Windows.UI.Xaml;
 
 namespace XamlCSS.UWP.Dom
 {
-	public class ElementCollection : ElementCollectionBase<DependencyObject>
+    public class ElementCollection : ElementCollectionBase<DependencyObject>
 	{
-		public ElementCollection(IDomElement<DependencyObject> node)
-			: base(node)
+        public ElementCollection(IDomElement<DependencyObject> node, ITreeNodeProvider<DependencyObject> treeNodeProvider)
+			: base(node,treeNodeProvider)
 		{
+        }
 
-		}
-
-		public ElementCollection(IEnumerable<IElement> elements)
-			: base(elements)
+		public ElementCollection(IEnumerable<IElement> elements, ITreeNodeProvider<DependencyObject> treeNodeProvider)
+			: base(elements, treeNodeProvider)
 		{
 
 		}
 
 		protected override IElement CreateElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parentNode)
 		{
-			return new LogicalDomElement(dependencyObject, parentNode);
+            return new LogicalDomElement(dependencyObject, treeNodeProvider);
 		}
 		protected override IEnumerable<DependencyObject> GetChildren(DependencyObject dependencyObject)
 		{
-			return new TreeNodeProvider(new DependencyPropertyService()).GetChildren(dependencyObject);
+            return treeNodeProvider.GetChildren(dependencyObject);
 		}
 		protected override string GetId(DependencyObject dependencyObject)
 		{

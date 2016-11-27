@@ -9,13 +9,8 @@ namespace XamlCSS.XamarinForms.Dom
 {
     public abstract class DomElement : DomElementBase<BindableObject, BindableProperty>, IDisposable
     {
-        public DomElement(BindableObject dependencyObject, IElement parent)
-            : base(dependencyObject, parent)
-        {
-            RegisterChildrenChangeHandler();
-        }
-        public DomElement(BindableObject dependencyObject, Func<BindableObject, IElement> getParent)
-            : base(dependencyObject, getParent)
+        public DomElement(BindableObject dependencyObject, ITreeNodeProvider<BindableObject> treeNodeProvider)
+            : base(dependencyObject, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
         }
@@ -64,11 +59,11 @@ namespace XamlCSS.XamarinForms.Dom
         }
         protected override INodeList GetChildNodes(BindableObject dependencyObject)
         {
-            return new NamedNodeList(this);
+            return new NamedNodeList(this, treeNodeProvider);
         }
         protected override INodeList CreateNodeList(IEnumerable<INode> nodes)
         {
-            return new NamedNodeList(nodes);
+            return new NamedNodeList(nodes, treeNodeProvider);
         }
         protected override ITokenList GetClassList(BindableObject dependencyObject)
         {

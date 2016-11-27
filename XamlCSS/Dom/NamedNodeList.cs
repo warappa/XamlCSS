@@ -13,22 +13,29 @@ namespace XamlCSS.Dom
 		where TDependencyProperty : class
 	{
 		private List<INode> nodes;
+        protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
 
-		public NamedNodeListBase(IDomElement<TDependencyObject> node)
+        public NamedNodeListBase(IDomElement<TDependencyObject> node, ITreeNodeProvider<TDependencyObject> treeNodeProvider)
 		{
-			InitNodes(node);
+            this.treeNodeProvider = treeNodeProvider;
+
+            InitNodes(node, treeNodeProvider);
 		}
 
-		private void InitNodes(IDomElement<TDependencyObject> node)
+		private void InitNodes(IDomElement<TDependencyObject> node, ITreeNodeProvider<TDependencyObject> treeNodeProvider)
 		{
-			this.nodes = GetChildren(node.Element)
+            this.treeNodeProvider = treeNodeProvider;
+
+            this.nodes = GetChildren(node.Element)
 				.Select(x => CreateNode(x, node))
 				.ToList();
 		}
 
-		public NamedNodeListBase(IEnumerable<INode> nodes)
+		public NamedNodeListBase(IEnumerable<INode> nodes, ITreeNodeProvider<TDependencyObject> treeNodeProvider)
 		{
-			this.nodes = nodes.ToList();
+            this.treeNodeProvider = treeNodeProvider;
+
+            this.nodes = nodes.ToList();
 		}
 
 		abstract protected INode CreateNode(TDependencyObject dependencyObject, IDomElement<TDependencyObject> parentNode);

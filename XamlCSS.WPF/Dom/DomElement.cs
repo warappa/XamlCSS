@@ -9,13 +9,8 @@ namespace XamlCSS.WPF.Dom
 {
     public abstract class DomElement : DomElementBase<DependencyObject, DependencyProperty>
     {
-        public DomElement(DependencyObject dependencyObject, IElement parent)
-            : base(dependencyObject, parent)
-        {
-            RegisterChildrenChangeHandler();
-        }
-        public DomElement(DependencyObject dependencyObject, Func<DependencyObject, IElement> getParent)
-            : base(dependencyObject, getParent)
+        public DomElement(DependencyObject dependencyObject, ITreeNodeProvider<DependencyObject> treeNodeProvider)
+            : base(dependencyObject, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
         }
@@ -52,7 +47,7 @@ namespace XamlCSS.WPF.Dom
 
         protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
         {
-            return new ElementCollection(list);
+            return new ElementCollection(list, treeNodeProvider);
         }
         protected override INamedNodeMap CreateNamedNodeMap(DependencyObject dependencyObject)
         {
@@ -61,15 +56,15 @@ namespace XamlCSS.WPF.Dom
 
         protected override IHtmlCollection<IElement> GetChildElements(DependencyObject dependencyObject)
         {
-            return new ElementCollection(this);
+            return new ElementCollection(this, treeNodeProvider);
         }
         protected override INodeList GetChildNodes(DependencyObject dependencyObject)
-        {
-            return new NamedNodeList(this);
+        {            
+            return new NamedNodeList(this, treeNodeProvider);
         }
         protected override INodeList CreateNodeList(IEnumerable<INode> nodes)
         {
-            return new NamedNodeList(nodes);
+            return new NamedNodeList(nodes, treeNodeProvider);
         }
         protected override ITokenList GetClassList(DependencyObject dependencyObject)
         {
@@ -91,6 +86,33 @@ namespace XamlCSS.WPF.Dom
             }
 
             return dependencyObject.ReadLocalValue(FrameworkContentElement.NameProperty) as string;
+        }
+        public override bool Equals(object obj)
+        {
+            var other = obj as DomElement;
+            if (other == null)
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.dependencyObject == other.dependencyObject;
+        }
+
+        public static bool operator ==(DomElement a, DomElement b)
+        {
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+            return a?.Equals(b) == true;
+        }
+        public static bool operator !=(DomElement a, DomElement b)
+        {
+            return !(a == b);
         }
     }
 }

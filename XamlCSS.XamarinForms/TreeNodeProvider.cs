@@ -20,10 +20,10 @@ namespace XamlCSS.XamarinForms
             return VisualTreeHelper.GetChildren(element as Element);
         }
 
-        public IEnumerable<IDomElement<BindableObject>> GetChildren(IDomElement<BindableObject> node)
+        public IEnumerable<IDomElement<BindableObject>> GetDomElementChildren(IDomElement<BindableObject> node)
         {
             return this.GetChildren(node.Element)
-                .Select(x => GetLogicalTree(x))
+                .Select(x => GetDomElement(x))
                 .ToList();
         }
 
@@ -37,9 +37,9 @@ namespace XamlCSS.XamarinForms
 
         public IDomElement<BindableObject> GetLogicalTreeParent(BindableObject obj)
         {
-            return GetLogicalTree(GetParent(obj));
+            return GetDomElement(GetParent(obj));
         }
-        public IDomElement<BindableObject> GetLogicalTree(BindableObject obj)
+        public IDomElement<BindableObject> GetDomElement(BindableObject obj)
         {
             if (obj == null)
             {

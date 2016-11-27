@@ -14,6 +14,8 @@ namespace XamlCSS
         
         public event PropertyChangedEventHandler PropertyChanged;
 
+        public object AttachedTo { get; set; }
+
         private string content = null;
 
         public string Content

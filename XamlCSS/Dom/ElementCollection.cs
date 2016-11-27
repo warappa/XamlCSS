@@ -7,16 +7,22 @@ namespace XamlCSS.Dom
 	public abstract class ElementCollectionBase<TDependencyObject> : List<IElement>, IHtmlCollection<IElement>
 		where TDependencyObject : class
 	{
-		public ElementCollectionBase(IEnumerable<IElement> elements)
+        protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
+
+        public ElementCollectionBase(IEnumerable<IElement> elements, ITreeNodeProvider<TDependencyObject> treeNodeProvider)
 		{
-			var children = elements;
+            this.treeNodeProvider = treeNodeProvider;
+
+            var children = elements;
 
 			this.AddRange(children);
 		}
 
-		public ElementCollectionBase(IDomElement<TDependencyObject> node)
+		public ElementCollectionBase(IDomElement<TDependencyObject> node, ITreeNodeProvider<TDependencyObject> treeNodeProvider)
 		{
-			var children = GetChildren(node.Element)
+            this.treeNodeProvider = treeNodeProvider;
+
+            var children = GetChildren(node.Element)
 				.Select(x => CreateElement(x, node))
 				.ToList();
 

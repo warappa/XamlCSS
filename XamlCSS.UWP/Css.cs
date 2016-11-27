@@ -15,7 +15,7 @@ namespace XamlCSS.UWP
         public readonly static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance =
             new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
                 new DependencyPropertyService(),
-                new TreeNodeProvider(new DependencyPropertyService()),
+                new LogicalTreeNodeProvider(new DependencyPropertyService()),
                 new StyleResourceService(),
                 new StyleService(),
                 DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button)),
@@ -25,19 +25,30 @@ namespace XamlCSS.UWP
 
         public static void RunOnUIThread(Action action)
         {
-            Windows.ApplicationModel.Core.CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () => action());
+            if (!Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+            {
+                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () => action());
+            }
+            else
+            {
+                action();
+            }
         }
 
         static Css()
         {
             timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
             {
+                Initialize();
+
                 RunOnUIThread(() =>
                 {
                     instance.ExecuteApplyStyles();
                 });
             }, null);
         }
+
+        private static Timer timer;
 
         private static void ExecuteApplyIfInDesigner()
         {
@@ -161,23 +172,6 @@ namespace XamlCSS.UWP
             obj.SetValue(ClassProperty, value ?? DependencyProperty.UnsetValue);
         }
 
-        public static readonly DependencyProperty IsLoadedProperty =
-            DependencyProperty.RegisterAttached("IsLoaded", typeof(bool),
-            typeof(Css), new PropertyMetadata(null, null));
-        private static Timer timer;
-
-        public static bool GetIsLoaded(DependencyObject obj)
-        {
-            var res = obj.ReadLocalValue(IsLoadedProperty);
-            if (res == DependencyProperty.UnsetValue)
-                return false;
-            return (bool)res;
-        }
-        public static void SetIsLoaded(DependencyObject obj, bool value)
-        {
-            obj.SetValue(IsLoadedProperty, value == true ? true : DependencyProperty.UnsetValue);
-        }
-
         public static readonly DependencyProperty HandledCssProperty =
             DependencyProperty.RegisterAttached("HandledCss", typeof(bool),
             typeof(Css), new PropertyMetadata(null, null));
@@ -209,56 +203,48 @@ namespace XamlCSS.UWP
         {
             obj.SetValue(DomElementProperty, value ?? DependencyProperty.UnsetValue);
         }
-
+        
         #endregion
 
         #region attached behaviours
 
-        private static void StyleSheetPropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void StyleSheetPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
-            PropertyChangedEventHandler handler = (s, evt) =>
-            {
-                instance.EnqueueRemoveStyleSheet(d, e.NewValue as StyleSheet, d);
-                instance.EnqueueRenderStyleSheet(d, e.NewValue as StyleSheet, d);
-
-                ExecuteApplyIfInDesigner();
-            };
-
             if (e.OldValue != null)
             {
-                (e.OldValue as StyleSheet).PropertyChanged -= handler;
+                (e.OldValue as StyleSheet).PropertyChanged -= NewStyleSheet_PropertyChanged;
             }
-
-
-            FrameworkElement frameworkElement = d as FrameworkElement;
-
+            
             var newStyleSheet = (StyleSheet)e.NewValue;
             
             if (newStyleSheet == null)
             {
-                instance.RemoveStyleResources(frameworkElement, (StyleSheet)e.OldValue);
+                instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
 
                 ExecuteApplyIfInDesigner();
 
                 return;
             }
 
-            newStyleSheet.PropertyChanged += handler;
+            newStyleSheet.PropertyChanged += NewStyleSheet_PropertyChanged;
+            newStyleSheet.AttachedTo = element;
             
-
-            if (GetIsLoaded(frameworkElement) ||
-                frameworkElement.Parent != null)
-            {
-                instance.EnqueueRenderStyleSheet(d, newStyleSheet, d);
-            }
-            else
-            {
-                Css.SetIsLoaded(frameworkElement, true);
-                instance.EnqueueRenderStyleSheet(d, newStyleSheet, d);
-            }
+            instance.EnqueueRenderStyleSheet(element, newStyleSheet, null);
 
             ExecuteApplyIfInDesigner();
         }
+
+        private static void NewStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var styleSheet = sender as StyleSheet;
+            var attachedTo = styleSheet.AttachedTo as FrameworkElement;
+
+            instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, attachedTo);
+            instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, attachedTo);
+
+            ExecuteApplyIfInDesigner();
+        }
+
         private static void StylePropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             instance.UpdateElement(d as FrameworkElement);

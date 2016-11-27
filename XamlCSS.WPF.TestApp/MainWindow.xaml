@@ -42,12 +42,18 @@ Grid Grid TextBlock:nth-of-type(2)
 	Grid.Column: 0;
 	Text: {StaticResource testString};
 }
+Grid Grid TextBlock:nth-of-type(3)
+{
+	Grid.Row: 1;
+	Grid.Column: 1;
+	Text: "Inlinestyle!";
+}
                 </css:StyleSheet.Content>
             </css:StyleSheet>
 		</ResourceDictionary>
 	</Window.Resources>
-	<Grid HorizontalAlignment="Right" Width="433"
-          cssWPF:Css.StyleSheet="{DynamicResource InternalStyle}">
+    <Grid x:Name="thegrid" HorizontalAlignment="Right" Width="433"
+          cssWPF:Css.StyleSheet="{StaticResource InternalStyle}">
 		<StackPanel x:Name="stack">
 			<StackPanel cssWPF:Css.Class="container">
 				<TextBlock cssWPF:Css.Class="jumbo">Hello World</TextBlock>
@@ -64,6 +70,7 @@ Grid Grid TextBlock:nth-of-type(2)
 				</Grid.ColumnDefinitions>
 				<TextBlock></TextBlock>
 				<TextBlock></TextBlock>
+                <TextBlock></TextBlock>
 			</Grid>
             <Button Name="thebutton" Click="Button_Click">Change Style</Button>
         </StackPanel>

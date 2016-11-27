@@ -41,13 +41,13 @@ namespace XamlCSS.Tests.Dom
     public class TestElementCollection : ElementCollectionBase<UIElement>
     {
         public TestElementCollection(IDomElement<UIElement> node)
-            : base(node)
+            : base(node, null)
         {
 
         }
 
         public TestElementCollection(IEnumerable<IElement> elements)
-            : base(elements)
+            : base(elements, null)
         {
 
         }
@@ -69,13 +69,13 @@ namespace XamlCSS.Tests.Dom
     public class TestNamedNodeList : NamedNodeListBase<UIElement, IDictionary<object, object>>
     {
         public TestNamedNodeList(DomElementBase<UIElement, IDictionary<object, object>> node)
-            : base(node)
+            : base(node, null)
         {
 
         }
 
         public TestNamedNodeList(IEnumerable<INode> nodes)
-            : base(nodes)
+            : base(nodes, null)
         {
 
         }
@@ -113,12 +113,12 @@ namespace XamlCSS.Tests.Dom
     {
         public TestNode(UIElement dependencyObject, string tagname, IEnumerable<IElement> children = null,
             IDictionary<string, string> attributes = null, string id = null, string @class = null)
-            : base(dependencyObject ?? new UIElement(), (IElement)null)
+            : base(dependencyObject ?? new UIElement(), (ITreeNodeProvider<UIElement>)null)
         {
             this.childNodes = CreateNodeList(children ?? new List<IElement>());
             foreach (TestNode c in ChildNodes)
             {
-                c.Parent = c.ParentElement = this;
+                // c.Parent = c.ParentElement = this;
             }
             this.ClassList.Add((@class ?? "").Split(classSplitter, StringSplitOptions.RemoveEmptyEntries));
             this.Id = id;
