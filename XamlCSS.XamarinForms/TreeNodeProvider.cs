@@ -53,7 +53,7 @@ namespace XamlCSS.XamarinForms
             {
                 return cached;
             }
-            cached = new LogicalDomElement(obj, GetLogicalTreeParent);
+            cached = new LogicalDomElement(obj, this);
             dependencyPropertyService.SetDomElement(obj, cached);
 
             return cached;
@@ -73,7 +73,7 @@ namespace XamlCSS.XamarinForms
                 return cached;
             }
 
-            cached = new VisualDomElement(obj, GetVisualTreeParent);
+            cached = new VisualDomElement(obj, this);
             dependencyPropertyService.SetDomElement(obj, cached);
 
             return cached;

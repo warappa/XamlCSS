@@ -6,13 +6,9 @@ namespace XamlCSS.XamarinForms.Dom
 {
 	public class VisualDomElement : DomElement
 	{
-		public VisualDomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent)
-			: base(dependencyObject, parent)
+		public VisualDomElement(BindableObject dependencyObject, ITreeNodeProvider<BindableObject> treeNodeProvider)
+			: base(dependencyObject, treeNodeProvider)
 		{
-        }
-		public VisualDomElement(BindableObject dependencyObject, Func<BindableObject, IDomElement<BindableObject>> getParent)
-			: base(dependencyObject, getParent)
-        {
         }
 
         public override bool Equals(object obj)

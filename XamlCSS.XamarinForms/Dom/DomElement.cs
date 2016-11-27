@@ -46,7 +46,7 @@ namespace XamlCSS.XamarinForms.Dom
 
         protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
         {
-            return new ElementCollection(list);
+            return new ElementCollection(list, treeNodeProvider);
         }
         protected override INamedNodeMap CreateNamedNodeMap(BindableObject dependencyObject)
         {
@@ -55,7 +55,7 @@ namespace XamlCSS.XamarinForms.Dom
 
         protected override IHtmlCollection<IElement> GetChildElements(BindableObject dependencyObject)
         {
-            return new ElementCollection(this);
+            return new ElementCollection(this, treeNodeProvider);
         }
         protected override INodeList GetChildNodes(BindableObject dependencyObject)
         {

@@ -8,21 +8,21 @@ namespace XamlCSS.XamarinForms.Dom
 {
 	public class ElementCollection : ElementCollectionBase<BindableObject>
 	{
-		public ElementCollection(IDomElement<BindableObject> node)
-			: base(node)
+		public ElementCollection(IDomElement<BindableObject> node, ITreeNodeProvider<BindableObject> treeNodeProvider)
+			: base(node, treeNodeProvider)
 		{
 
 		}
 
-		public ElementCollection(IEnumerable<IElement> elements)
-			: base(elements)
+		public ElementCollection(IEnumerable<IElement> elements, ITreeNodeProvider<BindableObject> treeNodeProvider)
+			: base(elements, treeNodeProvider)
 		{
 
 		}
 
 		protected override IElement CreateElement(BindableObject dependencyObject, IDomElement<BindableObject> parentNode)
 		{
-			return new LogicalDomElement(dependencyObject, parentNode);
+			return new LogicalDomElement(dependencyObject, treeNodeProvider);
 		}
 		protected override IEnumerable<BindableObject> GetChildren(BindableObject dependencyObject)
 		{

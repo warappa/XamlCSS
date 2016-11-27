@@ -8,14 +8,8 @@ namespace XamlCSS.XamarinForms.Dom
 	[DebuggerDisplay("Id={Id} Name={Name} Class={Class}")]
 	public class LogicalDomElement : DomElement
 	{
-		public LogicalDomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent)
-			: base(dependencyObject, parent)
-		{
-
-		}
-
-		public LogicalDomElement(BindableObject dependencyObject, Func<BindableObject, IDomElement<BindableObject>> getParent)
-			: base(dependencyObject, getParent)
+		public LogicalDomElement(BindableObject dependencyObject, ITreeNodeProvider<BindableObject> treeNodeProvider)
+			: base(dependencyObject, treeNodeProvider)
 		{
 
 		}
