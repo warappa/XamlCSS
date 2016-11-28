@@ -36,25 +36,25 @@ namespace XamlCSS.UWP
             {
                 return;
             }
-
-            initialized = true;
-
+            
             var frame = Window.Current?.Content as FrameworkElement;
             if (frame == null)
             {
                 return;
             }
 
+            initialized = true;
+
             var uiTypes = GetUITypesFromAssemblyByType(frame.GetType())
                 .Concat(GetUITypesFromAssemblyByType(typeof(Window)))
                 .Distinct()
                 .ToList();
-
-            var style = new Style(typeof(FrameworkElement));
-            style.Setters.Add(new Setter(LoadDetectionProperty, true));
-
+            
             foreach (var t in uiTypes)
             {
+                var style = new Style(t);
+                style.Setters.Add(new Setter(LoadDetectionProperty, true));
+
                 frame.Resources.Add(t, style);
             }
         }
@@ -78,37 +78,19 @@ namespace XamlCSS.UWP
 
         private static void OnLoadDetectionChanged(DependencyObject dpo, DependencyPropertyChangedEventArgs ev)
         {
-            Debug.WriteLine("-----------------------");
-            Debug.WriteLine("OnLoadDetectionChanged");
-
-            var frameworkElement = dpo as FrameworkElement;
-
-            Debug.Write("Element: " + frameworkElement.Name);
-            
-            if ((bool)ev.NewValue)
+            var element = dpo as FrameworkElement;
+            if ((bool)ev.NewValue == true)
             {
-                Debug.WriteLine("Added");
+                Debug.WriteLine("Added (OnLoadDetectionChanged)");
 
-                SubTreeAdded?.Invoke(frameworkElement, new EventArgs());
+                element.Loaded += Obj_Loaded;
+                element.Unloaded += LoadedDetectionHelper_Unloaded;
+                SubTreeAdded?.Invoke(dpo, new EventArgs());
 
-                if (frameworkElement.Parent != null)
-                {
-                    ApplyStyle(frameworkElement);
-                }
-
-                frameworkElement.Loaded -= Obj_Loaded;
-                frameworkElement.Loaded += Obj_Loaded;
-                frameworkElement.Unloaded -= LoadedDetectionHelper_Unloaded;
-                frameworkElement.Unloaded += LoadedDetectionHelper_Unloaded;
+                Css.instance.UpdateElement(dpo);
             }
-            else
-            {
-                Debug.WriteLine("Removed");
 
-                SubTreeRemoved?.Invoke(frameworkElement, new EventArgs());
-                frameworkElement.Loaded -= Obj_Loaded;
-                frameworkElement.Unloaded -= LoadedDetectionHelper_Unloaded;
-            }
+            // Load detection is only relyable for the first time
         }
 
         private static void ApplyStyle(FrameworkElement obj)
@@ -133,13 +115,16 @@ namespace XamlCSS.UWP
 
         private static void Obj_Loaded(object sender, RoutedEventArgs e)
         {
-            var element = sender as DependencyObject;
+            Debug.WriteLine("Added (Obj_Loaded)");
+            var element = sender as FrameworkElement;
             
-            ApplyStyle(sender as FrameworkElement);
+            ApplyStyle(element);
         }
 
         private static void LoadedDetectionHelper_Unloaded(object sender, RoutedEventArgs e)
         {
+            Debug.WriteLine("Removed (LoadedDetectionHelper_Unloaded)");
+
             (sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
 
             Css.instance.UnapplyMatchingStyles(sender as FrameworkElement);

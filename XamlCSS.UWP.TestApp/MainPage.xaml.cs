@@ -11,11 +11,11 @@ namespace XamlCSS.UWP.TestApp
 	/// </summary>
 	public sealed partial class MainPage : Page
 	{
-		public MainPage()
+        public MainPage()
 		{
-			LoadedDetectionHelper.Initialize();
+			Css.Initialize();
 
-			this.InitializeComponent();
+            this.InitializeComponent();
 
 			this.DataContext = new
 			{
@@ -28,14 +28,12 @@ namespace XamlCSS.UWP.TestApp
 		private void SwitchLayout()
 		{
 			var app = Application.Current as App;
-			var main = this;
 
 			app.currentStyle = app.currentStyle == app.cssStyle1 ? app.cssStyle2 : app.cssStyle1;
 
 			var sheet = CssParsing.CssParser.Parse(app.currentStyle);
 
-			Css.SetStyleSheet(main, null);
-			Css.SetStyleSheet(main, sheet);
+			Css.SetStyleSheet(thegrid, sheet);
 		}
 
 		private void Button_Click(object sender, RoutedEventArgs e)

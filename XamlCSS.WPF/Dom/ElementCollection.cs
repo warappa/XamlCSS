@@ -23,7 +23,7 @@ namespace XamlCSS.WPF.Dom
 
         protected override IElement CreateElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parentNode)
         {
-            return new LogicalDomElement(dependencyObject, treeNodeProvider);
+            return treeNodeProvider.GetDomElement(dependencyObject);
         }
         protected override IEnumerable<DependencyObject> GetChildren(DependencyObject dependencyObject)
         {

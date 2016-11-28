@@ -21,7 +21,7 @@ namespace XamlCSS.WPF
 			{
 				style = new Style();
 			}
-
+            
 			foreach (var i in dict)
 			{
 				style.Setters.Add(new Setter(i.Key, i.Value));

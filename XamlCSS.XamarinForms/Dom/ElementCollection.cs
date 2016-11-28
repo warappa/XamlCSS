@@ -22,7 +22,7 @@ namespace XamlCSS.XamarinForms.Dom
 
 		protected override IElement CreateElement(BindableObject dependencyObject, IDomElement<BindableObject> parentNode)
 		{
-			return new LogicalDomElement(dependencyObject, treeNodeProvider);
+            return treeNodeProvider.GetDomElement(dependencyObject);
 		}
 		protected override IEnumerable<BindableObject> GetChildren(BindableObject dependencyObject)
 		{

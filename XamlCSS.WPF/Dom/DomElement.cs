@@ -4,6 +4,7 @@ using System.Windows;
 using AngleSharp.Dom;
 using XamlCSS.Dom;
 using System.Windows.Media;
+using System.Linq;
 
 namespace XamlCSS.WPF.Dom
 {
@@ -18,7 +19,7 @@ namespace XamlCSS.WPF.Dom
         private void RegisterChildrenChangeHandler()
         {
             LoadedDetectionHelper.SubTreeAdded += ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved += ElementAdded;
+            LoadedDetectionHelper.SubTreeRemoved += ElementRemoved;
         }
 
         public new void Dispose()
@@ -31,15 +32,22 @@ namespace XamlCSS.WPF.Dom
         private void UnregisterChildrenChangeHandler()
         {
             LoadedDetectionHelper.SubTreeAdded -= ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved -= ElementAdded;
+            LoadedDetectionHelper.SubTreeRemoved -= ElementRemoved;
         }
 
         private void ElementAdded(object sender, EventArgs e)
         {
-            var parentElement = (sender as FrameworkElement)?.Parent ??
-                (sender as FrameworkContentElement)?.Parent;
+            var parentElement = treeNodeProvider.GetParent(sender as FrameworkElement);
 
             if (parentElement == dependencyObject)
+            {
+                this.ResetChildren();
+            }
+        }
+
+        private void ElementRemoved(object sender, EventArgs e)
+        {
+            if (Children.Any(x => ((DomElement)x).Element == sender))
             {
                 this.ResetChildren();
             }

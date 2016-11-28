@@ -6,125 +6,125 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.UWP
 {
-	public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty>
-	{
-		public DependencyProperty GetBindableProperty(DependencyObject frameworkElement, string propertyName)
-		{
-			return GetBindableProperty(frameworkElement.GetType(), propertyName);
-		}
-		public DependencyProperty GetBindableProperty(Type bindableObjectType, string propertyName)
-		{
-			string dpName = $"{propertyName}Property";
+    public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty>
+    {
+        public DependencyProperty GetBindableProperty(DependencyObject frameworkElement, string propertyName)
+        {
+            return GetBindableProperty(frameworkElement.GetType(), propertyName);
+        }
+        public DependencyProperty GetBindableProperty(Type bindableObjectType, string propertyName)
+        {
+            string dpName = $"{propertyName}Property";
 
             var dpProperties = TypeHelpers.DeclaredProperties(bindableObjectType);
-			var dpProperty = dpProperties.FirstOrDefault(i => i.Name == dpName);
+            var dpProperty = dpProperties.FirstOrDefault(i => i.Name == dpName);
 
-			if (dpProperty != null)
+            if (dpProperty != null)
             {
                 return dpProperty.GetValue(null) as DependencyProperty;
             }
 
             return null;
-		}
+        }
 
-		public object GetBindablePropertyValue(Type frameworkElementType, DependencyProperty property, object propertyValue)
-		{
-			return propertyValue;
-		}
+        public object GetBindablePropertyValue(Type frameworkElementType, DependencyProperty property, object propertyValue)
+        {
+            return propertyValue;
+        }
 
-		public string[] GetAppliedMatchingStyles(DependencyObject obj)
-		{
-			return Css.GetAppliedMatchingStyles(obj) as string[];
-		}
+        public string[] GetAppliedMatchingStyles(DependencyObject obj)
+        {
+            return Css.GetAppliedMatchingStyles(obj) as string[];
+        }
 
-		public string GetClass(DependencyObject obj)
-		{
-			return Css.GetClass(obj) as string;
-		}
+        public string GetClass(DependencyObject obj)
+        {
+            return Css.GetClass(obj) as string;
+        }
 
-		public bool? GetHadStyle(DependencyObject obj)
-		{
-			return Css.GetHadStyle(obj) as bool?;
-		}
+        public bool? GetHadStyle(DependencyObject obj)
+        {
+            return Css.GetHadStyle(obj) as bool?;
+        }
 
-		public Style GetInitialStyle(DependencyObject obj)
-		{
-			return Css.GetInitialStyle(obj) as Style;
-		}
+        public Style GetInitialStyle(DependencyObject obj)
+        {
+            return Css.GetInitialStyle(obj) as Style;
+        }
 
-		public string[] GetMatchingStyles(DependencyObject obj)
-		{
-			return Css.GetMatchingStyles(obj) as string[];
-		}
+        public string[] GetMatchingStyles(DependencyObject obj)
+        {
+            return Css.GetMatchingStyles(obj) as string[];
+        }
 
-		public string GetName(DependencyObject obj)
-		{
-			return (obj as FrameworkElement)?.Name;
-		}
+        public string GetName(DependencyObject obj)
+        {
+            return (obj as FrameworkElement)?.Name;
+        }
 
-		public StyleDeclarationBlock GetStyle(DependencyObject obj)
-		{
-			return Css.GetStyle(obj) as StyleDeclarationBlock;
-		}
+        public StyleDeclarationBlock GetStyle(DependencyObject obj)
+        {
+            return Css.GetStyle(obj) as StyleDeclarationBlock;
+        }
 
-		public StyleSheet GetStyleSheet(DependencyObject obj)
-		{
-			return Css.GetStyleSheet(obj) as StyleSheet;
-		}
+        public StyleSheet GetStyleSheet(DependencyObject obj)
+        {
+            return Css.GetStyleSheet(obj) as StyleSheet;
+        }
 
-		public void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
-		{
-			Css.SetAppliedMatchingStyles(obj, value);
-		}
+        public void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
+        {
+            Css.SetAppliedMatchingStyles(obj, value);
+        }
 
-		public void SetClass(DependencyObject obj, string value)
-		{
-			Css.SetClass(obj, value);
-		}
+        public void SetClass(DependencyObject obj, string value)
+        {
+            Css.SetClass(obj, value);
+        }
 
-		public void SetHadStyle(DependencyObject obj, bool? value)
-		{
-			Css.SetHadStyle(obj, value);
-		}
+        public void SetHadStyle(DependencyObject obj, bool? value)
+        {
+            Css.SetHadStyle(obj, value);
+        }
 
-		public void SetInitialStyle(DependencyObject obj, Style value)
-		{
-			Css.SetInitialStyle(obj, value);
-		}
-        
-		public void SetMatchingStyles(DependencyObject obj, string[] value)
-		{
-			Css.SetMatchingStyles(obj, value);
-		}
+        public void SetInitialStyle(DependencyObject obj, Style value)
+        {
+            Css.SetInitialStyle(obj, value);
+        }
 
-		public void SetName(DependencyObject obj, string value)
-		{
-			(obj as FrameworkElement).Name = value;
-		}
+        public void SetMatchingStyles(DependencyObject obj, string[] value)
+        {
+            Css.SetMatchingStyles(obj, value);
+        }
 
-		public void SetStyle(DependencyObject obj, StyleDeclarationBlock value)
-		{
-			Css.SetStyle(obj, value);
-		}
+        public void SetName(DependencyObject obj, string value)
+        {
+            (obj as FrameworkElement).Name = value;
+        }
 
-		public void SetStyleSheet(DependencyObject obj, StyleSheet value)
-		{
-			Css.SetStyleSheet(obj, value);
-		}
+        public void SetStyle(DependencyObject obj, StyleDeclarationBlock value)
+        {
+            Css.SetStyle(obj, value);
+        }
 
-		public void RegisterLoadedOnce(DependencyObject obj, Action<object> func)
-		{
+        public void SetStyleSheet(DependencyObject obj, StyleSheet value)
+        {
+            Css.SetStyleSheet(obj, value);
+        }
+
+        public void RegisterLoadedOnce(DependencyObject obj, Action<object> func)
+        {
             var frameworkElement = obj as FrameworkElement;
 
             RoutedEventHandler handler = null;
-			handler = (s, e) =>
-			{
-				frameworkElement.Loaded -= handler;
-				func(s);
-			};
+            handler = (s, e) =>
+            {
+                frameworkElement.Loaded -= handler;
+                func(s);
+            };
 
-			frameworkElement.Loaded += handler;
-		}
+            frameworkElement.Loaded += handler;
+        }
 
         public bool GetHandledCss(DependencyObject obj)
         {
@@ -150,7 +150,7 @@ namespace XamlCSS.UWP
         {
             var frameworkElement = obj as FrameworkElement;
 
-            return frameworkElement.Parent != null || 
+            return frameworkElement.Parent != null ||
                 frameworkElement is Frame;
         }
     }

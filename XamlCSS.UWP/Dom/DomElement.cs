@@ -36,7 +36,7 @@ namespace XamlCSS.UWP.Dom
 
         private void VisualDomElement_ChildAdded(object sender, EventArgs e)
         {
-            if ((sender as FrameworkElement).Parent == dependencyObject)
+            if (treeNodeProvider.GetParent(sender as DependencyObject) == dependencyObject)
             { 
                 this.ResetChildren();
             }

@@ -35,8 +35,16 @@ namespace XamlCSS.UWP
             }
         }
 
+        private static bool initialized = false;
         static Css()
         {
+            if(initialized)
+            {
+                return;
+            }
+
+            LoadedDetectionHelper.SubTreeAdded += LoadedDetectionHelper_SubTreeAdded;
+            LoadedDetectionHelper.SubTreeRemoved += LoadedDetectionHelper_SubTreeRemoved;
             timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
             {
                 Initialize();
@@ -46,6 +54,17 @@ namespace XamlCSS.UWP
                     instance.ExecuteApplyStyles();
                 });
             }, null);
+
+            initialized = true;
+        }
+
+        private static void LoadedDetectionHelper_SubTreeAdded(object sender, EventArgs e)
+        {
+            instance.UpdateElement(sender as DependencyObject);
+        }
+        private static void LoadedDetectionHelper_SubTreeRemoved(object sender, EventArgs e)
+        {
+            instance.UnapplyMatchingStyles(sender as DependencyObject);
         }
 
         private static Timer timer;
@@ -213,16 +232,15 @@ namespace XamlCSS.UWP
             if (e.OldValue != null)
             {
                 (e.OldValue as StyleSheet).PropertyChanged -= NewStyleSheet_PropertyChanged;
+
+                instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
+                ExecuteApplyIfInDesigner();
             }
             
             var newStyleSheet = (StyleSheet)e.NewValue;
             
             if (newStyleSheet == null)
             {
-                instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
-
-                ExecuteApplyIfInDesigner();
-
                 return;
             }
 
@@ -239,8 +257,8 @@ namespace XamlCSS.UWP
             var styleSheet = sender as StyleSheet;
             var attachedTo = styleSheet.AttachedTo as FrameworkElement;
 
-            instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, attachedTo);
-            instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, attachedTo);
+            instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);
+            instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, null);
 
             ExecuteApplyIfInDesigner();
         }

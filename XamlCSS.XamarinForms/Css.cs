@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using Xamarin.Forms;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
@@ -230,38 +231,37 @@ namespace XamlCSS.XamarinForms
             instance.UnapplyMatchingStyles(sender as Element);
         }
 
-        private static void StyleSheetPropertyAttached(BindableObject d, object oldValue, object newValue)
+        private static void StyleSheetPropertyAttached(BindableObject bindableObject, object oldValue, object newValue)
         {
-            var frameworkElement = d as Element;
-            if (frameworkElement == null)
-                return;
+            var element = bindableObject as Element;
+
+            if (oldValue != null)
+            {
+                (oldValue as StyleSheet).PropertyChanged -= StyleSheet_PropertyChanged;
+
+                instance.RemoveStyleResources(element, (StyleSheet)oldValue);
+            }
+
             var newStyleSheet = (StyleSheet)newValue;
 
             if (newStyleSheet == null)
             {
-                EnqueueRemoveStyleSheet(frameworkElement, oldValue as StyleSheet, null);
-
                 return;
             }
 
-            VisualTreeHelper.Include(frameworkElement);
+            newStyleSheet.PropertyChanged += StyleSheet_PropertyChanged;
+            newStyleSheet.AttachedTo = element;
 
-            var oldStyleSheet = GetStyleSheet(frameworkElement);
+            instance.EnqueueRenderStyleSheet(element, newStyleSheet, null);
+        }
 
-            if (oldStyleSheet != null)
-            {
-                EnqueueRemoveStyleSheet(frameworkElement, oldStyleSheet, frameworkElement);
-            }
+        private static void StyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            var styleSheet = sender as StyleSheet;
+            var attachedTo = styleSheet.AttachedTo as Element;
 
-            if (frameworkElement.Parent != null ||
-                frameworkElement == Application.Current)
-            {
-                EnqueueRenderStyleSheet(frameworkElement, newStyleSheet, frameworkElement);
-            }
-            else
-            {
-                instance.dependencyPropertyService.RegisterLoadedOnce(frameworkElement, f => instance.UpdateElement(frameworkElement));
-            }
+            instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);
+            instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, null);
         }
 
         private static void StylePropertyAttached(BindableObject d, object oldValue, object newValue)
