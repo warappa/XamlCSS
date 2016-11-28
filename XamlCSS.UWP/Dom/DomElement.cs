@@ -17,8 +17,8 @@ namespace XamlCSS.UWP.Dom
 
         private void RegisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded += VisualDomElement_ChildAdded;
-            LoadedDetectionHelper.SubTreeRemoved += VisualDomElement_ChildRemoved;
+            LoadedDetectionHelper.SubTreeAdded += DomElementAdded;
+            LoadedDetectionHelper.SubTreeRemoved += DomElementRemoved;
         }
 
         void IDisposable.Dispose()
@@ -30,11 +30,11 @@ namespace XamlCSS.UWP.Dom
 
         private void UnregisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded -= VisualDomElement_ChildAdded;
-            LoadedDetectionHelper.SubTreeRemoved -= VisualDomElement_ChildRemoved;
+            LoadedDetectionHelper.SubTreeAdded -= DomElementAdded;
+            LoadedDetectionHelper.SubTreeRemoved -= DomElementRemoved;
         }
 
-        private void VisualDomElement_ChildAdded(object sender, EventArgs e)
+        private void DomElementAdded(object sender, EventArgs e)
         {
             if (treeNodeProvider.GetParent(sender as DependencyObject) == dependencyObject)
             { 
@@ -42,7 +42,7 @@ namespace XamlCSS.UWP.Dom
             }
         }
 
-        private void VisualDomElement_ChildRemoved(object sender, EventArgs e)
+        private void DomElementRemoved(object sender, EventArgs e)
         {
             if (Children.Any(x => ((DomElement)x).Element == sender))
             {

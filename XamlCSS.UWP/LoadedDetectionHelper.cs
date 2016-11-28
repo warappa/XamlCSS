@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 
 namespace XamlCSS.UWP
 {
@@ -13,20 +15,29 @@ namespace XamlCSS.UWP
         public static event EventHandler SubTreeAdded;
         public static event EventHandler SubTreeRemoved;
 
-        private static IEnumerable<Type> GetUITypesFromAssemblyByType(Type type)
+        public static IEnumerable<Type> GetUITypesFromAssemblyByType(Type type)
         {
             if (type == null)
             {
                 return new Type[0];
             }
-            return type.GetTypeInfo().Assembly
-                .GetTypes()
-                .Where(x =>
-                    x.GetTypeInfo().IsAbstract == false &&
-                    x.GetTypeInfo().IsInterface == false &&
-                    typeof(FrameworkElement).GetTypeInfo().IsAssignableFrom(x.GetTypeInfo())
-                )
-                .ToList();
+            try
+            {
+                return type.GetTypeInfo().Assembly
+                    .GetTypes()
+                    .Where(x =>
+                        x.GetTypeInfo().IsAbstract == false &&
+                        x.GetTypeInfo().IsInterface == false &&
+                        typeof(FrameworkElement).GetTypeInfo().IsAssignableFrom(x.GetTypeInfo())
+                    )
+                    .ToList();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message);
+            }
+
+            return new List<Type>();
         }
 
         private static bool initialized = false;
@@ -36,26 +47,27 @@ namespace XamlCSS.UWP
             {
                 return;
             }
-            
-            var frame = Window.Current?.Content as FrameworkElement;
-            if (frame == null)
-            {
-                return;
-            }
 
-            initialized = true;
-
-            var uiTypes = GetUITypesFromAssemblyByType(frame.GetType())
-                .Concat(GetUITypesFromAssemblyByType(typeof(Window)))
-                .Distinct()
-                .ToList();
-            
-            foreach (var t in uiTypes)
+            try
             {
-                var style = new Style(t);
+                var uiTypes = GetUITypesFromAssemblyByType(typeof(Window))
+                    .Distinct()
+                    .ToList();
+
+                Application.Current.Resources = Application.Current.Resources ?? new ResourceDictionary();
+                var style = new Style(typeof(FrameworkElement));
                 style.Setters.Add(new Setter(LoadDetectionProperty, true));
-
-                frame.Resources.Add(t, style);
+                foreach (var t in uiTypes)
+                {
+                    Application.Current.Resources.Remove(t);
+                    Application.Current.Resources[t] = style;
+                }
+                
+                initialized = true;
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e.Message + "\n" + e.StackTrace);
             }
         }
 
@@ -109,7 +121,14 @@ namespace XamlCSS.UWP
             }
             else
             {
-                Css.instance.UpdateElement(obj);
+                var dispatcherTimer = new DispatcherTimer();
+                dispatcherTimer.Interval = TimeSpan.FromMilliseconds(0);
+                dispatcherTimer.Tick += (s, e) =>
+                  {
+                      (s as DispatcherTimer).Stop();
+                      Css.instance.UpdateElement(obj);
+                  };
+                dispatcherTimer.Start();
             }
         }
 
@@ -117,7 +136,7 @@ namespace XamlCSS.UWP
         {
             Debug.WriteLine("Added (Obj_Loaded)");
             var element = sender as FrameworkElement;
-            
+
             ApplyStyle(element);
         }
 
@@ -125,7 +144,7 @@ namespace XamlCSS.UWP
         {
             Debug.WriteLine("Removed (LoadedDetectionHelper_Unloaded)");
 
-            (sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
+            // (sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
 
             Css.instance.UnapplyMatchingStyles(sender as FrameworkElement);
 

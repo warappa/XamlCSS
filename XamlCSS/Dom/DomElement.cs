@@ -90,6 +90,8 @@ namespace XamlCSS.Dom
         protected INodeList childNodes = null;
         protected IHtmlCollection<IElement> children = null;
         protected string prefix = "UNDEFINED";
+        protected INamedNodeMap attributes = null;
+        protected ITokenList classList = null;
 
         protected static readonly CssParser Parser = new CssParser(new CssParserOptions
         {
@@ -100,26 +102,11 @@ namespace XamlCSS.Dom
             IsToleratingInvalidSelectors = true,
             IsToleratingInvalidValues = true
         });
-        /*
-       public DomElementBase(
-           TDependencyObject dependencyObject,
-           IElement parentElement
-           )
-       {
-
-       }
-
-       public DomElementBase(TDependencyObject dependencyObject)
-           : this(dependencyObject, (IElement)null)
-       {
-
-       }*/
 
         public DomElementBase(
             TDependencyObject dependencyObject,
             ITreeNodeProvider<TDependencyObject> treeNodeProvider
             )
-        //: this(dependencyObject)
         {
             this.treeNodeProvider = treeNodeProvider;
             this.dependencyObject = dependencyObject;
@@ -128,8 +115,6 @@ namespace XamlCSS.Dom
             this.NamespaceUri = dependencyObject.GetType().Namespace;
             this.NodeName = dependencyObject.GetType().Name;
             this.NodeType = NodeType.Element;
-            // this.Parent = parentElement;
-            // this.ParentElement = parentElement;
             this.TagName = dependencyObject.GetType().Name;
         }
 
@@ -167,7 +152,6 @@ namespace XamlCSS.Dom
 
         public IElement AssignedSlot { get { return null; } }
 
-        protected INamedNodeMap attributes = null;
         public INamedNodeMap Attributes => attributes ?? (attributes = CreateNamedNodeMap(dependencyObject));
 
         public string BaseUri { get; protected set; }
@@ -190,7 +174,6 @@ namespace XamlCSS.Dom
             }
         }
 
-        protected ITokenList classList = null;
         public ITokenList ClassList => classList ?? (classList = GetClassList(dependencyObject));
 
         public string ClassName

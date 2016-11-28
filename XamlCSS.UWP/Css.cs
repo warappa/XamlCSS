@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
@@ -32,32 +33,24 @@ namespace XamlCSS.UWP
             }
             else
             {
-                action();
+                var localTimer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(0)
+                };
+                localTimer.Tick += (timer, e) =>
+                {
+                    (timer as DispatcherTimer).Stop();
+                    action();
+                };
+                localTimer.Start();
             }
         }
 
         private static bool initialized = false;
+        private static DispatcherTimer dispatcherTimer;
         static Css()
         {
-            if (initialized)
-            {
-                return;
-            }
-
-            LoadedDetectionHelper.SubTreeAdded += LoadedDetectionHelper_SubTreeAdded;
-            LoadedDetectionHelper.SubTreeRemoved += LoadedDetectionHelper_SubTreeRemoved;
-
-            timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
-            {
-                Initialize();
-
-                RunOnUIThread(() =>
-                {
-                    instance.ExecuteApplyStyles();
-                });
-            }, null);
-
-            initialized = true;
+            Initialize();
         }
 
         private static void LoadedDetectionHelper_SubTreeAdded(object sender, EventArgs e)
@@ -68,24 +61,29 @@ namespace XamlCSS.UWP
         {
             instance.UnapplyMatchingStyles(sender as DependencyObject);
         }
-
-        private static Timer timer;
-
-        private static void ExecuteApplyIfInDesigner()
-        {
-            ExecuteNowIfInDesigner(instance.ExecuteApplyStyles);
-        }
-        private static void ExecuteNowIfInDesigner(Action action)
-        {
-            if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
-            {
-                action();
-            }
-        }
-
+        
         public static void Initialize()
         {
+            if (initialized)
+            {
+                return;
+            }
+
             LoadedDetectionHelper.Initialize();
+
+            LoadedDetectionHelper.SubTreeAdded += LoadedDetectionHelper_SubTreeAdded;
+            LoadedDetectionHelper.SubTreeRemoved += LoadedDetectionHelper_SubTreeRemoved;
+
+            dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Interval = TimeSpan.FromMilliseconds(16);
+            dispatcherTimer.Tick += (s, e) =>
+            {
+                Initialize();
+                instance.ExecuteApplyStyles();
+            };
+            dispatcherTimer.Start();
+
+            initialized = true;
         }
 
         #region dependency properties
@@ -180,8 +178,6 @@ namespace XamlCSS.UWP
             domElement?.ResetClassList();
 
             Css.instance.UpdateElement(element);
-
-            ExecuteApplyIfInDesigner();
         }
 
         public static string GetClass(DependencyObject obj)
@@ -232,13 +228,14 @@ namespace XamlCSS.UWP
         private static void StyleSheetPropertyChanged(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
             // Debug.WriteLine($"StyleSheetPropertyChanged: {e.NewValue.ToString()}");
-
+            
             if (e.OldValue != null)
             {
-                (e.OldValue as StyleSheet).PropertyChanged -= NewStyleSheet_PropertyChanged;
+                var oldStyleSheet = e.OldValue as StyleSheet;
+                oldStyleSheet.PropertyChanged -= NewStyleSheet_PropertyChanged;
+                oldStyleSheet.AttachedTo = null;
 
-                instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
-                ExecuteApplyIfInDesigner();
+                instance.RemoveStyleResources(element, oldStyleSheet);
             }
 
             var newStyleSheet = (StyleSheet)e.NewValue;
@@ -252,8 +249,6 @@ namespace XamlCSS.UWP
             newStyleSheet.AttachedTo = element;
 
             instance.EnqueueRenderStyleSheet(element, newStyleSheet, null);
-
-            ExecuteApplyIfInDesigner();
         }
 
         private static void NewStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -263,15 +258,11 @@ namespace XamlCSS.UWP
 
             instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);
             instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, null);
-
-            ExecuteApplyIfInDesigner();
         }
 
         private static void StylePropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             instance.UpdateElement(d as FrameworkElement);
-
-            ExecuteApplyIfInDesigner();
         }
 
         #endregion

@@ -12,9 +12,7 @@ namespace XamlCSS.UWP.TestApp
 	public sealed partial class MainPage : Page
 	{
         public MainPage()
-		{
-			Css.Initialize();
-
+		{   
             this.InitializeComponent();
 
 			this.DataContext = new
@@ -22,7 +20,7 @@ namespace XamlCSS.UWP.TestApp
 				Test = "Test String from DataContext!"
 			};
 
-			SwitchLayout();
+			// SwitchLayout();
 		}
 
 		private void SwitchLayout()

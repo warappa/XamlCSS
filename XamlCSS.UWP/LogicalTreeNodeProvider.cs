@@ -33,11 +33,12 @@ namespace XamlCSS.UWP
             {
                 var child = VisualTreeHelper.GetChild(currentChild, i);
 
-                if (GetParent(child) == parent)
+                var childsParent = GetParent(child);
+                if (childsParent == parent)
                 {
                     listFound.Add(child);
                 }
-                else
+                else if(childsParent != null)
                 {
                     listToCheckFurther.Add(child);
                 }
