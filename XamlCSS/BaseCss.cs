@@ -536,6 +536,11 @@ namespace XamlCSS
 
         public void UpdateElement(TDependencyObject sender)
         {
+            if (sender == null)
+            {
+                return;
+            }
+
             var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
             if (parent == null)
             {

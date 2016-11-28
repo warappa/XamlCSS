@@ -7,7 +7,7 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.XamarinForms
 {
-	public class DependencyPropertyService : IDependencyPropertyService<BindableObject, Element, Style, BindableProperty>
+	public class DependencyPropertyService : IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty>
 	{
 		private ITypeConverterProvider<TypeConverter> typeConverterProvider;
 
@@ -156,12 +156,12 @@ namespace XamlCSS.XamarinForms
 			Css.SetHandledCss(obj, value);
 		}
 
-		public bool IsLoaded(Element obj)
+		public bool IsLoaded(BindableObject obj)
 		{
-			return obj.Parent != null;
+			return (obj as Element)?.Parent != null;
 		}
 
-		public void RegisterLoadedOnce(Element frameworkElement, Action<object> func)
+		public void RegisterLoadedOnce(BindableObject frameworkElement, Action<object> func)
 		{
 			EventHandler handler = null;
 			handler = (s, e) =>

@@ -10,10 +10,10 @@ namespace XamlCSS.XamarinForms
 {
     public class Css
     {
-        public readonly static BaseCss<BindableObject, Element, Style, BindableProperty> instance =
-            new BaseCss<BindableObject, Element, Style, BindableProperty>(
+        public readonly static BaseCss<BindableObject, BindableObject, Style, BindableProperty> instance =
+            new BaseCss<BindableObject, BindableObject, Style, BindableProperty>(
                 new DependencyPropertyService(),
-                new TreeNodeProvider(new DependencyPropertyService()),
+                new LogicalTreeNodeProvider(new DependencyPropertyService()),
                 new StyleResourceService(),
                 new StyleService(),
                 DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
@@ -31,12 +31,10 @@ namespace XamlCSS.XamarinForms
             {
                 return;
             }
-
-            initialized = true;
-
+            
             VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
             VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
-
+            
             timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
             {
                 Device.BeginInvokeOnMainThread(() =>
@@ -44,6 +42,8 @@ namespace XamlCSS.XamarinForms
                     instance.ExecuteApplyStyles();
                 });
             }, null);
+
+            initialized = true;
         }
 
         public static void EnqueueRenderStyleSheet(Element styleSheetHolder, StyleSheet styleSheet, Element startFrom)
@@ -162,7 +162,7 @@ namespace XamlCSS.XamarinForms
                 null,
                 BindingMode.TwoWay,
                 null,
-                Css.StyleSheetPropertyAttached
+                Css.StyleSheetPropertyChanged
                 );
         public static StyleSheet GetStyleSheet(BindableObject obj)
         {
@@ -179,8 +179,16 @@ namespace XamlCSS.XamarinForms
                 typeof(string),
                 typeof(Css),
                 null,
-                BindingMode.TwoWay);
+                BindingMode.TwoWay,
+                null,
+                ClassPropertyChanged);
+        private static void ClassPropertyChanged(BindableObject element, object oldValue, object newValue)
+        {
+            var domElement = GetDomElement(element) as DomElementBase<BindableObject, BindableProperty>;
+            domElement?.ResetClassList();
 
+            Css.instance.UpdateElement(element);
+        }
         public static string GetClass(BindableObject obj)
         {
             return obj.GetValue(ClassProperty) as string;
@@ -231,13 +239,15 @@ namespace XamlCSS.XamarinForms
             instance.UnapplyMatchingStyles(sender as Element);
         }
 
-        private static void StyleSheetPropertyAttached(BindableObject bindableObject, object oldValue, object newValue)
+        private static void StyleSheetPropertyChanged(BindableObject bindableObject, object oldValue, object newValue)
         {
             var element = bindableObject as Element;
 
             if (oldValue != null)
             {
-                (oldValue as StyleSheet).PropertyChanged -= StyleSheet_PropertyChanged;
+                var oldStyleSheet = oldValue as StyleSheet;
+                oldStyleSheet.PropertyChanged -= StyleSheet_PropertyChanged;
+                oldStyleSheet.AttachedTo = null;
 
                 instance.RemoveStyleResources(element, (StyleSheet)oldValue);
             }
@@ -266,10 +276,7 @@ namespace XamlCSS.XamarinForms
 
         private static void StylePropertyAttached(BindableObject d, object oldValue, object newValue)
         {
-            var frameworkElement = d as Element;
-            if (frameworkElement == null)
-                return;
-            instance.UpdateElement(frameworkElement);
+            instance.UpdateElement(d as Element);
         }
     }
 }
