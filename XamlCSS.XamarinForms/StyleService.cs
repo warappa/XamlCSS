@@ -5,42 +5,46 @@ using Xamarin.Forms;
 
 namespace XamlCSS.XamarinForms
 {
-	public class StyleService : INativeStyleService<Style, BindableObject, BindableProperty>
-	{
-		protected const string StyleSheetStyleKey = "StyleSheetStyle";
+    public class StyleService : INativeStyleService<Style, BindableObject, BindableProperty>
+    {
+        protected const string StyleSheetStyleKey = "StyleSheetStyle";
 
-		public Style CreateFrom(IDictionary<BindableProperty, object> dict, Type forType)
-		{
-			Style style = null;
-			if (forType != null)
-				style = new Style(forType);
-			else
-				style = new Style(typeof(Element));
+        public Style CreateFrom(IDictionary<BindableProperty, object> dict, Type forType)
+        {
+            Style style = null;
+            if (forType != null)
+                style = new Style(forType);
+            else
+                style = new Style(typeof(Element));
 
-			foreach (var i in dict)
-			{
-				style.Setters.Add(new Setter() { Property = i.Key, Value = i.Value });
-			}
+            foreach (var i in dict)
+            {
+                style.Setters.Add(new Setter() { Property = i.Key, Value = i.Value });
+            }
 
-			return style;
-		}
+            return style;
+        }
 
-		public IDictionary<BindableProperty, object> GetStyleAsDictionary(Style style)
-		{
-			return style.Setters.OfType<Setter>().ToDictionary(x => x.Property, x => x.Value);
-		}
+        public IDictionary<BindableProperty, object> GetStyleAsDictionary(Style style)
+        {
+            if (style == null)
+            {
+                return null;
+            }
+            return style.Setters.OfType<Setter>().ToDictionary(x => x.Property, x => x.Value);
+        }
 
-		public void SetStyle(BindableObject visualElement, Style s)
-		{
-			if (visualElement is VisualElement)
-				(visualElement as VisualElement).Style = s;
-		}
+        public void SetStyle(BindableObject visualElement, Style s)
+        {
+            if (visualElement is VisualElement)
+                (visualElement as VisualElement).Style = s;
+        }
 
-		public string GetStyleResourceKey(Type type, string selector)
-		{
-			return $"{StyleSheetStyleKey}_${type.FullName}_{selector}";
-		}
+        public string GetStyleResourceKey(Type type, string selector)
+        {
+            return $"{StyleSheetStyleKey}_${type.FullName}_{selector}";
+        }
 
-		public string BaseStyleResourceKey { get { return StyleSheetStyleKey; } }
-	}
+        public string BaseStyleResourceKey { get { return StyleSheetStyleKey; } }
+    }
 }

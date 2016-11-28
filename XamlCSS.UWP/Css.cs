@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
@@ -38,13 +39,14 @@ namespace XamlCSS.UWP
         private static bool initialized = false;
         static Css()
         {
-            if(initialized)
+            if (initialized)
             {
                 return;
             }
 
             LoadedDetectionHelper.SubTreeAdded += LoadedDetectionHelper_SubTreeAdded;
             LoadedDetectionHelper.SubTreeRemoved += LoadedDetectionHelper_SubTreeRemoved;
+
             timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
             {
                 Initialize();
@@ -156,7 +158,7 @@ namespace XamlCSS.UWP
 
         public static readonly DependencyProperty StyleSheetProperty =
             DependencyProperty.RegisterAttached("StyleSheet", typeof(StyleSheet),
-            typeof(Css), new PropertyMetadata(null, StyleSheetPropertyAttached));
+            typeof(Css), new PropertyMetadata(null, StyleSheetPropertyChanged));
         public static StyleSheet GetStyleSheet(DependencyObject obj)
         {
             var read = obj.ReadLocalValue(StyleSheetProperty);
@@ -222,13 +224,15 @@ namespace XamlCSS.UWP
         {
             obj.SetValue(DomElementProperty, value ?? DependencyProperty.UnsetValue);
         }
-        
+
         #endregion
 
         #region attached behaviours
 
-        private static void StyleSheetPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
+        private static void StyleSheetPropertyChanged(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
+            // Debug.WriteLine($"StyleSheetPropertyChanged: {e.NewValue.ToString()}");
+
             if (e.OldValue != null)
             {
                 (e.OldValue as StyleSheet).PropertyChanged -= NewStyleSheet_PropertyChanged;
@@ -236,9 +240,9 @@ namespace XamlCSS.UWP
                 instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
                 ExecuteApplyIfInDesigner();
             }
-            
+
             var newStyleSheet = (StyleSheet)e.NewValue;
-            
+
             if (newStyleSheet == null)
             {
                 return;
@@ -246,7 +250,7 @@ namespace XamlCSS.UWP
 
             newStyleSheet.PropertyChanged += NewStyleSheet_PropertyChanged;
             newStyleSheet.AttachedTo = element;
-            
+
             instance.EnqueueRenderStyleSheet(element, newStyleSheet, null);
 
             ExecuteApplyIfInDesigner();
