@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS</id>
-		<version>1.0.1</version>
+		<version>1.0.2</version>
 		<title>XamlCSS</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,10 +10,14 @@
 			Style Xaml-apps with Css
 		</description>
 		<releaseNotes>
+      1.0.2
+      - CssParser Tokenizer fixed
+      - Better Logical-/Visual-Tree handling
+
       1.0.1
       - Define stylesheet in Xaml-files with css text
       - Fixed selector specificity
-      
+
       1.0.0
       - Performance/memory improvements: Caching dom-elements, dom-children,...
       - Batch-Rendering
