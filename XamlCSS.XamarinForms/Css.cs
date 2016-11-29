@@ -25,13 +25,16 @@ namespace XamlCSS.XamarinForms
 
         private static bool initialized = false;
 
-        public static void Initialize()
+        public static void Initialize(Element rootElement)
         {
             if (initialized)
             {
                 return;
             }
-            
+
+            CssParsing.CssParser.Initialize(DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)));
+
+            VisualTreeHelper.Initialize(rootElement);
             VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
             VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
             
@@ -42,6 +45,22 @@ namespace XamlCSS.XamarinForms
                     instance.ExecuteApplyStyles();
                 });
             }, null);
+
+            if (rootElement is Application)
+            {
+                // Workaround: MainPage not initialized on appstart
+                Timer workaroundTimer = null;
+                workaroundTimer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
+                {
+                    Device.BeginInvokeOnMainThread(() =>
+                    {
+                        VisualTreeHelper.Include(rootElement);
+                    });
+
+                    workaroundTimer.Cancel();
+                    workaroundTimer.Dispose();
+                }, null);
+            }
 
             initialized = true;
         }
