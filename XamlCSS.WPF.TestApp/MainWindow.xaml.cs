@@ -4,22 +4,20 @@ using System.Windows.Controls;
 
 namespace XamlCSS.WPF.TestApp
 {
-	/// <summary>
-	/// Interaktionslogik für MainWindow.xaml
-	/// </summary>
-	public partial class MainWindow : Window
+    /// <summary>
+    /// Interaktionslogik für MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
 	{
 
 		public MainWindow()
 		{
-			InitializeComponent();
+            this.DataContext = new MainWindowViewModel
+            {
+                Message = "Hello World from DataContext!"
+            };
 
-			this.DataContext = new
-			{
-				Test = "Hello World from DataContext!"
-			};
-
-			//SwitchLayout();
+            InitializeComponent();
 		}
 
 		private void SwitchLayout()

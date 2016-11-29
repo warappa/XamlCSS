@@ -4,8 +4,6 @@
 	{
 		public MainPage()
         {
-            Css.Initialize();
-
             this.InitializeComponent();
 
             LoadApplication(new TestApp.App());

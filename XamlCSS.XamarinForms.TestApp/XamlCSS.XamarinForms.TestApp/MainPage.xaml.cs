@@ -8,23 +8,21 @@ namespace XamlCSS.XamarinForms.TestApp
 	{
 		public MainPage()
 		{
-			InitializeComponent();
 
 			this.BindingContext = new
 			{
 				Test = "Hello World from BindingContext!",
 				TestList = new List<string> { "a", "b", "c" }
 			};
-		}
+            InitializeComponent();
+        }
 
 		private void SwitchLayout()
 		{
-			var main = App.Current.MainPage;
 			var app = Application.Current as App;
 			app.currentStyle = app.currentStyle == app.cssStyle1 ? app.cssStyle2 : app.cssStyle1;
 
-            var styler = new XamarinFormsStyler();
-            styler.ApplyStyleAsync(app.currentStyle);
+            Css.SetStyleSheet(thegrid, CssParsing.CssParser.Parse(app.currentStyle));
 		}
 
 

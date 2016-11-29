@@ -12,28 +12,59 @@
         <ResourceDictionary>
         <css:StyleSheet x:Key="InternalStyle">
             <css:StyleSheet.Content>
-                Button
+                    Button
 {
-	Foreground: Green;
+    Width: 100;
+}
+TextBlock
+{
+	Foreground: #6497b1;
+}
+#thegrid
+{
+Background: #011f4b;
+}
+#thebutton
+{
+    FontSize: 30;
+    Width: 200;
+    Margin: 20;
+    Foreground: #fff;
+    Background: #FF5733;
 }
 .container
 {
-	Background: Yellow;
+	Background: #005b96;
 }
 .container Button
 {
-	Foreground: Brown;
+    Foreground: #fff;
+	Background: #581;
+    Padding: 5;
+    Margin: 5;
+}
+.container TextBlock
+{
+	Foreground: #b3cde0;
 }
 .jumbo
 {
-    Foreground:Blue;
 	FontSize: 50;
+    HorizontalAlignment: Center;
+}
+.important
+{
+    FontWeight: Bold;
+}
+.jumbo.important
+{
+    Foreground: Red;
 }
 Grid Grid TextBlock:nth-of-type(1)
 {
-	Grid.Row: 0;
+	Grid.Row: 1;
 	Grid.Column: 1;
-	Text: {Binding Test};
+	Text: {Binding Message};
 }
 Grid Grid TextBlock:nth-of-type(2)
 {
@@ -46,14 +77,11 @@ Grid Grid TextBlock:nth-of-type(2)
         </ResourceDictionary>
     </Page.Resources>
 	<Grid Name="thegrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-          HorizontalAlignment="Right" Width="433"
           cssUWP:Css.StyleSheet="{StaticResource InternalStyle}"
           >
 		<StackPanel Name="stack">
             <StackPanel Name="thestack2" cssUWP:Css.Class="container">
                 <TextBlock Name="thetextblock" cssUWP:Css.Class="jumbo">Hello World</TextBlock>
-                <TextBlock Name="thetextblock2" cssUWP:Css.Class="jumbo">Hello World</TextBlock>
-                <TextBlock Name="thetextblock3" cssUWP:Css.Class="jumbo">Hello World</TextBlock>
                 <Button Name="theinnerbutton" Click="Button_Click_1">Inner Button</Button>
 			</StackPanel>
 			<Grid>
@@ -66,8 +94,9 @@ Grid Grid TextBlock:nth-of-type(2)
 					<ColumnDefinition Width="1*" />
 				</Grid.ColumnDefinitions>
 				<TextBlock></TextBlock>
-				<TextBlock></TextBlock>
-			</Grid>
+                <TextBlock></TextBlock>
+                <TextBlock></TextBlock>
+            </Grid>
 			<Button Name="thebutton" Click="Button_Click">Change Style</Button>
 		</StackPanel>
 	</Grid>

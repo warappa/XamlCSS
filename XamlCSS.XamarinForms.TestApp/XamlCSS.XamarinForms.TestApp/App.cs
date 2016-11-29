@@ -6,15 +6,14 @@ namespace XamlCSS.XamarinForms.TestApp
     public class App : Application
 	{
 		public App()
-		{
+        {
+            Css.Initialize(this);
+
             Resources = new ResourceDictionary();
             Resources.Add("testString", "Hello World from StaticResource!");
 			// The root page of your application
 			MainPage = new MainPage();
-
-			VisualTreeHelper.Initialize(this);
-			Css.Initialize();
-		}
+        }
 
 
 		public string cssStyle1 = @"
@@ -80,7 +79,7 @@ Button
 }
 #thebutton
 {
-	FontSize: 30;
+	FontSize: 20;
 }
 .jumbo
 {

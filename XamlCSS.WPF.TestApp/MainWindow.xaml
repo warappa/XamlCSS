@@ -9,32 +9,66 @@
         xmlns:css="clr-namespace:XamlCSS;assembly=XamlCSS"
 		xmlns:cssWPF="clr-namespace:XamlCSS.WPF;assembly=XamlCSS.WPF"
 		xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}"
         Title="MainWindow" Height="350" Width="525">
 	<Window.Resources>
 		<ResourceDictionary>
             <css:StyleSheet x:Key="InternalStyle">
                 <css:StyleSheet.Content>
-                    Button
+Button
 {
-	Foreground: Green;
+    Width: 100;
+}
+TextBlock
+{
+	Foreground: #6497b1;
+}
+#thegrid
+{
+Background: #011f4b;
+}
+#thebutton
+{
+    FontSize: 30;
+    Width: 200;
+    Margin: 20;
+    Foreground: #fff;
+    Background: #FF5733;
 }
 .container
 {
-	Background: Yellow;
+	Background: #005b96;
 }
 .container Button
 {
-	Foreground: Brown;
+    Foreground: #fff;
+	Background: #581;
+    Padding: 5;
+    Margin: 5;
+}
+.container TextBlock
+{
+	Foreground: #b3cde0;
 }
 .jumbo
 {
 	FontSize: 50;
+    HorizontalAlignment: Center;
+}
+.important
+{
+    FontWeight: Bold;
+}
+.jumbo.important
+{
+    Foreground: Red;
 }
 Grid Grid TextBlock:nth-of-type(1)
 {
-	Grid.Row: 0;
+	Grid.Row: 1;
 	Grid.Column: 1;
-	Text: {Binding Test};
+	Text: {Binding Message};
 }
 Grid Grid TextBlock:nth-of-type(2)
 {
@@ -42,22 +76,17 @@ Grid Grid TextBlock:nth-of-type(2)
 	Grid.Column: 0;
 	Text: {StaticResource testString};
 }
-Grid Grid TextBlock:nth-of-type(3)
-{
-	Grid.Row: 1;
-	Grid.Column: 1;
-	Text: "Inlinestyle!";
-}
                 </css:StyleSheet.Content>
             </css:StyleSheet>
 		</ResourceDictionary>
 	</Window.Resources>
-    <Grid x:Name="thegrid" HorizontalAlignment="Right" Width="433"
-          cssWPF:Css.StyleSheet="{StaticResource InternalStyle}">
+    <Grid x:Name="thegrid"
+          cssWPF:Css.StyleSheet="{DynamicResource InternalStyle}"
+          >
 		<StackPanel x:Name="stack">
 			<StackPanel cssWPF:Css.Class="container">
-				<TextBlock cssWPF:Css.Class="jumbo">Hello World</TextBlock>
-				<Button Click="Button_Click_1">Inner Button</Button>
+                <TextBlock Name="thetextblock" cssWPF:Css.Class="jumbo">Hello World</TextBlock>
+                <Button Click="Button_Click_1">Add Content</Button>
 			</StackPanel>
 			<Grid>
 				<Grid.RowDefinitions>

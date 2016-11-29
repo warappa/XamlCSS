@@ -8,28 +8,59 @@
 			 >
 	<ContentPage.Resources>
 		<ResourceDictionary>
-		  <sys:String x:Key="testString">Hello World from DynamicResource!</sys:String>
       <css:StyleSheet x:Key="LocalStyle">
         <css:StyleSheet.Content>
 Button
 {
-	TextColor: Green;
+    WidthRequest: 100;
+}
+Label
+{
+	TextColor: #6497b1;
+}
+#stack
+{
+    BackgroundColor: #011f4b;
+}
+#thebutton
+{
+    FontSize: 30;
+    WidthRequest: 200;
+    Margin: 20;
+    TextColor: #fff;
+    BackgroundColor: #FF5733;
 }
 .container
 {
-	BackgroundColor: Yellow;
+	BackgroundColor: #005b96;
 }
 .container Button
 {
-	TextColor: Red;
+	TextColor: #fff;
+	BackgroundColor: #581;
+    Padding: 5;
+    Margin: 5;
+}
+.container Label
+{
+	TextColor: #b3cde0;
 }
 .jumbo
 {
 	FontSize: 50;
+    HorizontalTextAlignment: Center;
+}
+.important
+{
+    FontWeight: Bold;
+}
+.jumbo.important
+{
+    TextColor: Red;
 }
 Grid Grid Label:nth-of-type(1)
 {
-	Grid.Row: 0;
+	Grid.Row: 1;
 	Grid.Column: 1;
 	Text: {Binding Test};
 }
@@ -41,19 +72,15 @@ Grid Grid Label:nth-of-type(2)
 }
 Grid Grid Label:nth-of-type(3)
 {
-	Grid.Row: 1;
+	Grid.Row: 0;
 	Grid.Column: 1;
 	Text: {DynamicResource testString};
 }
-.listViewItem Label
-{
-	FontSize: 50;
-}
-        </css:StyleSheet.Content>
+                </css:StyleSheet.Content>
       </css:StyleSheet>
 		</ResourceDictionary>
 	</ContentPage.Resources>
-	<Grid x:Name="thegrid" WidthRequest="433" cssXF:Css.StyleSheet="{DynamicResource LocalStyle}">
+	<Grid x:Name="thegrid" cssXF:Css.StyleSheet="{DynamicResource LocalStyle}">
 		<StackLayout x:Name="stack" cssXF:Css.Id="stack">
 			<StackLayout x:Name="thestack2" cssXF:Css.Id="thestack2" cssXF:Css.Class="container">
 				<Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>
@@ -68,9 +95,14 @@ Grid Grid Label:nth-of-type(3)
 					<ColumnDefinition Width="1*" />
 					<ColumnDefinition Width="1*" />
 				</Grid.ColumnDefinitions>
+                <Grid.Resources>
+                    <ResourceDictionary>
+                        <sys:String x:Key="testString">Hello World from DynamicResource!</sys:String>
+                    </ResourceDictionary>
+                </Grid.Resources>
 				<Label></Label>
 				<Label></Label>
-        <Label></Label>
+                <Label></Label>
 			</Grid>
 			<Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
 			<ListView ItemsSource="{Binding TestList}">

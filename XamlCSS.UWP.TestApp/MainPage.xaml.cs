@@ -12,15 +12,15 @@ namespace XamlCSS.UWP.TestApp
 	public sealed partial class MainPage : Page
 	{
         public MainPage()
-		{   
+		{
+            Css.Initialize();
+
+            this.DataContext = new MainWindowViewModel
+            {
+                Message = "Hello World from DataContext!"
+            };
+
             this.InitializeComponent();
-
-			this.DataContext = new
-			{
-				Test = "Test String from DataContext!"
-			};
-
-			// SwitchLayout();
 		}
 
 		private void SwitchLayout()
