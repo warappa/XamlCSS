@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS</id>
-		<version>1.0.2</version>
+		<version>1.0.3</version>
 		<title>XamlCSS</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,6 +10,9 @@
 			Style Xaml-apps with Css
 		</description>
 		<releaseNotes>
+      1.0.3
+      - Fixed NullReferenceException
+      
       1.0.2
       - CssParser Tokenizer fixed
       - Better Logical-/Visual-Tree handling

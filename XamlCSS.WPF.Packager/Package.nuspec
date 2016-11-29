@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.WPF</id>
-		<version>1.0.2</version>
+		<version>1.0.3</version>
 		<title>XamlCSS.WPF</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,6 +10,9 @@
 			Style WPF-apps with Css
 		</description>
 		<releaseNotes>
+      1.0.3
+      - Fixed NullReferenceException
+
       1.0.2
       - Xaml-Designer Preview support
       - CssParser Tokenizer fixed
@@ -57,22 +60,22 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="1.0.2" />
+				<dependency id="XamlCSS" version="1.0.3" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="1.0.2" />
+				<dependency id="XamlCSS" version="1.0.3" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="1.0.2" />
+				<dependency id="XamlCSS" version="1.0.3" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="1.0.2" />
+				<dependency id="XamlCSS" version="1.0.3" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="1.0.2" />
+				<dependency id="XamlCSS" version="1.0.3" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="1.0.2" />
+				<dependency id="XamlCSS" version="1.0.3" />
 			</group>
 		</dependencies>
 		<references></references>
