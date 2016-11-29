@@ -31,6 +31,7 @@ namespace XamlCSS.XamarinForms
             {
                 return null;
             }
+
             return style.Setters.OfType<Setter>().ToDictionary(x => x.Property, x => x.Value);
         }
 

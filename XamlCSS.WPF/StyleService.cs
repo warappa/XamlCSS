@@ -32,7 +32,12 @@ namespace XamlCSS.WPF
 
 		public IDictionary<DependencyProperty, object> GetStyleAsDictionary(Style style)
 		{
-			return style.Setters.OfType<Setter>().ToDictionary(x => x.Property, x => x.Value);
+            if (style == null)
+            {
+                return null;
+            }
+
+            return style.Setters.OfType<Setter>().ToDictionary(x => x.Property, x => x.Value);
 		}
 
 		public void SetStyle(DependencyObject visualElement, Style s)

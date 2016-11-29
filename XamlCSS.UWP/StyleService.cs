@@ -23,6 +23,11 @@ namespace XamlCSS.UWP
 
 		public IDictionary<DependencyProperty, object> GetStyleAsDictionary(Style style)
 		{
+            if (style == null)
+            {
+                return null;
+            }
+
 			return style?.Setters.OfType<Setter>().ToDictionary(x => x.Property, x => x.Value);
 		}
 
