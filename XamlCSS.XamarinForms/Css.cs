@@ -26,6 +26,17 @@ namespace XamlCSS.XamarinForms
 
         private static bool initialized = false;
 
+        private static void StartUiTimer()
+        {
+            timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
+            {
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    instance.ExecuteApplyStyles();
+                });
+            }, null);
+        }
+
         public static void Initialize(Element rootElement)
         {
             if (initialized)
@@ -35,32 +46,37 @@ namespace XamlCSS.XamarinForms
 
             CssParsing.CssParser.Initialize(DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)));
 
-            VisualTreeHelper.Initialize(rootElement);
             VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
             VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
-            
-            timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
-            {
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    instance.ExecuteApplyStyles();
-                });
-            }, null);
 
+            VisualTreeHelper.Initialize(rootElement);
+            
             if (rootElement is Application)
             {
+                var application = rootElement as Application;
+
                 // Workaround: MainPage not initialized on appstart
                 Timer workaroundTimer = null;
                 workaroundTimer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
                 {
+                    if (application.MainPage == null)
+                    {
+                        return;
+                    }
+
                     Device.BeginInvokeOnMainThread(() =>
                     {
-                        VisualTreeHelper.Include(rootElement);
+                        VisualTreeHelper.Include(application.MainPage);
+                        StartUiTimer();
                     });
 
                     workaroundTimer.Cancel();
                     workaroundTimer.Dispose();
                 }, null);
+            }
+            else
+            {
+                StartUiTimer();
             }
 
             initialized = true;
