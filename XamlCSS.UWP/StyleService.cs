@@ -5,45 +5,45 @@ using Windows.UI.Xaml;
 
 namespace XamlCSS.UWP
 {
-	public class StyleService : INativeStyleService<Style, DependencyObject, DependencyProperty>
-	{
-		protected const string StyleSheetStyleKey = "StyleSheetStyle";
+	public class StyleService : StyleServiceBase<Style, DependencyObject, DependencyProperty>
+    {
+        protected override void AddSetter(Style style, DependencyProperty property, object value)
+        {
+            style.Setters.Add(new Setter(property, value));
+        }
 
-		public Style CreateFrom(IDictionary<DependencyProperty, object> dict, Type forType)
-		{
-			var style = new Style(typeof(FrameworkElement));
+        protected override Style CreateStyle(Type forType)
+        {
+            Style style;
 
-			foreach (var i in dict)
-			{
-				style.Setters.Add(new Setter(i.Key, i.Value));
-			}
+            if (forType != null)
+            {
+                style = new Style(forType);
+            }
+            else
+            {
+                style = new Style(typeof(FrameworkElement));
+            }
 
-			return style;
-		}
+            return style;
+        }
 
-		public IDictionary<DependencyProperty, object> GetStyleAsDictionary(Style style)
-		{
+        public override IDictionary<DependencyProperty, object> GetStyleAsDictionary(Style style)
+        {
             if (style == null)
             {
                 return null;
             }
 
-			return style?.Setters.OfType<Setter>().ToDictionary(x => x.Property, x => x.Value);
-		}
+            return style.Setters.OfType<Setter>().ToDictionary(x => x.Property, x => x.Value);
+        }
 
-		public void SetStyle(DependencyObject visualElement, Style s)
-		{
+        public override void SetStyle(DependencyObject visualElement, Style style)
+        {
             if (visualElement is FrameworkElement)
             {
-                (visualElement as FrameworkElement).Style = s;
+                (visualElement as FrameworkElement).Style = style;
             }
-		}
-
-		public string GetStyleResourceKey(Type type, string selector)
-		{
-			return $"{StyleSheetStyleKey}_${type.FullName}_{selector}";
-		}
-
-		public string BaseStyleResourceKey { get { return StyleSheetStyleKey; } }
-	}
+        }
+    }
 }

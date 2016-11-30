@@ -123,6 +123,7 @@
     <Compile Include="StyleDeclarationBlock.cs" />
     <Compile Include="StyleRule.cs" />
     <Compile Include="StyleRuleCollection.cs" />
+    <Compile Include="StyleServiceBase.cs" />
     <Compile Include="StyleSheet.cs" />
     <Compile Include="TypeHelpers.cs" />
     <Compile Include="Utils\Timer.cs" />
