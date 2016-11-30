@@ -108,6 +108,7 @@
     <Compile Include="Dom\NamedNodeList.cs" />
     <Compile Include="Dom\NamedNodeMap.cs" />
     <Compile Include="Dom\TokenList.cs" />
+    <Compile Include="Dom\TreeNodeProviderBase.cs" />
     <Compile Include="IMarkupExtensionParser.cs" />
     <Compile Include="IStyleResourcesService.cs" />
     <Compile Include="IDependencyPropertyService.cs" />

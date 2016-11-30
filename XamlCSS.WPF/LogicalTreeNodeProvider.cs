@@ -1,14 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Media3D;
 using XamlCSS.Dom;
 using XamlCSS.WPF.Dom;
 
 namespace XamlCSS.WPF
 {
-    public class LogicalTreeNodeProvider : TreeNodeProviderBase
+    public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
         public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)

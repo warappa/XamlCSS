@@ -7,7 +7,7 @@ using XamlCSS.WPF.Dom;
 
 namespace XamlCSS.WPF
 {
-    public class VisualTreeNodeProvider : TreeNodeProviderBase
+    public class VisualTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
         public VisualTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)

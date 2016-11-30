@@ -131,7 +131,6 @@
     <Compile Include="StyleResourceService.cs" />
     <Compile Include="DependencyPropertyService.cs" />
     <Compile Include="StyleService.cs" />
-    <Compile Include="TreeNodeProviderBase.cs" />
     <Compile Include="VisualTreeNodeProvider.cs" />
     <EmbeddedResource Include="Properties\XamlCSS.UWP.rd.xml" />
   </ItemGroup>

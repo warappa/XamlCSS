@@ -103,7 +103,6 @@
     <Compile Include="StyleResourceService.cs" />
     <Compile Include="DependencyPropertyService.cs" />
     <Compile Include="StyleService.cs" />
-    <Compile Include="TreeNodeProviderBase.cs" />
     <Compile Include="VisualTreeNodeProvider.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -6,16 +6,16 @@ using XamlCSS.XamarinForms.Dom;
 
 namespace XamlCSS.XamarinForms
 {
-    public class VisualTreeNodeProvider : TreeNodeProviderBase
+    public class VisualTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
     {
         public VisualTreeNodeProvider(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> dependencyPropertyService)
             : base(dependencyPropertyService)
         {
         }
 
-        protected override IDomElement<BindableObject> CreateTreeNode(BindableObject BindableObject)
+        protected override IDomElement<BindableObject> CreateTreeNode(BindableObject dependencyObject)
         {
-            return new VisualDomElement(BindableObject, this);
+            return new VisualDomElement(dependencyObject, this);
         }
 
         protected override bool IsCorrectTreeNode(IDomElement<BindableObject> node)

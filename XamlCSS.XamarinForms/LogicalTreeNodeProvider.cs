@@ -7,7 +7,7 @@ using XamlCSS.XamarinForms.Dom;
 
 namespace XamlCSS.XamarinForms
 {
-    public class LogicalTreeNodeProvider : TreeNodeProviderBase
+    public class LogicalTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
     {
         public LogicalTreeNodeProvider(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> BindablePropertyService)
             : base(BindablePropertyService)

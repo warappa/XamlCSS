@@ -6,7 +6,7 @@ using XamlCSS.UWP.Dom;
 
 namespace XamlCSS.UWP
 {
-    public class LogicalTreeNodeProvider : TreeNodeProviderBase
+    public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
         public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)
