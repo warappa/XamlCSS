@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Media3D;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 using XamlCSS.Dom;
-using XamlCSS.WPF.Dom;
 
-namespace XamlCSS.WPF
+namespace XamlCSS.UWP.Dom
 {
     public class VisualTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
@@ -28,28 +26,20 @@ namespace XamlCSS.WPF
         {
             var list = new List<DependencyObject>();
 
-            if (element == null)
-            {
-                return list;
-            }
-
             try
             {
-                if (element is Visual ||
-                    element is Visual3D)
+                var count = VisualTreeHelper.GetChildrenCount(element);
+                for (int i = 0; i < count; i++)
                 {
-                    for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
-                    {
-                        var child = VisualTreeHelper.GetChild(element, i) as DependencyObject;
+                    var child = VisualTreeHelper.GetChild(element, i);
 
-                        if (child != null)
-                        {
-                            list.Add(child);
-                        }
-                    }
+                    list.Add(child);
                 }
             }
-            catch { }
+            catch
+            {
+            }
+
             return list;
         }
 

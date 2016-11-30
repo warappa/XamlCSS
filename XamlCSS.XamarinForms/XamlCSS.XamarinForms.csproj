@@ -106,12 +106,12 @@
     <Compile Include="Internals\IProvideParentValuesPublic.cs" />
     <Compile Include="Internals\MarkupExtensionParser.cs" />
     <Compile Include="Internals\ProvideValueTarget.cs" />
-    <Compile Include="LogicalTreeNodeProvider.cs" />
+    <Compile Include="Dom\LogicalTreeNodeProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Internals\StaticResourceExtension.cs" />
     <Compile Include="VisualTreeCell.cs" />
     <Compile Include="Dom\VisualDomElement.cs" />
-    <Compile Include="VisualTreeNodeProvider.cs" />
+    <Compile Include="Dom\VisualTreeNodeProvider.cs" />
     <Compile Include="Windows\Media\VisualTreeHelper.cs" />
     <Compile Include="StyleResourceService.cs" />
     <Compile Include="DependencyPropertyService.cs" />

@@ -4,6 +4,7 @@ using Xamarin.Forms;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 using XamlCSS.Windows.Media;
+using XamlCSS.XamarinForms.Dom;
 using XamlCSS.XamarinForms.Internals;
 
 namespace XamlCSS.XamarinForms

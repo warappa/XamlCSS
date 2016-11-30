@@ -3,9 +3,8 @@ using System.Linq;
 using Xamarin.Forms;
 using XamlCSS.Dom;
 using XamlCSS.Windows.Media;
-using XamlCSS.XamarinForms.Dom;
 
-namespace XamlCSS.XamarinForms
+namespace XamlCSS.XamarinForms.Dom
 {
     public class LogicalTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
     {

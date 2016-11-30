@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 using XamlCSS.Dom;
+using XamlCSS.WPF.Dom;
 
 namespace XamlCSS.WPF
 {

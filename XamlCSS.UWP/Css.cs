@@ -1,14 +1,11 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using XamlCSS.Dom;
-using XamlCSS.Utils;
+using XamlCSS.UWP.Dom;
 
 namespace XamlCSS.UWP
 {

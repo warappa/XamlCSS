@@ -2,9 +2,8 @@
 using System.Linq;
 using System.Windows;
 using XamlCSS.Dom;
-using XamlCSS.WPF.Dom;
 
-namespace XamlCSS.WPF
+namespace XamlCSS.WPF.Dom
 {
     public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {

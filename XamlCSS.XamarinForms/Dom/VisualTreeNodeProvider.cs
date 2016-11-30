@@ -2,9 +2,8 @@
 using Xamarin.Forms;
 using XamlCSS.Dom;
 using XamlCSS.Windows.Media;
-using XamlCSS.XamarinForms.Dom;
 
-namespace XamlCSS.XamarinForms
+namespace XamlCSS.XamarinForms.Dom
 {
     public class VisualTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
     {

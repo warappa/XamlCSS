@@ -2,9 +2,8 @@
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using XamlCSS.Dom;
-using XamlCSS.UWP.Dom;
 
-namespace XamlCSS.UWP
+namespace XamlCSS.UWP.Dom
 {
     public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
