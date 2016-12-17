@@ -110,42 +110,30 @@ namespace XamlCSS.Windows.Media
 			if (child is ViewCell)
 			{
 				var cell = child as ViewCell;
-
+                
 				AttachedChild(cell.View);
 			}
-
-			var layout = child as ILayoutController;
-			if (layout != null)
+            else if (child is ILayoutController)
 			{
-				foreach (var i in layout.Children)
+                var layout = child as ILayoutController;
+                foreach (var i in layout.Children)
 				{
 					AttachedChild(i);
 				}
 			}
+            else if (child is IPageController)
+            {
+                var pageController = child as IPageController;
 
-			var contentPage = child as ContentPage;
-			if (contentPage != null)
+                foreach (var i in pageController.InternalChildren)
+                {
+                    AttachedChild(i);
+                }
+            }
+			else if (child is Application)
 			{
-				AttachedChild(contentPage.Content);
-			}
-
-			var navigationPage = child as NavigationPage;
-			if (navigationPage != null)
-			{
-				AttachedChild(navigationPage.CurrentPage);
-			}
-
-			var masterDetailPage = child as MasterDetailPage;
-			if (masterDetailPage != null)
-			{
-				AttachedChild(masterDetailPage.Master);
-				AttachedChild(masterDetailPage.Detail);
-			}
-
-			var app = child as Application;
-			if (app != null)
-			{
-				AttachedChild(app.MainPage);
+                var app = child as Application;
+                AttachedChild(app.MainPage);
 
 				app.ModalPushing += App_ModalPushing;
 				app.ModalPopped += App_ModalPopped;
@@ -235,39 +223,28 @@ namespace XamlCSS.Windows.Media
 
 				UnattachedChild(cell.View);
 			}
-
-			var layout = child as ILayoutController;
-			if (layout != null)
+            else if (child is ILayoutController)
 			{
-				foreach (var i in layout.Children)
+                var layout = child as ILayoutController;
+
+                foreach (var i in layout.Children)
 				{
 					UnattachedChild(i);
 				}
 			}
-
-			var contentPage = child as ContentPage;
-			if (contentPage != null)
+            else if (child is IPageController)
 			{
-				UnattachedChild(contentPage.Content);
+                var pageController = child as IPageController;
+                
+                foreach (var i in pageController.InternalChildren)
+                {
+                    UnattachedChild(i);
+                }
 			}
-
-			var navigationPage = child as NavigationPage;
-			if (navigationPage != null)
+            else if (child is Application)
 			{
-				UnattachedChild(navigationPage.CurrentPage);
-			}
-
-			var masterDetailPage = child as MasterDetailPage;
-			if (masterDetailPage != null)
-			{
-				UnattachedChild(masterDetailPage.Master);
-				UnattachedChild(masterDetailPage.Detail);
-			}
-
-			var app = child as Application;
-			if (app != null)
-			{
-				UnattachedChild(app.MainPage);
+                var app = child as Application;
+                UnattachedChild(app.MainPage);
 
 				app.ModalPushing -= App_ModalPushing;
 				app.ModalPopped -= App_ModalPopped;
