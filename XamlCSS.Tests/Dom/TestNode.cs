@@ -118,13 +118,45 @@ namespace XamlCSS.Tests.Dom
             this.childNodes = CreateNodeList(children ?? new List<IElement>());
             foreach (TestNode c in ChildNodes)
             {
-                // c.Parent = c.ParentElement = this;
+                c.parent = c.parentElement = this;
             }
             this.ClassList.Add((@class ?? "").Split(classSplitter, StringSplitOptions.RemoveEmptyEntries));
             this.Id = id;
             this.LocalName = this.NodeName = this.TagName = tagname;
             this.prefix = "ui";
             this.attributes = new TestNamedNodeMap(attributes ?? new Dictionary<string, string>());
+        }
+
+        public string namespaceUri;
+        public override string NamespaceUri
+        {
+            get
+            {
+                return namespaceUri;
+            }
+
+            protected set
+            {
+                namespaceUri = value;
+            }
+        }
+
+        INode parent;
+        public override INode Parent
+        {
+            get
+            {
+                return parent;
+            }
+        }
+
+        IElement parentElement;
+        public override IElement ParentElement
+        {
+            get
+            {
+                return parentElement;
+            }
         }
         protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
         {

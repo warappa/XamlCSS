@@ -204,7 +204,7 @@ namespace XamlCSS.Dom
 
         public string LocalName { get; protected set; }
 
-        public string NamespaceUri { get; protected set; }
+        public virtual string NamespaceUri { get; protected set; }
 
         public IElement NextElementSibling
         {
@@ -274,7 +274,7 @@ namespace XamlCSS.Dom
             }
         }
 
-        public INode Parent
+        public virtual INode Parent
         {
             get
             {
@@ -282,7 +282,7 @@ namespace XamlCSS.Dom
             }
         }
 
-        public IElement ParentElement
+        public virtual IElement ParentElement
         {
             get
             {
@@ -901,9 +901,9 @@ namespace XamlCSS.Dom
 
         public IElement QuerySelector(string selectors)
         {
-            if (selectors.Contains("|"))
+            if (selectors.Contains(":"))
             {
-                selectors = selectors.Replace("|", "\\:");
+                selectors = selectors.Replace("\\:", "|");
             }
 
             return ChildNodes.QuerySelector(selectors, Parser);
@@ -911,9 +911,9 @@ namespace XamlCSS.Dom
 
         public IElement QuerySelectorWithSelf(string selectors)
         {
-            if (selectors.Contains("|"))
+            if (selectors.Contains(":"))
             {
-                selectors = selectors.Replace("|", "\\:");
+                selectors = selectors.Replace("\\:", "|");
             }
 
             if (this.Matches(selectors))
@@ -926,9 +926,9 @@ namespace XamlCSS.Dom
 
         public IHtmlCollection<IElement> QuerySelectorAll(string selectors)
         {
-            if (selectors.Contains("|"))
+            if (selectors.Contains(":"))
             {
-                selectors = selectors.Replace("|", "\\:");
+                selectors = selectors.Replace("\\:", "|");
             }
 
             return CreateCollection(ChildNodes.QuerySelectorAll(selectors, Parser));
@@ -936,9 +936,9 @@ namespace XamlCSS.Dom
 
         public IHtmlCollection<IElement> QuerySelectorAllWithSelf(string selectors)
         {
-            if (selectors.Contains("|"))
+            if (selectors.Contains(":"))
             {
-                selectors = selectors.Replace("|", "\\:");
+                selectors = selectors.Replace("\\:", "|");
             }
 
             var res = ChildNodes.QuerySelectorAll(selectors, Parser);
