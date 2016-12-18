@@ -24,6 +24,8 @@ namespace XamlCSS.XamarinForms
 
         private static Timer timer;
 
+        private static Element rootElement;
+
         private static bool initialized = false;
 
         private static void StartUiTimer()
@@ -37,12 +39,31 @@ namespace XamlCSS.XamarinForms
             }, null);
         }
 
+        public static void Reset()
+        {
+            timer?.Cancel();
+            timer?.Dispose();
+            timer = null;
+            
+            VisualTreeHelper.Reset();
+
+            VisualTreeHelper.SubTreeAdded -= VisualTreeHelper_ChildAdded;
+            VisualTreeHelper.SubTreeRemoved -= VisualTreeHelper_ChildRemoved;
+
+            initialized = false;
+        }
+
         public static void Initialize(Element rootElement)
         {
-            if (initialized)
+            if (initialized &&
+                rootElement == Css.rootElement)
             {
                 return;
             }
+            
+            Reset();
+            
+            Css.rootElement = rootElement;
 
             CssParsing.CssParser.Initialize(DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)));
 

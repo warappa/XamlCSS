@@ -12,11 +12,13 @@ namespace XamlCSS.Windows.Media
 		public static event EventHandler SubTreeAdded;
 		public static event EventHandler SubTreeRemoved;
 
-		private readonly static ConditionalWeakTable<Element, List<Element>> parentChildAssociations =
+		private static ConditionalWeakTable<Element, List<Element>> parentChildAssociations =
 			new ConditionalWeakTable<Element, List<Element>>();
 
-		private readonly static ConditionalWeakTable<Element, Element> childParentAssociations =
+		private static ConditionalWeakTable<Element, Element> childParentAssociations =
 			new ConditionalWeakTable<Element, Element>();
+
+        private static Element rootElement;
 
 		public static string PrintRealPath(Element e)
 		{
@@ -40,12 +42,28 @@ namespace XamlCSS.Windows.Media
 			return GetRealParent(realParent) + $".({realParent.GetType().Name} {realParent.Id})";
 		}
 
+
+
 		public static void Initialize(Element root)
 		{
-			AttachedChild(root);
+            Reset();
+
+            rootElement = root;
+
+            AttachedChild(root);
 		}
 
-		public static void Exclude(Element cell)
+        public static void Reset()
+        {
+            UnattachedChild(rootElement);
+
+            rootElement = null;
+
+            parentChildAssociations = new ConditionalWeakTable<Element, List<Element>>();
+            childParentAssociations = new ConditionalWeakTable<Element, Element>();
+        }
+
+        public static void Exclude(Element cell)
 		{
 			RemoveChildInternal(cell);
 		}
