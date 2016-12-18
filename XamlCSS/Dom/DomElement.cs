@@ -901,21 +901,11 @@ namespace XamlCSS.Dom
 
         public IElement QuerySelector(string selectors)
         {
-            if (selectors.Contains(":"))
-            {
-                selectors = selectors.Replace("\\:", "|");
-            }
-
             return ChildNodes.QuerySelector(selectors, Parser);
         }
 
         public IElement QuerySelectorWithSelf(string selectors)
         {
-            if (selectors.Contains(":"))
-            {
-                selectors = selectors.Replace("\\:", "|");
-            }
-
             if (this.Matches(selectors))
             {
                 return this;
@@ -926,21 +916,11 @@ namespace XamlCSS.Dom
 
         public IHtmlCollection<IElement> QuerySelectorAll(string selectors)
         {
-            if (selectors.Contains(":"))
-            {
-                selectors = selectors.Replace("\\:", "|");
-            }
-
             return CreateCollection(ChildNodes.QuerySelectorAll(selectors, Parser));
         }
 
         public IHtmlCollection<IElement> QuerySelectorAllWithSelf(string selectors)
         {
-            if (selectors.Contains(":"))
-            {
-                selectors = selectors.Replace("\\:", "|");
-            }
-
             var res = ChildNodes.QuerySelectorAll(selectors, Parser);
             if (this.Matches(selectors))
 			{
