@@ -20,20 +20,12 @@ namespace XamlCSS.WPF
                 Application.Current.Dispatcher.Invoke
                 );
 
-        private static TimeSpan _lastRendering;
-
         static Css()
         {
             Initialize();
 
             CompositionTarget.Rendering += (sender, e) =>
             {
-                var evt = e as RenderingEventArgs;
-                if (evt.RenderingTime == _lastRendering)
-                    return;
-
-                _lastRendering = evt.RenderingTime;
-
                 instance.ExecuteApplyStyles();
             };
         }

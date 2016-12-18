@@ -4,6 +4,7 @@ using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
+using Windows.UI.Xaml.Media;
 using XamlCSS.Dom;
 using XamlCSS.UWP.Dom;
 
@@ -67,18 +68,14 @@ namespace XamlCSS.UWP
             }
 
             LoadedDetectionHelper.Initialize();
-
+            
             LoadedDetectionHelper.SubTreeAdded += LoadedDetectionHelper_SubTreeAdded;
             LoadedDetectionHelper.SubTreeRemoved += LoadedDetectionHelper_SubTreeRemoved;
 
-            dispatcherTimer = new DispatcherTimer();
-            dispatcherTimer.Interval = TimeSpan.FromMilliseconds(16);
-            dispatcherTimer.Tick += (s, e) =>
+            CompositionTarget.Rendering += (sender, e) =>
             {
-                Initialize();
                 instance.ExecuteApplyStyles();
             };
-            dispatcherTimer.Start();
 
             initialized = true;
         }
