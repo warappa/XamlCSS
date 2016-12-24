@@ -1151,6 +1151,14 @@ namespace XamlCSS.Dom
             return dependencyObject.GetHashCode();
         }
 
+        public override bool Equals(object obj)
+        {
+            var other = obj as DomElementBase<TDependencyObject, TDependencyProperty>;
+            if (other == null)
+                return false;
+            return this.dependencyObject == other.dependencyObject;
+        }
+
         public static bool operator==(DomElementBase<TDependencyObject, TDependencyProperty> a, DomElementBase<TDependencyObject, TDependencyProperty> b)
         {
             if (ReferenceEquals(a, b))
