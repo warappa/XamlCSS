@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.XamarinForms</id>
-		<version>1.0.3</version>
+		<version>1.0.4</version>
 		<title>XamlCSS.XamarinForms</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,6 +10,12 @@
 			Style XamarinForms-apps with Css
 		</description>
 		<releaseNotes>
+      1.0.4
+      - Fixed: Css namespacing support fixed
+      - Fixed: Style disappears when resuming Android app
+      - Fixed: Css.Initialize(Application.Current) doesn't always enable styling
+      - Fixed: CarouselPage is not supported
+
       1.0.3
       - Fixed NullReferenceException
 
@@ -66,27 +72,27 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 				<dependency id="Xamarin.Forms" version="2.3.2.127" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 				<dependency id="Xamarin.Forms" version="2.3.2.127" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 				<dependency id="Xamarin.Forms" version="2.3.2.127" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 				<dependency id="Xamarin.Forms" version="2.3.2.127" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 				<dependency id="Xamarin.Forms" version="2.3.2.127" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 				<dependency id="Xamarin.Forms" version="2.3.2.127" />
 			</group>
 		</dependencies>

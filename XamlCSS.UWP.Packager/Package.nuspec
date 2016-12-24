@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.UWP</id>
-		<version>1.0.3</version>
+		<version>1.0.4</version>
 		<title>XamlCSS.UWP</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,9 +10,13 @@
 			Style UWP-apps with Css
 		</description>
 		<releaseNotes>
+      1.0.4
+      - Css namespacing support fixed
+      - Flickering when control added to view
+
       1.0.3
       - Fixed NullReferenceException
-      
+
       1.0.2
       - Xaml-Designer Preview support
       - CssParser Tokenizer fixed
@@ -63,22 +67,22 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 		</dependencies>
 		<references></references>

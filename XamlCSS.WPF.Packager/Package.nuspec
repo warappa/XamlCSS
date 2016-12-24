@@ -2,7 +2,7 @@
 <package >
 	<metadata>
 		<id>XamlCSS.WPF</id>
-		<version>1.0.3</version>
+		<version>1.0.4</version>
 		<title>XamlCSS.WPF</title>
 		<authors>David Rettenbacher</authors>
 		<owners></owners>
@@ -10,6 +10,10 @@
 			Style WPF-apps with Css
 		</description>
 		<releaseNotes>
+      1.0.4
+      - Css namespacing support fixed
+      - Flickering when control added to view
+
       1.0.3
       - Fixed NullReferenceException
 
@@ -60,22 +64,22 @@
 		<copyright>© 2016 David Rettenbacher</copyright>
 		<dependencies>
 			<group>
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="1.0.3" />
+				<dependency id="XamlCSS" version="1.0.4" />
 			</group>
 		</dependencies>
 		<references></references>
