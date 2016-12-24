@@ -19,6 +19,7 @@
 		ParenthesisOpen = 14,
 		ParenthesisClose = 15,
 		Whitespace = 16,
-		Hash = 17
-	}
+		Hash = 17,
+        Backslash = 18
+    }
 }

@@ -173,5 +173,65 @@ Button
             Assert.AreEqual(@"", styleSheet.Rules[0].DeclarationBlock[0].Value);
             Assert.AreEqual("0", styleSheet.Rules[0].DeclarationBlock[1].Value);
         }
+
+        [Test]
+        public void Can_parse_singlequote_string_literal()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test
+{
+	Text: 'pack://application,,,/Assets/Fonts/#FontAwesome';
+    Width: 0;
+}");
+
+            Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual(@"pack://application,,,/Assets/Fonts/#FontAwesome", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual("0", styleSheet.Rules[0].DeclarationBlock[1].Value);
+        }
+
+        [Test]
+        public void Can_parse_singlequote_string_literal_with_escaped_singlequotes()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test
+{
+	Text: 'pack://application,,,/Assets/Fonts/#\'FontAwesome';
+    Width: 0;
+}");
+
+            Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual(@"pack://application,,,/Assets/Fonts/#'FontAwesome", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual("0", styleSheet.Rules[0].DeclarationBlock[1].Value);
+        }
+
+        [Test]
+        public void Can_parse_doublequote_string_literal()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test
+{
+	Text: ""pack://application,,,/Assets/Fonts/#FontAwesome"";
+    Width: 0;
+}");
+
+            Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual(@"pack://application,,,/Assets/Fonts/#FontAwesome", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual("0", styleSheet.Rules[0].DeclarationBlock[1].Value);
+        }
+
+        [Test]
+        public void Can_parse_doublequote_string_literal_with_escaped_doublequotes()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test
+{
+	Text: ""pack://application,,,/Assets/Fonts/#\""FontAwesome"";
+    Width: 0;
+}");
+
+            Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual(@"pack://application,,,/Assets/Fonts/#""FontAwesome", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual("0", styleSheet.Rules[0].DeclarationBlock[1].Value);
+        }
     }
 }

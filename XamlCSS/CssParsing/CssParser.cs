@@ -21,9 +21,9 @@ namespace XamlCSS.CssParsing
 
             var tokens = Tokenize(cssDocument).ToList();
 
-            for (var i = 0; i < tokens.Count;)
+            for (var i = 0; i < tokens.Count; i++)
             {
-                var t = tokens[i++];
+                var t = tokens[i];
 
                 CssNode n;
 
@@ -164,6 +164,26 @@ namespace XamlCSS.CssParsing
                             n = new CssNode(CssNodeType.DoubleQuoteText, currentNode, "");
                             currentNode.Children.Add(n);
                             currentNode = n;
+
+                            i++;
+                            do
+                            {
+                                if (tokens[i].Type == CssTokenType.Backslash)
+                                {
+                                    i++;
+                                    currentNode.Text.Append(tokens[i].Text);
+                                }
+                                else if (tokens[i].Type == CssTokenType.DoubleQuotes)
+                                {
+                                    currentNode = currentNode.Parent;
+                                    break;
+                                }
+                                else
+                                {
+                                    currentNode.Text.Append(tokens[i].Text);
+                                }
+                                i++;
+                            } while (i < tokens.Count);
                         }
                         else if (currentNode.Type == CssNodeType.DoubleQuoteText)
                         {
@@ -188,6 +208,26 @@ namespace XamlCSS.CssParsing
                             n = new CssNode(CssNodeType.SingleQuoteText, currentNode, "");
                             currentNode.Children.Add(n);
                             currentNode = n;
+                            i++;
+
+                            do
+                            {
+                                if (tokens[i].Type == CssTokenType.Backslash)
+                                {
+                                    i++;
+                                    currentNode.Text.Append(tokens[i].Text);
+                                }
+                                else if (tokens[i].Type == CssTokenType.SingleQuotes)
+                                {
+                                    currentNode = currentNode.Parent;
+                                    break;
+                                }
+                                else
+                                {
+                                    currentNode.Text.Append(tokens[i].Text);
+                                }
+                                i++;
+                            } while (i < tokens.Count);
                         }
                         else if (currentNode.Type == CssNodeType.SingleQuoteText)
                         {
@@ -595,6 +635,7 @@ namespace XamlCSS.CssParsing
                 .SplitThem('#')
                 .SplitThem('{')
                 .SplitThem('}')
+                .SplitThem('\\')
                 .ToList();
 
             var strsIndex = 0;
@@ -666,6 +707,10 @@ namespace XamlCSS.CssParsing
                 else if (c == "#")
                 {
                     t = new CssToken(CssTokenType.Hash, c);
+                }
+                else if (c == "\\")
+                {
+                    t = new CssToken(CssTokenType.Backslash, c);
                 }
                 else if (
                     c == " " ||
