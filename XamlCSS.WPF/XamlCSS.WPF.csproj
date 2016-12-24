@@ -104,15 +104,16 @@
     <Compile Include="DependencyPropertyService.cs" />
     <Compile Include="StyleService.cs" />
     <Compile Include="Dom\VisualTreeNodeProvider.cs" />
+    <Compile Include="TypeDescriptorContext.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\XamlCSS\XamlCSS.csproj">
       <Project>{67f9d3a8-f71e-4428-913f-c37ae82cdb24}</Project>
       <Name>XamlCSS</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

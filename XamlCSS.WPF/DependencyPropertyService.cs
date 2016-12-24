@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Windows;
 using XamlCSS.Dom;
@@ -8,6 +9,8 @@ namespace XamlCSS.WPF
 {
     public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty>
     {
+        readonly ITypeDescriptorContext context = new TypeDescriptorContext(new Uri("pack://application:,,,/", UriKind.Absolute));
+
         public DependencyProperty GetBindableProperty(DependencyObject frameworkElement, string propertyName)
         {
             return GetBindableProperty(frameworkElement.GetType(), propertyName);
@@ -26,7 +29,7 @@ namespace XamlCSS.WPF
         public object GetBindablePropertyValue(Type frameworkElementType, DependencyProperty property, object propertyValue)
         {
             if (property != null &&
-                !(property.PropertyType.IsAssignableFrom(propertyValue.GetType())))
+                !(property.PropertyType.IsInstanceOfType(propertyValue)))
             {
                 var propertyType = property.PropertyType;
 
@@ -39,7 +42,7 @@ namespace XamlCSS.WPF
 
                 if (converter != null)
                 {
-                    propertyValue = converter.ConvertFrom(propertyValue as string);
+                    propertyValue = converter.ConvertFrom(context, CultureInfo.CurrentUICulture, propertyValue as string);
                 }
                 else if (propertyType == typeof(bool))
                 {
