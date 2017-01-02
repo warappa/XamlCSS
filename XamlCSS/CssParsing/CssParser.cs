@@ -299,8 +299,9 @@ namespace XamlCSS.CssParsing
                         {
                             var selector = new CssNode(CssNodeType.Selector, currentNode, "");
                             currentNode.Children.Add(selector);
-                            currentNode = selector;
-                            currentNode.Children.Add(new CssNode(CssNodeType.SelectorFragment, currentNode, "." + tokens[i++].Text));
+                            var selectorFragment = new CssNode(CssNodeType.SelectorFragment, selector, tokens[i].Text);
+                            selector.Children.Add(selectorFragment);
+                            currentNode = selectorFragment;
                         }
                         else if (currentNode.Type == CssNodeType.Selector)
                         {
