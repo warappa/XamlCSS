@@ -30,17 +30,11 @@ namespace XamlCSS.CssParsing
                 switch (t.Type)
                 {
                     case CssTokenType.At:
-
                         if (currentNode.Type == CssNodeType.Document)
                         {
                             n = new CssNode(CssNodeType.NamespaceDeclaration, currentNode, "");
                             currentNode.Children.Add(n);
                             currentNode = n;
-                        }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
-                        {
-                            currentNode.Text.Append(t.Text);
                         }
                         break;
 
@@ -120,11 +114,6 @@ namespace XamlCSS.CssParsing
                             var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, t.Text);
                             currentNode.Children.Add(selectorFragment);
                             currentNode = selectorFragment;
-                        }
-                        if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
-                        {
-                            currentNode.Text.Append(t.Text);
                         }
                         break;
                     case CssTokenType.DoubleQuotes:
@@ -247,11 +236,6 @@ namespace XamlCSS.CssParsing
                         {
                             currentNode.Text.Append(t.Text);
                         }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
-                        {
-                            currentNode.Text.Append(t.Text);
-                        }
                         break;
                     case CssTokenType.Semicolon:
                         if (currentNode.Type == CssNodeType.Value)
@@ -261,11 +245,6 @@ namespace XamlCSS.CssParsing
                         else if (currentNode.Type == CssNodeType.NamespaceValue)
                         {
                             currentNode = currentNode.Parent;
-                        }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
-                        {
-                            currentNode.Text.Append(t.Text);
                         }
                         currentNode = currentNode.Parent;
                         break;
@@ -299,8 +278,10 @@ namespace XamlCSS.CssParsing
                         {
                             var selector = new CssNode(CssNodeType.Selector, currentNode, "");
                             currentNode.Children.Add(selector);
+
                             var selectorFragment = new CssNode(CssNodeType.SelectorFragment, selector, tokens[i].Text);
                             selector.Children.Add(selectorFragment);
+
                             currentNode = selectorFragment;
                         }
                         else if (currentNode.Type == CssNodeType.Selector)
@@ -314,11 +295,6 @@ namespace XamlCSS.CssParsing
                             currentNode.Text.Append(t.Text);
                         }
                         else if (currentNode.Type == CssNodeType.Key)
-                        {
-                            currentNode.Text.Append(t.Text);
-                        }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
                         {
                             currentNode.Text.Append(t.Text);
                         }
@@ -366,11 +342,6 @@ namespace XamlCSS.CssParsing
                             currentNode.Children.Add(n);
                             currentNode = n;
                         }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
-                        {
-                            currentNode.Text.Append(t.Text);
-                        }
                         break;
                     case CssTokenType.AngleBraketClose:
                         if (currentNode.Type == CssNodeType.SelectorFragment)
@@ -381,11 +352,6 @@ namespace XamlCSS.CssParsing
                         {
                             currentNode.Children.Add(new CssNode(CssNodeType.SelectorFragment, currentNode, ">"));
                         }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
-                        {
-                            currentNode.Text.Append(t.Text);
-                        }
                         break;
                     case CssTokenType.ParenthesisOpen:
                     case CssTokenType.ParenthesisClose:
@@ -394,11 +360,6 @@ namespace XamlCSS.CssParsing
                             currentNode.Text.Append(t.Text);
                         }
                         else if (currentNode.Type == CssNodeType.SelectorFragment)
-                        {
-                            currentNode.Text.Append(t.Text);
-                        }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
                         {
                             currentNode.Text.Append(t.Text);
                         }
@@ -420,11 +381,6 @@ namespace XamlCSS.CssParsing
                         {
                             currentNode.Text.Append(t.Text);
                         }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
-                        {
-                            currentNode.Text.Append(t.Text);
-                        }
                         break;
                     case CssTokenType.Pipe:
                         if (currentNode.Type == CssNodeType.SelectorFragment)
@@ -432,11 +388,6 @@ namespace XamlCSS.CssParsing
                             currentNode.Text.Append(t.Text);
                         }
                         else if (currentNode.Type == CssNodeType.Key)
-                        {
-                            currentNode.Text.Append(t.Text);
-                        }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
                         {
                             currentNode.Text.Append(t.Text);
                         }
@@ -448,11 +399,6 @@ namespace XamlCSS.CssParsing
                             n = new CssNode(CssNodeType.Value, currentNode, t.Text);
                             currentNode.Children.Add(n);
                             currentNode = n;
-                        }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
-                        {
-                            currentNode.Text.Append(t.Text);
                         }
                         else
                         {
@@ -478,11 +424,6 @@ namespace XamlCSS.CssParsing
                         {
                             currentNode.Text.Append(t.Text);
                             currentNode = currentNode.Parent;
-                        }
-                        else if (currentNode.Type == CssNodeType.DoubleQuoteText ||
-                            currentNode.Type == CssNodeType.SingleQuoteText)
-                        {
-                            currentNode.Text.Append(t.Text);
                         }
                         else
                             currentNode = currentNode.Parent.Parent;
