@@ -4,3 +4,7 @@
 **/*.lock.json
 packages/**/*
 **/*.nupkg
+**/*.bak
+**/*.cache
+**/*.user
+**/*.log
