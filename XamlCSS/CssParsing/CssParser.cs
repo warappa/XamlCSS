@@ -298,6 +298,10 @@ namespace XamlCSS.CssParsing
                         {
                             currentNode.Text.Append(t.Text);
                         }
+                        else if (currentNode.Type == CssNodeType.Value)
+                        {
+                            currentNode.Text.Append(t.Text);
+                        }
                         break;
                     case CssTokenType.Hash:
                         if (currentNode.Type == CssNodeType.Document)
