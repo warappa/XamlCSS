@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace XamlCSS.Dom
 {
-	public abstract class DomElementBase<TDependencyObject, TDependencyProperty> : IDomElement<TDependencyObject>, IDocument
+    public abstract class DomElementBase<TDependencyObject, TDependencyProperty> : IDomElement<TDependencyObject>, IDocument
         where TDependencyObject : class
         where TDependencyProperty : class
     {
@@ -81,6 +81,8 @@ namespace XamlCSS.Dom
 
         #endregion
 
+        private static readonly CachedSelectorProvider cachedSelectorProvider = new CachedSelectorProvider();
+
         public List<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
 
         protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
@@ -93,7 +95,7 @@ namespace XamlCSS.Dom
         protected INamedNodeMap attributes = null;
         protected ITokenList classList = null;
 
-        protected static readonly CssParser Parser = new CssParser(new CssParserOptions
+        protected static readonly CssParser parser = new CssParser(new CssParserOptions
         {
             IsIncludingUnknownDeclarations = true,
             IsStoringTrivia = false,
@@ -791,7 +793,7 @@ namespace XamlCSS.Dom
                 return true;
             }
 
-			return dependencyObject == (otherNode as DomElementBase<TDependencyObject, TDependencyProperty>).dependencyObject;
+            return dependencyObject == (otherNode as DomElementBase<TDependencyObject, TDependencyProperty>).dependencyObject;
         }
 
         public string GetAttribute(string name)
@@ -881,7 +883,7 @@ namespace XamlCSS.Dom
 
         public bool Matches(string selectors)
         {
-            return Parser.ParseSelector(selectors).Match(this);
+            return cachedSelectorProvider.GetOrAdd(selectors, parser.ParseSelector).Match(this);
         }
 
         public void Normalize()
@@ -901,7 +903,9 @@ namespace XamlCSS.Dom
 
         public IElement QuerySelector(string selectors)
         {
-            return ChildNodes.QuerySelector(selectors, Parser);
+            var selector = cachedSelectorProvider.GetOrAdd(selectors, parser.ParseSelector);
+
+            return ChildNodes.QuerySelector(selector);
         }
 
         public IElement QuerySelectorWithSelf(string selectors)
@@ -911,21 +915,27 @@ namespace XamlCSS.Dom
                 return this;
             }
 
-            return ChildNodes.QuerySelector(selectors, Parser);
+            var selector = cachedSelectorProvider.GetOrAdd(selectors, parser.ParseSelector);
+
+            return ChildNodes.QuerySelector(selector);
         }
 
         public IHtmlCollection<IElement> QuerySelectorAll(string selectors)
         {
-            return CreateCollection(ChildNodes.QuerySelectorAll(selectors, Parser));
+            var selector = cachedSelectorProvider.GetOrAdd(selectors, parser.ParseSelector);
+
+            return CreateCollection(ChildNodes.QuerySelectorAll(selector));
         }
 
         public IHtmlCollection<IElement> QuerySelectorAllWithSelf(string selectors)
         {
-            var res = ChildNodes.QuerySelectorAll(selectors, Parser);
+            var selector = cachedSelectorProvider.GetOrAdd(selectors, parser.ParseSelector);
+
+            var res = ChildNodes.QuerySelectorAll(selector);
             if (this.Matches(selectors))
-			{
-				res.Add(this);
-			}
+            {
+                res.Add(this);
+            }
 
             return CreateCollection(res);
         }
@@ -1159,7 +1169,7 @@ namespace XamlCSS.Dom
             return this.dependencyObject == other.dependencyObject;
         }
 
-        public static bool operator==(DomElementBase<TDependencyObject, TDependencyProperty> a, DomElementBase<TDependencyObject, TDependencyProperty> b)
+        public static bool operator ==(DomElementBase<TDependencyObject, TDependencyProperty> a, DomElementBase<TDependencyObject, TDependencyProperty> b)
         {
             if (ReferenceEquals(a, b))
             {

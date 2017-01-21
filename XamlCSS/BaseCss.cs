@@ -62,7 +62,7 @@ namespace XamlCSS
                     }
 
                     copy = items.Distinct().ToList();
-                    items = new List<RenderInfo<TDependencyObject, TUIElement>>();
+                    items.Clear();
                 }
 
                 var invalidateAllItem = copy.FirstOrDefault(x => x.Remove && x.StartFrom == null);
