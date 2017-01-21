@@ -1,15 +1,20 @@
 <?xml version="1.0"?>
 <package >
-	<metadata>
-		<id>XamlCSS.UWP</id>
-		<version>1.0.4</version>
-		<title>XamlCSS.UWP</title>
-		<authors>David Rettenbacher</authors>
-		<owners></owners>
-		<description>
-			Style UWP-apps with Css
-		</description>
-		<releaseNotes>
+  <metadata>
+    <id>XamlCSS.UWP</id>
+    <version>1.0.5</version>
+    <title>XamlCSS.UWP</title>
+    <authors>David Rettenbacher</authors>
+    <owners></owners>
+    <description>
+      Style UWP-apps with Css
+    </description>
+    <releaseNotes>
+      1.0.5
+      - #19 Decimal Number not parsed correctly
+      - #18 Class not properly parsed in grouped selectors
+      - #13 CSS-Parser: Broken String-Literal Handling
+
       1.0.4
       - Css namespacing support fixed
       - Flickering when control added to view
@@ -56,67 +61,67 @@
       0.8.0-beta-3:
       Fixed UWP nuget-package
     </releaseNotes>
-		<summary>
-			Style UWP-apps with Css
-		</summary>
-		<language>en-US</language>
-		<projectUrl>https://github.com/warappa/XamlCSS</projectUrl>
-		<iconUrl>https://raw.githubusercontent.com/warappa/XamlCSS/master/Content/Logo.jpg</iconUrl>
-		<requireLicenseAcceptance>false</requireLicenseAcceptance>
-		<licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
-		<copyright>© 2016 David Rettenbacher</copyright>
-		<dependencies>
-			<group>
-				<dependency id="XamlCSS" version="1.0.4" />
-			</group>
-			<group targetFramework="Xamarin.iOS10">
-				<dependency id="XamlCSS" version="1.0.4" />
-			</group>
-			<group targetFramework="MonoAndroid10">
-				<dependency id="XamlCSS" version="1.0.4" />
-			</group>
-			<group targetFramework="wp8">
-				<dependency id="XamlCSS" version="1.0.4" />
-			</group>
-			<group targetFramework="wpa81">
-				<dependency id="XamlCSS" version="1.0.4" />
-			</group>
-			<group targetFramework="uap10.0">
-				<dependency id="XamlCSS" version="1.0.4" />
-			</group>
-		</dependencies>
-		<references></references>
-		<tags>xaml css style uwp</tags>
-	</metadata>
-	<files>
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\dotnet" />
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\dotnet" />
+    <summary>
+      Style UWP-apps with Css
+    </summary>
+    <language>en-US</language>
+    <projectUrl>https://github.com/warappa/XamlCSS</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/warappa/XamlCSS/master/Content/Logo.jpg</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+    <copyright>© 2016 David Rettenbacher</copyright>
+    <dependencies>
+      <group>
+        <dependency id="XamlCSS" version="1.0.5" />
+      </group>
+      <group targetFramework="Xamarin.iOS10">
+        <dependency id="XamlCSS" version="1.0.5" />
+      </group>
+      <group targetFramework="MonoAndroid10">
+        <dependency id="XamlCSS" version="1.0.5" />
+      </group>
+      <group targetFramework="wp8">
+        <dependency id="XamlCSS" version="1.0.5" />
+      </group>
+      <group targetFramework="wpa81">
+        <dependency id="XamlCSS" version="1.0.5" />
+      </group>
+      <group targetFramework="uap10.0">
+        <dependency id="XamlCSS" version="1.0.5" />
+      </group>
+    </dependencies>
+    <references></references>
+    <tags>xaml css style uwp</tags>
+  </metadata>
+  <files>
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\dotnet" />
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\dotnet" />
 
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\portable-net45+win8+wpa81+wp8" />
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\portable-net45+win8+wpa81+wp8" />
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\portable-net45+win8+wpa81+wp8" />
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\portable-net45+win8+wpa81+wp8" />
 
-		<!-- PCL -->
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\portable-win+net45+wp8+win8+wpa81" />
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\portable-win+net45+wp8+win8+wpa81" />
+    <!-- PCL -->
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\portable-win+net45+wp8+win8+wpa81" />
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\portable-win+net45+wp8+win8+wpa81" />
 
-		<!-- android -->
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\MonoAndroid10" />
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\MonoAndroid10" />
+    <!-- android -->
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\MonoAndroid10" />
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\MonoAndroid10" />
 
-		<!-- ios -->
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\Xamarin.iOS10" />
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\Xamarin.iOS10" />
+    <!-- ios -->
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\Xamarin.iOS10" />
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\Xamarin.iOS10" />
 
-		<!-- wp8 -->
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\wp8" />
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\wp8" />
+    <!-- wp8 -->
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\wp8" />
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\wp8" />
 
-		<!-- wpa81 -->
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\wpa81" />
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\wpa81" />
+    <!-- wpa81 -->
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\wpa81" />
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\wpa81" />
 
-		<!-- uwp -->
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\uap10.0" />
-		<file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\uap10.0" />
-	</files>
+    <!-- uwp -->
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\uap10.0" />
+    <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\uap10.0" />
+  </files>
 </package>
