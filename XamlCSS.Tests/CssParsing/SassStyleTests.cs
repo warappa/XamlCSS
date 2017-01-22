@@ -1,0 +1,108 @@
+﻿using FluentAssertions;
+using NUnit.Framework;
+using XamlCSS.CssParsing;
+
+namespace XamlCSS.Tests.CssParsing
+{
+    [TestFixture]
+    public class SassStyleTests
+    {
+        [Test]
+        public void Can_parse_rule_to_ast()
+        {
+            var css = @"
+.header {
+    BackgroundColor: Green;
+}
+";
+
+            var ast = CssParser.GetAst(css);
+
+            ast.GetSelectorNode(0, 0, 0).Text.Should().Be(".header");
+        }
+
+        [Test]
+        public void Can_parse_nested_rule_to_ast()
+        {
+            var css = @"
+.header {
+    BackgroundColor: Green;
+
+    Label {
+        BackgroundColor: Red;
+    }
+}
+";
+
+            var ast = CssParser.GetAst(css);
+            var headerRuleNode = ast.GetRootStyleRuleNode(0);
+            var labelRuleNode = headerRuleNode
+                .GetSubStyleRuleNode(0);
+            labelRuleNode
+                .GetSelectorNode(0, 0, 0).Text.Should().Be("Label");
+
+
+        }
+
+        [Test]
+        public void Can_parse_nested_rule_to_stylesheet()
+        {
+            var css = @"
+.header {
+    BackgroundColor: Green;
+
+    Label {
+        BackgroundColor: Red;
+    }
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(2);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Green");
+
+            styleSheet.Rules[1].SelectorString.Should().Be(".header Label");
+            styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be("Red");
+        }
+
+        [Test]
+        public void Can_parse_nested_rule_to_stylesheet_with_multiple_selectors_on_root_rule()
+        {
+            var css = @"
+.header,
+StackLayout {
+    BackgroundColor: Green;
+
+    Label {
+        BackgroundColor: Red;
+    }
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(4);
+
+            styleSheet.Rules[0].SelectorString.Should().Be("StackLayout");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Green");
+
+            styleSheet.Rules[1].SelectorString.Should().Be("StackLayout Label");
+            styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be("Red");
+
+            styleSheet.Rules[2].SelectorString.Should().Be(".header");
+            styleSheet.Rules[2].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[2].DeclarationBlock[0].Value.Should().Be("Green");
+
+            styleSheet.Rules[3].SelectorString.Should().Be(".header Label");
+            styleSheet.Rules[3].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[3].DeclarationBlock[0].Value.Should().Be("Red");
+        }
+    }
+}

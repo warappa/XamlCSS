@@ -32,7 +32,7 @@ namespace XamlCSS.Tests.CssParsing
                 ?.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleDeclaration)
                 ?.Children.FirstOrDefault(x =>
                     x.Type == CssNodeType.Value &&
-                    x.Text.ToString() == "red")
+                    x.Text == "red")
                 ;
 
             Assert.NotNull(node);
