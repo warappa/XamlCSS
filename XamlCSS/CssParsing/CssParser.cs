@@ -40,7 +40,8 @@ namespace XamlCSS.CssParsing
                         }
                         break;
                     case CssTokenType.Dollar:
-                        if (currentNode.Type == CssNodeType.Document)
+                        if (currentNode.Type == CssNodeType.Document ||
+                            currentNode.Type == CssNodeType.StyleDeclarationBlock)
                         {
                             n = new CssNode(CssNodeType.VariableDeclaration, currentNode, "");
                             currentNode.Children.Add(n);

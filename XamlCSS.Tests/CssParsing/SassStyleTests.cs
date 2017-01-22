@@ -273,5 +273,40 @@ $textVariable2: ""Subtitle"";
             styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Title");
             styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Subtitle");
         }
+
+        [Test]
+        public void Can_parse_and_use_redefined_color_variables()
+        {
+            var css = @"
+$background: #ff00ff;
+$foreground: #00ff00;
+.header {
+    $background: red;
+    
+    BackgroundColor: $background;
+    TextColor: $foreground;
+}
+.footer {
+    BackgroundColor: $background;
+    TextColor: $foreground;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(2);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("red");
+            styleSheet.Rules[0].DeclarationBlock[1].Property.Should().Be("TextColor");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("#00ff00");
+
+            styleSheet.Rules[1].SelectorString.Should().Be(".footer");
+            styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be("#ff00ff");
+            styleSheet.Rules[1].DeclarationBlock[1].Property.Should().Be("TextColor");
+            styleSheet.Rules[1].DeclarationBlock[1].Value.Should().Be("#00ff00");
+        }
     }
 }
