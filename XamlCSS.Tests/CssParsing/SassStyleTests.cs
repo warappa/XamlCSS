@@ -210,5 +210,68 @@ StackLayout {
             styleSheet.Rules[2].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
             styleSheet.Rules[2].DeclarationBlock[0].Value.Should().Be("Red");
         }
+
+        [Test]
+        public void Can_parse_and_use_color_variables()
+        {
+            var css = @"
+$background: #ff00ff;
+$foreground: #00ff00;
+.header {
+    BackgroundColor: $background;
+    TextColor: $foreground;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("#ff00ff");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("#00ff00");
+        }
+
+        [Test]
+        public void Can_parse_and_use_markup_extensions_variables()
+        {
+            var css = @"
+$background: #Binding BackgroundColor;
+$foreground: #Binding ForegroundColor;
+.header {
+    BackgroundColor: $background;
+    TextColor: $foreground;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("#Binding BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("#Binding ForegroundColor");
+        }
+
+        [Test]
+        public void Can_parse_and_use_text_variables()
+        {
+            var css = @"
+$textVariable1: ""Title"";
+$textVariable2: ""Subtitle"";
+.header {
+    Title: $textVariable1;
+    SubTitle: $textVariable2;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Title");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Subtitle");
+        }
     }
 }

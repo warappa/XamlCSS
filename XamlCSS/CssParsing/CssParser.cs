@@ -39,9 +39,38 @@ namespace XamlCSS.CssParsing
                             currentNode = n;
                         }
                         break;
+                    case CssTokenType.Dollar:
+                        if (currentNode.Type == CssNodeType.Document)
+                        {
+                            n = new CssNode(CssNodeType.VariableDeclaration, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
 
+                            n = new CssNode(CssNodeType.VariableName, currentNode, t.Text);
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        else if (currentNode.Type == CssNodeType.Value)
+                        {
+                            n = new CssNode(CssNodeType.VariableReference, currentNode, "$");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        break;
                     case CssTokenType.Identifier:
-                        if (currentNode.Type == CssNodeType.NamespaceDeclaration)
+                        if (currentNode.Type == CssNodeType.VariableName)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.VariableValue)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.VariableReference)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.NamespaceDeclaration)
                         {
                             n = new CssNode(CssNodeType.NamespaceKeyword, currentNode, "@" + t.Text);
                             currentNode.Children.Add(n);
@@ -226,7 +255,15 @@ namespace XamlCSS.CssParsing
                         }
                         break;
                     case CssTokenType.Colon:
-                        if (currentNode.Type == CssNodeType.Key)
+                        if (currentNode.Type == CssNodeType.VariableName)
+                        {
+                            currentNode = currentNode.Parent;
+
+                            n = new CssNode(CssNodeType.VariableValue, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        else if (currentNode.Type == CssNodeType.Key)
                         {
                             var nextToken = NextTokenOfTypes(tokens, i, new[] { CssTokenType.Semicolon, CssTokenType.BraceOpen });
 
@@ -261,11 +298,19 @@ namespace XamlCSS.CssParsing
                         }
                         break;
                     case CssTokenType.Semicolon:
+                        if (currentNode.Type == CssNodeType.VariableReference)
+                        {
+                            currentNode = currentNode.Parent;
+                        }
                         if (currentNode.Type == CssNodeType.Value)
                         {
                             currentNode = currentNode.Parent;
                         }
                         else if (currentNode.Type == CssNodeType.NamespaceValue)
+                        {
+                            currentNode = currentNode.Parent;
+                        }
+                        else if (currentNode.Type == CssNodeType.VariableValue)
                         {
                             currentNode = currentNode.Parent;
                         }
@@ -371,6 +416,10 @@ namespace XamlCSS.CssParsing
                             currentNode = n;
                         }
                         else if (currentNode.Type == CssNodeType.Value)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.VariableValue)
                         {
                             currentNode.TextBuilder.Append(t.Text);
                         }
@@ -620,6 +669,28 @@ namespace XamlCSS.CssParsing
             return $"{(!hasBaseSelector ? "" : baseSelector)}{(!isConcatSelector && hasBaseSelector ? " " : "")}{(isConcatSelector ? "" + currentSelector.Substring(1) : currentSelector)}";
         }
 
+        private static string GetVariableValue(CssNode variableReferenceAst)
+        {
+            var variableName = variableReferenceAst.Text;
+
+            var current = variableReferenceAst.Parent;
+            while (current != null)
+            {
+                var foundDeclaration = current.Children
+                    .FirstOrDefault(x =>
+                        x.Type == CssNodeType.VariableDeclaration &&
+                        x.Children.Any(y => y.Type == CssNodeType.VariableName && y.Text == variableName));
+
+                if (foundDeclaration != null)
+                {
+                    return foundDeclaration.Children.First(y => y.Type == CssNodeType.VariableValue).Text;
+                }
+                current = current.Parent;
+            }
+
+            throw new InvalidOperationException($"Variable {variableName} not found!");
+        }
+
         private static void GetStyleRules(StyleSheet styleSheet, CssNode astRule)
         {
             var astStyleDeclarationBlock = astRule.Children
@@ -627,17 +698,21 @@ namespace XamlCSS.CssParsing
 
             var styleDeclarations = astStyleDeclarationBlock.Children
                 .Where(x => x.Type == CssNodeType.StyleDeclaration)
-                .Select(x => new StyleDeclaration
+                .Select(x =>
                 {
-                    Property = x.Children
-                        .Single(y => y.Type == CssNodeType.Key).TextBuilder.ToString(),
-
-                    Value = x.Children
-                        .Single(y => y.Type == CssNodeType.Value).TextBuilder.ToString() != "" ?
-                            x.Children.Single(y => y.Type == CssNodeType.Value).TextBuilder.ToString() :
-                            x.Children.Single(y => y.Type == CssNodeType.Value).Children
-                                .Select(y => y.TextBuilder.ToString())
-                                .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b)
+                    var keyAst = x.Children
+                             .Single(y => y.Type == CssNodeType.Key);
+                    var valueAst = x.Children
+                             .Single(y => y.Type == CssNodeType.Value);
+                    return new StyleDeclaration
+                    {
+                        Property = keyAst.Text,
+                        Value = valueAst.Text != "" ?
+                                 valueAst.Text.Trim() :
+                                 valueAst.Children
+                                     .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y) : y.Text)
+                                     .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim()
+                    };
                 })
                 .ToList();
 
@@ -777,6 +852,7 @@ namespace XamlCSS.CssParsing
                 .SplitThem('{')
                 .SplitThem('}')
                 .SplitThem('\\')
+                .SplitThem('$')
                 .ToList();
 
             var strsIndex = 0;
@@ -861,6 +937,10 @@ namespace XamlCSS.CssParsing
                     )
                 {
                     t = new CssToken(CssTokenType.Whitespace, c);
+                }
+                else if (c == "$")
+                {
+                    t = new CssToken(CssTokenType.Dollar, c);
                 }
                 else
                 {
