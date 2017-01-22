@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
@@ -386,9 +387,10 @@ namespace XamlCSS
 
                 object propertyValue = null;
                 if (i.Value is string &&
-                    ((string)i.Value).StartsWith("{", StringComparison.Ordinal))
+                    ((string)i.Value).StartsWith("#", StringComparison.Ordinal) &&
+                    !IsHexColorValue((string)i.Value)) // color
                 {
-                    propertyValue = markupExpressionParser.ProvideValue((string)i.Value, dependencyObject);
+                    propertyValue = markupExpressionParser.ProvideValue("{" + ((string)i.Value).Substring(1) + "}", dependencyObject);
                 }
                 else
                 {
@@ -566,6 +568,12 @@ namespace XamlCSS
             }
 
             return null;
+        }
+
+        private bool IsHexColorValue(string value)
+        {
+            int dummy;
+            return int.TryParse(value.Substring(1), NumberStyles.HexNumber, CultureInfo.CurrentUICulture, out dummy);
         }
     }
 }

@@ -113,13 +113,15 @@ namespace XamlCSS.Tests.CssParsing
             var styleSheet = CssParser.Parse(@"
 .test
 {
-	Text: {Binding testValue};
+	Text: #Binding testValue;
 	Background: Green;
+    Background: #ff00ff;
 }");
 
-            Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
-            Assert.AreEqual("{Binding testValue}", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual(3, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual("#Binding testValue", styleSheet.Rules[0].DeclarationBlock[0].Value);
             Assert.AreEqual("Green", styleSheet.Rules[0].DeclarationBlock[1].Value);
+            Assert.AreEqual("#ff00ff", styleSheet.Rules[0].DeclarationBlock[2].Value);
         }
 
         [Test]
@@ -247,6 +249,19 @@ Button
             Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
             Assert.AreEqual(@"0.5", styleSheet.Rules[0].DeclarationBlock[0].Value);
             Assert.AreEqual("0", styleSheet.Rules[0].DeclarationBlock[1].Value);
+        }
+
+        [Test]
+        public void Can_parse_color()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test
+{
+	Color: #ff00ff;
+}");
+
+            Assert.AreEqual(1, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual(@"#ff00ff", styleSheet.Rules[0].DeclarationBlock[0].Value);
         }
     }
 }

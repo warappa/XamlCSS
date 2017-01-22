@@ -6,11 +6,11 @@
 			 xmlns:cssXF="clr-namespace:XamlCSS.XamarinForms;assembly=XamlCSS.XamarinForms"
 			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
 			 >
-	<ContentPage.Resources>
-		<ResourceDictionary>
-      <css:StyleSheet x:Key="LocalStyle">
-        <css:StyleSheet.Content>
-Button
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <css:StyleSheet x:Key="LocalStyle">
+                <css:StyleSheet.Content>
+                    Button
 {
     WidthRequest: 100;
 }
@@ -33,17 +33,19 @@ Label
 .container
 {
 	BackgroundColor: #005b96;
-}
-.container Button
-{
-	TextColor: #fff;
-	BackgroundColor: #581;
-    Padding: 5;
-    Margin: 5;
-}
-.container Label
-{
-	TextColor: #b3cde0;
+                    
+    Button
+    {
+	    TextColor: #fff;
+	    BackgroundColor: #581;
+        Padding: 5;
+        Margin: 5;
+    }
+    
+    Label
+    {
+	    TextColor: #b3cde0;
+    }
 }
 .jumbo
 {
@@ -58,62 +60,70 @@ Label
 {
     TextColor: Red;
 }
-Grid Grid Label:nth-of-type(1)
+Grid
 {
-	Grid.Row: 1;
-	Grid.Column: 1;
-	Text: {Binding Test};
-}
-Grid Grid Label:nth-of-type(2)
-{
-	Grid.Row: 1;
-	Grid.Column: 0;
-	Text: {StaticResource testString};
-}
-Grid Grid Label:nth-of-type(3)
-{
-	Grid.Row: 0;
-	Grid.Column: 1;
-	Text: {DynamicResource testString};
+    Grid
+    {
+        Label:nth-of-type(1)
+        {
+	        Grid.Row: 1;
+	        Grid.Column: 1;
+	        Text: #Binding Test;
+        }
+        
+        Label:nth-of-type(2)
+        {
+	        Grid.Row: 1;
+	        Grid.Column: 0;
+	        Text: #StaticResource testString;
+        }
+           
+        Label:nth-of-type(3)
+        {
+	        Grid.Row: 0;
+	        Grid.Column: 1;
+	        Text: #DynamicResource testString;
+        }
+    }
 }
                 </css:StyleSheet.Content>
-      </css:StyleSheet>
-		</ResourceDictionary>
-	</ContentPage.Resources>
-	<Grid x:Name="thegrid" cssXF:Css.StyleSheet="{DynamicResource LocalStyle}">
-		<StackLayout x:Name="stack" cssXF:Css.Id="stack">
-			<StackLayout x:Name="thestack2" cssXF:Css.Id="thestack2" cssXF:Css.Class="container">
-				<Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>
-				<Button x:Name="theinnerbutton" cssXF:Css.Id="theinnerbutton" Clicked="Button_Click_1" Text="Inner Button"></Button>
-			</StackLayout>
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="20" />
-					<RowDefinition Height="20" />
-				</Grid.RowDefinitions>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="1*" />
-					<ColumnDefinition Width="1*" />
-				</Grid.ColumnDefinitions>
+            </css:StyleSheet>
+        </ResourceDictionary>
+    </ContentPage.Resources>
+    <Grid x:Name="thegrid" cssXF:Css.StyleSheet="{DynamicResource LocalStyle}">
+        <StackLayout x:Name="stack" cssXF:Css.Id="stack">
+            <StackLayout x:Name="thestack2" cssXF:Css.Id="thestack2" cssXF:Css.Class="container">
+                <Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>
+                <Button x:Name="theinnerbutton" cssXF:Css.Id="theinnerbutton" Clicked="Button_Click_1" Text="Inner Button"></Button>
+            </StackLayout>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="20" />
+                    <RowDefinition Height="20" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
                 <Grid.Resources>
                     <ResourceDictionary>
                         <sys:String x:Key="testString">Hello World from DynamicResource!</sys:String>
                     </ResourceDictionary>
                 </Grid.Resources>
-				<Label></Label>
-				<Label></Label>
                 <Label></Label>
-			</Grid>
-			<Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
-			<ListView ItemsSource="{Binding TestList}">
-				<ListView.ItemTemplate>
-					<DataTemplate>
-						<ViewCell cssXF:VisualTreeCell.Include="true" cssXF:Css.Class="listViewItem">
-							<Label Text="{Binding}" />
-						</ViewCell>
-					</DataTemplate>
-				</ListView.ItemTemplate>
-			</ListView>
-		</StackLayout>
-	</Grid>
+                <Label></Label>
+                <Label></Label>
+            </Grid>
+            <Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
+            <ListView ItemsSource="{Binding TestList}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell cssXF:VisualTreeCell.Include="true" cssXF:Css.Class="listViewItem">
+                            <Label Text="{Binding}" />
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </StackLayout>
+    </Grid>
 </ContentPage>

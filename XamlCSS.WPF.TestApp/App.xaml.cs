@@ -3,12 +3,12 @@ using System.Windows;
 
 namespace XamlCSS.WPF.TestApp
 {
-	/// <summary>
-	/// Interaktionslogik für "App.xaml"
-	/// </summary>
-	public partial class App : Application
-	{
-		public string cssStyle1 = @"
+    /// <summary>
+    /// Interaktionslogik für "App.xaml"
+    /// </summary>
+    public partial class App : Application
+    {
+        public string cssStyle1 = @"
 Button
 {
 	Foreground: Red;
@@ -16,30 +16,35 @@ Button
 .container
 {
 	Background: Yellow;
-}
-.container Button
-{
-	Foreground: Brown;
+ 
+    Button
+    {
+	    Foreground: Brown;
+    }
 }
 .jumbo
 {
 	FontSize: 50;
 }
-Grid Grid TextBlock:nth-of-type(1)
+Grid Grid 
 {
-	Grid.Row: 0;
-	Grid.Column: 1;
-	Text: {Binding Message};
-}
-Grid Grid TextBlock:nth-of-type(2)
-{
-	Grid.Row: 1;
-	Grid.Column: 0;
-	Text: {StaticResource testString};
+    TextBlock:nth-of-type(1)
+    {
+	    Grid.Row: 0;
+	    Grid.Column: 1;
+	    Text: #Binding Message;
+    }
+
+    TextBlock:nth-of-type(2)
+    {
+	    Grid.Row: 1;
+	    Grid.Column: 0;
+	    Text: #StaticResource testString;
+    }
 }
 ";
 
-		public string cssStyle2 = @"
+        public string cssStyle2 = @"
 Window
 {
 	Background: #333333;
@@ -69,25 +74,29 @@ Button
 	FontStyle: Italic;
 	HorizontalAlignment: Center;
 }
-Grid Grid TextBlock:nth-of-type(1)
+Grid Grid 
 {
-	Grid.Row: 1;
-	Grid.Column: 0;
-}
-Grid Grid TextBlock:nth-of-type(2)
-{
-	Grid.Row: 0;
-	Grid.Column: 0;
+    TextBlock:nth-of-type(1)
+    {
+	    Grid.Row: 1;
+	    Grid.Column: 0;
+    }
+
+    TextBlock:nth-of-type(2)
+    {
+	    Grid.Row: 0;
+	    Grid.Column: 0;
+    }
 }
 ";
-		public string currentStyle;
+        public string currentStyle;
 
-		public App()
-		{
-			InitializeComponent();
+        public App()
+        {
+            InitializeComponent();
 
-			LoadedDetectionHelper.Initialize();
-			
-		}
-	}
+            LoadedDetectionHelper.Initialize();
+
+        }
+    }
 }

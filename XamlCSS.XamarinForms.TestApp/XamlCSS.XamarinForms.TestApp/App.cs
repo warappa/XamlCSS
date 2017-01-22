@@ -4,19 +4,19 @@ using XamlCSS.Windows.Media;
 namespace XamlCSS.XamarinForms.TestApp
 {
     public class App : Application
-	{
-		public App()
+    {
+        public App()
         {
             Css.Initialize(this);
 
             Resources = new ResourceDictionary();
             Resources.Add("testString", "Hello World from StaticResource!");
-			// The root page of your application
-			MainPage = new MainPage();
+            // The root page of your application
+            MainPage = new MainPage();
         }
 
 
-		public string cssStyle1 = @"
+        public string cssStyle1 = @"
 Button
 {
 	TextColor: Red;
@@ -24,32 +24,37 @@ Button
 .container
 {
 	BackgroundColor: Yellow;
-}
-.container Button
-{
-	TextColor: Red;
+
+    Button
+    {
+	    TextColor: Red;
+    }
 }
 .jumbo
 {
 	FontSize: 50;
 }
-Grid Grid Label:nth-of-type(1)
+Grid Grid 
 {
-	Grid.Row: 0;
-	Grid.Column: 1;
-	Text: {Binding Test};
-}
-Grid Grid Label:nth-of-type(2)
-{
-	Grid.Row: 1;
-	Grid.Column: 0;
-	Text: {StaticResource testString};
-}
-Grid Grid Label:nth-of-type(3)
-{
-	Grid.Row: 1;
-	Grid.Column: 1;
-	Text: {DynamicResource testString};
+    Label:nth-of-type(1)
+    {
+	    Grid.Row: 0;
+	    Grid.Column: 1;
+	    Text: #Binding Test;
+    }
+    Label:nth-of-type(2)
+    {
+	    Grid.Row: 1;
+	    Grid.Column: 0;
+	    Text: #StaticResource testString;
+    }
+
+    Label:nth-of-type(3)
+    {
+	    Grid.Row: 1;
+	    Grid.Column: 1;
+	    Text: #DynamicResource testString;
+    }
 }
 .listViewItem Label
 {
@@ -57,7 +62,7 @@ Grid Grid Label:nth-of-type(3)
 }
 ";
 
-		public string cssStyle2 = @"
+        public string cssStyle2 = @"
 ContentPage
 {
 	BackgroundColor: #333333;
@@ -72,10 +77,11 @@ Button
 .container
 {
 	TextColor: #aaaaaa;
-}
-.container Button
-{
-	TextColor: Olive;
+
+    Button
+    {
+	    TextColor: Olive;
+    }
 }
 #thebutton
 {
@@ -87,17 +93,21 @@ Button
 	FontAttributes: Italic;
 	HorizontalOptions: Center;
 }
-Grid Grid Label:nth-of-type(1)
+Grid Grid 
 {
-	Grid.Row: 1;
-	Grid.Column: 1;
-}
-Grid Grid Label:nth-of-type(2)
-{
-	Grid.Row: 0;
-	Grid.Column: 0;
+    Label:nth-of-type(1)
+    {
+	    Grid.Row: 1;
+	    Grid.Column: 1;
+    }
+
+    Label:nth-of-type(2)
+    {
+	    Grid.Row: 0;
+	    Grid.Column: 0;
+    }
 }
 ";
-		public string currentStyle;
-	}
+        public string currentStyle;
+    }
 }

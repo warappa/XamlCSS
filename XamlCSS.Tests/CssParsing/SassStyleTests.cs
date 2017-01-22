@@ -180,5 +180,35 @@ StackLayout {
             styleSheet.Rules[2].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
             styleSheet.Rules[2].DeclarationBlock[0].Value.Should().Be("Red");
         }
+
+        [Test]
+        public void Can_parse_nested_selector_to_stylesheet_with_multiple_selectors_on_root_rule()
+        {
+            var css = @"
+.header {
+    BackgroundColor: Green;
+
+    .inner {
+        .active {
+            BackgroundColor: Red;
+        }
+    }
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(3);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Green");
+
+            styleSheet.Rules[1].SelectorString.Should().Be(".header .inner");
+
+            styleSheet.Rules[2].SelectorString.Should().Be(".header .inner .active");
+            styleSheet.Rules[2].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[2].DeclarationBlock[0].Value.Should().Be("Red");
+        }
     }
 }

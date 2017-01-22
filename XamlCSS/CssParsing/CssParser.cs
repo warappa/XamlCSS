@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -227,17 +228,27 @@ namespace XamlCSS.CssParsing
                     case CssTokenType.Colon:
                         if (currentNode.Type == CssNodeType.Key)
                         {
-                            currentNode = currentNode.Parent;
+                            var nextToken = NextTokenOfTypes(tokens, i, new[] { CssTokenType.Semicolon, CssTokenType.BraceOpen });
 
-                            n = new CssNode(CssNodeType.Value, currentNode, "");
-                            currentNode.Children.Add(n);
-                            currentNode = n;
-
-                            i++;
-                            while (t.Type == CssTokenType.Whitespace)
+                            // normal value
+                            if (nextToken == CssTokenType.Semicolon)
                             {
+                                currentNode = currentNode.Parent;
+
+                                n = new CssNode(CssNodeType.Value, currentNode, "");
+                                currentNode.Children.Add(n);
+                                currentNode = n;
+
                                 i++;
-                                t = tokens[i];
+                                while (t.Type == CssTokenType.Whitespace)
+                                {
+                                    i++;
+                                    t = tokens[i];
+                                }
+                            }
+                            else // selector
+                            {
+                                currentNode.TextBuilder.Append(t.Text);
                             }
                         }
                         else if (currentNode.Type == CssNodeType.SelectorFragment)
@@ -261,7 +272,8 @@ namespace XamlCSS.CssParsing
                         currentNode = currentNode.Parent;
                         break;
                     case CssTokenType.Dot:
-                        if (currentNode.Type == CssNodeType.Document)
+                        if (currentNode.Type == CssNodeType.Document ||
+                            currentNode.Type == CssNodeType.StyleDeclarationBlock)
                         {
                             n = new CssNode(CssNodeType.StyleRule, currentNode, "");
                             var selectors = new CssNode(CssNodeType.Selectors, n, "");
@@ -358,6 +370,10 @@ namespace XamlCSS.CssParsing
                             currentNode.Children.Add(n);
                             currentNode = n;
                         }
+                        else if (currentNode.Type == CssNodeType.Value)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
                         break;
                     case CssTokenType.AngleBraketClose:
                         if (currentNode.Type == CssNodeType.SelectorFragment)
@@ -372,6 +388,10 @@ namespace XamlCSS.CssParsing
                     case CssTokenType.ParenthesisOpen:
                     case CssTokenType.ParenthesisClose:
                         if (currentNode.Type == CssNodeType.Value)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.Key) // selector
                         {
                             currentNode.TextBuilder.Append(t.Text);
                         }
@@ -570,13 +590,10 @@ namespace XamlCSS.CssParsing
         {
             if (remainingSelectorLayers.Count() == 1)
             {
-
                 return remainingSelectorLayers.First()
                     .Select(x =>
                     {
-                        var isConcatSelector = x.StartsWith("&");
-                        var hasBaseSelector = baseSelector != null;
-                        return $"{(!hasBaseSelector ? "" : baseSelector)}{(!isConcatSelector && hasBaseSelector ? " " : "")}{(isConcatSelector ? "" + x.Substring(1) : x)}";
+                        return CombineSelectors(baseSelector, x);
                     })
                     .ToList();
             }
@@ -590,10 +607,17 @@ namespace XamlCSS.CssParsing
             {
                 var selector = currentLayerSelector.StartsWith("&") ? currentLayerSelector.Substring(1) : currentLayerSelector;
 
-                ruleSelectors.AddRange(GetAllRuleSelectorsSub(selector, newRemainingSelectorLayers));
+                ruleSelectors.AddRange(GetAllRuleSelectorsSub(CombineSelectors(baseSelector, selector), newRemainingSelectorLayers));
             }
 
             return ruleSelectors;
+        }
+
+        private static string CombineSelectors(string baseSelector, string currentSelector)
+        {
+            var isConcatSelector = currentSelector.StartsWith("&");
+            var hasBaseSelector = baseSelector != null;
+            return $"{(!hasBaseSelector ? "" : baseSelector)}{(!isConcatSelector && hasBaseSelector ? " " : "")}{(isConcatSelector ? "" + currentSelector.Substring(1) : currentSelector)}";
         }
 
         private static void GetStyleRules(StyleSheet styleSheet, CssNode astRule)
@@ -847,6 +871,71 @@ namespace XamlCSS.CssParsing
             }
 
             return tokens;
+        }
+
+        private static bool IsNextTokenOfType(List<CssToken> tokens, int index, CssTokenType type, bool ignoreWhitespace = true)
+        {
+            return IsNextTokenOfTypes(tokens, index, new[] { type }, ignoreWhitespace);
+        }
+
+        private static bool IsNextTokenOfTypes(List<CssToken> tokens, int index, CssTokenType[] types, bool ignoreWhitespace = true)
+        {
+            int typesIndex = 0;
+            index++;
+
+            while (index < tokens.Count)
+            {
+                if (ignoreWhitespace &&
+                    tokens[index].Type == CssTokenType.Whitespace)
+                {
+                    index++;
+                    continue;
+                }
+
+                if (tokens[index].Type == types[typesIndex])
+                {
+                    typesIndex++;
+                    if (typesIndex == types.Length)
+                    {
+                        return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+
+                index++;
+            }
+
+            return false;
+        }
+
+        private static CssTokenType NextTokenOfTypes(List<CssToken> tokens, int index, CssTokenType[] types, bool ignoreWhitespace = true)
+        {
+            index++;
+
+            while (index < tokens.Count)
+            {
+                if (ignoreWhitespace &&
+                    tokens[index].Type == CssTokenType.Whitespace)
+                {
+                    index++;
+                    continue;
+                }
+
+                foreach (var type in types)
+                {
+                    if (tokens[index].Type == type)
+                    {
+                        return type;
+                    }
+                }
+
+                index++;
+            }
+
+            return CssTokenType.Unknown;
         }
     }
 }
