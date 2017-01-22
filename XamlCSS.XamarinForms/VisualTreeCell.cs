@@ -37,22 +37,15 @@ namespace XamlCSS.XamarinForms
             {
                 entry.Appearing += Entry_Appearing;
                 entry.PropertyChanged += Entry_PropertyChanged;
-                entry.BindingContextChanged += Entry_BindingContextChanged;
             }
             else
             {
                 entry.Appearing -= Entry_Appearing;
                 entry.PropertyChanged -= Entry_PropertyChanged;
-                entry.BindingContextChanged -= Entry_BindingContextChanged;
+
+                VisualTreeHelper.Exclude(entry as Element);
             }
         }
-
-        private static void Entry_BindingContextChanged(object sender, EventArgs e)
-        {
-            VisualTreeHelper.Exclude(sender as Element);
-            VisualTreeHelper.Include(sender as Element);
-        }
-
 
         private static void Entry_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
@@ -60,9 +53,13 @@ namespace XamlCSS.XamarinForms
             {
                 var s = sender as Element;
                 if (s.Parent != null)
+                {
                     VisualTreeHelper.Include(sender as Element);
+                }
                 else
+                {
                     VisualTreeHelper.Exclude(sender as Element);
+                }
             }
         }
 
