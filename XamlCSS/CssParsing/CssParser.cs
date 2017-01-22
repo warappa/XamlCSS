@@ -381,6 +381,29 @@ namespace XamlCSS.CssParsing
                         }
                         break;
                     case CssTokenType.Comma:
+                        if (currentNode.Type == CssNodeType.Key)
+                        {
+                            var keyValue = currentNode.Text;
+
+                            var styleDeclaration = currentNode.Parent;
+                            styleDeclaration.Children.Remove(currentNode);
+
+                            var subRule = styleDeclaration;
+                            subRule.Type = CssNodeType.StyleRule;
+
+                            var selectors = new CssNode(CssNodeType.Selectors, subRule, "");
+                            subRule.Children.Add(selectors);
+
+                            currentNode = selectors;
+
+                            var selector = new CssNode(CssNodeType.Selector, currentNode, "");
+                            currentNode.Children.Add(selector);
+                            currentNode = selector;
+
+                            var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, keyValue);
+                            currentNode.Children.Add(selectorFragment);
+                            currentNode = selectorFragment;
+                        }
                         if (currentNode.Type == CssNodeType.SelectorFragment)
                         {
                             currentNode = currentNode.Parent;
@@ -547,8 +570,14 @@ namespace XamlCSS.CssParsing
         {
             if (remainingSelectorLayers.Count() == 1)
             {
+
                 return remainingSelectorLayers.First()
-                    .Select(x => baseSelector == null ? x : baseSelector + " " + x)
+                    .Select(x =>
+                    {
+                        var isConcatSelector = x.StartsWith("&");
+                        var hasBaseSelector = baseSelector != null;
+                        return $"{(!hasBaseSelector ? "" : baseSelector)}{(!isConcatSelector && hasBaseSelector ? " " : "")}{(isConcatSelector ? "" + x.Substring(1) : x)}";
+                    })
                     .ToList();
             }
 
@@ -557,8 +586,10 @@ namespace XamlCSS.CssParsing
             var currentLayerSelectors = remainingSelectorLayers.First();
 
             var ruleSelectors = new List<string>();
-            foreach (var selector in currentLayerSelectors)
+            foreach (var currentLayerSelector in currentLayerSelectors)
             {
+                var selector = currentLayerSelector.StartsWith("&") ? currentLayerSelector.Substring(1) : currentLayerSelector;
+
                 ruleSelectors.AddRange(GetAllRuleSelectorsSub(selector, newRemainingSelectorLayers));
             }
 

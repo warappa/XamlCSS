@@ -104,5 +104,49 @@ StackLayout {
             styleSheet.Rules[3].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
             styleSheet.Rules[3].DeclarationBlock[0].Value.Should().Be("Red");
         }
+
+        [Test]
+        public void Can_parse_nested_ampersand_rule_to_stylesheet_with_multiple_selectors_on_root_rule()
+        {
+            var css = @"
+.header,
+StackLayout {
+    BackgroundColor: Green;
+
+    &.active,
+    &.warning {
+        BackgroundColor: Red;
+    }
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(6);
+
+            styleSheet.Rules[0].SelectorString.Should().Be("StackLayout");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Green");
+
+            styleSheet.Rules[1].SelectorString.Should().Be(".header");
+            styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be("Green");
+
+            styleSheet.Rules[2].SelectorString.Should().Be("StackLayout.active");
+            styleSheet.Rules[2].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[2].DeclarationBlock[0].Value.Should().Be("Red");
+
+            styleSheet.Rules[3].SelectorString.Should().Be("StackLayout.warning");
+            styleSheet.Rules[3].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[3].DeclarationBlock[0].Value.Should().Be("Red");
+
+            styleSheet.Rules[4].SelectorString.Should().Be(".header.active");
+            styleSheet.Rules[4].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[4].DeclarationBlock[0].Value.Should().Be("Red");
+
+            styleSheet.Rules[5].SelectorString.Should().Be(".header.warning");
+            styleSheet.Rules[5].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[5].DeclarationBlock[0].Value.Should().Be("Red");
+        }
     }
 }
