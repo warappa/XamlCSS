@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XamlCSS.WPF</id>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <title>XamlCSS.WPF</title>
     <authors>David Rettenbacher</authors>
     <owners></owners>
@@ -10,6 +10,9 @@
       Style WPF-apps with Css
     </description>
     <releaseNotes>
+      1.0.6
+      - #20 Performance: Selectors are parsed too often
+
       1.0.5
       - #16 WPF: Resource FontFamily doesn't work in Css
       - #19 Decimal Number not parsed correctly
@@ -70,22 +73,22 @@
     <copyright>© 2016 David Rettenbacher</copyright>
     <dependencies>
       <group>
-        <dependency id="XamlCSS" version="1.0.5" />
+        <dependency id="XamlCSS" version="1.0.6" />
       </group>
       <group targetFramework="Xamarin.iOS10">
-        <dependency id="XamlCSS" version="1.0.5" />
+        <dependency id="XamlCSS" version="1.0.6" />
       </group>
       <group targetFramework="MonoAndroid10">
-        <dependency id="XamlCSS" version="1.0.5" />
+        <dependency id="XamlCSS" version="1.0.6" />
       </group>
       <group targetFramework="wp8">
-        <dependency id="XamlCSS" version="1.0.5" />
+        <dependency id="XamlCSS" version="1.0.6" />
       </group>
       <group targetFramework="wpa81">
-        <dependency id="XamlCSS" version="1.0.5" />
+        <dependency id="XamlCSS" version="1.0.6" />
       </group>
       <group targetFramework="uap10.0">
-        <dependency id="XamlCSS" version="1.0.5" />
+        <dependency id="XamlCSS" version="1.0.6" />
       </group>
     </dependencies>
     <references></references>

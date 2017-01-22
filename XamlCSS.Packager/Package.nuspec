@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XamlCSS</id>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <title>XamlCSS</title>
     <authors>David Rettenbacher</authors>
     <owners></owners>
@@ -10,6 +10,9 @@
       Style Xaml-apps with Css
     </description>
     <releaseNotes>
+      1.0.6
+      - #20 Performance: Selectors are parsed too often
+
       1.0.5
       - #19 Decimal Number not parsed correctly
       - #18 Class not properly parsed in grouped selectors

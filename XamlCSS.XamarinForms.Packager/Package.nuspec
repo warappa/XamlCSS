@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XamlCSS.XamarinForms</id>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
     <title>XamlCSS.XamarinForms</title>
     <authors>David Rettenbacher</authors>
     <owners></owners>
@@ -10,6 +10,11 @@
       Style XamarinForms-apps with Css
     </description>
     <releaseNotes>
+      1.0.6
+      - #20 Performance: Selectors are parsed too often
+      - #21 [XamarinForms] UI Timer can overtake itself
+      - #22 [XamarinForms] ListView Cells broken again in 1.0.5
+
       1.0.5
       - #13 Xamarin.Forms: Style disappears when resuming Android app
       - #19 Decimal Number not parsed correctly
@@ -78,28 +83,28 @@
     <copyright>© 2016 David Rettenbacher</copyright>
     <dependencies>
       <group>
-        <dependency id="XamlCSS" version="1.0.5" />
-        <dependency id="Xamarin.Forms" version="2.3.2.127" />
+        <dependency id="XamlCSS" version="1.0.6" />
+        <dependency id="Xamarin.Forms" version="2.3.3.180" />
       </group>
       <group targetFramework="Xamarin.iOS10">
-        <dependency id="XamlCSS" version="1.0.5" />
-        <dependency id="Xamarin.Forms" version="2.3.2.127" />
+        <dependency id="XamlCSS" version="1.0.6" />
+        <dependency id="Xamarin.Forms" version="2.3.3.180" />
       </group>
       <group targetFramework="MonoAndroid10">
-        <dependency id="XamlCSS" version="1.0.5" />
-        <dependency id="Xamarin.Forms" version="2.3.2.127" />
+        <dependency id="XamlCSS" version="1.0.6" />
+        <dependency id="Xamarin.Forms" version="2.3.3.180" />
       </group>
       <group targetFramework="wp8">
-        <dependency id="XamlCSS" version="1.0.5" />
-        <dependency id="Xamarin.Forms" version="2.3.2.127" />
+        <dependency id="XamlCSS" version="1.0.6" />
+        <dependency id="Xamarin.Forms" version="2.3.3.180" />
       </group>
       <group targetFramework="wpa81">
-        <dependency id="XamlCSS" version="1.0.5" />
-        <dependency id="Xamarin.Forms" version="2.3.2.127" />
+        <dependency id="XamlCSS" version="1.0.6" />
+        <dependency id="Xamarin.Forms" version="2.3.3.180" />
       </group>
       <group targetFramework="uap10.0">
-        <dependency id="XamlCSS" version="1.0.5" />
-        <dependency id="Xamarin.Forms" version="2.3.2.127" />
+        <dependency id="XamlCSS" version="1.0.6" />
+        <dependency id="Xamarin.Forms" version="2.3.3.180" />
       </group>
     </dependencies>
     <references></references>
