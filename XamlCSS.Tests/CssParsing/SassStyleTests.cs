@@ -106,7 +106,7 @@ StackLayout {
         }
 
         [Test]
-        public void Can_parse_nested_ampersand_rule_to_stylesheet_with_multiple_selectors_on_root_rule()
+        public void Can_parse_nested_ampersand_class_selectors_to_stylesheet_with_multiple_selectors_on_root_rule()
         {
             var css = @"
 .header,
@@ -147,6 +147,38 @@ StackLayout {
             styleSheet.Rules[5].SelectorString.Should().Be(".header.warning");
             styleSheet.Rules[5].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
             styleSheet.Rules[5].DeclarationBlock[0].Value.Should().Be("Red");
+        }
+
+        [Test]
+        public void Can_parse_nested_ampersand_element_selector_to_stylesheet_with_multiple_selectors_on_root_rule()
+        {
+            var css = @"
+.header {
+    BackgroundColor: Green;
+
+    &StackLayout,
+    &Button {
+        BackgroundColor: Red;
+    }
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(3);
+
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Green");
+
+            styleSheet.Rules[1].SelectorString.Should().Be(".headerStackLayout");
+            styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be("Red");
+
+            styleSheet.Rules[2].SelectorString.Should().Be(".headerButton");
+            styleSheet.Rules[2].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[2].DeclarationBlock[0].Value.Should().Be("Red");
         }
     }
 }
