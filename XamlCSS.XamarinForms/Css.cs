@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Xamarin.Forms;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
@@ -32,10 +33,13 @@ namespace XamlCSS.XamarinForms
         {
             timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
             {
+                var tcs = new TaskCompletionSource<object>();
                 Device.BeginInvokeOnMainThread(() =>
                 {
                     instance.ExecuteApplyStyles();
+                    tcs.SetResult(0);
                 });
+                tcs.Task.Wait();
             }, null);
         }
 
@@ -44,7 +48,7 @@ namespace XamlCSS.XamarinForms
             timer?.Cancel();
             timer?.Dispose();
             timer = null;
-            
+
             VisualTreeHelper.Reset();
 
             VisualTreeHelper.SubTreeAdded -= VisualTreeHelper_ChildAdded;
@@ -60,9 +64,9 @@ namespace XamlCSS.XamarinForms
             {
                 return;
             }
-            
+
             Reset();
-            
+
             Css.rootElement = rootElement;
 
             CssParsing.CssParser.Initialize(DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)));
@@ -71,7 +75,7 @@ namespace XamlCSS.XamarinForms
             VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
 
             VisualTreeHelper.Initialize(rootElement);
-            
+
             if (rootElement is Application)
             {
                 var application = rootElement as Application;
