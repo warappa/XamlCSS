@@ -2,7 +2,7 @@
   "dependencies": {
     "AngleSharp": "0.9.8",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
-    "Xamarin.Forms": "2.3.2.127"
+    "Xamarin.Forms": "2.3.3.180"
   },
   "frameworks": {
     "uap10.0": {}
