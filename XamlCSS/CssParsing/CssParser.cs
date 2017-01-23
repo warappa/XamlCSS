@@ -38,6 +38,11 @@ namespace XamlCSS.CssParsing
                             currentNode.Children.Add(n);
                             currentNode = n;
                         }
+                        else if (currentNode.Type == CssNodeType.Value ||
+                            currentNode.Type == CssNodeType.VariableValue)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
                         break;
                     case CssTokenType.Dollar:
                         if (currentNode.Type == CssNodeType.Document ||
@@ -206,6 +211,28 @@ namespace XamlCSS.CssParsing
                                 i++;
                             } while (i < tokens.Count);
                         }
+                        else if (currentNode.Type == CssNodeType.VariableValue)
+                        {
+                            i++;
+                            do
+                            {
+                                if (tokens[i].Type == CssTokenType.Backslash)
+                                {
+                                    i++;
+                                    currentNode.TextBuilder.Append(tokens[i].Text);
+                                }
+                                else if (tokens[i].Type == CssTokenType.DoubleQuotes)
+                                {
+                                    currentNode = currentNode.Parent;
+                                    break;
+                                }
+                                else
+                                {
+                                    currentNode.TextBuilder.Append(tokens[i].Text);
+                                }
+                                i++;
+                            } while (i < tokens.Count);
+                        }
                         else if (currentNode.Type == CssNodeType.DoubleQuoteText)
                         {
                             currentNode = currentNode.Parent;
@@ -266,10 +293,11 @@ namespace XamlCSS.CssParsing
                         }
                         else if (currentNode.Type == CssNodeType.Key)
                         {
-                            var nextToken = NextTokenOfTypes(tokens, i, new[] { CssTokenType.Semicolon, CssTokenType.BraceOpen });
+                            var nextToken = NextTokenOfTypes(tokens, i, new[] { CssTokenType.Semicolon, CssTokenType.DoubleQuotes, CssTokenType.BraceOpen });
 
                             // normal value
-                            if (nextToken == CssTokenType.Semicolon)
+                            if (nextToken == CssTokenType.Semicolon ||
+                                nextToken == CssTokenType.DoubleQuotes)
                             {
                                 currentNode = currentNode.Parent;
 

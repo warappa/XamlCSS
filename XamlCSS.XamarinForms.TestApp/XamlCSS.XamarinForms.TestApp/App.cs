@@ -40,20 +40,20 @@ Grid Grid
     {
 	    Grid.Row: 0;
 	    Grid.Column: 1;
-	    Text: #Binding Test;
+	    Text: @Binding Test;
     }
     Label:nth-of-type(2)
     {
 	    Grid.Row: 1;
 	    Grid.Column: 0;
-	    Text: #StaticResource testString;
+	    Text: @StaticResource testString;
     }
 
     Label:nth-of-type(3)
     {
 	    Grid.Row: 1;
 	    Grid.Column: 1;
-	    Text: #DynamicResource testString;
+	    Text: @DynamicResource testString;
     }
 }
 .listViewItem Label

@@ -387,10 +387,17 @@ namespace XamlCSS
 
                 object propertyValue = null;
                 if (i.Value is string &&
-                    ((string)i.Value).StartsWith("#", StringComparison.Ordinal) &&
-                    !IsHexColorValue((string)i.Value)) // color
+                    (((string)i.Value).StartsWith("@", StringComparison.Ordinal) ||
+                    ((string)i.Value).StartsWith("{", StringComparison.Ordinal))) // color
                 {
-                    propertyValue = markupExpressionParser.ProvideValue("{" + ((string)i.Value).Substring(1) + "}", dependencyObject);
+                    var bindingValue = ((string)i.Value);
+
+                    if (bindingValue.StartsWith("@"))
+                    {
+                        bindingValue = "{" + bindingValue.Substring(1) + "}";
+                    }
+
+                    propertyValue = markupExpressionParser.ProvideValue(bindingValue, dependencyObject);
                 }
                 else
                 {

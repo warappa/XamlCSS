@@ -113,13 +113,30 @@ namespace XamlCSS.Tests.CssParsing
             var styleSheet = CssParser.Parse(@"
 .test
 {
-	Text: #Binding testValue;
+	Text: @Binding testValue;
 	Background: Green;
     Background: #ff00ff;
 }");
 
             Assert.AreEqual(3, styleSheet.Rules[0].DeclarationBlock.Count);
-            Assert.AreEqual("#Binding testValue", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual("@Binding testValue", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual("Green", styleSheet.Rules[0].DeclarationBlock[1].Value);
+            Assert.AreEqual("#ff00ff", styleSheet.Rules[0].DeclarationBlock[2].Value);
+        }
+
+        [Test]
+        public void Test_can_parse_markupExtensions_xaml_style()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test
+{
+	Text: ""{Binding testValue}"";
+	Background: Green;
+    Background: #ff00ff;
+}");
+
+            Assert.AreEqual(3, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual("{Binding testValue}", styleSheet.Rules[0].DeclarationBlock[0].Value);
             Assert.AreEqual("Green", styleSheet.Rules[0].DeclarationBlock[1].Value);
             Assert.AreEqual("#ff00ff", styleSheet.Rules[0].DeclarationBlock[2].Value);
         }

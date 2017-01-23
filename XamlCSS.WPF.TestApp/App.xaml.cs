@@ -32,14 +32,14 @@ Grid Grid
     {
 	    Grid.Row: 0;
 	    Grid.Column: 1;
-	    Text: #Binding Message;
+	    Text: @Binding Message;
     }
 
     TextBlock:nth-of-type(2)
     {
 	    Grid.Row: 1;
 	    Grid.Column: 0;
-	    Text: #StaticResource testString;
+	    Text: @StaticResource testString;
     }
 }
 ";

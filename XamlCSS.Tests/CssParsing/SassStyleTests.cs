@@ -236,8 +236,8 @@ $foreground: #00ff00;
         public void Can_parse_and_use_markup_extensions_variables()
         {
             var css = @"
-$background: #Binding BackgroundColor;
-$foreground: #Binding ForegroundColor;
+$background: @Binding BackgroundColor;
+$foreground: @Binding ForegroundColor;
 .header {
     BackgroundColor: $background;
     TextColor: $foreground;
@@ -249,8 +249,29 @@ $foreground: #Binding ForegroundColor;
             styleSheet.Rules.Count.Should().Be(1);
 
             styleSheet.Rules[0].SelectorString.Should().Be(".header");
-            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("#Binding BackgroundColor");
-            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("#Binding ForegroundColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("@Binding BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("@Binding ForegroundColor");
+        }
+
+        [Test]
+        public void Can_parse_and_use_markup_extensions_variables_with_Xaml_syntax()
+        {
+            var css = @"
+$background: ""{Binding BackgroundColor}"";
+$foreground: ""{Binding ForegroundColor}"";
+.header {
+    BackgroundColor: $background;
+    TextColor: $foreground;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("{Binding BackgroundColor}");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("{Binding ForegroundColor}");
         }
 
         [Test]
