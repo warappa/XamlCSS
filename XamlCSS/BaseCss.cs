@@ -37,6 +37,8 @@ namespace XamlCSS
             this.uiInvoker = uiInvoker;
 
             CssParser.Initialize(defaultCssNamespace);
+            StyleSheet.GetParent = parent => treeNodeProvider.GetParent((TDependencyObject)parent);
+            StyleSheet.GetStyleSheet = treeNode => dependencyPropertyService.GetStyleSheet((TDependencyObject)treeNode);
         }
 
         protected bool executeApplyStylesExecuting;

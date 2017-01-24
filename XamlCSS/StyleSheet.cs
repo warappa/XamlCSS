@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using XamlCSS.CssParsing;
 
 namespace XamlCSS
@@ -8,13 +10,35 @@ namespace XamlCSS
     {
         public static readonly StyleSheet Empty = new StyleSheet();
 
-        public List<CssNamespace> Namespaces { get; set; } = new List<CssNamespace>();
+        protected List<CssNamespace> namespaces = new List<CssNamespace>();
+        virtual public List<CssNamespace> Namespaces
+        {
+            get
+            {
+                return namespaces;
+            }
+            set
+            {
+                namespaces = value;
+            }
+        }
 
-        public StyleRuleCollection Rules { get; set; } = new StyleRuleCollection();
-        
+        protected StyleRuleCollection rules = new StyleRuleCollection();
+        virtual public StyleRuleCollection Rules
+        {
+            get
+            {
+                return rules;
+            }
+            set
+            {
+                rules = value;
+            }
+        }
+
         public event PropertyChangedEventHandler PropertyChanged;
 
-        public object AttachedTo { get; set; }
+        virtual public object AttachedTo { get; set; }
 
         private string content = null;
 
@@ -34,5 +58,8 @@ namespace XamlCSS
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
             }
         }
+
+        public static Func<object, object> GetParent { get; internal set; }
+        public static Func<object, StyleSheet> GetStyleSheet { get; internal set; }
     }
 }
