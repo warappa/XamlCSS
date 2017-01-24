@@ -385,19 +385,19 @@ namespace XamlCSS
                     continue;
                 }
 
-                object propertyValue = null;
-                if (i.Value is string &&
-                    (((string)i.Value).StartsWith("@", StringComparison.Ordinal) ||
-                    ((string)i.Value).StartsWith("{", StringComparison.Ordinal))) // color
-                {
-                    var bindingValue = ((string)i.Value);
+                var stringValue = i.Value as string;
 
-                    if (bindingValue.StartsWith("@"))
+                object propertyValue = null;
+                if (stringValue != null &&
+                    ((stringValue.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(stringValue)) ||
+                    stringValue.StartsWith("{", StringComparison.Ordinal))) // color
+                {
+                    if (stringValue.StartsWith("#"))
                     {
-                        bindingValue = "{" + bindingValue.Substring(1) + "}";
+                        stringValue = "{" + stringValue.Substring(1) + "}";
                     }
 
-                    propertyValue = markupExpressionParser.ProvideValue(bindingValue, dependencyObject);
+                    propertyValue = markupExpressionParser.ProvideValue(stringValue, dependencyObject);
                 }
                 else
                 {

@@ -55,7 +55,7 @@ Grid Grid
     {
 	    Grid.Row: 0;
 	    Grid.Column: 1;
-	    Text: @Binding Test;
+	    Text: #Binding Test;
     }
 
     TextBlock:nth-of-type(2)
