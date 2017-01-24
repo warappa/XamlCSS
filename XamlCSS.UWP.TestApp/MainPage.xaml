@@ -8,6 +8,7 @@
     xmlns:css="using:XamlCSS"
 	xmlns:cssUWP="using:XamlCSS.UWP"
     mc:Ignorable="d"
+    d:DesignHeight="400" d:DesignWidth="600"
     d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}">
     <Page.Resources>
         <ResourceDictionary>
@@ -23,7 +24,7 @@ TextBlock
 }
 #thegrid
 {
-Background: #011f4b;
+    Background: #011f4b;
 }
 #thebutton
 {
@@ -36,42 +37,48 @@ Background: #011f4b;
 .container
 {
 	Background: #005b96;
-}
-.container Button
-{
-    Foreground: #fff;
-	Background: #581;
-    Padding: 5;
-    Margin: 5;
-}
-.container TextBlock
-{
-	Foreground: #b3cde0;
+                    
+    Button
+    {
+        Foreground: #fff;
+	    Background: #581;
+        Padding: 5;
+        Margin: 5;
+    }
+                    
+    TextBlock
+    {
+	    Foreground: #b3cde0;
+    }
 }
 .jumbo
 {
 	FontSize: 50;
     HorizontalAlignment: Center;
+                    
+    &amp;.important
+    {
+        Foreground: Red;
+    }
 }
 .important
 {
     FontWeight: Bold;
 }
-.jumbo.important
+Grid Grid 
 {
-    Foreground: Red;
-}
-Grid Grid TextBlock:nth-of-type(1)
-{
-	Grid.Row: 1;
-	Grid.Column: 1;
-	Text: #Binding Message;
-}
-Grid Grid TextBlock:nth-of-type(2)
-{
-	Grid.Row: 1;
-	Grid.Column: 0;
-	Text: #StaticResource testString;
+    TextBlock:nth-of-type(1)
+    {
+	    Grid.Row: 1;
+	    Grid.Column: 1;
+	    Text: #Binding Message;
+    }
+    TextBlock:nth-of-type(2)
+    {
+	    Grid.Row: 1;
+	    Grid.Column: 0;
+	    Text: #StaticResource testString;
+    }
 }
                 </css:StyleSheet.Content>
             </css:StyleSheet>
@@ -82,7 +89,7 @@ Grid Grid TextBlock:nth-of-type(2)
           >
         <StackPanel Name="stack">
             <StackPanel Name="thestack2" cssUWP:Css.Class="container">
-                <TextBlock Name="thetextblock" cssUWP:Css.Class="jumbo">Hello World</TextBlock>
+                <TextBlock Name="thetextblock" cssUWP:Css.Class="jumbo" Text="Hello World"></TextBlock>
                 <Button Name="theinnerbutton" Click="Button_Click_1">Inner Button</Button>
             </StackPanel>
             <Grid>
