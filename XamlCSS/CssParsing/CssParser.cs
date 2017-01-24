@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -21,7 +20,7 @@ namespace XamlCSS.CssParsing
 
             var currentNode = doc;
 
-            var tokens = Tokenize(cssDocument).ToList();
+            var tokens = Tokenizer.Tokenize(cssDocument).ToList();
 
             for (var i = 0; i < tokens.Count; i++)
             {
@@ -293,7 +292,7 @@ namespace XamlCSS.CssParsing
                         }
                         else if (currentNode.Type == CssNodeType.Key)
                         {
-                            var nextToken = NextTokenOfTypes(tokens, i, new[] { CssTokenType.Semicolon, CssTokenType.DoubleQuotes, CssTokenType.BraceOpen });
+                            var nextToken = FirstTokenTypeOf(tokens, i, new[] { CssTokenType.Semicolon, CssTokenType.DoubleQuotes, CssTokenType.BraceOpen });
 
                             // normal value
                             if (nextToken == CssTokenType.Semicolon ||
@@ -836,152 +835,6 @@ namespace XamlCSS.CssParsing
             return fromParents.Concat(new[] { selectors });
         }
 
-        internal static IEnumerable<CssToken> Tokenize(string cssDocument)
-        {
-            var rawTokens = cssDocument.Split(new[] { ' ', '\t', '\n', '\r' })
-                .SelectMany(x => new[] { " ", x })
-                .ToList();
-
-            rawTokens = rawTokens
-                .Select(x => x == "" ? " " : x)
-                .ToList();
-
-            var strs2 = new List<string>(rawTokens.Count);
-
-            var prevousWasWhitespace = false;
-            for (var i = 0; i < rawTokens.Count; i++)
-            {
-                var isWhitespace = string.IsNullOrWhiteSpace(rawTokens[i]);
-                if (isWhitespace == false)
-                    strs2.Add(rawTokens[i]);
-                if (isWhitespace &&
-                    prevousWasWhitespace == false)
-                {
-                    strs2.Add(rawTokens[i]);
-                }
-                prevousWasWhitespace = isWhitespace;
-            }
-            rawTokens = strs2.ToList();
-
-            rawTokens = rawTokens
-                .SplitThem('.')
-                .SplitThem(';')
-                .SplitThem('|')
-                .SplitThem('>')
-                .SplitThem('<')
-                .SplitThem('@')
-                .SplitThem('"')
-                .SplitThem('\'')
-                .SplitThem(':')
-                .SplitThem(',')
-                .SplitThem(')')
-                .SplitThem('(')
-                .SplitThem(' ')
-                .SplitThem('#')
-                .SplitThem('{')
-                .SplitThem('}')
-                .SplitThem('\\')
-                .SplitThem('$')
-                .ToList();
-
-            var strsIndex = 0;
-
-            var tokens = new List<CssToken>();
-
-            string c;
-            while (strsIndex < rawTokens.Count)
-            {
-                c = rawTokens[strsIndex++];
-                CssToken t;
-
-                if (c == "@")
-                {
-                    t = new CssToken(CssTokenType.At, c);
-                }
-                else if (c == "{")
-                {
-                    t = new CssToken(CssTokenType.BraceOpen, c);
-                }
-                else if (c == "}")
-                {
-                    t = new CssToken(CssTokenType.BraceClose, c);
-                }
-                else if (c == ";")
-                {
-                    t = new CssToken(CssTokenType.Semicolon, c);
-                }
-                else if (c == ",")
-                {
-                    t = new CssToken(CssTokenType.Comma, c);
-                }
-                else if (c == ":")
-                {
-                    t = new CssToken(CssTokenType.Colon, c);
-                }
-                else if (c == ".")
-                {
-                    t = new CssToken(CssTokenType.Dot, c);
-                }
-                else if (c == "<")
-                {
-                    t = new CssToken(CssTokenType.AngleBraketOpen, c);
-                }
-                else if (c == ">")
-                {
-                    t = new CssToken(CssTokenType.AngleBraketClose, c);
-                }
-                else if (c == "|")
-                {
-                    t = new CssToken(CssTokenType.Pipe, c);
-                }
-                else if (c == "\"")
-                {
-                    t = new CssToken(CssTokenType.DoubleQuotes, c);
-                }
-                else if (c == "'")
-                {
-                    t = new CssToken(CssTokenType.SingleQuotes, c);
-                }
-                else if (c == "(")
-                {
-                    t = new CssToken(CssTokenType.ParenthesisOpen, c);
-                }
-                else if (c == ")")
-                {
-                    t = new CssToken(CssTokenType.ParenthesisClose, c);
-                }
-                else if (c == "#")
-                {
-                    t = new CssToken(CssTokenType.Hash, c);
-                }
-                else if (c == "\\")
-                {
-                    t = new CssToken(CssTokenType.Backslash, c);
-                }
-                else if (
-                    c == " " ||
-                    c == "\t" ||
-                    c == "\r" ||
-                    c == "\n"
-                    )
-                {
-                    t = new CssToken(CssTokenType.Whitespace, c);
-                }
-                else if (c == "$")
-                {
-                    t = new CssToken(CssTokenType.Dollar, c);
-                }
-                else
-                {
-                    t = new CssToken(CssTokenType.Identifier, c);
-                }
-
-                tokens.Add(t);
-            }
-
-            return tokens;
-        }
-
         private static bool IsNextTokenOfType(List<CssToken> tokens, int index, CssTokenType type, bool ignoreWhitespace = true)
         {
             return IsNextTokenOfTypes(tokens, index, new[] { type }, ignoreWhitespace);
@@ -1020,7 +873,7 @@ namespace XamlCSS.CssParsing
             return false;
         }
 
-        private static CssTokenType NextTokenOfTypes(List<CssToken> tokens, int index, CssTokenType[] types, bool ignoreWhitespace = true)
+        private static CssTokenType FirstTokenTypeOf(List<CssToken> tokens, int index, CssTokenType[] types, bool ignoreWhitespace = true)
         {
             index++;
 
