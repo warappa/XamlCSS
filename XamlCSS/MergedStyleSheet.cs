@@ -1,25 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Linq;
 using XamlCSS.CssParsing;
 
 namespace XamlCSS
 {
-    public class MergedStyleSheet : StyleSheet
+    public class MergedStyleSheet : SingleStyleSheet
     {
         public MergedStyleSheet()
         {
         }
 
-        public MergedStyleSheet(StyleSheet styleSheet)
+        public MergedStyleSheet(SingleStyleSheet styleSheet)
         {
             this.Namespaces = styleSheet.Namespaces;
             this.Rules = styleSheet.Rules;
         }
 
-        protected List<StyleSheet> styleSheets = new List<StyleSheet>();
-        virtual public List<StyleSheet> StyleSheets
+        protected List<SingleStyleSheet> styleSheets = new List<SingleStyleSheet>();
+        virtual public List<SingleStyleSheet> StyleSheets
         {
             get
             {

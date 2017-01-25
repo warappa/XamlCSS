@@ -113,7 +113,7 @@ namespace XamlCSS.WPF
         {
             obj.SetValue(StyleProperty, value);
         }
-        public static void SetStyleSheet(DependencyObject obj, StyleSheet value)
+        public static void SetStyleSheet(DependencyObject obj, SingleStyleSheet value)
         {
             obj.SetValue(StyleSheetProperty, value);
         }
@@ -121,19 +121,19 @@ namespace XamlCSS.WPF
         public static readonly DependencyProperty StyleSheetProperty =
             DependencyProperty.RegisterAttached(
                 "StyleSheet",
-                typeof(StyleSheet),
+                typeof(SingleStyleSheet),
                 typeof(Css),
             new PropertyMetadata(null, Css.StyleSheetPropertyChanged));
         private static void StyleSheetPropertyChanged(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
             if (e.OldValue != null)
             {
-                (e.OldValue as StyleSheet).PropertyChanged -= StyleSheet_PropertyChanged;
+                (e.OldValue as SingleStyleSheet).PropertyChanged -= StyleSheet_PropertyChanged;
 
-                instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
+                instance.RemoveStyleResources(element, (SingleStyleSheet)e.OldValue);
             }
 
-            var newStyleSheet = (StyleSheet)e.NewValue;
+            var newStyleSheet = (SingleStyleSheet)e.NewValue;
 
             if (newStyleSheet == null)
             {
@@ -143,12 +143,12 @@ namespace XamlCSS.WPF
             newStyleSheet.PropertyChanged += StyleSheet_PropertyChanged;
             newStyleSheet.AttachedTo = element;
 
-            instance.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet, null);
+            instance.EnqueueRenderStyleSheet(element, e.NewValue as SingleStyleSheet, null);
         }
 
         private static void StyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var styleSheet = sender as StyleSheet;
+            var styleSheet = sender as SingleStyleSheet;
             var attachedTo = styleSheet.AttachedTo as FrameworkElement;
 
             instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);

@@ -1,65 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
 using System.Linq;
-using XamlCSS.CssParsing;
 
 namespace XamlCSS
 {
-    public class StyleSheet : INotifyPropertyChanged
+    public class StyleSheet : MergedStyleSheet
     {
-        public static readonly StyleSheet Empty = new StyleSheet();
+        protected List<SingleStyleSheet> GetParentStyleSheets(object from)
+        {
+            List<SingleStyleSheet> styleSheets = new List<SingleStyleSheet>();
 
-        protected List<CssNamespace> namespaces = new List<CssNamespace>();
-        virtual public List<CssNamespace> Namespaces
+            var current = GetParent(from);
+            while (current != null)
+            {
+                var styleSheet = GetStyleSheet(current);
+                if (styleSheet != null)
+                {
+                    styleSheets.Add(styleSheet);
+                }
+                current = GetParent(current);
+            }
+
+            return styleSheets;
+        }
+
+        override public List<SingleStyleSheet> StyleSheets
         {
             get
             {
-                return namespaces;
+                return styleSheets ?? (styleSheets = GetParentStyleSheets(AttachedTo).Reverse<SingleStyleSheet>().ToList());
             }
             set
             {
-                namespaces = value;
+                styleSheets = value;
+
+                combinedRules = null;
+                combinedNamespaces = null;
             }
         }
 
-        protected StyleRuleCollection rules = new StyleRuleCollection();
-        virtual public StyleRuleCollection Rules
+        override public object AttachedTo
         {
             get
             {
-                return rules;
+                return base.AttachedTo;
             }
             set
             {
-                rules = value;
+                base.AttachedTo = value;
+
+                styleSheets = null;
+                combinedRules = null;
+                combinedNamespaces = null;
             }
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        virtual public object AttachedTo { get; set; }
-
-        private string content = null;
-
-        public string Content
-        {
-            get
-            {
-                return content;
-            }
-            set
-            {
-                content = value;
-                var sheet = CssParser.Parse(content);
-                this.Namespaces = sheet.Namespaces;
-                this.Rules = sheet.Rules;
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
-            }
-        }
-
-        public static Func<object, object> GetParent { get; internal set; }
-        public static Func<object, StyleSheet> GetStyleSheet { get; internal set; }
     }
 }

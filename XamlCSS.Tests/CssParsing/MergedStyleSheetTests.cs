@@ -38,7 +38,7 @@ namespace XamlCSS.Tests.CssParsing
             mergedStyleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("Padding");
             mergedStyleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("15, 15, 15, 15");
 
-            mergedStyleSheet.StyleSheets = new List<StyleSheet>(new[] { styleSheetA, styleSheetB });
+            mergedStyleSheet.StyleSheets = new List<SingleStyleSheet>(new[] { styleSheetA, styleSheetB });
 
             mergedStyleSheet.Rules.Count.Should().Be(1);
             mergedStyleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
@@ -68,7 +68,7 @@ namespace XamlCSS.Tests.CssParsing
             mergedStyleSheet.Namespaces[0].Alias.Should().Be("thirdAlias");
             mergedStyleSheet.Namespaces[0].Namespace.Should().Be("mergedStyleSheet");
 
-            mergedStyleSheet.StyleSheets = new List<StyleSheet>(new[] { styleSheetA, styleSheetB });
+            mergedStyleSheet.StyleSheets = new List<SingleStyleSheet>(new[] { styleSheetA, styleSheetB });
 
             mergedStyleSheet.Rules.Count.Should().Be(0);
             mergedStyleSheet.Namespaces[0].Alias.Should().Be("alias");
@@ -99,7 +99,7 @@ namespace XamlCSS.Tests.CssParsing
     BackgroundColor: White;
 }");
 
-            var mergedStyleSheet = new HierarchalMergedStyleSheet()
+            var mergedStyleSheet = new StyleSheet()
             {
                 Content = @"
 .header
@@ -109,7 +109,7 @@ namespace XamlCSS.Tests.CssParsing
 "
             };
 
-            StyleSheet.GetParent = (obj) =>
+            SingleStyleSheet.GetParent = (obj) =>
             {
                 if (obj == currentNode)
                 {
@@ -123,7 +123,7 @@ namespace XamlCSS.Tests.CssParsing
                 return null;
             };
 
-            StyleSheet.GetStyleSheet = (obj) =>
+            SingleStyleSheet.GetStyleSheet = (obj) =>
             {
                 if (obj == parentFirstLevel)
                 {
@@ -166,7 +166,7 @@ namespace XamlCSS.Tests.CssParsing
 
             var styleSheetB = CssParser.Parse(@"@namespace alias ""styleSheetB"";");
 
-            StyleSheet.GetParent = (obj) =>
+            SingleStyleSheet.GetParent = (obj) =>
             {
                 if (obj == currentNode)
                 {
@@ -180,7 +180,7 @@ namespace XamlCSS.Tests.CssParsing
                 return null;
             };
 
-            StyleSheet.GetStyleSheet = (obj) =>
+            SingleStyleSheet.GetStyleSheet = (obj) =>
             {
                 if (obj == parentFirstLevel)
                 {
@@ -194,7 +194,7 @@ namespace XamlCSS.Tests.CssParsing
                 return null;
             };
 
-            var mergedStyleSheet = new HierarchalMergedStyleSheet()
+            var mergedStyleSheet = new StyleSheet()
             {
                 Content = @"@namespace thirdAlias ""mergedStyleSheet"";"
             };

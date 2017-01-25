@@ -441,11 +441,11 @@ namespace XamlCSS.CssParsing
             return doc;
         }
 
-        public static StyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
+        public static SingleStyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
         {
             var ast = GetAst(cssDocument);
 
-            var styleSheet = new StyleSheet();
+            var styleSheet = new SingleStyleSheet();
 
             styleSheet.Namespaces = ast.Children.Where(x => x.Type == CssNodeType.NamespaceDeclaration)
                     .Select(x => new CssNamespace(

@@ -15,8 +15,8 @@
     cssWPF:Css.StyleSheet="{StaticResource appStyleSheet}">
     <Window.Resources>
         <ResourceDictionary>
-            <css:HierachalMergedStyleSheet x:Key="InternalStyle">
-                <css:HierachalMergedStyleSheet.Content>
+            <css:StyleSheet x:Key="InternalStyle">
+                <css:StyleSheet.Content>
                     Button
 {
     Width: 100;
@@ -77,8 +77,8 @@ Grid Grid TextBlock:nth-of-type(2)
 	Grid.Column: 0;
 	Text: {StaticResource testString};
 }
-                </css:HierachalMergedStyleSheet.Content>
-            </css:HierachalMergedStyleSheet>
+                </css:StyleSheet.Content>
+            </css:StyleSheet>
         </ResourceDictionary>
     </Window.Resources>
     <Grid x:Name="thegrid"
