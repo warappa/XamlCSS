@@ -3,9 +3,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:XamlCSS.WPF.TestApp"
 			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:css="clr-namespace:XamlCSS;assembly=XamlCSS"
+             xmlns:cssWPF="clr-namespace:XamlCSS.WPF;assembly=XamlCSS.WPF"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
         <sys:String x:Key="AppStaticResource">App Static Resource</sys:String>
         <sys:String x:Key="testString">Hello World from StaticResource!</sys:String>
+        <css:StyleSheet x:Key="appStyleSheet">
+            <css:StyleSheet.Content>
+                Button
+            {
+                FontStyle: Italic;
+            }
+            </css:StyleSheet.Content>
+        </css:StyleSheet>
     </Application.Resources>
 </Application>

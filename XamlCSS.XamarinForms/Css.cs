@@ -107,12 +107,12 @@ namespace XamlCSS.XamarinForms
             initialized = true;
         }
 
-        public static void EnqueueRenderStyleSheet(Element styleSheetHolder, StyleSheet styleSheet, Element startFrom)
+        public static void EnqueueRenderStyleSheet(Element styleSheetHolder, SingleStyleSheet styleSheet, Element startFrom)
         {
             instance.EnqueueRenderStyleSheet(styleSheetHolder, styleSheet, startFrom as Element);
         }
 
-        public static void EnqueueRemoveStyleSheet(Element styleSheetHolder, StyleSheet styleSheet, Element startFrom)
+        public static void EnqueueRemoveStyleSheet(Element styleSheetHolder, SingleStyleSheet styleSheet, Element startFrom)
         {
             instance.EnqueueRemoveStyleSheet(styleSheetHolder, styleSheet, startFrom as Element);
         }
@@ -218,18 +218,18 @@ namespace XamlCSS.XamarinForms
         public static readonly BindableProperty StyleSheetProperty =
             BindableProperty.CreateAttached(
                 "StyleSheet",
-                typeof(StyleSheet),
+                typeof(SingleStyleSheet),
                 typeof(Css),
                 null,
                 BindingMode.TwoWay,
                 null,
                 Css.StyleSheetPropertyChanged
                 );
-        public static StyleSheet GetStyleSheet(BindableObject obj)
+        public static SingleStyleSheet GetStyleSheet(BindableObject obj)
         {
-            return obj.GetValue(StyleSheetProperty) as StyleSheet;
+            return obj.GetValue(StyleSheetProperty) as SingleStyleSheet;
         }
-        public static void SetStyleSheet(BindableObject obj, StyleSheet value)
+        public static void SetStyleSheet(BindableObject obj, SingleStyleSheet value)
         {
             obj.SetValue(StyleSheetProperty, value);
         }
@@ -306,14 +306,14 @@ namespace XamlCSS.XamarinForms
 
             if (oldValue != null)
             {
-                var oldStyleSheet = oldValue as StyleSheet;
+                var oldStyleSheet = oldValue as SingleStyleSheet;
                 oldStyleSheet.PropertyChanged -= StyleSheet_PropertyChanged;
                 oldStyleSheet.AttachedTo = null;
 
-                instance.RemoveStyleResources(element, (StyleSheet)oldValue);
+                instance.RemoveStyleResources(element, (SingleStyleSheet)oldValue);
             }
 
-            var newStyleSheet = (StyleSheet)newValue;
+            var newStyleSheet = (SingleStyleSheet)newValue;
 
             if (newStyleSheet == null)
             {
@@ -328,7 +328,7 @@ namespace XamlCSS.XamarinForms
 
         private static void StyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var styleSheet = sender as StyleSheet;
+            var styleSheet = sender as SingleStyleSheet;
             var attachedTo = styleSheet.AttachedTo as Element;
 
             instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);

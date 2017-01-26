@@ -11,12 +11,13 @@
 		xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}"
-        Title="MainWindow" Height="350" Width="525">
-	<Window.Resources>
-		<ResourceDictionary>
+        Title="MainWindow" Height="350" Width="525"
+    cssWPF:Css.StyleSheet="{StaticResource appStyleSheet}">
+    <Window.Resources>
+        <ResourceDictionary>
             <css:StyleSheet x:Key="InternalStyle">
                 <css:StyleSheet.Content>
-Button
+                    Button
 {
     Width: 100;
 }
@@ -78,30 +79,30 @@ Grid Grid TextBlock:nth-of-type(2)
 }
                 </css:StyleSheet.Content>
             </css:StyleSheet>
-		</ResourceDictionary>
-	</Window.Resources>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid x:Name="thegrid"
           cssWPF:Css.StyleSheet="{DynamicResource InternalStyle}"
           >
-		<StackPanel x:Name="stack">
-			<StackPanel cssWPF:Css.Class="container">
+        <StackPanel x:Name="stack">
+            <StackPanel cssWPF:Css.Class="container">
                 <TextBlock Name="thetextblock" cssWPF:Css.Class="jumbo">Hello World</TextBlock>
                 <Button Click="Button_Click_1">Add Content</Button>
-			</StackPanel>
-			<Grid>
-				<Grid.RowDefinitions>
-					<RowDefinition Height="1*" />
-					<RowDefinition Height="1*" />
-				</Grid.RowDefinitions>
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition Width="1*" />
-					<ColumnDefinition Width="1*" />
-				</Grid.ColumnDefinitions>
-				<TextBlock></TextBlock>
-				<TextBlock></TextBlock>
+            </StackPanel>
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*" />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
                 <TextBlock></TextBlock>
-			</Grid>
+                <TextBlock></TextBlock>
+                <TextBlock></TextBlock>
+            </Grid>
             <Button Name="thebutton" Click="Button_Click">Change Style</Button>
         </StackPanel>
-	</Grid>
+    </Grid>
 </Window>

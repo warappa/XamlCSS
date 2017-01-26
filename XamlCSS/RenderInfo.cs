@@ -8,7 +8,7 @@ namespace XamlCSS
         where TUIElement : class, TDependencyObject
     {
         public TUIElement StyleSheetHolder { get; set; }
-        public StyleSheet StyleSheet { get; set; }
+        public SingleStyleSheet StyleSheet { get; set; }
         public TUIElement StartFrom { get; set; }
         public bool Remove { get; set; }
 

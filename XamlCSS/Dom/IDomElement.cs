@@ -6,7 +6,7 @@ namespace XamlCSS.Dom
 	public interface IDomElement<TDependencyObject> : IElement
 	{
 		TDependencyObject Element { get; }
-		List<StyleSheet> XamlCssStyleSheets { get; }
+		List<SingleStyleSheet> XamlCssStyleSheets { get; }
 		IElement QuerySelectorWithSelf(string selectors);
 		IHtmlCollection<IElement> QuerySelectorAllWithSelf(string selectors);
 	}

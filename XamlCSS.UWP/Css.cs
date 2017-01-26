@@ -149,16 +149,16 @@ namespace XamlCSS.UWP
         }
 
         public static readonly DependencyProperty StyleSheetProperty =
-            DependencyProperty.RegisterAttached("StyleSheet", typeof(StyleSheet),
+            DependencyProperty.RegisterAttached("StyleSheet", typeof(SingleStyleSheet),
             typeof(Css), new PropertyMetadata(null, StyleSheetPropertyChanged));
-        public static StyleSheet GetStyleSheet(DependencyObject obj)
+        public static SingleStyleSheet GetStyleSheet(DependencyObject obj)
         {
             var read = obj.ReadLocalValue(StyleSheetProperty);
             if (read is BindingExpression)
                 read = obj.GetValue(StyleSheetProperty);
-            return read as StyleSheet;
+            return read as SingleStyleSheet;
         }
-        public static void SetStyleSheet(DependencyObject obj, StyleSheet value)
+        public static void SetStyleSheet(DependencyObject obj, SingleStyleSheet value)
         {
             obj.SetValue(StyleSheetProperty, value ?? DependencyProperty.UnsetValue);
         }
@@ -225,14 +225,14 @@ namespace XamlCSS.UWP
             
             if (e.OldValue != null)
             {
-                var oldStyleSheet = e.OldValue as StyleSheet;
+                var oldStyleSheet = e.OldValue as SingleStyleSheet;
                 oldStyleSheet.PropertyChanged -= NewStyleSheet_PropertyChanged;
                 oldStyleSheet.AttachedTo = null;
 
                 instance.RemoveStyleResources(element, oldStyleSheet);
             }
 
-            var newStyleSheet = (StyleSheet)e.NewValue;
+            var newStyleSheet = (SingleStyleSheet)e.NewValue;
 
             if (newStyleSheet == null)
             {
@@ -247,7 +247,7 @@ namespace XamlCSS.UWP
 
         private static void NewStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var styleSheet = sender as StyleSheet;
+            var styleSheet = sender as SingleStyleSheet;
             var attachedTo = styleSheet.AttachedTo as FrameworkElement;
 
             instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);
