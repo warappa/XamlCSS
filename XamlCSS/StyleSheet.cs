@@ -1,37 +1,56 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
-using XamlCSS.CssParsing;
+using System.Linq;
 
 namespace XamlCSS
 {
-    public class StyleSheet : INotifyPropertyChanged
+    public class StyleSheet : MergedStyleSheet
     {
-        public static readonly StyleSheet Empty = new StyleSheet();
+        protected List<SingleStyleSheet> GetParentStyleSheets(object from)
+        {
+            List<SingleStyleSheet> styleSheets = new List<SingleStyleSheet>();
 
-        public List<CssNamespace> Namespaces { get; set; } = new List<CssNamespace>();
+            var current = GetParent(from);
+            while (current != null)
+            {
+                var styleSheet = GetStyleSheet(current);
+                if (styleSheet != null)
+                {
+                    styleSheets.Add(styleSheet);
+                }
+                current = GetParent(current);
+            }
 
-        public StyleRuleCollection Rules { get; set; } = new StyleRuleCollection();
-        
-        public event PropertyChangedEventHandler PropertyChanged;
+            return styleSheets;
+        }
 
-        public object AttachedTo { get; set; }
-
-        private string content = null;
-
-        public string Content
+        override public List<SingleStyleSheet> StyleSheets
         {
             get
             {
-                return content;
+                return styleSheets ?? (styleSheets = GetParentStyleSheets(AttachedTo).Reverse<SingleStyleSheet>().ToList());
             }
             set
             {
-                content = value;
-                var sheet = CssParser.Parse(content);
-                this.Namespaces = sheet.Namespaces;
-                this.Rules = sheet.Rules;
+                styleSheets = value;
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
+                combinedRules = null;
+                combinedNamespaces = null;
+            }
+        }
+
+        override public object AttachedTo
+        {
+            get
+            {
+                return base.AttachedTo;
+            }
+            set
+            {
+                base.AttachedTo = value;
+
+                styleSheets = null;
+                combinedRules = null;
+                combinedNamespaces = null;
             }
         }
     }

@@ -11,10 +11,10 @@
 		xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525"
+    cssWPF:Css.StyleSheet="{StaticResource appStyleSheet}">
     <Window.Resources>
         <ResourceDictionary>
-            <sys:String x:Key="testString">Hello World from DynamicResource!</sys:String>
             <css:StyleSheet x:Key="InternalStyle">
                 <css:StyleSheet.Content>
                     Button

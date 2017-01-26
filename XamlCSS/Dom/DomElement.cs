@@ -83,7 +83,7 @@ namespace XamlCSS.Dom
 
         private static readonly CachedSelectorProvider cachedSelectorProvider = new CachedSelectorProvider();
 
-        public List<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
+        public List<SingleStyleSheet> XamlCssStyleSheets { get; protected set; } = new List<SingleStyleSheet>();
 
         protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
         protected readonly static char[] classSplitter = { ' ' };

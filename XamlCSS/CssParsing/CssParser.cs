@@ -602,11 +602,11 @@ namespace XamlCSS.CssParsing
             return doc;
         }
 
-        public static StyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
+        public static SingleStyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
         {
             var ast = GetAst(cssDocument);
 
-            var styleSheet = new StyleSheet();
+            var styleSheet = new SingleStyleSheet();
 
             styleSheet.Namespaces = ast.Children.Where(x => x.Type == CssNodeType.NamespaceDeclaration)
                     .Select(x => new CssNamespace(
@@ -719,7 +719,7 @@ namespace XamlCSS.CssParsing
             throw new InvalidOperationException($"Variable {variableName} not found!");
         }
 
-        private static void GetStyleRules(StyleSheet styleSheet, CssNode astRule)
+        private static void GetStyleRules(SingleStyleSheet styleSheet, CssNode astRule)
         {
             var astStyleDeclarationBlock = astRule.Children
                    .Single(x => x.Type == CssNodeType.StyleDeclarationBlock);
@@ -795,7 +795,7 @@ namespace XamlCSS.CssParsing
                             .ToList();
         }
 
-        private static void ResolveSubRules(StyleSheet styleSheet, CssNode astStyleDeclarationBlock)
+        private static void ResolveSubRules(SingleStyleSheet styleSheet, CssNode astStyleDeclarationBlock)
         {
             var subRuleAsts = astStyleDeclarationBlock.Children
                 .Where(x => x.Type == CssNodeType.StyleRule)
