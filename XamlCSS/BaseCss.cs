@@ -38,8 +38,8 @@ namespace XamlCSS
             this.uiInvoker = uiInvoker;
 
             CssParser.Initialize(defaultCssNamespace);
-            SingleStyleSheet.GetParent = parent => treeNodeProvider.GetParent((TDependencyObject)parent);
-            SingleStyleSheet.GetStyleSheet = treeNode => dependencyPropertyService.GetStyleSheet((TDependencyObject)treeNode);
+            StyleSheet.GetParent = parent => treeNodeProvider.GetParent((TDependencyObject)parent);
+            StyleSheet.GetStyleSheet = treeNode => dependencyPropertyService.GetStyleSheet((TDependencyObject)treeNode);
         }
 
         protected bool executeApplyStylesExecuting;
@@ -100,7 +100,7 @@ namespace XamlCSS
             }
         }
 
-        public void EnqueueRenderStyleSheet(TUIElement styleSheetHolder, SingleStyleSheet styleSheet, TUIElement startFrom)
+        public void EnqueueRenderStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
             if (styleSheetHolder == null ||
                 styleSheet == null)
@@ -120,7 +120,7 @@ namespace XamlCSS
             }
         }
 
-        public void EnqueueRemoveStyleSheet(TUIElement styleSheetHolder, SingleStyleSheet styleSheet, TUIElement startFrom)
+        public void EnqueueRemoveStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
             if (styleSheetHolder == null ||
                 styleSheet == null)
@@ -186,7 +186,7 @@ namespace XamlCSS
             }
         }
 
-        protected void CalculateStylesInternal(TUIElement styleResourceReferenceHolder, SingleStyleSheet styleSheet, TUIElement startFrom)
+        protected void CalculateStylesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
             if (styleResourceReferenceHolder == null ||
                 styleSheet == null)
@@ -203,7 +203,7 @@ namespace XamlCSS
             GenerateStyles(styleResourceReferenceHolder, styleSheet, startFrom, requiredStyleInfos);
         }
 
-        private void GenerateStyles(TUIElement styleResourceReferenceHolder, SingleStyleSheet styleSheet, TUIElement startFrom, List<StyleMatchInfo> styleMatchInfos)
+        private void GenerateStyles(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom, List<StyleMatchInfo> styleMatchInfos)
         {
             applicationResourcesService.EnsureResources();
 
@@ -240,7 +240,7 @@ namespace XamlCSS
             public StyleRule Rule { get; set; }
             public Type MatchedType { get; set; }
         }
-        private List<StyleMatchInfo> UpdateMatchingStyles(TUIElement styleResourceReferenceHolder, SingleStyleSheet styleSheet, TUIElement startFrom)
+        private List<StyleMatchInfo> UpdateMatchingStyles(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
             var requiredStyleInfos = new List<StyleMatchInfo>();
             IDomElement<TDependencyObject> root = null;
@@ -412,11 +412,11 @@ namespace XamlCSS
             return propertyStyleValues;
         }
 
-        public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, SingleStyleSheet styleSheet)
+        public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
         {
             EnqueueRemoveStyleSheet(styleResourceReferenceHolder, styleSheet, null);
         }
-        protected void RemoveStyleResourcesInternal(TUIElement styleResourceReferenceHolder, SingleStyleSheet styleSheet)
+        protected void RemoveStyleResourcesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
         {
             // Debug.WriteLine("----------------");
             // Debug.WriteLine("RemoveStyleResourcesInternal");

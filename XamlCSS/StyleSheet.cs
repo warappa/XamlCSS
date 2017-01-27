@@ -1,13 +1,150 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using XamlCSS.CssParsing;
 
 namespace XamlCSS
 {
-    public class StyleSheet : MergedStyleSheet
+    public class StyleSheet : INotifyPropertyChanged
     {
-        protected List<SingleStyleSheet> GetParentStyleSheets(object from)
+        public static readonly StyleSheet Empty = new StyleSheet();
+
+        public static Func<object, object> GetParent { get; internal set; }
+        public static Func<object, StyleSheet> GetStyleSheet { get; internal set; }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected List<CssNamespace> combinedNamespaces;
+        protected StyleRuleCollection combinedRules;
+        protected List<CssNamespace> localNamespaces = new List<CssNamespace>();
+        protected StyleRuleCollection localRules = new StyleRuleCollection();
+        protected List<StyleSheet> addedStyleSheets = null;
+        protected bool inheritStyleSheets = true;
+        protected List<StyleSheet> inheritedStyleSheets = null;
+        protected string content = null;
+        protected object attachedTo;
+
+        virtual public List<CssNamespace> LocalNamespaces
         {
-            List<SingleStyleSheet> styleSheets = new List<SingleStyleSheet>();
+            get
+            {
+                return localNamespaces;
+            }
+            set
+            {
+                localNamespaces = value;
+            }
+        }
+
+        virtual public StyleRuleCollection LocalRules
+        {
+            get
+            {
+                return localRules;
+            }
+            set
+            {
+                localRules = value;
+            }
+        }
+
+        virtual public string Content
+        {
+            get
+            {
+                return content;
+            }
+            set
+            {
+                content = value;
+
+                Reset();
+
+                var sheet = CssParser.Parse(content);
+                this.LocalNamespaces = sheet.LocalNamespaces;
+                this.LocalRules = sheet.LocalRules;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
+            }
+        }
+
+        public object AttachedTo
+        {
+            get
+            {
+                return attachedTo;
+            }
+            set
+            {
+                attachedTo = value;
+
+                inheritedStyleSheets = null;
+
+                Reset();
+            }
+        }
+
+        public bool InheritStyleSheets
+        {
+            get { return inheritStyleSheets; }
+            set
+            {
+                inheritStyleSheets = value;
+
+                inheritedStyleSheets = null;
+
+                Reset();
+            }
+        }
+
+        public List<CssNamespace> Namespaces
+        {
+            get
+            {
+                return combinedNamespaces ?? (combinedNamespaces = GetCombinedNamespaces());
+            }
+        }
+
+        public StyleRuleCollection Rules
+        {
+            get
+            {
+                return combinedRules ?? (combinedRules = new StyleRuleCollection(GetCombinedStyleRules()));
+            }
+        }
+
+        public List<StyleSheet> AddedStyleSheets
+        {
+            get
+            {
+                return addedStyleSheets ?? (addedStyleSheets = new List<StyleSheet>());
+            }
+
+            set
+            {
+                addedStyleSheets = value;
+
+                Reset();
+            }
+        }
+
+        public List<StyleSheet> InheritedStyleSheets
+        {
+            get
+            {
+                return inheritedStyleSheets ?? (inheritedStyleSheets = InheritStyleSheets ? GetParentStyleSheets(AttachedTo).Reverse<StyleSheet>().ToList() : new List<StyleSheet>());
+            }
+        }
+
+        protected List<StyleSheet> GetParentStyleSheets(object from)
+        {
+            List<StyleSheet> styleSheets = new List<StyleSheet>();
+
+            if (from == null)
+            {
+                return styleSheets;
+            }
 
             var current = GetParent(from);
             while (current != null)
@@ -23,35 +160,61 @@ namespace XamlCSS
             return styleSheets;
         }
 
-        override public List<SingleStyleSheet> StyleSheets
+        protected List<CssNamespace> GetCombinedNamespaces()
         {
-            get
+            if (AddedStyleSheets?.Count == 0 &&
+                InheritedStyleSheets?.Count == 0)
             {
-                return styleSheets ?? (styleSheets = GetParentStyleSheets(AttachedTo).Reverse<SingleStyleSheet>().ToList());
+                return LocalNamespaces;
             }
-            set
-            {
-                styleSheets = value;
 
-                combinedRules = null;
-                combinedNamespaces = null;
-            }
+            return InheritedStyleSheets
+                .Select(x => x.Namespaces)
+                .Concat(AddedStyleSheets.Select(x => x.Namespaces))
+                .Aggregate((a, b) => a.Concat(b).ToList())
+                .Concat(LocalNamespaces)
+                .GroupBy(x => x.Alias)
+                .Select(x => x.Last())
+                .ToList();
         }
 
-        override public object AttachedTo
+        protected List<StyleRule> GetCombinedStyleRules()
         {
-            get
+            if (AddedStyleSheets?.Count == 0 &&
+                InheritedStyleSheets?.Count == 0)
             {
-                return base.AttachedTo;
+                return LocalRules;
             }
-            set
-            {
-                base.AttachedTo = value;
 
-                styleSheets = null;
-                combinedRules = null;
-                combinedNamespaces = null;
-            }
+            return InheritedStyleSheets
+                    .Select(x => x.Rules.ToList())
+                    .Concat(AddedStyleSheets.Select(x => x.Rules.ToList()))
+                    .Aggregate((a, b) => a.Concat(b).ToList())
+                    .Concat(LocalRules)
+                    .GroupBy(x => x.SelectorString)
+                    .Select(x => new StyleRule
+                    {
+                        SelectorString = x.Key,
+                        Selectors = x.First().Selectors,
+                        SelectorType = x.First().SelectorType,
+                        DeclarationBlock = new StyleDeclarationBlock(GetMergedStyleDeclarations(x.ToList()))
+                    })
+                    .ToList();
+        }
+
+        protected List<StyleDeclaration> GetMergedStyleDeclarations(List<StyleRule> styleRules)
+        {
+            return styleRules
+                .SelectMany(x => x.DeclarationBlock.ToList())
+                .GroupBy(x => x.Property)
+                .Select(x => x.Last())
+                .ToList();
+        }
+
+        protected void Reset()
+        {
+            combinedRules = null;
+            combinedNamespaces = null;
         }
     }
 }

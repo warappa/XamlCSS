@@ -602,27 +602,29 @@ namespace XamlCSS.CssParsing
             return doc;
         }
 
-        public static SingleStyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
+        public static StyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
         {
             var ast = GetAst(cssDocument);
 
-            var styleSheet = new SingleStyleSheet();
+            var styleSheet = new StyleSheet();
 
-            styleSheet.Namespaces = ast.Children.Where(x => x.Type == CssNodeType.NamespaceDeclaration)
+            var localNamespaces = ast.Children.Where(x => x.Type == CssNodeType.NamespaceDeclaration)
                     .Select(x => new CssNamespace(
                         x.Children.First(y => y.Type == CssNodeType.NamespaceAlias).TextBuilder.ToString().Trim(),
                         x.Children.First(y => y.Type == CssNodeType.NamespaceValue).TextBuilder.ToString().Trim('"')))
                     .ToList();
+
+            styleSheet.LocalNamespaces.AddRange(localNamespaces);
 
             if (string.IsNullOrEmpty(defaultCssNamespace) == true)
             {
                 defaultCssNamespace = CssParser.defaultCssNamespace;
             }
 
-            if (styleSheet.Namespaces.Any(x => x.Alias == "") == false &&
+            if (styleSheet.LocalNamespaces.Any(x => x.Alias == "") == false &&
                 string.IsNullOrEmpty(defaultCssNamespace) == false)
             {
-                styleSheet.Namespaces.Add(new CssNamespace("", defaultCssNamespace));
+                styleSheet.LocalNamespaces.Add(new CssNamespace("", defaultCssNamespace));
             }
 
             var styleRules = ast.Children
@@ -634,7 +636,7 @@ namespace XamlCSS.CssParsing
                 GetStyleRules(styleSheet, astRule);
             }
 
-            var splitAndOrderedRules = styleSheet.Rules
+            var splitAndOrderedRules = styleSheet.LocalRules
                 .SelectMany(rule =>
                 {
                     return rule.Selectors.Select(selector =>
@@ -653,8 +655,8 @@ namespace XamlCSS.CssParsing
                 .ThenBy(x => x.Selectors[0].SimpleSpecificity)
                 .ToList();
 
-            styleSheet.Rules.Clear();
-            styleSheet.Rules.AddRange(splitAndOrderedRules);
+            styleSheet.LocalRules.Clear();
+            styleSheet.LocalRules.AddRange(splitAndOrderedRules);
 
             return styleSheet;
         }
@@ -719,7 +721,7 @@ namespace XamlCSS.CssParsing
             throw new InvalidOperationException($"Variable {variableName} not found!");
         }
 
-        private static void GetStyleRules(SingleStyleSheet styleSheet, CssNode astRule)
+        private static void GetStyleRules(StyleSheet styleSheet, CssNode astRule)
         {
             var astStyleDeclarationBlock = astRule.Children
                    .Single(x => x.Type == CssNodeType.StyleDeclarationBlock);
@@ -769,7 +771,7 @@ namespace XamlCSS.CssParsing
                 rule.SelectorString = string.Join(",", rule.Selectors.Select(x => x.Value));
 
                 rule.DeclarationBlock.AddRange(styleDeclarations);
-                styleSheet.Rules.Add(rule);
+                styleSheet.LocalRules.Add(rule);
             }
 
             ResolveSubRules(styleSheet, astStyleDeclarationBlock);
@@ -795,7 +797,7 @@ namespace XamlCSS.CssParsing
                             .ToList();
         }
 
-        private static void ResolveSubRules(SingleStyleSheet styleSheet, CssNode astStyleDeclarationBlock)
+        private static void ResolveSubRules(StyleSheet styleSheet, CssNode astStyleDeclarationBlock)
         {
             var subRuleAsts = astStyleDeclarationBlock.Children
                 .Where(x => x.Type == CssNodeType.StyleRule)

@@ -101,7 +101,7 @@ namespace XamlCSS.XamarinForms
 			return Css.GetStyle(obj);
 		}
 
-		public SingleStyleSheet GetStyleSheet(BindableObject obj)
+		public StyleSheet GetStyleSheet(BindableObject obj)
 		{
 			return Css.GetStyleSheet(obj);
 		}
@@ -146,7 +146,7 @@ namespace XamlCSS.XamarinForms
 			Css.SetStyle(obj, value);
 		}
 
-		public void SetStyleSheet(BindableObject obj, SingleStyleSheet value)
+		public void SetStyleSheet(BindableObject obj, StyleSheet value)
 		{
 			Css.SetStyleSheet(obj, value);
 		}

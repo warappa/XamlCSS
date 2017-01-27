@@ -34,8 +34,8 @@ namespace XamlCSS
 		StyleDeclarationBlock GetStyle(TDependencyObject obj);
 		void SetStyle(TDependencyObject obj, StyleDeclarationBlock value);
 
-		SingleStyleSheet GetStyleSheet(TDependencyObject obj);
-		void SetStyleSheet(TDependencyObject obj, SingleStyleSheet value);
+		StyleSheet GetStyleSheet(TDependencyObject obj);
+		void SetStyleSheet(TDependencyObject obj, StyleSheet value);
 
 		string GetClass(TDependencyObject obj);
 		void SetClass(TDependencyObject obj, string value);

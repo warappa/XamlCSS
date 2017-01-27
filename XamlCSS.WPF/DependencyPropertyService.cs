@@ -147,9 +147,9 @@ namespace XamlCSS.WPF
             return (StyleDeclarationBlock)ReadSafe(obj, Css.StyleProperty);
         }
 
-        public SingleStyleSheet GetStyleSheet(DependencyObject obj)
+        public StyleSheet GetStyleSheet(DependencyObject obj)
         {
-            return (SingleStyleSheet)ReadSafe(obj, Css.StyleSheetProperty);
+            return (StyleSheet)ReadSafe(obj, Css.StyleSheetProperty);
         }
 
         public bool GetHandledCss(DependencyObject obj)
@@ -197,7 +197,7 @@ namespace XamlCSS.WPF
             obj.SetValue(Css.StyleProperty, value);
         }
 
-        public void SetStyleSheet(DependencyObject obj, SingleStyleSheet value)
+        public void SetStyleSheet(DependencyObject obj, StyleSheet value)
         {
             obj.SetValue(Css.StyleSheetProperty, value);
         }

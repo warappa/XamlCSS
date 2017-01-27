@@ -67,9 +67,9 @@ namespace XamlCSS.UWP
             return Css.GetStyle(obj) as StyleDeclarationBlock;
         }
 
-        public SingleStyleSheet GetStyleSheet(DependencyObject obj)
+        public StyleSheet GetStyleSheet(DependencyObject obj)
         {
-            return Css.GetStyleSheet(obj) as SingleStyleSheet;
+            return Css.GetStyleSheet(obj) as StyleSheet;
         }
 
         public void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
@@ -107,7 +107,7 @@ namespace XamlCSS.UWP
             Css.SetStyle(obj, value);
         }
 
-        public void SetStyleSheet(DependencyObject obj, SingleStyleSheet value)
+        public void SetStyleSheet(DependencyObject obj, StyleSheet value)
         {
             Css.SetStyleSheet(obj, value);
         }
