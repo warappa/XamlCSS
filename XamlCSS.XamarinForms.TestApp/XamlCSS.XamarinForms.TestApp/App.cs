@@ -11,6 +11,7 @@ namespace XamlCSS.XamarinForms.TestApp
 
             Resources = new ResourceDictionary();
             Resources.Add("testString", "Hello World from StaticResource!");
+            Resources.Add("appStyleSheet", new StyleSheet { Content = "Button { FontAttributes: Italic;}" });
             // The root page of your application
             MainPage = new MainPage();
         }

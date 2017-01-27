@@ -72,13 +72,13 @@ namespace XamlCSS
                 if (invalidateAllItem != null)
                 {
                     RemoveStyleResourcesInternal(invalidateAllItem.StyleSheetHolder, invalidateAllItem.StyleSheet);
-                    UnapplyMatchingStylesInternal(invalidateAllItem.StyleSheetHolder);
+                    UnapplyMatchingStylesInternal(invalidateAllItem.StyleSheetHolder, invalidateAllItem.StyleSheet);
                 }
                 else
                 {
                     foreach (var item in copy.Where(x => x.Remove).ToList())
                     {
-                        UnapplyMatchingStylesInternal(item.StartFrom);
+                        UnapplyMatchingStylesInternal(item.StartFrom, item.StyleSheet);
                     }
                 }
 
@@ -90,7 +90,7 @@ namespace XamlCSS
                     {
                         CalculateStylesInternal(item.StyleSheetHolder, item.StyleSheet, item.StartFrom);
 
-                        ApplyMatchingStyles(item.StartFrom ?? item.StyleSheetHolder);
+                        ApplyMatchingStyles(item.StartFrom ?? item.StyleSheetHolder, item.StyleSheet);
                     }
                 }
             }
@@ -196,7 +196,7 @@ namespace XamlCSS
 
             // PrintHerarchyDebugInfo(styleResourceReferenceHolder, startFrom);
 
-            UnapplyMatchingStylesInternal(startFrom ?? styleResourceReferenceHolder);
+            UnapplyMatchingStylesInternal(startFrom ?? styleResourceReferenceHolder, styleSheet);
 
             var requiredStyleInfos = UpdateMatchingStyles(styleResourceReferenceHolder, styleSheet, startFrom);
 
@@ -211,7 +211,7 @@ namespace XamlCSS
             {
                 var matchedElementType = styleMatchInfo.MatchedType;
 
-                var resourceKey = nativeStyleService.GetStyleResourceKey(matchedElementType, styleMatchInfo.Rule.SelectorString);
+                var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id, matchedElementType, styleMatchInfo.Rule.SelectorString);
 
                 if (applicationResourcesService.Contains(resourceKey))
                 {
@@ -279,6 +279,15 @@ namespace XamlCSS
                     .Cast<IDomElement<TDependencyObject>>()
                     .ToList();
 
+                var otherStyleElements = matchedNodes
+                    .Where(x =>
+                    {
+                        var s = dependencyPropertyService.GetStyleSheet(GetStyleSheetParent(x.Element));
+                        return s != null && s != styleSheet;
+                    }).ToList();
+
+                matchedNodes = matchedNodes.Except(otherStyleElements).ToList();
+
                 // Debug.WriteLine($"matchedNodes: ({matchedNodes.Count}) " + string.Join(", ", matchedNodes.Select(x => x.Id)));
 
                 var matchedElementTypes = matchedNodes
@@ -294,7 +303,7 @@ namespace XamlCSS
 
                     var matchingStyles = dependencyPropertyService.GetMatchingStyles(element) ?? new string[0];
 
-                    var resourceKey = nativeStyleService.GetStyleResourceKey(element.GetType(), rule.SelectorString);
+                    var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id, element.GetType(), rule.SelectorString);
 
                     dependencyPropertyService.SetMatchingStyles(element, matchingStyles.Concat(new[] { resourceKey }).Distinct().ToArray());
 
@@ -423,7 +432,7 @@ namespace XamlCSS
 
             var resourceKeys = applicationResourcesService.GetKeys()
                 .OfType<string>()
-                .Where(x => x.StartsWith(nativeStyleService.BaseStyleResourceKey, StringComparison.Ordinal))
+                .Where(x => x.StartsWith(nativeStyleService.BaseStyleResourceKey + "_" + styleSheet.Id, StringComparison.Ordinal))
                 .ToList();
 
             // Debug.WriteLine(" - remove resourceKeys: " + string.Join(", ", resourceKeys));
@@ -434,7 +443,7 @@ namespace XamlCSS
             }
         }
 
-        private void ApplyMatchingStyles(TUIElement visualElement)
+        private void ApplyMatchingStyles(TUIElement visualElement, StyleSheet styleSheet)
         {
             if (visualElement == null ||
                 dependencyPropertyService.GetHandledCss(visualElement))
@@ -442,9 +451,16 @@ namespace XamlCSS
                 return;
             }
 
+            var currentStyleSheet = dependencyPropertyService.GetStyleSheet(visualElement);
+            if (currentStyleSheet != null &&
+                currentStyleSheet != styleSheet)
+            {
+                return;
+            }
+
             foreach (var child in treeNodeProvider.GetChildren(visualElement).ToList())
             {
-                ApplyMatchingStyles(child as TUIElement);
+                ApplyMatchingStyles(child as TUIElement, styleSheet);
             }
 
             var matchingStyles = dependencyPropertyService.GetMatchingStyles(visualElement);
@@ -514,23 +530,30 @@ namespace XamlCSS
             // Debug.WriteLine($"Applying: {string.Join(", ", dependencyPropertyService.GetMatchingStyles(visualElement) ?? new string[0])}");
         }
 
-        public void UnapplyMatchingStyles(TDependencyObject bindableObject)
+        public void UnapplyMatchingStyles(TDependencyObject bindableObject, StyleSheet styleSheet)
         {
             uiInvoker(() =>
             {
-                UnapplyMatchingStylesInternal(bindableObject);
+                UnapplyMatchingStylesInternal(bindableObject, styleSheet);
             });
         }
-        protected void UnapplyMatchingStylesInternal(TDependencyObject bindableObject)
+        protected void UnapplyMatchingStylesInternal(TDependencyObject bindableObject, StyleSheet styleSheet)
         {
             if (bindableObject == null)
             {
                 return;
             }
 
+            var currentStyleSheet = dependencyPropertyService.GetStyleSheet(bindableObject);
+            if (currentStyleSheet != null &&
+                currentStyleSheet != styleSheet)
+            {
+                return;
+            }
+
             foreach (var child in treeNodeProvider.GetChildren(bindableObject).ToList())
             {
-                UnapplyMatchingStylesInternal(child);
+                UnapplyMatchingStylesInternal(child, styleSheet);
             }
 
             /*var matchingStyles = dependencyPropertyService.GetMatchingStyles(bindableObject) ?? new string[0];

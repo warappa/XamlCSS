@@ -8,6 +8,7 @@
     xmlns:css="using:XamlCSS"
 	xmlns:cssUWP="using:XamlCSS.UWP"
     mc:Ignorable="d"
+    cssUWP:Css.StyleSheet="{StaticResource appStyleSheet}"
     d:DesignHeight="400" d:DesignWidth="600"
     d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}">
     <Page.Resources>

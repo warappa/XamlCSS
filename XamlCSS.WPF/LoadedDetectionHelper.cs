@@ -86,7 +86,7 @@ namespace XamlCSS.WPF
                     (dpo as FrameworkContentElement).Loaded -= LoadedEventHandler;
                 }
 
-                Css.instance.UnapplyMatchingStyles(dpo);
+                Css.instance.UnapplyMatchingStyles(dpo, null);
             }
         }
 

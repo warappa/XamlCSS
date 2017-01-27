@@ -57,9 +57,9 @@ namespace XamlCSS.UWP
         }
         private static void LoadedDetectionHelper_SubTreeRemoved(object sender, EventArgs e)
         {
-            instance.UnapplyMatchingStyles(sender as DependencyObject);
+            instance.UnapplyMatchingStyles(sender as DependencyObject, null);
         }
-        
+
         public static void Initialize()
         {
             if (initialized)
@@ -68,7 +68,7 @@ namespace XamlCSS.UWP
             }
 
             LoadedDetectionHelper.Initialize();
-            
+
             LoadedDetectionHelper.SubTreeAdded += LoadedDetectionHelper_SubTreeAdded;
             LoadedDetectionHelper.SubTreeRemoved += LoadedDetectionHelper_SubTreeRemoved;
 
@@ -222,7 +222,7 @@ namespace XamlCSS.UWP
         private static void StyleSheetPropertyChanged(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
             // Debug.WriteLine($"StyleSheetPropertyChanged: {e.NewValue.ToString()}");
-            
+
             if (e.OldValue != null)
             {
                 var oldStyleSheet = e.OldValue as StyleSheet;

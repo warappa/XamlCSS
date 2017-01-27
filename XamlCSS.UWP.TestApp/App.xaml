@@ -2,9 +2,18 @@
     x:Class="XamlCSS.UWP.TestApp.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:css="using:XamlCSS"
     xmlns:local="using:XamlCSS.UWP.TestApp"
     RequestedTheme="Light">
     <Application.Resources>
         <x:String x:Key="testString">Hello World from StaticResource!</x:String>
+        <css:StyleSheet x:Key="appStyleSheet">
+            <css:StyleSheet.Content>
+                Button
+            {
+                FontStyle: Italic;
+            }
+            </css:StyleSheet.Content>
+        </css:StyleSheet>
     </Application.Resources>
 </Application>

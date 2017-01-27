@@ -5,6 +5,7 @@
              xmlns:css="clr-namespace:XamlCSS;assembly=XamlCSS"
 			 xmlns:cssXF="clr-namespace:XamlCSS.XamarinForms;assembly=XamlCSS.XamarinForms"
 			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             cssXF:Css.StyleSheet="{StaticResource appStyleSheet}"
 			 >
     <ContentPage.Resources>
         <ResourceDictionary>
@@ -90,7 +91,7 @@ Grid
             </css:StyleSheet>
         </ResourceDictionary>
     </ContentPage.Resources>
-    <Grid x:Name="thegrid" cssXF:Css.StyleSheet="{DynamicResource LocalStyle}">
+    <Grid x:Name="thegrid" cssXF:Css.StyleSheet="{StaticResource LocalStyle}">
         <StackLayout x:Name="stack" cssXF:Css.Id="stack">
             <StackLayout x:Name="thestack2" cssXF:Css.Id="thestack2" cssXF:Css.Class="container">
                 <Label x:Name="thetextblock" cssXF:Css.Id="thetextblock" cssXF:Css.Class="jumbo">Hello World</Label>

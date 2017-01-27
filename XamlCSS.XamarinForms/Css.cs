@@ -297,7 +297,7 @@ namespace XamlCSS.XamarinForms
         }
         private static void VisualTreeHelper_ChildRemoved(object sender, EventArgs e)
         {
-            instance.UnapplyMatchingStyles(sender as Element);
+            instance.UnapplyMatchingStyles(sender as Element, null);
         }
 
         private static void StyleSheetPropertyChanged(BindableObject bindableObject, object oldValue, object newValue)

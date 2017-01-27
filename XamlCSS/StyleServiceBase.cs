@@ -30,9 +30,9 @@ namespace XamlCSS
 
         public abstract void SetStyle(TDependencyObject visualElement, TStyle style);
 
-        public string GetStyleResourceKey(Type type, string selector)
+        public string GetStyleResourceKey(string styleSheetId, Type type, string selector)
         {
-            return $"{StyleSheetStyleKey}_${type.FullName}_{selector}";
+            return $"{StyleSheetStyleKey}_{styleSheetId}_${type.FullName}_{selector}";
         }
 
         public string BaseStyleResourceKey { get { return StyleSheetStyleKey; } }

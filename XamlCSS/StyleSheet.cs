@@ -10,6 +10,11 @@ namespace XamlCSS
     {
         public static readonly StyleSheet Empty = new StyleSheet();
 
+        public StyleSheet()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
+
         public static Func<object, object> GetParent { get; internal set; }
         public static Func<object, StyleSheet> GetStyleSheet { get; internal set; }
 
@@ -64,6 +69,8 @@ namespace XamlCSS
                 var sheet = CssParser.Parse(content);
                 this.LocalNamespaces = sheet.LocalNamespaces;
                 this.LocalRules = sheet.LocalRules;
+
+                inheritedStyleSheets = null;
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
             }
@@ -136,6 +143,8 @@ namespace XamlCSS
                 return inheritedStyleSheets ?? (inheritedStyleSheets = InheritStyleSheets ? GetParentStyleSheets(AttachedTo).Reverse<StyleSheet>().ToList() : new List<StyleSheet>());
             }
         }
+
+        public string Id { get; protected set; }
 
         protected List<StyleSheet> GetParentStyleSheets(object from)
         {

@@ -62,7 +62,7 @@ namespace XamlCSS.UWP
                     Application.Current.Resources.Remove(t);
                     Application.Current.Resources[t] = style;
                 }
-                
+
                 initialized = true;
             }
             catch (Exception e)
@@ -146,7 +146,7 @@ namespace XamlCSS.UWP
 
             // (sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
 
-            Css.instance.UnapplyMatchingStyles(sender as FrameworkElement);
+            Css.instance.UnapplyMatchingStyles(sender as FrameworkElement, null);
 
             SubTreeRemoved?.Invoke(sender, new EventArgs());
         }
