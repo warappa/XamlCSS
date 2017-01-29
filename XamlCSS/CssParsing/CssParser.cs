@@ -277,46 +277,14 @@ namespace XamlCSS.CssParsing
                             currentNode = n;
 
                             i++;
-                            do
-                            {
-                                if (tokens[i].Type == CssTokenType.Backslash)
-                                {
-                                    i++;
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                else if (tokens[i].Type == CssTokenType.DoubleQuotes)
-                                {
-                                    currentNode = currentNode.Parent;
-                                    break;
-                                }
-                                else
-                                {
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                i++;
-                            } while (i < tokens.Count);
+
+                            ReadDoubleQuoteText(ref currentNode, tokens, ref i);
                         }
                         else if (currentNode.Type == CssNodeType.VariableValue)
                         {
                             i++;
-                            do
-                            {
-                                if (tokens[i].Type == CssTokenType.Backslash)
-                                {
-                                    i++;
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                else if (tokens[i].Type == CssTokenType.DoubleQuotes)
-                                {
-                                    currentNode = currentNode.Parent;
-                                    break;
-                                }
-                                else
-                                {
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                i++;
-                            } while (i < tokens.Count);
+
+                            ReadDoubleQuoteText(ref currentNode, tokens, ref i);
                         }
                         else if (currentNode.Type == CssNodeType.DoubleQuoteText)
                         {
@@ -343,24 +311,13 @@ namespace XamlCSS.CssParsing
                             currentNode = n;
                             i++;
 
-                            do
-                            {
-                                if (tokens[i].Type == CssTokenType.Backslash)
-                                {
-                                    i++;
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                else if (tokens[i].Type == CssTokenType.SingleQuotes)
-                                {
-                                    currentNode = currentNode.Parent;
-                                    break;
-                                }
-                                else
-                                {
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                i++;
-                            } while (i < tokens.Count);
+                            ReadSingleQuoteText(ref currentNode, tokens, ref i);
+                        }
+                        else if (currentNode.Type == CssNodeType.VariableValue)
+                        {
+                            i++;
+
+                            ReadSingleQuoteText(ref currentNode, tokens, ref i);
                         }
                         else if (currentNode.Type == CssNodeType.SingleQuoteText)
                         {
@@ -740,6 +697,50 @@ namespace XamlCSS.CssParsing
             }
 
             return doc;
+        }
+
+        private static void ReadSingleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        {
+            do
+            {
+                if (tokens[i].Type == CssTokenType.Backslash)
+                {
+                    i++;
+                    currentNode.TextBuilder.Append(tokens[i].Text);
+                }
+                else if (tokens[i].Type == CssTokenType.SingleQuotes)
+                {
+                    currentNode = currentNode.Parent;
+                    break;
+                }
+                else
+                {
+                    currentNode.TextBuilder.Append(tokens[i].Text);
+                }
+                i++;
+            } while (i < tokens.Count);
+        }
+
+        private static void ReadDoubleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        {
+            do
+            {
+                if (tokens[i].Type == CssTokenType.Backslash)
+                {
+                    i++;
+                    currentNode.TextBuilder.Append(tokens[i].Text);
+                }
+                else if (tokens[i].Type == CssTokenType.DoubleQuotes)
+                {
+                    currentNode = currentNode.Parent;
+                    break;
+                }
+                else
+                {
+                    currentNode.TextBuilder.Append(tokens[i].Text);
+                }
+                i++;
+            } while (i < tokens.Count);
         }
 
         public static StyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
