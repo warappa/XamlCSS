@@ -279,6 +279,7 @@ namespace XamlCSS
                 var matchedNodes = root.QuerySelectorAllWithSelf(rule.SelectorString)
                     .Where(x => x != null)
                     .Cast<IDomElement<TDependencyObject>>()
+                    .Where(x => treeNodeProvider.GetParent(x.Element) != null) // workaround WPF: somehow dom-tree is out of sync with UI-tree!?!
                     .ToList();
 
                 var otherStyleElements = matchedNodes
