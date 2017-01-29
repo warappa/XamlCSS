@@ -353,74 +353,92 @@ namespace XamlCSS
         {
             var propertyStyleValues = new Dictionary<TDependencyProperty, object>();
 
-            foreach (var i in declarationBlock)
+            foreach (var styleDeclaration in declarationBlock)
             {
-                TDependencyProperty property;
-
-                if (i.Property.Contains("."))
-                {
-                    string typename = null;
-                    string propertyName = null;
-
-                    if (i.Property.Contains("|"))
-                    {
-                        var strs = i.Property.Split('|', '.');
-                        var alias = strs[0];
-                        var namespaceFragments = namespaces
-                            .First(x => x.Alias == alias)
-                            .Namespace
-                            .Split(',');
-
-                        typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                        propertyName = strs[2];
-                    }
-                    else
-                    {
-                        var strs = i.Property.Split('.');
-                        var namespaceFragments = namespaces
-                            .First(x => x.Alias == "")
-                            .Namespace
-                            .Split(',');
-
-                        typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                        propertyName = strs[1];
-                    }
-
-                    property = dependencyPropertyService.GetBindableProperty(Type.GetType(typename), propertyName);
-                }
-                else
-                {
-                    property = dependencyPropertyService.GetBindableProperty(matchedType, i.Property);
-                }
+                var property = GetDependencyProperty(namespaces, matchedType, styleDeclaration);
 
                 if (property == null)
                 {
                     continue;
                 }
 
-                var stringValue = i.Value as string;
+                var stringValue = styleDeclaration.Value;
 
-                object propertyValue = null;
-                if (stringValue != null &&
-                    ((stringValue.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(stringValue)) ||
-                    stringValue.StartsWith("{", StringComparison.Ordinal))) // color
-                {
-                    if (stringValue.StartsWith("#"))
-                    {
-                        stringValue = "{" + stringValue.Substring(1) + "}";
-                    }
-
-                    propertyValue = markupExpressionParser.ProvideValue(stringValue, dependencyObject);
-                }
-                else
-                {
-                    propertyValue = dependencyPropertyService.GetBindablePropertyValue(matchedType, property, i.Value);
-                }
+                var propertyValue = GetPropertyValue(matchedType, dependencyObject, styleDeclaration, property, stringValue);
 
                 propertyStyleValues[property] = propertyValue;
             }
 
             return propertyStyleValues;
+        }
+
+        private object GetPropertyValue(Type matchedType, TDependencyObject dependencyObject, StyleDeclaration styleDeclaration, TDependencyProperty property, string stringValue)
+        {
+            object propertyValue;
+            if (stringValue != null &&
+                ((stringValue.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(stringValue)) ||
+                stringValue.StartsWith("{", StringComparison.Ordinal))) // color
+            {
+                if (stringValue.StartsWith("#"))
+                {
+                    stringValue = "{" + stringValue.Substring(1) + "}";
+                }
+
+                propertyValue = markupExpressionParser.ProvideValue(stringValue, dependencyObject);
+            }
+            else
+            {
+                propertyValue = dependencyPropertyService.GetBindablePropertyValue(matchedType, property, styleDeclaration.Value);
+            }
+
+            return propertyValue;
+        }
+
+        private TDependencyProperty GetDependencyProperty(List<CssNamespace> namespaces, Type matchedType, StyleDeclaration styleDeclaration)
+        {
+            TDependencyProperty property;
+
+            var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, styleDeclaration.Property, matchedType);
+
+            property = dependencyPropertyService.GetBindableProperty(Type.GetType(typeAndProperyName.Item1), typeAndProperyName.Item2);
+
+            return property;
+        }
+
+        private static Tuple<string, string> ResolveFullTypeNameAndPropertyName(List<CssNamespace> namespaces, string propertyExpression, Type matchedType)
+        {
+            string typename, propertyName;
+
+            if (propertyExpression.Contains("|"))
+            {
+                var strs = propertyExpression.Split('|', '.');
+                var alias = strs[0];
+                var namespaceFragments = namespaces
+                    .First(x => x.Alias == alias)
+                    .Namespace
+                    .Split(',');
+
+                typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
+                propertyName = strs[2];
+            }
+            else if (propertyExpression.Contains("."))
+            {
+                var strs = propertyExpression.Split('.');
+                var namespaceFragments = namespaces
+                    .First(x => x.Alias == "")
+                    .Namespace
+                    .Split(',');
+
+                typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
+                propertyName = strs[1];
+            }
+            else
+            {
+                typename = matchedType.AssemblyQualifiedName;
+                propertyName = propertyExpression;
+            }
+
+            return new Tuple<string, string>(typename, propertyName);
         }
 
         public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
