@@ -20,6 +20,11 @@
                     Button
 {
     Width: 100;
+                    
+    @Property Content "Change Style"
+    {
+        Height: 200;
+    }
 }
 TextBlock
 {

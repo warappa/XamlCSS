@@ -101,6 +101,7 @@
     <Compile Include="CssParsing\CssTokenType.cs" />
     <Compile Include="CssParsing\StringExtensions.cs" />
     <Compile Include="CssParsing\Tokenizer.cs" />
+    <Compile Include="DataTrigger.cs" />
     <Compile Include="Dom\CachedSelectorProvider.cs" />
     <Compile Include="Dom\DomElement.cs" />
     <Compile Include="Dom\ElementAttribute.cs" />
@@ -111,6 +112,7 @@
     <Compile Include="Dom\NamedNodeMap.cs" />
     <Compile Include="Dom\TokenList.cs" />
     <Compile Include="Dom\TreeNodeProviderBase.cs" />
+    <Compile Include="EventTrigger.cs" />
     <Compile Include="IMarkupExtensionParser.cs" />
     <Compile Include="IStyleResourcesService.cs" />
     <Compile Include="IDependencyPropertyService.cs" />
@@ -127,6 +129,9 @@
     <Compile Include="StyleRuleCollection.cs" />
     <Compile Include="StyleServiceBase.cs" />
     <Compile Include="StyleSheet.cs" />
+    <Compile Include="Trigger.cs" />
+    <Compile Include="TriggerAction.cs" />
+    <Compile Include="TriggerBase.cs" />
     <Compile Include="TypeHelpers.cs" />
     <Compile Include="Utils\Timer.cs" />
   </ItemGroup>

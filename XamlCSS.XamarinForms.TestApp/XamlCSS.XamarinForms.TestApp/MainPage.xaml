@@ -14,6 +14,11 @@
                     Button
 {
     WidthRequest: 100;
+                    
+    @Property Text "Change Style"
+    {
+        HeightRequest: 200;
+    }
 }
 Label
 {

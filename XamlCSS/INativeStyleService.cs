@@ -8,10 +8,12 @@ namespace XamlCSS
         where TDependencyProperty : class
         where TStyle : class
     {
-        TStyle CreateFrom(IDictionary<TDependencyProperty, object> dict, Type forType);
+        TStyle CreateFrom(IDictionary<TDependencyProperty, object> dict, IEnumerable<TDependencyObject> triggers, Type forType);
         void SetStyle(TDependencyObject visualElement, TStyle s);
         IDictionary<TDependencyProperty, object> GetStyleAsDictionary(TStyle style);
         string GetStyleResourceKey(string styleSheetId, Type type, string selector);
         string BaseStyleResourceKey { get; }
+        IEnumerable<TDependencyObject> GetTriggersAsList(TStyle style);
+        TDependencyObject CreateTrigger(ITrigger trigger, Type targetType);
     }
 }

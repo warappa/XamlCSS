@@ -10,7 +10,7 @@ namespace XamlCSS
     {
         protected const string StyleSheetStyleKey = "StyleSheetStyle";
 
-        public TStyle CreateFrom(IDictionary<TDependencyProperty, object> dict, Type forType)
+        public TStyle CreateFrom(IDictionary<TDependencyProperty, object> dict, IEnumerable<TDependencyObject> triggers, Type forType)
         {
             TStyle style = CreateStyle(forType);
 
@@ -19,12 +19,20 @@ namespace XamlCSS
                 AddSetter(style, i.Key, i.Value);
             }
 
+            foreach (var trigger in triggers)
+            {
+                AddTrigger(style, trigger);
+            }
+
             return style;
         }
 
         protected abstract TStyle CreateStyle(Type forType);
+        public abstract TDependencyObject CreateTrigger(ITrigger trigger, Type targetType);
 
         protected abstract void AddSetter(TStyle style, TDependencyProperty property, object value);
+
+        protected abstract void AddTrigger(TStyle style, TDependencyObject trigger);
 
         public abstract IDictionary<TDependencyProperty, object> GetStyleAsDictionary(TStyle style);
 
@@ -34,6 +42,8 @@ namespace XamlCSS
         {
             return $"{StyleSheetStyleKey}_{styleSheetId}_${type.FullName}_{selector}";
         }
+
+        public abstract IEnumerable<TDependencyObject> GetTriggersAsList(TStyle style);
 
         public string BaseStyleResourceKey { get { return StyleSheetStyleKey; } }
     }

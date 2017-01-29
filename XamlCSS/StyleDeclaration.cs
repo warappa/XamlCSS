@@ -1,8 +1,8 @@
 ﻿namespace XamlCSS
 {
-	public class StyleDeclaration
-	{
-		public string Property { get; set; }
-		public object Value { get; set; }
-	}
+    public class StyleDeclaration
+    {
+        public string Property { get; set; }
+        public string Value { get; set; }
+    }
 }

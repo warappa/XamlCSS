@@ -224,12 +224,14 @@ namespace XamlCSS
                     matchedElementType,
                     startFrom ?? styleResourceReferenceHolder);
 
+                var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers.Select(x => nativeStyleService.CreateTrigger(x, styleMatchInfo.MatchedType));
+
                 if (propertyStyleValues.Keys.Count == 0)
                 {
                     continue;
                 }
 
-                var style = nativeStyleService.CreateFrom(propertyStyleValues, matchedElementType);
+                var style = nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType);
 
                 applicationResourcesService.SetResource(resourceKey, style);
             }
@@ -493,6 +495,7 @@ namespace XamlCSS
             else if (matchingStyles?.Length > 1)
             {
                 var dict = new Dictionary<TDependencyProperty, object>();
+                var listTriggers = new List<TDependencyObject>();
 
                 foreach (var matchingStyle in matchingStyles)
                 {
@@ -510,12 +513,15 @@ namespace XamlCSS
                         {
                             dict[i.Key] = i.Value;
                         }
+
+                        var triggers = nativeStyleService.GetTriggersAsList(s as TStyle);
+                        listTriggers.AddRange(triggers);
                     }
                 }
 
                 if (dict.Keys.Count > 0)
                 {
-                    styleToApply = nativeStyleService.CreateFrom(dict, visualElement.GetType());
+                    styleToApply = nativeStyleService.CreateFrom(dict, listTriggers, visualElement.GetType());
                 }
 
                 if (styleToApply != null)
