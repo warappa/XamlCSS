@@ -20,11 +20,6 @@
                     Button
 {
     Width: 100;
-                    
-    @Property Content "Change Style"
-    {
-        Height: 200;
-    }
 }
 TextBlock
 {
@@ -80,6 +75,11 @@ Grid
 	        Grid.Row: 1;
 	        Grid.Column: 1;
 	        Text: #Binding Message;
+                    
+            @Data Message "Hello World from DataContext!"
+            {
+                Background: #ff00ff;
+            }
         }
         TextBlock:nth-of-type(2)
         {

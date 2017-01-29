@@ -8,10 +8,13 @@ namespace XamlCSS.WPF
     public class StyleService : StyleServiceBase<Style, DependencyObject, DependencyProperty>
     {
         private IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyService;
+        private IMarkupExtensionParser markupExtensionParser;
 
-        public StyleService(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyService)
+        public StyleService(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyService,
+            IMarkupExtensionParser markupExtensionParser)
         {
             this.dependencyService = dependencyService;
+            this.markupExtensionParser = markupExtensionParser;
         }
 
         protected override void AddTrigger(Style style, DependencyObject trigger)
@@ -22,6 +25,24 @@ namespace XamlCSS.WPF
         public override IEnumerable<DependencyObject> GetTriggersAsList(Style style)
         {
             return style.Triggers;
+        }
+
+        private static object GetBasicValue(DataTrigger dataTrigger, object valueExpression)
+        {
+            if (Int32.TryParse(dataTrigger.Value, out int intValue))
+            {
+                valueExpression = intValue;
+            }
+            else if (Double.TryParse(dataTrigger.Value, out double doubleValue))
+            {
+                valueExpression = doubleValue;
+            }
+            else if (bool.TryParse(dataTrigger.Value, out bool boolValue))
+            {
+                valueExpression = boolValue;
+            }
+
+            return valueExpression;
         }
 
         public override DependencyObject CreateTrigger(ITrigger trigger, Type targetType)
@@ -43,6 +64,30 @@ namespace XamlCSS.WPF
                 nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property, propertyTrigger.Value);
 
                 foreach (var i in propertyTrigger.StyleDeclaraionBlock)
+                {
+                    var property = dependencyService.GetBindableProperty(targetType, i.Property);
+                    var value = dependencyService.GetBindablePropertyValue(targetType, property, i.Value);
+
+                    nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
+                }
+
+                return nativeTrigger;
+            }
+            else if (trigger is DataTrigger)
+            {
+                var dataTrigger = trigger as DataTrigger;
+                var nativeTrigger = new System.Windows.DataTrigger();
+
+                var expression = "{Binding " + dataTrigger.Binding + "}";
+
+                var binding = (System.Windows.Data.BindingBase)markupExtensionParser.ProvideValue(expression, null);
+                nativeTrigger.Binding = binding;
+
+                object valueExpression = dataTrigger.Value;
+                valueExpression = GetBasicValue(dataTrigger, valueExpression);
+                nativeTrigger.Value = valueExpression;
+
+                foreach (var i in dataTrigger.StyleDeclaraionBlock)
                 {
                     var property = dependencyService.GetBindableProperty(targetType, i.Property);
                     var value = dependencyService.GetBindablePropertyValue(targetType, property, i.Value);

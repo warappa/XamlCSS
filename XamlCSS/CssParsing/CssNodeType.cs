@@ -29,6 +29,8 @@
         EventTrigger = 24,
         KeyframesDeclaration = 25,
         PropertyTriggerProperty = 26,
-        PropertyTriggerValue = 27
+        PropertyTriggerValue = 27,
+        DataTriggerBinding = 28,
+        DataTriggerValue = 29
     }
 }

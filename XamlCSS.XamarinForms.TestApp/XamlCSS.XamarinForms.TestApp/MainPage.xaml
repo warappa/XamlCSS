@@ -75,6 +75,12 @@ Grid
 	        Grid.Row: 1;
 	        Grid.Column: 1;
 	        Text: #Binding Test;
+                BackgroundColor: #00ff00;
+                    
+            @Property Text "Hello World from BindingContext!"
+            {
+                BackgroundColor: #ff00ff;
+            }
         }
         
         Label:nth-of-type(2)

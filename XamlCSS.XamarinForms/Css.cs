@@ -17,7 +17,7 @@ namespace XamlCSS.XamarinForms
                 new DependencyPropertyService(),
                 new LogicalTreeNodeProvider(new DependencyPropertyService()),
                 new StyleResourceService(),
-                new StyleService(new DependencyPropertyService()),
+                new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
                 DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
                 new MarkupExtensionParser(),
                 Device.BeginInvokeOnMainThread
