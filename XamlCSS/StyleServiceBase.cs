@@ -28,7 +28,7 @@ namespace XamlCSS
         }
 
         protected abstract TStyle CreateStyle(Type forType);
-        public abstract TDependencyObject CreateTrigger(ITrigger trigger, Type targetType);
+        public abstract TDependencyObject CreateTrigger(StyleSheet styleSheet, ITrigger trigger, Type targetType, TDependencyObject styleResourceReferenceHolder);
 
         protected abstract void AddSetter(TStyle style, TDependencyProperty property, object value);
 

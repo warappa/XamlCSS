@@ -2,7 +2,6 @@
 
 namespace XamlCSS
 {
-
     public class EventTrigger : ITrigger
     {
         public string Event { get; set; }

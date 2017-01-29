@@ -101,6 +101,7 @@
     <Compile Include="CssParsing\CssTokenType.cs" />
     <Compile Include="CssParsing\StringExtensions.cs" />
     <Compile Include="CssParsing\Tokenizer.cs" />
+    <Compile Include="CssTypeHelper.cs" />
     <Compile Include="DataTrigger.cs" />
     <Compile Include="Dom\CachedSelectorProvider.cs" />
     <Compile Include="Dom\DomElement.cs" />

@@ -14,6 +14,6 @@ namespace XamlCSS
         string GetStyleResourceKey(string styleSheetId, Type type, string selector);
         string BaseStyleResourceKey { get; }
         IEnumerable<TDependencyObject> GetTriggersAsList(TStyle style);
-        TDependencyObject CreateTrigger(ITrigger trigger, Type targetType);
+        TDependencyObject CreateTrigger(StyleSheet styleSheet, ITrigger trigger, Type targetType, TDependencyObject styleResourceReferenceHolder);
     }
 }

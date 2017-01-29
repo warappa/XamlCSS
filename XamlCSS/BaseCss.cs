@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
@@ -36,6 +35,7 @@ namespace XamlCSS
             this.nativeStyleService = nativeStyleService;
             this.markupExpressionParser = markupExpressionParser;
             this.uiInvoker = uiInvoker;
+            this.cssTypeHelper = new CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle>(markupExpressionParser, dependencyPropertyService);
 
             CssParser.Initialize(defaultCssNamespace);
             StyleSheet.GetParent = parent => treeNodeProvider.GetParent((TDependencyObject)parent);
@@ -43,6 +43,7 @@ namespace XamlCSS
         }
 
         protected bool executeApplyStylesExecuting;
+        private CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle> cssTypeHelper;
 
         public void ExecuteApplyStyles()
         {
@@ -224,7 +225,7 @@ namespace XamlCSS
                     matchedElementType,
                     startFrom ?? styleResourceReferenceHolder);
 
-                var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers.Select(x => nativeStyleService.CreateTrigger(x, styleMatchInfo.MatchedType));
+                var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers.Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
 
                 if (propertyStyleValues.Keys.Count == 0)
                 {
@@ -285,8 +286,8 @@ namespace XamlCSS
                 var otherStyleElements = matchedNodes
                     .Where(x =>
                     {
-                        var s = dependencyPropertyService.GetStyleSheet(GetStyleSheetParent(x.Element));
-                        return s != null && s != styleSheet;
+                        var elementStyleSheet = dependencyPropertyService.GetStyleSheet(GetStyleSheetParent(x.Element));
+                        return elementStyleSheet != null && elementStyleSheet != styleSheet;
                     }).ToList();
 
                 matchedNodes = matchedNodes.Except(otherStyleElements).ToList();
@@ -356,16 +357,14 @@ namespace XamlCSS
 
             foreach (var styleDeclaration in declarationBlock)
             {
-                var property = GetDependencyProperty(namespaces, matchedType, styleDeclaration);
+                var property = cssTypeHelper.GetDependencyProperty(namespaces, matchedType, styleDeclaration.Property);
 
                 if (property == null)
                 {
                     continue;
                 }
 
-                var stringValue = styleDeclaration.Value;
-
-                var propertyValue = GetPropertyValue(matchedType, dependencyObject, styleDeclaration, property, stringValue);
+                var propertyValue = cssTypeHelper.GetPropertyValue(matchedType, dependencyObject, styleDeclaration.Value, property);
 
                 propertyStyleValues[property] = propertyValue;
             }
@@ -373,74 +372,7 @@ namespace XamlCSS
             return propertyStyleValues;
         }
 
-        private object GetPropertyValue(Type matchedType, TDependencyObject dependencyObject, StyleDeclaration styleDeclaration, TDependencyProperty property, string stringValue)
-        {
-            object propertyValue;
-            if (stringValue != null &&
-                ((stringValue.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(stringValue)) ||
-                stringValue.StartsWith("{", StringComparison.Ordinal))) // color
-            {
-                if (stringValue.StartsWith("#"))
-                {
-                    stringValue = "{" + stringValue.Substring(1) + "}";
-                }
 
-                propertyValue = markupExpressionParser.ProvideValue(stringValue, dependencyObject);
-            }
-            else
-            {
-                propertyValue = dependencyPropertyService.GetBindablePropertyValue(matchedType, property, styleDeclaration.Value);
-            }
-
-            return propertyValue;
-        }
-
-        private TDependencyProperty GetDependencyProperty(List<CssNamespace> namespaces, Type matchedType, StyleDeclaration styleDeclaration)
-        {
-            TDependencyProperty property;
-
-            var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, styleDeclaration.Property, matchedType);
-
-            property = dependencyPropertyService.GetBindableProperty(Type.GetType(typeAndProperyName.Item1), typeAndProperyName.Item2);
-
-            return property;
-        }
-
-        private static Tuple<string, string> ResolveFullTypeNameAndPropertyName(List<CssNamespace> namespaces, string propertyExpression, Type matchedType)
-        {
-            string typename, propertyName;
-
-            if (propertyExpression.Contains("|"))
-            {
-                var strs = propertyExpression.Split('|', '.');
-                var alias = strs[0];
-                var namespaceFragments = namespaces
-                    .First(x => x.Alias == alias)
-                    .Namespace
-                    .Split(',');
-
-                typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                propertyName = strs[2];
-            }
-            else if (propertyExpression.Contains("."))
-            {
-                var strs = propertyExpression.Split('.');
-                var namespaceFragments = namespaces
-                    .First(x => x.Alias == "")
-                    .Namespace
-                    .Split(',');
-
-                typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                propertyName = strs[1];
-            }
-            else
-            {
-                typename = matchedType.AssemblyQualifiedName;
-                propertyName = propertyExpression;
-            }
-
-            return new Tuple<string, string>(typename, propertyName);
-        }
 
         public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
         {
@@ -625,12 +557,6 @@ namespace XamlCSS
             }
 
             return null;
-        }
-
-        private bool IsHexColorValue(string value)
-        {
-            int dummy;
-            return int.TryParse(value.Substring(1), NumberStyles.HexNumber, CultureInfo.CurrentUICulture, out dummy);
         }
     }
 }

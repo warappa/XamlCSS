@@ -24,7 +24,7 @@ namespace XamlCSS.UWP
             throw new Exception("Triggers are not supported on UWP!");
         }
 
-        public override DependencyObject CreateTrigger(ITrigger trigger, Type targetType)
+        public override DependencyObject CreateTrigger(StyleSheet styleSheet, ITrigger trigger, Type targetType)
         {
             throw new Exception("Triggers are not supported on UWP!");
         }

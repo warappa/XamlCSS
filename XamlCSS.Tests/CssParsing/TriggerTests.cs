@@ -96,6 +96,12 @@ Button
             var first = styleSheet.Rules[0].DeclarationBlock.Triggers[0] as EventTrigger;
 
             first.Event.Should().Be("Clicked");
+
+            first.Actions[0].Action.Should().Be("BeginStoryboard");
+            first.Actions[0].Parameters.Should().Be("#StaticResource fadeOutAndInStoryboard");
+
+            first.Actions[1].Action.Should().Be("Transition");
+            first.Actions[1].Parameters.Should().Be("FontSize initial 50 500ms ease-in-out, Width 100 200 500ms, Height [ initial 300 200ms, initial 200 500ms]");
         }
 
         [Test]

@@ -31,6 +31,8 @@
         PropertyTriggerProperty = 26,
         PropertyTriggerValue = 27,
         DataTriggerBinding = 28,
-        DataTriggerValue = 29
+        DataTriggerValue = 29,
+        EventTriggerEvent = 30,
+        ActionDeclarationBlock = 31
     }
 }

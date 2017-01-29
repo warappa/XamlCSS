@@ -67,7 +67,7 @@ namespace XamlCSS.XamarinForms
                 valueExpression = GetBasicValue(dataTrigger, valueExpression);
                 nativeTrigger.Value = valueExpression;
 
-                foreach (var i in dataTrigger.StyleDeclaraionBlock)
+                foreach (var i in dataTrigger.StyleDeclarationBlock)
                 {
                     var property = dependencyService.GetBindableProperty(targetType, i.Property);
                     var value = dependencyService.GetBindablePropertyValue(targetType, property, i.Value);
