@@ -15,16 +15,18 @@ Supported Features
 - **CSS selectors**
 - **Remove and reapply** styles
 - **Detect new elements** and apply matching styles
-- Support **Binding**
+- Support **Binding** (except vanilla UWP)
 - Support **StaticResource**
-- Support **DynamicResource** (except UWP)
+- Support **DynamicResource** (except vanilla UWP)
 - Set **simple values** like Foreground, FontSize, FontStyle,... by CSS
 
 ### Next
-- Maybe more MarkupExtensions
+- Triggers
+- Multiple StyleSheets
+- Nested selectors (like Sass)
 
 ### Not (yet) supported
-- Triggers
+- Visual State Manager
 
 [Getting Started](https://github.com/warappa/XamlCSS/wiki/Getting-started)
 ---
