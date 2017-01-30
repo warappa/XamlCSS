@@ -139,12 +139,6 @@ namespace XamlCSS.WPF
                     }
 
                     nativeTrigger.Actions.Add(triggerAction);
-                    /*var property = dependencyService.GetBindableProperty(targetType, i.Property);
-                    var value = dependencyService.GetBindablePropertyValue(targetType, property, i.Value);
-
-                    var triggerAction = System.Windows.
-
-                    nativeTrigger.Actions.Add(triggerAction);*/
                 }
 
                 return nativeTrigger;

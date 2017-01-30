@@ -4,6 +4,16 @@ using Xamarin.Forms;
 
 namespace XamlCSS.XamarinForms.TestApp
 {
+    public class NumericValidationTriggerAction : TriggerAction<Button>
+    {
+        protected override void Invoke(Button entry)
+        {
+            double result;
+            bool isValid = Double.TryParse(entry.Text, out result);
+            entry.TextColor = isValid ? Color.Default : Color.Red;
+        }
+    }
+
     public partial class MainPage : ContentPage
     {
         public MainPage()

@@ -11,9 +11,16 @@
         <ResourceDictionary>
             <css:StyleSheet x:Key="LocalStyle">
                 <css:StyleSheet.Content>
-                    Button
+                    @namespace local "XamlCSS.XamarinForms.TestApp, XamlCSS.XamarinForms.TestApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+                    
+Button
 {
     WidthRequest: 100;
+                    
+    @Event Clicked
+    {
+        local|NumericValidationTriggerAction: ;
+    }
                     
     @Property Text "Change Style"
     {
