@@ -82,11 +82,21 @@ Grid
 	        Grid.Row: 1;
 	        Grid.Column: 1;
 	        Text: #Binding Test;
-                BackgroundColor: #00ff00;
+            BackgroundColor: #00ff00;
                     
             @Property Text "Hello World from BindingContext!"
             {
                 BackgroundColor: #ff00ff;
+            }
+            
+            @Data Test "Hello World from BindingContext!"
+            {
+                Grid.Row: 0;
+            }
+                    
+            @Data Test.Length 32
+            {
+                Grid.Column: 0;
             }
         }
         
