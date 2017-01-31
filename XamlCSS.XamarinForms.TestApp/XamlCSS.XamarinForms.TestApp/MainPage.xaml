@@ -9,6 +9,7 @@
 			 >
     <ContentPage.Resources>
         <ResourceDictionary>
+            <x:String x:Key="ClickedColor">#00f000</x:String>
             <css:StyleSheet x:Key="LocalStyle">
                 <css:StyleSheet.Content>
                     @namespace local "XamlCSS.XamarinForms.TestApp, XamlCSS.XamarinForms.TestApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
@@ -17,9 +18,14 @@ Button
 {
     WidthRequest: 100;
                     
+    @Property IsEnabled false
+    {
+        BackgroundColor: #dddddd;
+    }
+                    
     @Event Clicked
     {
-        local|NumericValidationTriggerAction: ;
+        local|ToColorTriggerAction: To #StaticResource ClickedColor, Duration 5000;
     }
                     
     @Property Text "Change Style"

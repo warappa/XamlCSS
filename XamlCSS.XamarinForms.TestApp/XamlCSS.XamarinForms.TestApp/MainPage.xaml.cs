@@ -4,16 +4,6 @@ using Xamarin.Forms;
 
 namespace XamlCSS.XamarinForms.TestApp
 {
-    public class NumericValidationTriggerAction : TriggerAction<Button>
-    {
-        protected override void Invoke(Button entry)
-        {
-            double result;
-            bool isValid = Double.TryParse(entry.Text, out result);
-            entry.TextColor = isValid ? Color.Default : Color.Red;
-        }
-    }
-
     public partial class MainPage : ContentPage
     {
         public MainPage()
@@ -46,6 +36,7 @@ namespace XamlCSS.XamarinForms.TestApp
         {
             var b = new Button() { Text = "Abc" };
             b.Clicked += B_Click;
+            b.IsEnabled = new Random().Next(0, 2) == 0;
             stack.Children.Add(b);
         }
 

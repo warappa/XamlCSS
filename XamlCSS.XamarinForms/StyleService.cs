@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Forms.Xaml.Internals;
+using XamlCSS.ComponentModel;
 
 namespace XamlCSS.XamarinForms
 {
@@ -13,6 +15,7 @@ namespace XamlCSS.XamarinForms
         private IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> dependencyService;
         private IMarkupExtensionParser markupExtensionParser;
         private CssTypeHelper<BindableObject, BindableObject, BindableProperty, Style> typeNameResolver;
+        private XamarinTypeConverterProvider typeConverterProvider;
 
         public StyleService(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> dependencyService,
             IMarkupExtensionParser markupExtensionParser)
@@ -20,6 +23,7 @@ namespace XamlCSS.XamarinForms
             this.dependencyService = dependencyService;
             this.markupExtensionParser = markupExtensionParser;
             this.typeNameResolver = new CssTypeHelper<BindableObject, BindableObject, BindableProperty, Style>(markupExtensionParser, dependencyService);
+            this.typeConverterProvider = new XamarinTypeConverterProvider();
         }
         protected override void AddSetter(Style style, BindableProperty property, object value)
         {
@@ -61,7 +65,7 @@ namespace XamlCSS.XamarinForms
                     {
                         continue;
                     }
-                    var value = typeNameResolver.GetPropertyValue(targetType, null, styleDeclaration.Value, property);
+                    var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
 
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
                 }
@@ -87,7 +91,7 @@ namespace XamlCSS.XamarinForms
                     {
                         continue;
                     }
-                    var value = typeNameResolver.GetPropertyValue(targetType, null, styleDeclaration.Value, property);
+                    var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
 
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
                 }
@@ -107,13 +111,32 @@ namespace XamlCSS.XamarinForms
                     var actionType = Type.GetType(actionTypeName);
                     var triggerAction = (Xamarin.Forms.TriggerAction)Activator.CreateInstance(actionType);
 
-                    var parameters = action.Parameters.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                    var parameters = action.Parameters.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                        .Select(x => x.Trim())
+                        .ToList();
 
                     foreach (var parameter in parameters)
                     {
                         var parameterName = parameter.Split(' ')[0];
-                        var depProp = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, actionType, parameterName);
-                        var val = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameter.Substring(parameterName.Length + 1), depProp);
+
+                        object val = null;
+                        var parameterValueExpression = parameter.Substring(parameterName.Length + 1).Trim();
+                        BindableProperty depProp;
+                        var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, triggerAction, parameterName);
+
+                        if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
+                        {
+                            val = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression);
+                        }
+                        else if ((depProp = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, actionType, parameterName)) != null)
+                        {
+                            val = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp);
+                        }
+
+                        if (val is string valueString)
+                        {
+                            val = typeConverterProvider.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? val;
+                        }
 
                         triggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(triggerAction, val);
                     }

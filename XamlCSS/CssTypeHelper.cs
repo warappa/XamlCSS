@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using XamlCSS.CssParsing;
 
 namespace XamlCSS
@@ -20,6 +21,33 @@ namespace XamlCSS
         {
             this.markupExpressionParser = markupExpressionParser;
             this.dependencyPropertyService = dependencyPropertyService;
+        }
+
+        public bool IsMarkupExtension(string valueExpression)
+        {
+            if (valueExpression != null &&
+                ((valueExpression.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(valueExpression)) ||
+                valueExpression.StartsWith("{", StringComparison.Ordinal))) // color
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public object GetMarkupExtensionValue(TDependencyObject targetObject, string valueExpression)
+        {
+            object propertyValue = null;
+            if (IsMarkupExtension(valueExpression))
+            {
+                if (valueExpression.StartsWith("#"))
+                {
+                    valueExpression = "{" + valueExpression.Substring(1) + "}";
+                }
+
+                propertyValue = markupExpressionParser.ProvideValue(valueExpression, targetObject);
+            }
+
+            return propertyValue;
         }
 
         public object GetPropertyValue(Type matchedType, TDependencyObject targetObject, string valueExpression, TDependencyProperty property)
@@ -53,6 +81,22 @@ namespace XamlCSS
             property = dependencyPropertyService.GetBindableProperty(Type.GetType(typeAndProperyName.Item1), typeAndProperyName.Item2);
 
             return property;
+        }
+
+        public object GetClrPropertyValue(List<CssNamespace> namespaces, object obj, string propertyExpression)
+        {
+            var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, obj.GetType());
+
+            var type = Type.GetType(typeAndProperyName.Item1);
+            return type.GetRuntimeProperty(typeAndProperyName.Item2).GetValue(obj);
+        }
+
+        public Type GetClrPropertyType(List<CssNamespace> namespaces, object obj, string propertyExpression)
+        {
+            var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, obj.GetType());
+
+            var type = Type.GetType(typeAndProperyName.Item1);
+            return type.GetRuntimeProperty(typeAndProperyName.Item2).PropertyType;
         }
 
         public Tuple<string, string> ResolveFullTypeNameAndPropertyName(List<CssNamespace> namespaces, string cssPropertyExpression, Type matchedType)

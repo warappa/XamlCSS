@@ -15,6 +15,7 @@
     cssWPF:Css.StyleSheet="{StaticResource appStyleSheet}">
     <Window.Resources>
         <ResourceDictionary>
+            <sys:String x:Key="ToColor">#ffff00</sys:String>
             <Storyboard x:Key="storyboard">
                 <ColorAnimation 
 						Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Red" Duration="0:0:5.25" >
@@ -27,7 +28,10 @@
                     Button
 {
     Width: 100;
-                    
+                    @Property IsEnabled true
+                    {
+                        Background: #StaticResource ToColor;
+                    }
                     @Event Click
                     {
                         animation|BeginStoryboard: Storyboard #StaticResource storyboard;

@@ -43,6 +43,7 @@
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ToColorTriggerAction.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
