@@ -119,26 +119,30 @@ namespace XamlCSS.XamarinForms
                     {
                         var parameterName = parameter.Split(' ')[0];
 
-                        object val = null;
+                        object value = null;
                         var parameterValueExpression = parameter.Substring(parameterName.Length + 1).Trim();
                         BindableProperty depProp;
                         var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, triggerAction, parameterName);
 
                         if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                         {
-                            val = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression);
+                            value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression);
                         }
                         else if ((depProp = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, actionType, parameterName)) != null)
                         {
-                            val = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp);
+                            value = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp);
                         }
-
-                        if (val is string valueString)
+                        else
                         {
-                            val = typeConverterProvider.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? val;
+                            value = parameterValueExpression;
                         }
 
-                        triggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(triggerAction, val);
+                        if (value is string valueString)
+                        {
+                            value = typeConverterProvider.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? value;
+                        }
+
+                        triggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(triggerAction, value);
                     }
 
                     nativeTrigger.Actions.Add(triggerAction);

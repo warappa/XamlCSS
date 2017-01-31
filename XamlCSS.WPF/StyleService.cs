@@ -143,39 +143,43 @@ namespace XamlCSS.WPF
                     foreach (var parameter in parameters)
                     {
                         var parameterName = parameter.Split(' ')[0];
-                        object val = null;
+                        object value = null;
                         var parameterValueExpression = parameter.Substring(parameterName.Length + 1).Trim();
                         DependencyProperty depProp;
                         var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, triggerAction, parameterName);
 
                         if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                         {
-                            val = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression);
+                            value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression);
                         }
                         else if ((depProp = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, actionType, parameterName)) != null)
                         {
-                            val = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp);
+                            value = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp);
 
-                            if (val is DynamicResourceExtension)
+                            if (value is DynamicResourceExtension)
                             {
-                                var dyn = val as DynamicResourceExtension;
+                                var dyn = value as DynamicResourceExtension;
                                 var serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current);
-                                val = dyn.ProvideValue(serviceProvider);
+                                value = dyn.ProvideValue(serviceProvider);
                             }
-                            else if (val is StaticResourceExtension)
+                            else if (value is StaticResourceExtension)
                             {
-                                var dyn = val as StaticResourceExtension;
+                                var dyn = value as StaticResourceExtension;
                                 var serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current);
-                                val = dyn.ProvideValue(serviceProvider);
+                                value = dyn.ProvideValue(serviceProvider);
                             }
                         }
-
-                        if (val is string valueString)
+                        else
                         {
-                            val = TypeDescriptor.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? val;
+                            value = parameterValueExpression;
                         }
 
-                        triggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(triggerAction, val);
+                        if (value is string valueString)
+                        {
+                            value = TypeDescriptor.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? value;
+                        }
+
+                        triggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(triggerAction, value);
                     }
 
                     nativeTrigger.Actions.Add(triggerAction);

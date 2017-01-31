@@ -22,8 +22,10 @@ namespace XamlCSS.XamarinForms.TestApp
         {
             easing = easing ?? Easing.Linear;
             var taskCompletionSource = new TaskCompletionSource<bool>();
-
-            element.AbortAnimation("ToColorTriggerAction");
+            if (element.AnimationIsRunning("ToColorTriggerAction"))
+            {
+                element.AbortAnimation("ToColorTriggerAction");
+            }
             element.Animate<Color>(name, transform, callback, 16, length, easing, (v, c) => taskCompletionSource.SetResult(c));
 
             return taskCompletionSource.Task;
@@ -34,7 +36,7 @@ namespace XamlCSS.XamarinForms.TestApp
 
         protected override void Invoke(Button entry)
         {
-            ColorTo(entry, entry.BackgroundColor, To, c => entry.BackgroundColor = c, Duration, Easing.SpringOut);
+            ColorTo(entry, entry.BackgroundColor, To, c => entry.BackgroundColor = c, Duration, Easing.Linear);
         }
     }
 }
