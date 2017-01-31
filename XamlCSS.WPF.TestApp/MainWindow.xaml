@@ -91,9 +91,14 @@ Grid
             @Data Message "Hello World from DataContext!"
             {
                 Background: #ff00ff;
-                    Grid.Row: 0;
-	        Grid.Column: 0;
+                Grid.Row: 0;
+	            Grid.Column: 0;
             }
+                    
+            @Data Message.Length 29
+            {
+                Foreground: Red;
+            } 
         }
         TextBlock:nth-of-type(2)
         {

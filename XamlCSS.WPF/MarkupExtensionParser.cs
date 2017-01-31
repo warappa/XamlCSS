@@ -65,15 +65,15 @@ namespace XamlCSS.WPF
             }
 
             var test = $@"
-<ControlTemplate TargetType=""{{x:Type Button}}"">
+<DataTemplate DataType=""{{x:Type x:String}}"">
 	<TextBlock x:Name=""aaa"" Tag=""{expression}"" />
-</ControlTemplate>";
+</DataTemplate>";
 
             var pc = new ParserContext();
             pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
             pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");
 
-            var dataTemplate = (XamlReader.Parse(test, pc) as ControlTemplate);
+            var dataTemplate = (XamlReader.Parse(test, pc) as DataTemplate);
 
             var textBlock = (TextBlock)dataTemplate.LoadContent();
             AddLogicalChild(obj, textBlock);

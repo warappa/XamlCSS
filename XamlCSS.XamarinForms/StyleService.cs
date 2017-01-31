@@ -44,12 +44,23 @@ namespace XamlCSS.XamarinForms
             {
                 var propertyTrigger = trigger as Trigger;
                 var nativeTrigger = new Xamarin.Forms.Trigger(targetType);
-                nativeTrigger.Property = dependencyService.GetBindableProperty(targetType, propertyTrigger.Property);
+
+                var bindableProperty = dependencyService.GetBindableProperty(targetType, propertyTrigger.Property);
+                if (bindableProperty == null)
+                {
+                    throw new NullReferenceException($"Property '{propertyTrigger.Property}' may not be null (targetType '{targetType.Name}')!");
+                }
+
+                nativeTrigger.Property = bindableProperty;
                 nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property, propertyTrigger.Value);
 
                 foreach (var i in propertyTrigger.StyleDeclaraionBlock)
                 {
                     var property = dependencyService.GetBindableProperty(targetType, i.Property);
+                    if (property == null)
+                    {
+                        continue;
+                    }
                     var value = dependencyService.GetBindablePropertyValue(targetType, property, i.Value);
 
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
@@ -67,13 +78,15 @@ namespace XamlCSS.XamarinForms
                 var binding = (Binding)markupExtensionParser.ProvideValue(expression, null);
                 nativeTrigger.Binding = binding;
 
-                object valueExpression = dataTrigger.Value;
-                valueExpression = GetBasicValue(dataTrigger, valueExpression);
-                nativeTrigger.Value = valueExpression;
+                nativeTrigger.Value = GetBasicValue(dataTrigger);
 
                 foreach (var i in dataTrigger.StyleDeclarationBlock)
                 {
                     var property = dependencyService.GetBindableProperty(targetType, i.Property);
+                    if (property == null)
+                    {
+                        continue;
+                    }
                     var value = dependencyService.GetBindablePropertyValue(targetType, property, i.Value);
 
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
@@ -106,12 +119,6 @@ namespace XamlCSS.XamarinForms
                     }
 
                     nativeTrigger.Actions.Add(triggerAction);
-                    /*var property = dependencyService.GetBindableProperty(targetType, i.Property);
-                    var value = dependencyService.GetBindablePropertyValue(targetType, property, i.Value);
-
-                    var triggerAction = System.Windows.
-
-                    nativeTrigger.Actions.Add(triggerAction);*/
                 }
 
                 return nativeTrigger;
@@ -120,8 +127,10 @@ namespace XamlCSS.XamarinForms
             throw new NotSupportedException($"Trigger '{trigger.GetType().FullName}' is not supported!");
         }
 
-        private static object GetBasicValue(DataTrigger dataTrigger, object valueExpression)
+        private static object GetBasicValue(DataTrigger dataTrigger)
         {
+            object valueExpression = dataTrigger.Value;
+
             if (Int32.TryParse(dataTrigger.Value, out int intValue))
             {
                 valueExpression = intValue;

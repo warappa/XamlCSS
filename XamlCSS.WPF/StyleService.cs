@@ -31,8 +31,10 @@ namespace XamlCSS.WPF
             return style.Triggers.Select(x => (DependencyObject)XamlReader.Parse(XamlWriter.Save(x)));
         }
 
-        private static object GetBasicValue(DataTrigger dataTrigger, object valueExpression)
+        private static object GetBasicValue(DataTrigger dataTrigger)
         {
+            object valueExpression = dataTrigger.Value;
+
             if (Int32.TryParse(dataTrigger.Value, out int intValue))
             {
                 valueExpression = intValue;
@@ -58,18 +60,22 @@ namespace XamlCSS.WPF
                 var propertyTrigger = trigger as Trigger;
                 var nativeTrigger = new System.Windows.Trigger();
 
-                nativeTrigger.Property = dependencyService.GetBindableProperty(targetType, propertyTrigger.Property);
-
-                if (nativeTrigger.Property == null)
+                var dependencyProperty = dependencyService.GetBindableProperty(targetType, propertyTrigger.Property);
+                if (dependencyProperty == null)
                 {
-                    throw new NullReferenceException($"Property '{propertyTrigger.Property}' may not be null!");
+                    throw new NullReferenceException($"Property '{propertyTrigger.Property}' may not be null (targetType '{targetType.Name}')!");
                 }
 
+                nativeTrigger.Property = dependencyProperty;
                 nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property, propertyTrigger.Value);
 
                 foreach (var styleDeclaration in propertyTrigger.StyleDeclaraionBlock)
                 {
                     var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
+                    if (property == null)
+                    {
+                        continue;
+                    }
                     var value = typeNameResolver.GetPropertyValue(targetType, null, styleDeclaration.Value, property);
 
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
@@ -87,13 +93,16 @@ namespace XamlCSS.WPF
                 var binding = (System.Windows.Data.BindingBase)markupExtensionParser.ProvideValue(expression, null);
                 nativeTrigger.Binding = binding;
 
-                object valueExpression = dataTrigger.Value;
-                valueExpression = GetBasicValue(dataTrigger, valueExpression);
-                nativeTrigger.Value = valueExpression;
+                nativeTrigger.Value = GetBasicValue(dataTrigger);
 
                 foreach (var styleDeclaration in dataTrigger.StyleDeclarationBlock)
                 {
                     var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
+                    if (property == null)
+                    {
+                        continue;
+                    }
+
                     var value = typeNameResolver.GetPropertyValue(targetType, null, styleDeclaration.Value, property);
 
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
