@@ -23,7 +23,7 @@ namespace XamlCSS.WPF
 
         protected override void AddTrigger(Style style, DependencyObject trigger)
         {
-            style.Triggers.Add((System.Windows.TriggerBase)trigger);
+            style.Triggers.Add((TriggerBase)trigger);
         }
 
         public override IEnumerable<DependencyObject> GetTriggersAsList(Style style)
@@ -115,7 +115,7 @@ namespace XamlCSS.WPF
                 var eventTrigger = trigger as EventTrigger;
                 var nativeTrigger = new System.Windows.EventTrigger();
 
-                var fieldInfo = targetType.GetField(eventTrigger.Event + "Event", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.FlattenHierarchy);
+                var fieldInfo = targetType.GetField(eventTrigger.Event + "Event", BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy);
 
                 nativeTrigger.RoutedEvent = (RoutedEvent)fieldInfo.GetValue(null);
 
@@ -138,15 +138,14 @@ namespace XamlCSS.WPF
                             var dyn = val as DynamicResourceExtension;
                             var serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current);
                             val = dyn.ProvideValue(serviceProvider);
-
                         }
                         else if (val is StaticResourceExtension)
                         {
                             var dyn = val as StaticResourceExtension;
                             var serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current);
                             val = dyn.ProvideValue(serviceProvider);
-
                         }
+
                         triggerAction.SetValue(depProp, val);
                     }
 

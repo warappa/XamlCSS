@@ -28,7 +28,7 @@ namespace XamlCSS.XamarinForms
 
         protected override void AddTrigger(Style style, BindableObject trigger)
         {
-            style.Triggers.Add((Xamarin.Forms.TriggerBase)trigger);
+            style.Triggers.Add((TriggerBase)trigger);
         }
 
         public override IEnumerable<BindableObject> GetTriggersAsList(Style style)
