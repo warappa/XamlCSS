@@ -54,14 +54,14 @@ namespace XamlCSS.XamarinForms
                 nativeTrigger.Property = bindableProperty;
                 nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property, propertyTrigger.Value);
 
-                foreach (var i in propertyTrigger.StyleDeclaraionBlock)
+                foreach (var styleDeclaration in propertyTrigger.StyleDeclaraionBlock)
                 {
-                    var property = dependencyService.GetBindableProperty(targetType, i.Property);
+                    var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
                     if (property == null)
                     {
                         continue;
                     }
-                    var value = dependencyService.GetBindablePropertyValue(targetType, property, i.Value);
+                    var value = typeNameResolver.GetPropertyValue(targetType, null, styleDeclaration.Value, property);
 
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
                 }
@@ -80,14 +80,14 @@ namespace XamlCSS.XamarinForms
 
                 nativeTrigger.Value = GetBasicValue(dataTrigger);
 
-                foreach (var i in dataTrigger.StyleDeclarationBlock)
+                foreach (var styleDeclaration in dataTrigger.StyleDeclarationBlock)
                 {
-                    var property = dependencyService.GetBindableProperty(targetType, i.Property);
+                    var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
                     if (property == null)
                     {
                         continue;
                     }
-                    var value = dependencyService.GetBindablePropertyValue(targetType, property, i.Value);
+                    var value = typeNameResolver.GetPropertyValue(targetType, null, styleDeclaration.Value, property);
 
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
                 }
