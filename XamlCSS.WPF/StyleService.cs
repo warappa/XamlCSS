@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Markup;
 
@@ -126,13 +127,15 @@ namespace XamlCSS.WPF
                         if (val is DynamicResourceExtension)
                         {
                             var dyn = val as DynamicResourceExtension;
-                            val = dyn.ProvideValue((IServiceProvider)typeof(System.Windows.Application).GetProperty("ServiceProvider").GetValue(Application.Current));
+                            var serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current);
+                            val = dyn.ProvideValue(serviceProvider);
 
                         }
                         else if (val is StaticResourceExtension)
                         {
                             var dyn = val as StaticResourceExtension;
-                            val = dyn.ProvideValue((IServiceProvider)typeof(System.Windows.Application).GetProperty("ServiceProvider").GetValue(Application.Current));
+                            var serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current);
+                            val = dyn.ProvideValue(serviceProvider);
 
                         }
                         triggerAction.SetValue(depProp, val);

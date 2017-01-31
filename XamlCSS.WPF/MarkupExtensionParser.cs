@@ -1,5 +1,7 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,14 +13,40 @@ namespace XamlCSS.WPF
 {
     public class MarkupExtensionParser : IMarkupExtensionParser
     {
+        private static MethodInfo addLogicalChild;
+        private static MethodInfo removeLogicalChild;
+
+        static MarkupExtensionParser()
+        {
+            addLogicalChild = typeof(LogicalTreeHelper).GetMethods(BindingFlags.Static | BindingFlags.NonPublic |
+                 BindingFlags.FlattenHierarchy)
+                .Where(x => x.Name == "AddLogicalChild" && x.GetParameters().Length == 2)
+                .First();
+
+            removeLogicalChild = typeof(LogicalTreeHelper).GetMethods(BindingFlags.Static | BindingFlags.NonPublic |
+                 BindingFlags.FlattenHierarchy)
+                .Where(x => x.Name == "RemoveLogicalChild" && x.GetParameters().Length == 2)
+                .First();
+        }
+
+        private void AddLogicalChild(DependencyObject parent, object child)
+        {
+            addLogicalChild.Invoke(null, new object[] { parent, child });
+        }
+
+        private void RemoveLogicalChild(DependencyObject parent, object child)
+        {
+            removeLogicalChild.Invoke(null, new object[] { parent, child });
+        }
+
         public object Parse(string expression)
         {
             string myBindingExpression = expression;
-            var test = "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" DataContext=\"" + myBindingExpression + "\" />";
+            var test = "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" Tag=\"" + myBindingExpression + "\" />";
 
             var result = XamlReader.Parse(test) as TextBlock;
 
-            var bindingExpression = result.ReadLocalValue(TextBlock.DataContextProperty);
+            var bindingExpression = result.ReadLocalValue(FrameworkElement.TagProperty);
             var binding = bindingExpression;
 
             if (binding is BindingExpression)
@@ -28,104 +56,74 @@ namespace XamlCSS.WPF
 
             return binding;
         }
-        public object Parse(string expression, ResourceDictionary resourceDictionary)
+        public object Parse(string expression, FrameworkElement obj)
         {
-            string myBindingExpression = expression;
-
-            var dummyResourceDict = new ResourceDictionary();
-            foreach (var key in resourceDictionary.Keys)
+            var wasStaticResourceExtension = expression.Replace(" ", "").StartsWith("{StaticResource");
+            if (wasStaticResourceExtension)
             {
-                dummyResourceDict.Add(key, key);
-            }
-
-            var resDictString = resourceDictionary != null ? XamlWriter.Save(dummyResourceDict) : "";
-            string inner = null;
-            using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(resDictString)))
-            {
-                var doc = XDocument.Parse(resDictString);
-
-                inner = doc.Descendants().First()?.ToString();
+                expression = expression.Replace("StaticResource", "DynamicResource");
             }
 
             var test = $@"
-<StackPanel xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"">
-	<StackPanel.Resources>
-		{ inner ?? "" }
-	</StackPanel.Resources>
-	<TextBlock DataContext=""{myBindingExpression}"" />
-</StackPanel>";
+<ControlTemplate TargetType=""{{x:Type Button}}"">
+	<TextBlock x:Name=""aaa"" Tag=""{expression}"" />
+</ControlTemplate>";
 
-            var result = (XamlReader.Parse(test) as StackPanel).Children[0];
-            var bindingExpression = result.ReadLocalValue(TextBlock.DataContextProperty);
+            var pc = new ParserContext();
+            pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
+            pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");
 
-            var binding = bindingExpression;
+            var dataTemplate = (XamlReader.Parse(test, pc) as ControlTemplate);
 
-            if (binding is BindingExpression)
+            var textBlock = (TextBlock)dataTemplate.LoadContent();
+            AddLogicalChild(obj, textBlock);
+
+            object localValue;
+            object resolvedValue;
+
+            try
             {
-                binding = ((BindingExpression)binding).ParentBinding;
+                localValue = textBlock.ReadLocalValue(FrameworkElement.TagProperty);
+                resolvedValue = textBlock.GetValue(FrameworkElement.TagProperty);
             }
-            else if (resourceDictionary.Keys.OfType<object>().Contains(binding))
+            finally
             {
-                binding = resourceDictionary[binding];
-            }
-
-            return binding;
-        }
-
-        private void GetAllResourceDictionaries(object obj, ResourceDictionary dict)
-        {
-            if (obj == null)
-            {
-                return;
-            }
-            ResourceDictionary resDict = null;
-
-            if (obj is FrameworkElement)
-            {
-                GetAllResourceDictionaries((obj as FrameworkElement).Parent, dict);
-                resDict = (obj as FrameworkElement).Resources;
-            }
-            else if (obj is FrameworkContentElement)
-            {
-                GetAllResourceDictionaries((obj as FrameworkContentElement).Parent, dict);
-                resDict = (obj as FrameworkContentElement).Resources;
+                RemoveLogicalChild(obj, textBlock);
             }
 
-            foreach (var key in resDict.Keys)
+            if (localValue is BindingExpression)
             {
-                dict[key] = resDict[key];
+                return ((BindingExpression)localValue).ParentBinding;
             }
+            else if (wasStaticResourceExtension)
+            {
+                return resolvedValue;
+            }
+            else if (resolvedValue == DependencyProperty.UnsetValue)
+            {
+                return localValue;
+            }
+
+            return localValue;
         }
 
         public object ProvideValue(string expression, object obj)
         {
-            ResourceDictionary resDict = new ResourceDictionary();
+            object parseResult = Parse(expression, (FrameworkElement)obj);
 
-            GetAllResourceDictionaries(obj, resDict);
-
-            object binding = null;
-            if (expression.Contains("Binding "))
+            if (parseResult is Binding binding)
             {
-                binding = Parse(expression);
-            }
-            else
-            {
-                binding = Parse(expression, resDict);
+                return binding.ProvideValue(null);
             }
 
-            if (binding is Binding)
+            if (parseResult.GetType().Name == "ResourceReferenceExpression")
             {
-                return (binding as Binding).ProvideValue(null);
+                var resourceKeyProperty = parseResult.GetType().GetProperty("ResourceKey");
+
+                return new DynamicResourceExtension(resourceKeyProperty.GetValue(parseResult));
             }
 
-            if (binding.GetType().Name == "ResourceReferenceExpression")
-            {
-                var a = binding.GetType().GetProperty("ResourceKey");
-
-                return new DynamicResourceExtension(a.GetValue(binding));
-            }
-
-            return binding;
+            return parseResult;
         }
     }
 }

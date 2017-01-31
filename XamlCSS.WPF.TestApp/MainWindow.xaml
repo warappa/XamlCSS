@@ -17,12 +17,12 @@
         <ResourceDictionary>
             <Storyboard x:Key="storyboard">
                 <ColorAnimation 
-						Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Red" Duration="0:0:0.25" >
+						Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Red" Duration="0:0:5.25" >
                 </ColorAnimation>
             </Storyboard>
             <css:StyleSheet x:Key="InternalStyle">
                 <css:StyleSheet.Content>
-                    @namespace story "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
+                    @namespace animation "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
                     
                     Button
 {
@@ -30,7 +30,7 @@
                     
                     @Event Click
                     {
-                        story|BeginStoryboard: Storyboard #StaticResource storyboard;
+                        animation|BeginStoryboard: Storyboard #StaticResource storyboard;
                     }
 }
 TextBlock
