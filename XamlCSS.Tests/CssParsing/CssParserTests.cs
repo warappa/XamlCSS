@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using FluentAssertions;
+using NUnit.Framework;
 using System.Linq;
 using XamlCSS.CssParsing;
 
@@ -278,6 +279,24 @@ Button
 }");
 
             Assert.AreEqual(1, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual(@"#ff00ff", styleSheet.Rules[0].DeclarationBlock[0].Value);
+        }
+
+        [Test]
+        public void Can_parse_square_brackets_in_selector()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test[Text=""hallo""],
+.test[Text='hallo'],
+.test[Text=hallo]
+{
+	Color: #ff00ff;
+}");
+
+            Assert.AreEqual(1, styleSheet.Rules[0].DeclarationBlock.Count);
+            styleSheet.Rules[0].Selectors[0].Value.Should().Be(@".test[Text=""hallo""]");
+            styleSheet.Rules[1].Selectors[0].Value.Should().Be(@".test[Text='hallo']");
+            styleSheet.Rules[2].Selectors[0].Value.Should().Be(@".test[Text=hallo]");
             Assert.AreEqual(@"#ff00ff", styleSheet.Rules[0].DeclarationBlock[0].Value);
         }
     }

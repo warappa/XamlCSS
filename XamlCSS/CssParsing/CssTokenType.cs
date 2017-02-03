@@ -21,6 +21,8 @@
         Whitespace = 16,
         Hash = 17,
         Backslash = 18,
-        Dollar = 19
+        Dollar = 19,
+        SquareBracketOpen = 20,
+        SquareBracketClose = 21,
     }
 }

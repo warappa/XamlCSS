@@ -83,6 +83,12 @@ namespace XamlCSS.CssParsing
                         break;
                     case CssTokenType.Backslash:
                         break;
+                    case CssTokenType.SquareBracketOpen:
+                        currentNode.TextBuilder.Append(currentToken.Text);
+                        break;
+                    case CssTokenType.SquareBracketClose:
+                        currentNode.TextBuilder.Append(currentToken.Text);
+                        break;
                 }
             }
 
@@ -531,6 +537,7 @@ namespace XamlCSS.CssParsing
         private static CssNode ReadSingleQuotesAst(CssNode currentNode, List<CssToken> tokens, ref int currentIndex)
         {
             CssNode n = null;
+            CssToken currentToken = tokens[currentIndex];
 
             if (currentNode.Type == CssNodeType.StyleDeclaration)
             {
@@ -562,6 +569,10 @@ namespace XamlCSS.CssParsing
             else if (currentNode.Type == CssNodeType.SingleQuoteText)
             {
                 currentNode = currentNode.Parent;
+            }
+            else if (currentNode.Type == CssNodeType.SelectorFragment)
+            {
+                currentNode.TextBuilder.Append(currentToken.Text);
             }
 
             return currentNode;
@@ -622,6 +633,10 @@ namespace XamlCSS.CssParsing
             else if (currentNode.Type == CssNodeType.DoubleQuoteText)
             {
                 currentNode = currentNode.Parent;
+            }
+            else if (currentNode.Type == CssNodeType.SelectorFragment)
+            {
+                currentNode.TextBuilder.Append(currentToken.Text);
             }
 
             return currentNode;
