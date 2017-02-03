@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
@@ -36,6 +35,7 @@ namespace XamlCSS
             this.nativeStyleService = nativeStyleService;
             this.markupExpressionParser = markupExpressionParser;
             this.uiInvoker = uiInvoker;
+            this.cssTypeHelper = new CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle>(markupExpressionParser, dependencyPropertyService);
 
             CssParser.Initialize(defaultCssNamespace);
             StyleSheet.GetParent = parent => treeNodeProvider.GetParent((TDependencyObject)parent);
@@ -43,6 +43,7 @@ namespace XamlCSS
         }
 
         protected bool executeApplyStylesExecuting;
+        private CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle> cssTypeHelper;
 
         public void ExecuteApplyStyles()
         {
@@ -224,12 +225,14 @@ namespace XamlCSS
                     matchedElementType,
                     startFrom ?? styleResourceReferenceHolder);
 
+                var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers.Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
+
                 if (propertyStyleValues.Keys.Count == 0)
                 {
                     continue;
                 }
 
-                var style = nativeStyleService.CreateFrom(propertyStyleValues, matchedElementType);
+                var style = nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType);
 
                 applicationResourcesService.SetResource(resourceKey, style);
             }
@@ -277,13 +280,14 @@ namespace XamlCSS
                 var matchedNodes = root.QuerySelectorAllWithSelf(rule.SelectorString)
                     .Where(x => x != null)
                     .Cast<IDomElement<TDependencyObject>>()
+                    .Where(x => treeNodeProvider.GetParent(x.Element) != null) // workaround WPF: somehow dom-tree is out of sync with UI-tree!?!
                     .ToList();
 
                 var otherStyleElements = matchedNodes
                     .Where(x =>
                     {
-                        var s = dependencyPropertyService.GetStyleSheet(GetStyleSheetParent(x.Element));
-                        return s != null && s != styleSheet;
+                        var elementStyleSheet = dependencyPropertyService.GetStyleSheet(GetStyleSheetParent(x.Element));
+                        return elementStyleSheet != null && elementStyleSheet != styleSheet;
                     }).ToList();
 
                 matchedNodes = matchedNodes.Except(otherStyleElements).ToList();
@@ -351,75 +355,24 @@ namespace XamlCSS
         {
             var propertyStyleValues = new Dictionary<TDependencyProperty, object>();
 
-            foreach (var i in declarationBlock)
+            foreach (var styleDeclaration in declarationBlock)
             {
-                TDependencyProperty property;
-
-                if (i.Property.Contains("."))
-                {
-                    string typename = null;
-                    string propertyName = null;
-
-                    if (i.Property.Contains("|"))
-                    {
-                        var strs = i.Property.Split('|', '.');
-                        var alias = strs[0];
-                        var namespaceFragments = namespaces
-                            .First(x => x.Alias == alias)
-                            .Namespace
-                            .Split(',');
-
-                        typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                        propertyName = strs[2];
-                    }
-                    else
-                    {
-                        var strs = i.Property.Split('.');
-                        var namespaceFragments = namespaces
-                            .First(x => x.Alias == "")
-                            .Namespace
-                            .Split(',');
-
-                        typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                        propertyName = strs[1];
-                    }
-
-                    property = dependencyPropertyService.GetBindableProperty(Type.GetType(typename), propertyName);
-                }
-                else
-                {
-                    property = dependencyPropertyService.GetBindableProperty(matchedType, i.Property);
-                }
+                var property = cssTypeHelper.GetDependencyProperty(namespaces, matchedType, styleDeclaration.Property);
 
                 if (property == null)
                 {
                     continue;
                 }
 
-                var stringValue = i.Value as string;
-
-                object propertyValue = null;
-                if (stringValue != null &&
-                    ((stringValue.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(stringValue)) ||
-                    stringValue.StartsWith("{", StringComparison.Ordinal))) // color
-                {
-                    if (stringValue.StartsWith("#"))
-                    {
-                        stringValue = "{" + stringValue.Substring(1) + "}";
-                    }
-
-                    propertyValue = markupExpressionParser.ProvideValue(stringValue, dependencyObject);
-                }
-                else
-                {
-                    propertyValue = dependencyPropertyService.GetBindablePropertyValue(matchedType, property, i.Value);
-                }
+                var propertyValue = cssTypeHelper.GetPropertyValue(matchedType, dependencyObject, styleDeclaration.Value, property);
 
                 propertyStyleValues[property] = propertyValue;
             }
 
             return propertyStyleValues;
         }
+
+
 
         public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
         {
@@ -493,6 +446,7 @@ namespace XamlCSS
             else if (matchingStyles?.Length > 1)
             {
                 var dict = new Dictionary<TDependencyProperty, object>();
+                var listTriggers = new List<TDependencyObject>();
 
                 foreach (var matchingStyle in matchingStyles)
                 {
@@ -510,12 +464,15 @@ namespace XamlCSS
                         {
                             dict[i.Key] = i.Value;
                         }
+
+                        var triggers = nativeStyleService.GetTriggersAsList(s as TStyle);
+                        listTriggers.AddRange(triggers);
                     }
                 }
 
                 if (dict.Keys.Count > 0)
                 {
-                    styleToApply = nativeStyleService.CreateFrom(dict, visualElement.GetType());
+                    styleToApply = nativeStyleService.CreateFrom(dict, listTriggers, visualElement.GetType());
                 }
 
                 if (styleToApply != null)
@@ -600,12 +557,6 @@ namespace XamlCSS
             }
 
             return null;
-        }
-
-        private bool IsHexColorValue(string value)
-        {
-            int dummy;
-            return int.TryParse(value.Substring(1), NumberStyles.HexNumber, CultureInfo.CurrentUICulture, out dummy);
         }
     }
 }

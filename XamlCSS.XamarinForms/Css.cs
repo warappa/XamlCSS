@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using XamlCSS.ComponentModel;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 using XamlCSS.Windows.Media;
@@ -17,7 +18,7 @@ namespace XamlCSS.XamarinForms
                 new DependencyPropertyService(),
                 new LogicalTreeNodeProvider(new DependencyPropertyService()),
                 new StyleResourceService(),
-                new StyleService(),
+                new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
                 DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
                 new MarkupExtensionParser(),
                 Device.BeginInvokeOnMainThread

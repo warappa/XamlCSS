@@ -23,6 +23,16 @@
         VariableDeclaration = 18,
         VariableName = 19,
         VariableValue = 20,
-        VariableReference = 21
+        VariableReference = 21,
+        PropertyTrigger = 22,
+        DataTrigger = 23,
+        EventTrigger = 24,
+        KeyframesDeclaration = 25,
+        PropertyTriggerProperty = 26,
+        PropertyTriggerValue = 27,
+        DataTriggerBinding = 28,
+        DataTriggerValue = 29,
+        EventTriggerEvent = 30,
+        ActionDeclarationBlock = 31
     }
 }

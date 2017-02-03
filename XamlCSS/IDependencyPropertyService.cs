@@ -3,47 +3,47 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-	public interface IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
-		where TUIElement : class, TDependencyObject
-		where TDependencyObject : class
-		where TStyle : class
-		where TDependencyProperty : class
-	{
-		bool IsLoaded(TUIElement obj);
+    public interface IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+        where TUIElement : class, TDependencyObject
+        where TDependencyObject : class
+        where TStyle : class
+        where TDependencyProperty : class
+    {
+        bool IsLoaded(TUIElement obj);
 
-		void RegisterLoadedOnce(TUIElement frameworkElement, Action<object> func);
+        void RegisterLoadedOnce(TUIElement frameworkElement, Action<object> func);
 
-		string[] GetMatchingStyles(TDependencyObject obj);
-		void SetMatchingStyles(TDependencyObject obj, string[] value);
+        string[] GetMatchingStyles(TDependencyObject obj);
+        void SetMatchingStyles(TDependencyObject obj, string[] value);
 
-		string[] GetAppliedMatchingStyles(TDependencyObject obj);
-		void SetAppliedMatchingStyles(TDependencyObject obj, string[] value);
+        string[] GetAppliedMatchingStyles(TDependencyObject obj);
+        void SetAppliedMatchingStyles(TDependencyObject obj, string[] value);
 
-		bool GetHandledCss(TDependencyObject obj);
-		void SetHandledCss(TDependencyObject obj, bool value);
+        bool GetHandledCss(TDependencyObject obj);
+        void SetHandledCss(TDependencyObject obj, bool value);
 
-		string GetName(TDependencyObject obj);
-		void SetName(TDependencyObject obj, string value);
+        string GetName(TDependencyObject obj);
+        void SetName(TDependencyObject obj, string value);
 
-		TStyle GetInitialStyle(TDependencyObject obj);
-		void SetInitialStyle(TDependencyObject obj, TStyle value);
+        TStyle GetInitialStyle(TDependencyObject obj);
+        void SetInitialStyle(TDependencyObject obj, TStyle value);
 
-		bool? GetHadStyle(TDependencyObject obj);
-		void SetHadStyle(TDependencyObject obj, bool? value);
+        bool? GetHadStyle(TDependencyObject obj);
+        void SetHadStyle(TDependencyObject obj, bool? value);
 
-		StyleDeclarationBlock GetStyle(TDependencyObject obj);
-		void SetStyle(TDependencyObject obj, StyleDeclarationBlock value);
+        StyleDeclarationBlock GetStyle(TDependencyObject obj);
+        void SetStyle(TDependencyObject obj, StyleDeclarationBlock value);
 
-		StyleSheet GetStyleSheet(TDependencyObject obj);
-		void SetStyleSheet(TDependencyObject obj, StyleSheet value);
+        StyleSheet GetStyleSheet(TDependencyObject obj);
+        void SetStyleSheet(TDependencyObject obj, StyleSheet value);
 
-		string GetClass(TDependencyObject obj);
-		void SetClass(TDependencyObject obj, string value);
+        string GetClass(TDependencyObject obj);
+        void SetClass(TDependencyObject obj, string value);
 
-		object GetBindablePropertyValue(Type type, TDependencyProperty property, object value);
+        object GetBindablePropertyValue(Type type, TDependencyProperty property, object value);
 
-		TDependencyProperty GetBindableProperty(TDependencyObject frameworkElement, string propertyName);
-		TDependencyProperty GetBindableProperty(Type uiElementType, string propertyName);
+        TDependencyProperty GetBindableProperty(TDependencyObject frameworkElement, string propertyName);
+        TDependencyProperty GetBindableProperty(Type uiElementType, string propertyName);
 
         IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj);
         void SetDomElement(TDependencyObject obj, IDomElement<TDependencyObject> value);

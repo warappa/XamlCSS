@@ -206,7 +206,7 @@ namespace XamlCSS
                         SelectorString = x.Key,
                         Selectors = x.First().Selectors,
                         SelectorType = x.First().SelectorType,
-                        DeclarationBlock = new StyleDeclarationBlock(GetMergedStyleDeclarations(x.ToList()))
+                        DeclarationBlock = new StyleDeclarationBlock(GetMergedStyleDeclarations(x.ToList()), x.SelectMany(y => y.DeclarationBlock.Triggers))
                     })
                     .ToList();
         }

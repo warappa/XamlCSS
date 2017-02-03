@@ -9,11 +9,29 @@
 			 >
     <ContentPage.Resources>
         <ResourceDictionary>
+            <x:String x:Key="ClickedColor">#00f000</x:String>
             <css:StyleSheet x:Key="LocalStyle">
                 <css:StyleSheet.Content>
-                    Button
+                    @namespace local "XamlCSS.XamarinForms.TestApp, XamlCSS.XamarinForms.TestApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
+                    
+Button
 {
     WidthRequest: 100;
+                    
+    @Property IsEnabled false
+    {
+        BackgroundColor: #dddddd;
+    }
+                    
+    @Event Clicked
+    {
+        local|ToColorTriggerAction: To #StaticResource ClickedColor, Duration 5000;
+    }
+                    
+    @Property Text "Change Style"
+    {
+        HeightRequest: 200;
+    }
 }
 Label
 {
@@ -70,6 +88,22 @@ Grid
 	        Grid.Row: 1;
 	        Grid.Column: 1;
 	        Text: #Binding Test;
+            BackgroundColor: #00ff00;
+                    
+            @Property Text "Hello World from BindingContext!"
+            {
+                BackgroundColor: #ff00ff;
+            }
+            
+            @Data Test "Hello World from BindingContext!"
+            {
+                Grid.Row: 0;
+            }
+                    
+            @Data Test.Length 32
+            {
+                Grid.Column: 0;
+            }
         }
         
         Label:nth-of-type(2)

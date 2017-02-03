@@ -14,7 +14,7 @@ namespace XamlCSS.WPF
                 new DependencyPropertyService(),
                 new LogicalTreeNodeProvider(new DependencyPropertyService()),
                 new StyleResourceService(),
-                new StyleService(),
+                new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
                 DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(System.Windows.Controls.Button)),
                 new MarkupExtensionParser(),
                 Application.Current.Dispatcher.Invoke

@@ -17,7 +17,7 @@ namespace XamlCSS.UWP
                 new DependencyPropertyService(),
                 new LogicalTreeNodeProvider(new DependencyPropertyService()),
                 new StyleResourceService(),
-                new StyleService(),
+                new StyleService(new DependencyPropertyService()),
                 DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button)),
                 new MarkupExtensionParser(),
                 RunOnUIThread

@@ -14,6 +14,33 @@ namespace XamlCSS.CssParsing
             CssParser.defaultCssNamespace = defaultCssNamespace;
         }
 
+        internal static CssToken Peek(List<CssToken> tokens, int currentIndex, CssTokenType type = CssTokenType.Unknown)
+        {
+            currentIndex++;
+            if (type == CssTokenType.Unknown)
+            {
+                if (currentIndex >= tokens.Count)
+                {
+                    return null;
+                }
+
+                return tokens[currentIndex];
+            }
+
+            while (currentIndex < tokens.Count)
+            {
+                var token = tokens[currentIndex];
+                if (token.Type == type)
+                {
+                    return token;
+                }
+
+                currentIndex++;
+            }
+
+            return null;
+        }
+
         internal static CssNode GetAst(string cssDocument)
         {
             var doc = new CssNode(CssNodeType.Document, null, "");
@@ -31,16 +58,51 @@ namespace XamlCSS.CssParsing
                 switch (t.Type)
                 {
                     case CssTokenType.At:
+
                         if (currentNode.Type == CssNodeType.Document)
                         {
-                            n = new CssNode(CssNodeType.NamespaceDeclaration, currentNode, "");
-                            currentNode.Children.Add(n);
-                            currentNode = n;
+                            var identifier = Peek(tokens, i, CssTokenType.Identifier);
+
+                            if (identifier.Text == "keyframes")
+                            {
+                                n = new CssNode(CssNodeType.KeyframesDeclaration, currentNode, "");
+                                currentNode.Children.Add(n);
+                                currentNode = n;
+                            }
+                            else if (identifier.Text == "namespace")
+                            {
+                                n = new CssNode(CssNodeType.NamespaceDeclaration, currentNode, "");
+                                currentNode.Children.Add(n);
+                                currentNode = n;
+                            }
                         }
                         else if (currentNode.Type == CssNodeType.Value ||
                             currentNode.Type == CssNodeType.VariableValue)
                         {
                             currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.StyleDeclarationBlock)
+                        {
+                            var identifier = Peek(tokens, i, CssTokenType.Identifier);
+
+                            if (identifier.Text == "Property")
+                            {
+                                n = new CssNode(CssNodeType.PropertyTrigger, currentNode, "");
+                                currentNode.Children.Add(n);
+                                currentNode = n;
+                            }
+                            else if (identifier.Text == "Data")
+                            {
+                                n = new CssNode(CssNodeType.DataTrigger, currentNode, "");
+                                currentNode.Children.Add(n);
+                                currentNode = n;
+                            }
+                            else if (identifier.Text == "Event")
+                            {
+                                n = new CssNode(CssNodeType.EventTrigger, currentNode, "");
+                                currentNode.Children.Add(n);
+                                currentNode = n;
+                            }
                         }
                         break;
                     case CssTokenType.Dollar:
@@ -63,7 +125,39 @@ namespace XamlCSS.CssParsing
                         }
                         break;
                     case CssTokenType.Identifier:
-                        if (currentNode.Type == CssNodeType.VariableName)
+                        if (currentNode.Type == CssNodeType.EventTrigger)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.EventTriggerEvent)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.PropertyTrigger)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.PropertyTriggerProperty)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.DataTrigger)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.DataTriggerBinding)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.PropertyTriggerValue)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.DataTriggerValue)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.VariableName)
                         {
                             currentNode.TextBuilder.Append(t.Text);
                         }
@@ -191,46 +285,14 @@ namespace XamlCSS.CssParsing
                             currentNode = n;
 
                             i++;
-                            do
-                            {
-                                if (tokens[i].Type == CssTokenType.Backslash)
-                                {
-                                    i++;
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                else if (tokens[i].Type == CssTokenType.DoubleQuotes)
-                                {
-                                    currentNode = currentNode.Parent;
-                                    break;
-                                }
-                                else
-                                {
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                i++;
-                            } while (i < tokens.Count);
+
+                            ReadDoubleQuoteText(ref currentNode, tokens, ref i);
                         }
                         else if (currentNode.Type == CssNodeType.VariableValue)
                         {
                             i++;
-                            do
-                            {
-                                if (tokens[i].Type == CssTokenType.Backslash)
-                                {
-                                    i++;
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                else if (tokens[i].Type == CssTokenType.DoubleQuotes)
-                                {
-                                    currentNode = currentNode.Parent;
-                                    break;
-                                }
-                                else
-                                {
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                i++;
-                            } while (i < tokens.Count);
+
+                            ReadDoubleQuoteText(ref currentNode, tokens, ref i);
                         }
                         else if (currentNode.Type == CssNodeType.DoubleQuoteText)
                         {
@@ -257,24 +319,13 @@ namespace XamlCSS.CssParsing
                             currentNode = n;
                             i++;
 
-                            do
-                            {
-                                if (tokens[i].Type == CssTokenType.Backslash)
-                                {
-                                    i++;
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                else if (tokens[i].Type == CssTokenType.SingleQuotes)
-                                {
-                                    currentNode = currentNode.Parent;
-                                    break;
-                                }
-                                else
-                                {
-                                    currentNode.TextBuilder.Append(tokens[i].Text);
-                                }
-                                i++;
-                            } while (i < tokens.Count);
+                            ReadSingleQuoteText(ref currentNode, tokens, ref i);
+                        }
+                        else if (currentNode.Type == CssNodeType.VariableValue)
+                        {
+                            i++;
+
+                            ReadSingleQuoteText(ref currentNode, tokens, ref i);
                         }
                         else if (currentNode.Type == CssNodeType.SingleQuoteText)
                         {
@@ -396,6 +447,14 @@ namespace XamlCSS.CssParsing
                             currentNode.TextBuilder.Append(t.Text);
                         }
                         else if (currentNode.Type == CssNodeType.Value)
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
+                        else if (currentNode.Type == CssNodeType.PropertyTriggerProperty ||
+                            currentNode.Type == CssNodeType.PropertyTriggerValue ||
+                            currentNode.Type == CssNodeType.DataTriggerBinding ||
+                            currentNode.Type == CssNodeType.DataTriggerValue ||
+                            currentNode.Type == CssNodeType.EventTriggerEvent)
                         {
                             currentNode.TextBuilder.Append(t.Text);
                         }
@@ -565,6 +624,30 @@ namespace XamlCSS.CssParsing
                         {
                             currentNode.TextBuilder.Append(t.Text);
                         }
+                        else if (currentNode.Type == CssNodeType.PropertyTriggerValue)
+                        {
+                            currentNode = currentNode.Parent;
+
+                            n = new CssNode(CssNodeType.StyleDeclarationBlock, currentNode, t.Text);
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        else if (currentNode.Type == CssNodeType.DataTriggerValue)
+                        {
+                            currentNode = currentNode.Parent;
+
+                            n = new CssNode(CssNodeType.StyleDeclarationBlock, currentNode, t.Text);
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        else if (currentNode.Type == CssNodeType.EventTriggerEvent)
+                        {
+                            currentNode = currentNode.Parent;
+
+                            n = new CssNode(CssNodeType.StyleDeclarationBlock, currentNode, t.Text);
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
                         else
                         {
                             if (currentNode.Type == CssNodeType.SelectorFragment)
@@ -594,12 +677,93 @@ namespace XamlCSS.CssParsing
                             currentNode = currentNode.Parent.Parent;
                         break;
                     case CssTokenType.Whitespace:
-                        currentNode.TextBuilder.Append(t.Text);
+                        if (currentNode.Type == CssNodeType.DataTrigger)
+                        {
+                            n = new CssNode(CssNodeType.DataTriggerBinding, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        else if (currentNode.Type == CssNodeType.DataTriggerBinding)
+                        {
+                            currentNode = currentNode.Parent;
+
+                            n = new CssNode(CssNodeType.DataTriggerValue, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        else if (currentNode.Type == CssNodeType.PropertyTrigger)
+                        {
+                            n = new CssNode(CssNodeType.PropertyTriggerProperty, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        else if (currentNode.Type == CssNodeType.PropertyTriggerProperty)
+                        {
+                            currentNode = currentNode.Parent;
+
+                            n = new CssNode(CssNodeType.PropertyTriggerValue, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        else if (currentNode.Type == CssNodeType.EventTrigger)
+                        {
+                            n = new CssNode(CssNodeType.EventTriggerEvent, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+                        }
+                        else
+                        {
+                            currentNode.TextBuilder.Append(t.Text);
+                        }
                         break;
                 }
             }
 
             return doc;
+        }
+
+        private static void ReadSingleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        {
+            do
+            {
+                if (tokens[i].Type == CssTokenType.Backslash)
+                {
+                    i++;
+                    currentNode.TextBuilder.Append(tokens[i].Text);
+                }
+                else if (tokens[i].Type == CssTokenType.SingleQuotes)
+                {
+                    currentNode = currentNode.Parent;
+                    break;
+                }
+                else
+                {
+                    currentNode.TextBuilder.Append(tokens[i].Text);
+                }
+                i++;
+            } while (i < tokens.Count);
+        }
+
+        private static void ReadDoubleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        {
+            do
+            {
+                if (tokens[i].Type == CssTokenType.Backslash)
+                {
+                    i++;
+                    currentNode.TextBuilder.Append(tokens[i].Text);
+                }
+                else if (tokens[i].Type == CssTokenType.DoubleQuotes)
+                {
+                    currentNode = currentNode.Parent;
+                    break;
+                }
+                else
+                {
+                    currentNode.TextBuilder.Append(tokens[i].Text);
+                }
+                i++;
+            } while (i < tokens.Count);
         }
 
         public static StyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
@@ -721,12 +885,32 @@ namespace XamlCSS.CssParsing
             throw new InvalidOperationException($"Variable {variableName} not found!");
         }
 
-        private static void GetStyleRules(StyleSheet styleSheet, CssNode astRule)
+        private static List<TriggerAction> GetActionDeclarationsFromBlock(CssNode astStyleDeclarationBlock)
         {
-            var astStyleDeclarationBlock = astRule.Children
-                   .Single(x => x.Type == CssNodeType.StyleDeclarationBlock);
+            return astStyleDeclarationBlock.Children
+                .Where(x => x.Type == CssNodeType.StyleDeclaration)
+                .Select(x =>
+                {
+                    var keyAst = x.Children
+                             .Single(y => y.Type == CssNodeType.Key);
+                    var valueAst = x.Children
+                             .Single(y => y.Type == CssNodeType.Value);
+                    return new TriggerAction
+                    {
+                        Action = keyAst.Text,
+                        Parameters = valueAst.Text != "" ?
+                                 valueAst.Text.Trim() :
+                                 valueAst.Children
+                                     .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y) : y.Text)
+                                     .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim()
+                    };
+                })
+                .ToList();
+        }
 
-            var styleDeclarations = astStyleDeclarationBlock.Children
+        private static List<StyleDeclaration> GetStyleDeclarationsFromBlock(CssNode astStyleDeclarationBlock)
+        {
+            return astStyleDeclarationBlock.Children
                 .Where(x => x.Type == CssNodeType.StyleDeclaration)
                 .Select(x =>
                 {
@@ -745,6 +929,20 @@ namespace XamlCSS.CssParsing
                     };
                 })
                 .ToList();
+        }
+
+        private static void GetStyleRules(StyleSheet styleSheet, CssNode astRule)
+        {
+            var astStyleDeclarationBlock = astRule.Children
+                   .Single(x => x.Type == CssNodeType.StyleDeclarationBlock);
+
+            var styleDeclarations = GetStyleDeclarationsFromBlock(astStyleDeclarationBlock);
+
+            var propertyTriggers = GetPropertyTriggers(astStyleDeclarationBlock);
+            var dataTriggers = GetDataTriggers(astStyleDeclarationBlock);
+            var eventTriggers = GetEventTriggers(astStyleDeclarationBlock);
+
+            var triggers = propertyTriggers.Concat(dataTriggers).Concat(eventTriggers).ToList();
 
             var parentSelectorList = GetParentsSelectorAsts(astRule);
             var parentSelectors = (parentSelectorList?.Select(x => GetSelectorStringsFromSelectorsCssNode(x)) ?? new List<List<string>>()).ToList();
@@ -771,10 +969,89 @@ namespace XamlCSS.CssParsing
                 rule.SelectorString = string.Join(",", rule.Selectors.Select(x => x.Value));
 
                 rule.DeclarationBlock.AddRange(styleDeclarations);
+                rule.DeclarationBlock.Triggers = triggers;
+
                 styleSheet.LocalRules.Add(rule);
             }
 
             ResolveSubRules(styleSheet, astStyleDeclarationBlock);
+        }
+
+        private static List<ITrigger> GetPropertyTriggers(CssNode astStyleDeclarationBlock)
+        {
+            return astStyleDeclarationBlock.Children
+                            .Where(x => x.Type == CssNodeType.PropertyTrigger)
+                            .Select(x =>
+                            {
+                                var propertyAst = x.Children
+                                         .Single(y => y.Type == CssNodeType.PropertyTriggerProperty);
+                                var valueAst = x.Children
+                                         .Single(y => y.Type == CssNodeType.PropertyTriggerValue);
+
+                                var astTriggerStyleDeclarationBlock = x.Children
+                                         .Single(y => y.Type == CssNodeType.StyleDeclarationBlock);
+
+                                return new Trigger
+                                {
+                                    Property = propertyAst.Text.Trim(),
+                                    Value = valueAst.Text != "" ?
+                                             valueAst.Text.Trim() :
+                                             valueAst.Children
+                                                 .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y) : y.Text)
+                                                 .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim(),
+                                    StyleDeclaraionBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock))
+                                };
+                            })
+                            .ToList<ITrigger>();
+        }
+
+        private static List<ITrigger> GetDataTriggers(CssNode astStyleDeclarationBlock)
+        {
+            return astStyleDeclarationBlock.Children
+                            .Where(x => x.Type == CssNodeType.DataTrigger)
+                            .Select(x =>
+                            {
+                                var bindingAst = x.Children
+                                         .Single(y => y.Type == CssNodeType.DataTriggerBinding);
+                                var valueAst = x.Children
+                                         .Single(y => y.Type == CssNodeType.DataTriggerValue);
+
+                                var astTriggerStyleDeclarationBlock = x.Children
+                                         .Single(y => y.Type == CssNodeType.StyleDeclarationBlock);
+
+                                return new DataTrigger
+                                {
+                                    Binding = bindingAst.Text.Trim(),
+                                    Value = valueAst.Text != "" ?
+                                             valueAst.Text.Trim() :
+                                             valueAst.Children
+                                                 .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y) : y.Text)
+                                                 .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim(),
+                                    StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock))
+                                };
+                            })
+                            .ToList<ITrigger>();
+        }
+
+        private static List<ITrigger> GetEventTriggers(CssNode astStyleDeclarationBlock)
+        {
+            return astStyleDeclarationBlock.Children
+                            .Where(x => x.Type == CssNodeType.EventTrigger)
+                            .Select(x =>
+                            {
+                                var eventAst = x.Children
+                                         .Single(y => y.Type == CssNodeType.EventTriggerEvent);
+
+                                var astTriggerActionDeclarationBlock = x.Children
+                                         .Single(y => y.Type == CssNodeType.StyleDeclarationBlock);
+
+                                return new EventTrigger
+                                {
+                                    Event = eventAst.Text.Trim(),
+                                    Actions = new List<TriggerAction>(GetActionDeclarationsFromBlock(astTriggerActionDeclarationBlock))
+                                };
+                            })
+                            .ToList<ITrigger>();
         }
 
         private static List<string> GetSelectorStringsFromSelectorsCssNode(CssNode selectors)

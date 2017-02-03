@@ -5,8 +5,30 @@ using Windows.UI.Xaml;
 
 namespace XamlCSS.UWP
 {
-	public class StyleService : StyleServiceBase<Style, DependencyObject, DependencyProperty>
+    public class StyleService : StyleServiceBase<Style, DependencyObject, DependencyProperty>
     {
+        private IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyService;
+
+        public StyleService(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyService)
+        {
+            this.dependencyService = dependencyService;
+        }
+
+        protected override void AddTrigger(Style style, DependencyObject trigger)
+        {
+            throw new Exception("Triggers are not supported on UWP!");
+        }
+
+        public override IEnumerable<DependencyObject> GetTriggersAsList(Style style)
+        {
+            // throw new Exception("Triggers are not supported on UWP!");
+            return new List<DependencyObject>();
+        }
+
+        public override DependencyObject CreateTrigger(StyleSheet styleSheet, ITrigger trigger, Type targetType, DependencyObject styleResourceReferenceHolder)
+        {
+            throw new Exception("Triggers are not supported on UWP!");
+        }
         protected override void AddSetter(Style style, DependencyProperty property, object value)
         {
             style.Setters.Add(new Setter(property, value));
