@@ -116,7 +116,7 @@ namespace XamlCSS.Tests.CssParsing
 {
 	Text: #Binding testValue;
 	Background: Green;
-    Background: #ff00ff;
+    Foreground: #ff00ff;
 }");
 
             Assert.AreEqual(3, styleSheet.Rules[0].DeclarationBlock.Count);
@@ -133,7 +133,7 @@ namespace XamlCSS.Tests.CssParsing
 {
 	Text: ""{Binding testValue}"";
 	Background: Green;
-    Background: #ff00ff;
+    Foreground: #ff00ff;
 }");
 
             Assert.AreEqual(3, styleSheet.Rules[0].DeclarationBlock.Count);
