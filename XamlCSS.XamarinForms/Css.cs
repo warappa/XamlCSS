@@ -2,7 +2,6 @@
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Xamarin.Forms;
-using XamlCSS.ComponentModel;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 using XamlCSS.Windows.Media;

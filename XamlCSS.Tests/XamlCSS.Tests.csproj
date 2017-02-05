@@ -59,9 +59,11 @@
     </Compile>
     <Compile Include="CssParsing\CssParserTests.cs" />
     <Compile Include="CssParsing\MergedStyleSheetTests.cs" />
+    <Compile Include="CssParsing\ImportTests.cs" />
     <Compile Include="CssParsing\MixinTests.cs" />
     <Compile Include="CssParsing\SassStyleTestExtensions.cs" />
     <Compile Include="CssParsing\SassStyleTests.cs" />
+    <Compile Include="CssParsing\TestCssContentProvider.cs" />
     <Compile Include="CssParsing\TriggerTests.cs" />
     <Compile Include="Dom\CssSelectionTests.cs" />
     <Compile Include="Dom\TestNode.cs" />
@@ -74,6 +76,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CssParsing\TestData\ImportCss.scss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

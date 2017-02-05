@@ -1,0 +1,17 @@
+﻿$textColor: Red;
+
+@mixin InputElement()
+{
+    Grid.Column: 1;
+}
+@mixin TextColor()
+{
+    TextColor: $textColor;
+}
+
+.header
+{
+    @include TextColor;
+
+    BackgroundColor: White;   
+}

@@ -27,7 +27,8 @@ namespace XamlCSS
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             string defaultCssNamespace,
             IMarkupExtensionParser markupExpressionParser,
-            Action<Action> uiInvoker)
+            Action<Action> uiInvoker,
+            ICssContentProvider fileProvider)
         {
             this.dependencyPropertyService = dependencyPropertyService;
             this.treeNodeProvider = treeNodeProvider;
@@ -37,7 +38,7 @@ namespace XamlCSS
             this.uiInvoker = uiInvoker;
             this.cssTypeHelper = new CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle>(markupExpressionParser, dependencyPropertyService);
 
-            CssParser.Initialize(defaultCssNamespace);
+            CssParser.Initialize(defaultCssNamespace, fileProvider);
             StyleSheet.GetParent = parent => treeNodeProvider.GetParent((TDependencyObject)parent);
             StyleSheet.GetStyleSheet = treeNode => dependencyPropertyService.GetStyleSheet((TDependencyObject)treeNode);
         }

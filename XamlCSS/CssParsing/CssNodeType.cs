@@ -40,6 +40,7 @@
         MixinParameterDefaultValue = 35,
         MixinInclude = 36,
         MixinIncludeParameters = 37,
-        MixinIncludeParameter = 38
+        MixinIncludeParameter = 38,
+        ImportDeclaration = 39
     }
 }

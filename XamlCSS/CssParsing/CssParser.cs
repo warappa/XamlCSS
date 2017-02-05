@@ -8,10 +8,12 @@ namespace XamlCSS.CssParsing
     public class CssParser
     {
         private static string defaultCssNamespace;
+        private static ICssContentProvider fileProvider;
 
-        public static void Initialize(string defaultCssNamespace)
+        public static void Initialize(string defaultCssNamespace, ICssContentProvider fileProvider)
         {
             CssParser.defaultCssNamespace = defaultCssNamespace;
+            CssParser.fileProvider = fileProvider;
         }
 
         internal static CssNode GetAst(string cssDocument)
@@ -529,6 +531,12 @@ namespace XamlCSS.CssParsing
 
         private static CssNode ReadSemicolonAst(CssNode currentNode)
         {
+            TrimCurrentNode(currentNode);
+
+            if (currentNode.Type == CssNodeType.ImportDeclaration)
+            {
+                AddImportedStyle(currentNode);
+            }
             if (currentNode.Type == CssNodeType.VariableReference)
             {
                 currentNode = currentNode.Parent;
@@ -555,6 +563,16 @@ namespace XamlCSS.CssParsing
             currentNode = currentNode.Parent;
 
             return currentNode;
+        }
+
+        private static void AddImportedStyle(CssNode currentNode)
+        {
+            var content = fileProvider.LoadFrom(currentNode.Text);
+            var ast = GetAst(content);
+
+            var document = currentNode.Parent;
+
+            document.Children.AddRange(ast.Children);
         }
 
         private static CssNode ReadColonAst(CssNode currentNode, List<CssToken> tokens, ref int currentIndex)
@@ -666,6 +684,12 @@ namespace XamlCSS.CssParsing
             {
                 currentNode.TextBuilder.Append(currentToken.Text);
             }
+            else if (currentNode.Type == CssNodeType.ImportDeclaration)
+            {
+                currentIndex++;
+
+                ReadSingleQuoteText(ref currentNode, tokens, ref currentIndex, false);
+            }
 
             return currentNode;
         }
@@ -742,6 +766,12 @@ namespace XamlCSS.CssParsing
             {
                 currentNode.TextBuilder.Append(currentToken.Text);
             }
+            else if (currentNode.Type == CssNodeType.ImportDeclaration)
+            {
+                currentIndex++;
+
+                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex, false);
+            }
 
             return currentNode;
         }
@@ -750,7 +780,11 @@ namespace XamlCSS.CssParsing
         {
             CssNode n = null;
 
-            if (currentNode.Type == CssNodeType.MixinIncludeParameters)
+            if (currentNode.Type == CssNodeType.ImportDeclaration)
+            {
+                currentNode.TextBuilder.Append(currentToken.Text);
+            }
+            else if (currentNode.Type == CssNodeType.MixinIncludeParameters)
             {
                 n = new CssNode(CssNodeType.MixinIncludeParameter, currentNode, currentToken.Text);
                 currentNode.Children.Add(n);
@@ -948,6 +982,14 @@ namespace XamlCSS.CssParsing
                     currentNode.Children.Add(n);
                     currentNode = n;
                 }
+                else if (identifier.Text == "import")
+                {
+                    n = new CssNode(CssNodeType.ImportDeclaration, currentNode, "");
+                    currentNode.Children.Add(n);
+                    currentNode = n;
+
+                    currentIndex++;
+                }
                 else if (identifier.Text == "namespace")
                 {
                     n = new CssNode(CssNodeType.NamespaceDeclaration, currentNode, "");
@@ -1003,7 +1045,7 @@ namespace XamlCSS.CssParsing
             return currentNode;
         }
 
-        private static void ReadSingleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        private static void ReadSingleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i, bool goToParent = true)
         {
             do
             {
@@ -1014,7 +1056,10 @@ namespace XamlCSS.CssParsing
                 }
                 else if (tokens[i].Type == CssTokenType.SingleQuotes)
                 {
-                    currentNode = currentNode.Parent;
+                    if (goToParent)
+                    {
+                        currentNode = currentNode.Parent;
+                    }
                     break;
                 }
                 else
@@ -1025,7 +1070,7 @@ namespace XamlCSS.CssParsing
             } while (i < tokens.Count);
         }
 
-        private static void ReadDoubleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        private static void ReadDoubleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i, bool goToParent = true)
         {
             do
             {
@@ -1036,7 +1081,10 @@ namespace XamlCSS.CssParsing
                 }
                 else if (tokens[i].Type == CssTokenType.DoubleQuotes)
                 {
-                    currentNode = currentNode.Parent;
+                    if (goToParent)
+                    {
+                        currentNode = currentNode.Parent;
+                    }
                     break;
                 }
                 else
@@ -1158,16 +1206,15 @@ namespace XamlCSS.CssParsing
             while (current != null)
             {
                 var foundDeclaration = current.Children
-                    .FirstOrDefault(x =>
+                    .LastOrDefault(x =>
                         x.Type == CssNodeType.VariableDeclaration &&
                         x.Children.Any(y => y.Type == CssNodeType.VariableName && y.Text == variableName));
 
                 if (foundDeclaration == null)
                 {
                     foundDeclaration = current.Children
-                        .FirstOrDefault(x =>
+                        .LastOrDefault(x =>
                             x.Type == CssNodeType.MixinParameter &&
-                            //x.Children.Any(y => y.Type == CssNodeType.VariableName && y.Text == variableName)
                             x.Text == variableName
                             );
                 }
@@ -1417,7 +1464,7 @@ namespace XamlCSS.CssParsing
             {
                 var mixinDeclaration = current
                     .Children
-                    .FirstOrDefault(x =>
+                    .LastOrDefault(x =>
                         x.Type == CssNodeType.MixinDeclaration &&
                         x.Text == name);
                 if (mixinDeclaration != null)
