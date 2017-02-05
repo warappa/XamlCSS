@@ -158,7 +158,65 @@ $backgroundColor: Red;
         public void Can_parse_mixin_with_default_parameters()
         {
             var css = @"
+@mixin Colored($textColor, $backgroundColor:Yellow)
+{
+    TextColor: $textColor;
+    BackgroundColor: $backgroundColor;
+}
+
+.header {
+    @include Colored(Red);
+
+    HeightRequest: 200;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("TextColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Red");
+            styleSheet.Rules[0].DeclarationBlock[1].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Yellow");
+            styleSheet.Rules[0].DeclarationBlock[2].Property.Should().Be("HeightRequest");
+            styleSheet.Rules[0].DeclarationBlock[2].Value.Should().Be("200");
+        }
+
+        [Test]
+        public void Can_parse_mixin_with_doublequoted_default_parameters()
+        {
+            var css = @"
 @mixin Colored($textColor, $backgroundColor:""Yellow"")
+{
+    TextColor: $textColor;
+    BackgroundColor: $backgroundColor;
+}
+
+.header {
+    @include Colored(Red);
+
+    HeightRequest: 200;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("TextColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Red");
+            styleSheet.Rules[0].DeclarationBlock[1].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Yellow");
+            styleSheet.Rules[0].DeclarationBlock[2].Property.Should().Be("HeightRequest");
+            styleSheet.Rules[0].DeclarationBlock[2].Value.Should().Be("200");
+        }
+
+        [Test]
+        public void Can_parse_mixin_with_singlequoted_default_parameters()
+        {
+            var css = @"
+@mixin Colored($textColor, $backgroundColor:'Yellow')
 {
     TextColor: $textColor;
     BackgroundColor: $backgroundColor;

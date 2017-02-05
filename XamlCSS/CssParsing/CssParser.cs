@@ -334,6 +334,10 @@ namespace XamlCSS.CssParsing
                 currentNode = currentNode.Parent;
             }
 
+            if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
+            {
+                currentNode = currentNode.Parent;
+            }
             if (currentNode.Type == CssNodeType.MixinParameter)
             {
                 currentNode = currentNode.Parent;
@@ -541,6 +545,10 @@ namespace XamlCSS.CssParsing
             {
                 currentNode = currentNode.Parent;
             }
+            else if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
+            {
+                currentNode = currentNode.Parent;
+            }
 
             TrimCurrentNode(currentNode);
 
@@ -615,13 +623,13 @@ namespace XamlCSS.CssParsing
             {
                 currentIndex++;
 
-                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
+                ReadSingleQuoteText(ref currentNode, tokens, ref currentIndex);
             }
             else if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
             {
                 currentIndex++;
 
-                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
+                ReadSingleQuoteText(ref currentNode, tokens, ref currentIndex);
             }
             else if (currentNode.Type == CssNodeType.StyleDeclaration)
             {
@@ -657,12 +665,6 @@ namespace XamlCSS.CssParsing
             else if (currentNode.Type == CssNodeType.SelectorFragment)
             {
                 currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.MixinParameter)
-            {
-                n = new CssNode(CssNodeType.MixinParameterDefaultValue, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
             }
 
             return currentNode;
