@@ -3,35 +3,50 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
 using XamlCSS.Dom;
+using XamlCSS.WPF.CssParsing;
 using XamlCSS.WPF.Dom;
 
 namespace XamlCSS.WPF
 {
     public class Css
     {
-        public readonly static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance =
-            new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
+        public static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance;
+
+        private static EventHandler RenderingHandler()
+        {
+            return (sender, e) =>
+            {
+                instance.ExecuteApplyStyles();
+            };
+        }
+
+        static Css()
+        {
+            Initialize();
+        }
+
+        public static void Initialize()
+        {
+            if (initialized)
+            {
+                return;
+            }
+
+            initialized = true;
+
+            instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
                 new DependencyPropertyService(),
                 new LogicalTreeNodeProvider(new DependencyPropertyService()),
                 new StyleResourceService(),
                 new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
                 DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(System.Windows.Controls.Button)),
                 new MarkupExtensionParser(),
-                Application.Current.Dispatcher.Invoke
+                Application.Current.Dispatcher.Invoke,
+                new CssFileProvider()
                 );
 
-        static Css()
-        {
-            Initialize();
+            CompositionTarget.Rendering += RenderingHandler();
 
-            CompositionTarget.Rendering += (sender, e) =>
-            {
-                instance.ExecuteApplyStyles();
-            };
-        }
-
-        public static void Initialize()
-        {
             LoadedDetectionHelper.Initialize();
         }
 
@@ -200,6 +215,8 @@ namespace XamlCSS.WPF
                 typeof(IDomElement<DependencyObject>),
                 typeof(Css),
                 new PropertyMetadata(null));
+        private static bool initialized;
+
         public static IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
         {
             return obj.GetValue(DomElementProperty) as IDomElement<DependencyObject>;

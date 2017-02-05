@@ -6,22 +6,14 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using XamlCSS.Dom;
+using XamlCSS.UWP.CssParsing;
 using XamlCSS.UWP.Dom;
 
 namespace XamlCSS.UWP
 {
     public class Css
     {
-        public readonly static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance =
-            new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
-                new DependencyPropertyService(),
-                new LogicalTreeNodeProvider(new DependencyPropertyService()),
-                new StyleResourceService(),
-                new StyleService(new DependencyPropertyService()),
-                DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button)),
-                new MarkupExtensionParser(),
-                RunOnUIThread
-                );
+        public static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance;
 
         public static void RunOnUIThread(Action action)
         {
@@ -46,6 +38,7 @@ namespace XamlCSS.UWP
 
         private static bool initialized = false;
         private static DispatcherTimer dispatcherTimer;
+
         static Css()
         {
             Initialize();
@@ -66,6 +59,17 @@ namespace XamlCSS.UWP
             {
                 return;
             }
+
+            instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
+                new DependencyPropertyService(),
+                new LogicalTreeNodeProvider(new DependencyPropertyService()),
+                new StyleResourceService(),
+                new StyleService(new DependencyPropertyService()),
+                DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button)),
+                new MarkupExtensionParser(),
+                RunOnUIThread,
+                new CssFileProvider()
+                );
 
             LoadedDetectionHelper.Initialize();
 

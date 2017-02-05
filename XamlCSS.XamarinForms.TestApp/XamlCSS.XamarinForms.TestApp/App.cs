@@ -14,8 +14,9 @@ namespace XamlCSS.XamarinForms.TestApp
             Resources.Add("appStyleSheet", new StyleSheet { Content = "Button { FontAttributes: Italic;}" });
             // The root page of your application
             MainPage = new MainPage();
+            //VisualTreeHelper.Include(MainPage);
+            //Css.instance.ExecuteApplyStyles();
         }
-
 
         public string cssStyle1 = @"
 Button

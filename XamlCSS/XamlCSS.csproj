@@ -99,7 +99,7 @@
     <Compile Include="CssParsing\CssParser.cs" />
     <Compile Include="CssParsing\CssToken.cs" />
     <Compile Include="CssParsing\CssTokenType.cs" />
-    <Compile Include="CssParsing\ICssContentProvider.cs" />
+    <Compile Include="CssParsing\ICssFileProvider.cs" />
     <Compile Include="CssParsing\StringExtensions.cs" />
     <Compile Include="CssParsing\Tokenizer.cs" />
     <Compile Include="CssTypeHelper.cs" />

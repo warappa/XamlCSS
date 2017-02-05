@@ -1,10 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Xamarin.Forms;
+using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 using XamlCSS.Windows.Media;
+using XamlCSS.XamarinForms.CssParsing;
 using XamlCSS.XamarinForms.Dom;
 using XamlCSS.XamarinForms.Internals;
 
@@ -12,16 +15,7 @@ namespace XamlCSS.XamarinForms
 {
     public class Css
     {
-        public readonly static BaseCss<BindableObject, BindableObject, Style, BindableProperty> instance =
-            new BaseCss<BindableObject, BindableObject, Style, BindableProperty>(
-                new DependencyPropertyService(),
-                new LogicalTreeNodeProvider(new DependencyPropertyService()),
-                new StyleResourceService(),
-                new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
-                DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
-                new MarkupExtensionParser(),
-                Device.BeginInvokeOnMainThread
-                );
+        public static BaseCss<BindableObject, BindableObject, Style, BindableProperty> instance;
 
         private static Timer timer;
 
@@ -45,14 +39,16 @@ namespace XamlCSS.XamarinForms
 
         public static void Reset()
         {
+            VisualTreeHelper.SubTreeAdded -= VisualTreeHelper_ChildAdded;
+            VisualTreeHelper.SubTreeRemoved -= VisualTreeHelper_ChildRemoved;
+
+            VisualTreeHelper.Reset();
+
             timer?.Cancel();
             timer?.Dispose();
             timer = null;
 
-            VisualTreeHelper.Reset();
-
-            VisualTreeHelper.SubTreeAdded -= VisualTreeHelper_ChildAdded;
-            VisualTreeHelper.SubTreeRemoved -= VisualTreeHelper_ChildRemoved;
+            instance = null;
 
             initialized = false;
         }
@@ -67,9 +63,18 @@ namespace XamlCSS.XamarinForms
 
             Reset();
 
-            Css.rootElement = rootElement;
+            instance = new BaseCss<BindableObject, BindableObject, Style, BindableProperty>(
+                new DependencyPropertyService(),
+                new LogicalTreeNodeProvider(new DependencyPropertyService()),
+                new StyleResourceService(),
+                new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
+                DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
+                new MarkupExtensionParser(),
+                Device.BeginInvokeOnMainThread,
+                new CssFileProvider()
+                );
 
-            CssParsing.CssParser.Initialize(DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)));
+            Css.rootElement = rootElement;
 
             VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
             VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
@@ -79,24 +84,25 @@ namespace XamlCSS.XamarinForms
             if (rootElement is Application)
             {
                 var application = rootElement as Application;
+                StartUiTimer();
 
                 // Workaround: MainPage not initialized on appstart
                 Timer workaroundTimer = null;
+
                 workaroundTimer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
                 {
-                    if (application.MainPage == null)
+                    if (application.MainPage == null ||
+                        application.MainPage.Parent != application)
                     {
+                        // Debug.WriteLine(".");
                         return;
                     }
 
-                    Device.BeginInvokeOnMainThread(() =>
-                    {
-                        VisualTreeHelper.Include(application.MainPage);
-                        StartUiTimer();
-                    });
-
                     workaroundTimer.Cancel();
                     workaroundTimer.Dispose();
+
+                    // Debug.WriteLine("Now include mainpage " + application.MainPage.ToString());
+                    VisualTreeHelper.Include(application.MainPage);
                 }, null);
             }
             else
@@ -293,6 +299,7 @@ namespace XamlCSS.XamarinForms
 
         private static void VisualTreeHelper_ChildAdded(object sender, EventArgs e)
         {
+            //Debug.WriteLine("A");
             instance.UpdateElement(sender as BindableObject);
         }
         private static void VisualTreeHelper_ChildRemoved(object sender, EventArgs e)

@@ -95,8 +95,7 @@ Grid Grid
         {
             InitializeComponent();
 
-            LoadedDetectionHelper.Initialize();
-
+            Css.Initialize();
         }
     }
 }

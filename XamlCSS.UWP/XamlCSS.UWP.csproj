@@ -117,6 +117,7 @@
     <Compile Include="ComponentModel\TypeConverter.cs" />
     <Compile Include="ComponentModel\UWPTypeConverterProvider.cs" />
     <Compile Include="Css.cs" />
+    <Compile Include="CssParsing\CssFileProvider.cs" />
     <Compile Include="Dom\DomElement.cs" />
     <Compile Include="Dom\ElementAttribute.cs" />
     <Compile Include="Dom\ElementCollection.cs" />

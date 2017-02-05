@@ -8,12 +8,12 @@ namespace XamlCSS.CssParsing
     public class CssParser
     {
         private static string defaultCssNamespace;
-        private static ICssContentProvider fileProvider;
+        private static ICssFileProvider cssFileProvider;
 
-        public static void Initialize(string defaultCssNamespace, ICssContentProvider fileProvider)
+        public static void Initialize(string defaultCssNamespace, ICssFileProvider cssFileProvider)
         {
             CssParser.defaultCssNamespace = defaultCssNamespace;
-            CssParser.fileProvider = fileProvider;
+            CssParser.cssFileProvider = cssFileProvider;
         }
 
         internal static CssNode GetAst(string cssDocument)
@@ -567,7 +567,7 @@ namespace XamlCSS.CssParsing
 
         private static void AddImportedStyle(CssNode currentNode)
         {
-            var content = fileProvider.LoadFrom(currentNode.Text);
+            var content = cssFileProvider.LoadFrom(currentNode.Text);
             var ast = GetAst(content);
 
             var document = currentNode.Parent;

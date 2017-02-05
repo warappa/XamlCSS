@@ -10,7 +10,7 @@ namespace XamlCSS.Tests.CssParsing
         [Test]
         public void Can_import_css_file()
         {
-            CssParser.Initialize(null, new TestCssContentProvider());
+            CssParser.Initialize(null, new TestCssFileProvider());
             var css = @"
 @import 'CssParsing\\TestData\\ImportCss.scss';
 
@@ -34,7 +34,7 @@ SomeElement {
         [Test]
         public void Can_override_imported_css_file()
         {
-            CssParser.Initialize(null, new TestCssContentProvider());
+            CssParser.Initialize(null, new TestCssFileProvider());
             var css = @"
 @import 'CssParsing\\TestData\\ImportCss.scss';
 

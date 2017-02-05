@@ -28,7 +28,7 @@ namespace XamlCSS
             string defaultCssNamespace,
             IMarkupExtensionParser markupExpressionParser,
             Action<Action> uiInvoker,
-            ICssContentProvider fileProvider)
+            ICssFileProvider fileProvider)
         {
             this.dependencyPropertyService = dependencyPropertyService;
             this.treeNodeProvider = treeNodeProvider;

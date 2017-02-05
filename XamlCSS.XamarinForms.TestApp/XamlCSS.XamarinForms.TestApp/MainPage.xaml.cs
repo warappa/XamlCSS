@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Xamarin.Forms;
+using XamlCSS.CssParsing;
 
 namespace XamlCSS.XamarinForms.TestApp
 {
@@ -8,13 +9,13 @@ namespace XamlCSS.XamarinForms.TestApp
     {
         public MainPage()
         {
-
             this.BindingContext = new
             {
                 Test = "Hello World from BindingContext!",
                 TestInt = 10,
                 TestList = new List<string> { "a", "b", "c" }
             };
+
             InitializeComponent();
         }
 
@@ -23,7 +24,7 @@ namespace XamlCSS.XamarinForms.TestApp
             var app = Application.Current as App;
             app.currentStyle = app.currentStyle == app.cssStyle1 ? app.cssStyle2 : app.cssStyle1;
 
-            Css.SetStyleSheet(thegrid, CssParsing.CssParser.Parse(app.currentStyle));
+            Css.SetStyleSheet(thegrid, CssParser.Parse(app.currentStyle));
         }
 
 
