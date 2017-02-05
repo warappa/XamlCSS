@@ -34,6 +34,32 @@ namespace XamlCSS.Tests.CssParsing
         }
 
         [Test]
+        public void Can_parse_simple_mixin_without_parentesis()
+        {
+            var css = @"
+@mixin RedBackground()
+{
+    BackgroundColor: Red;
+}
+
+.header {
+    @include RedBackground;
+
+    TextColor: Green;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Red");
+            styleSheet.Rules[0].DeclarationBlock[1].Property.Should().Be("TextColor");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Green");
+        }
+
+        [Test]
         public void Can_parse_simple_mixin_with_parameters()
         {
             var css = @"

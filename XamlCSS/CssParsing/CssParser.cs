@@ -542,6 +542,8 @@ namespace XamlCSS.CssParsing
                 currentNode = currentNode.Parent;
             }
 
+            TrimCurrentNode(currentNode);
+
             currentNode = currentNode.Parent;
 
             return currentNode;
