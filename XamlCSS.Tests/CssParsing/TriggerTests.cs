@@ -105,6 +105,7 @@ Button
         }
 
         [Test]
+        [Ignore]
         public void Animations()
         {
             var content = @"
