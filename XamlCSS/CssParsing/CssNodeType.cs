@@ -33,6 +33,13 @@
         DataTriggerBinding = 28,
         DataTriggerValue = 29,
         EventTriggerEvent = 30,
-        ActionDeclarationBlock = 31
+        ActionDeclarationBlock = 31,
+        MixinDeclaration = 32,
+        MixinParameters = 33,
+        MixinParameter = 34,
+        MixinParameterDefaultValue = 35,
+        MixinInclude = 36,
+        MixinIncludeParameters = 37,
+        MixinIncludeParameter = 38
     }
 }

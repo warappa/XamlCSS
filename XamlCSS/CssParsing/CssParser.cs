@@ -29,7 +29,7 @@ namespace XamlCSS.CssParsing
                 switch (currentToken.Type)
                 {
                     case CssTokenType.At:
-                        currentNode = ReadAtAst(currentNode, tokens, currentIndex);
+                        currentNode = ReadAtAst(currentNode, tokens, ref currentIndex);
                         break;
                     case CssTokenType.Dollar:
                         currentNode = ReadDollarAst(currentNode, currentToken);
@@ -159,6 +159,17 @@ namespace XamlCSS.CssParsing
         {
             CssNode n = null;
 
+            TrimCurrentNode(currentNode);
+
+            if (currentNode.Type == CssNodeType.MixinParameter)
+            {
+                currentNode = currentNode.Parent;
+            }
+            if (currentNode.Type == CssNodeType.MixinParameters)
+            {
+                currentNode = currentNode.Parent;
+            }
+
             if (currentNode.Type == CssNodeType.Key)
             {
                 var keyValue = currentNode.Text;
@@ -256,7 +267,15 @@ namespace XamlCSS.CssParsing
 
         private static CssNode ReadCommaAst(CssNode currentNode, CssToken currentToken)
         {
-            if (currentNode.Type == CssNodeType.Key)
+            if (currentNode.Type == CssNodeType.MixinIncludeParameter)
+            {
+                currentNode = currentNode.Parent;
+            }
+            else if (currentNode.Type == CssNodeType.MixinParameter)
+            {
+                currentNode = currentNode.Parent;
+            }
+            else if (currentNode.Type == CssNodeType.Key)
             {
                 var keyValue = currentNode.Text;
 
@@ -299,9 +318,29 @@ namespace XamlCSS.CssParsing
             return currentNode;
         }
 
+        private static void TrimCurrentNode(CssNode currentNode)
+        {
+            currentNode.TextBuilder = new StringBuilder(currentNode.Text.Trim());
+        }
+
         private static CssNode ReadParenthesisAst(CssNode currentNode, CssToken currentToken)
         {
-            if (currentNode.Type == CssNodeType.Value)
+            if (currentNode.Type == CssNodeType.MixinInclude)
+            {
+                if (currentToken.Text == "(")
+                {
+                    var node = new CssNode(CssNodeType.MixinIncludeParameters, currentNode, "");
+                    currentNode.Children.Add(node);
+                    currentNode = node;
+                }
+                else
+                {
+                    TrimCurrentNode(currentNode);
+
+                    currentNode = currentNode.Parent;
+                }
+            }
+            else if (currentNode.Type == CssNodeType.Value)
             {
                 currentNode.TextBuilder.Append(currentToken.Text);
             }
@@ -312,6 +351,19 @@ namespace XamlCSS.CssParsing
             else if (currentNode.Type == CssNodeType.SelectorFragment)
             {
                 currentNode.TextBuilder.Append(currentToken.Text);
+            }
+            else if (currentNode.Type == CssNodeType.MixinDeclaration)
+            {
+                if (currentToken.Text == "(")
+                {
+                    var node = new CssNode(CssNodeType.MixinParameters, currentNode, "");
+                    currentNode.Children.Add(node);
+                    currentNode = node;
+                }
+                else
+                {
+                    currentNode = currentNode.Parent;
+                }
             }
 
             return currentNode;
@@ -539,7 +591,19 @@ namespace XamlCSS.CssParsing
             CssNode n = null;
             CssToken currentToken = tokens[currentIndex];
 
-            if (currentNode.Type == CssNodeType.StyleDeclaration)
+            if (currentNode.Type == CssNodeType.MixinParameter)
+            {
+                currentIndex++;
+
+                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
+            }
+            else if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
+            {
+                currentIndex++;
+
+                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
+            }
+            else if (currentNode.Type == CssNodeType.StyleDeclaration)
             {
                 n = new CssNode(CssNodeType.Value, currentNode, "");
                 currentNode.Children.Add(n);
@@ -574,6 +638,12 @@ namespace XamlCSS.CssParsing
             {
                 currentNode.TextBuilder.Append(currentToken.Text);
             }
+            else if (currentNode.Type == CssNodeType.MixinParameter)
+            {
+                n = new CssNode(CssNodeType.MixinParameterDefaultValue, currentNode, "");
+                currentNode.Children.Add(n);
+                currentNode = n;
+            }
 
             return currentNode;
         }
@@ -583,7 +653,19 @@ namespace XamlCSS.CssParsing
             CssNode n = null;
             CssToken currentToken = tokens[currentIndex];
 
-            if (currentNode.Type == CssNodeType.NamespaceKeyword)
+            if (currentNode.Type == CssNodeType.MixinParameter)
+            {
+                currentIndex++;
+
+                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
+            }
+            else if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
+            {
+                currentIndex++;
+
+                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
+            }
+            else if (currentNode.Type == CssNodeType.NamespaceKeyword)
             {
                 currentNode = currentNode.Parent;
                 currentNode.Children.Add(new CssNode(CssNodeType.NamespaceAlias, currentNode, ""));
@@ -646,7 +728,31 @@ namespace XamlCSS.CssParsing
         {
             CssNode n = null;
 
-            if (currentNode.Type == CssNodeType.EventTrigger)
+            if (currentNode.Type == CssNodeType.MixinIncludeParameters)
+            {
+                n = new CssNode(CssNodeType.MixinIncludeParameter, currentNode, currentToken.Text);
+                currentNode.Children.Add(n);
+                currentNode = n;
+            }
+            else if (currentNode.Type == CssNodeType.MixinInclude)
+            {
+                currentNode.TextBuilder.Append(currentToken.Text);
+            }
+            else if (currentNode.Type == CssNodeType.MixinDeclaration)
+            {
+                currentNode.TextBuilder.Append(currentToken.Text);
+            }
+            else if (currentNode.Type == CssNodeType.MixinParameters)
+            {
+                n = new CssNode(CssNodeType.MixinParameter, currentNode, currentToken.Text);
+                currentNode.Children.Add(n);
+                currentNode = n;
+            }
+            else if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
+            {
+                currentNode.TextBuilder.Append(currentToken.Text);
+            }
+            else if (currentNode.Type == CssNodeType.EventTrigger)
             {
                 currentNode.TextBuilder.Append(currentToken.Text);
             }
@@ -795,7 +901,7 @@ namespace XamlCSS.CssParsing
             return currentNode;
         }
 
-        private static CssNode ReadAtAst(CssNode currentNode, List<CssToken> tokens, int currentIndex)
+        private static CssNode ReadAtAst(CssNode currentNode, List<CssToken> tokens, ref int currentIndex)
         {
             CssToken currentToken = tokens[currentIndex];
             CssNode n = null;
@@ -816,6 +922,14 @@ namespace XamlCSS.CssParsing
                     currentNode.Children.Add(n);
                     currentNode = n;
                 }
+                else if (identifier.Text == "mixin")
+                {
+                    n = new CssNode(CssNodeType.MixinDeclaration, currentNode, "");
+                    currentNode.Children.Add(n);
+                    currentNode = n;
+
+                    currentIndex++;
+                }
             }
             else if (currentNode.Type == CssNodeType.Value ||
                 currentNode.Type == CssNodeType.VariableValue)
@@ -826,7 +940,15 @@ namespace XamlCSS.CssParsing
             {
                 var identifier = Peek(tokens, currentIndex, CssTokenType.Identifier);
 
-                if (identifier.Text == "Property")
+                if (identifier.Text == "include")
+                {
+                    n = new CssNode(CssNodeType.MixinInclude, currentNode, "");
+                    currentNode.Children.Add(n);
+                    currentNode = n;
+
+                    currentIndex++;
+                }
+                else if (identifier.Text == "Property")
                 {
                     n = new CssNode(CssNodeType.PropertyTrigger, currentNode, "");
                     currentNode.Children.Add(n);
@@ -1037,7 +1159,10 @@ namespace XamlCSS.CssParsing
 
         private static List<StyleDeclaration> GetStyleDeclarationsFromBlock(CssNode astStyleDeclarationBlock)
         {
-            return astStyleDeclarationBlock.Children
+            var mixinIncludes = GetMixinIncludes(astStyleDeclarationBlock);
+
+            return mixinIncludes
+                .Concat(astStyleDeclarationBlock.Children
                 .Where(x => x.Type == CssNodeType.StyleDeclaration)
                 .Select(x =>
                 {
@@ -1054,6 +1179,12 @@ namespace XamlCSS.CssParsing
                                      .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y) : y.Text)
                                      .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim()
                     };
+                }))
+                .GroupBy(x => x.Property, x => x.Value)
+                .Select(x => new StyleDeclaration
+                {
+                    Property = x.Key,
+                    Value = x.Last()
                 })
                 .ToList();
         }
@@ -1179,6 +1310,55 @@ namespace XamlCSS.CssParsing
                                 };
                             })
                             .ToList<ITrigger>();
+        }
+
+        private static List<StyleDeclaration> GetMixinIncludes(CssNode astStyleDeclarationBlock)
+        {
+            return astStyleDeclarationBlock.Children
+                            .Where(x => x.Type == CssNodeType.MixinInclude)
+                            .SelectMany(x =>
+                            {
+                                var name = x.Text;
+
+                                var astMixinParameters = x.Children
+                                         .SingleOrDefault(y => y.Type == CssNodeType.MixinIncludeParameters)
+                                         ?.Children
+                                         .Select(y => y.Text)
+                                         .ToList() ?? new List<string>();
+
+                                return GetMixinStyleDefinitions(astStyleDeclarationBlock, name);
+                            })
+                            .ToList();
+        }
+
+        private static List<StyleDeclaration> GetMixinStyleDefinitions(CssNode astStyleDeclarationBlock, string name)
+        {
+            var declaration = GetMixinDeclaration(astStyleDeclarationBlock, name);
+
+            if (declaration == null)
+                return new List<StyleDeclaration>();
+
+            return GetStyleDeclarationsFromBlock(declaration.Children.First(x => x.Type == CssNodeType.StyleDeclarationBlock));
+        }
+
+        private static CssNode GetMixinDeclaration(CssNode astStyleDeclarationBlock, string name)
+        {
+            var current = astStyleDeclarationBlock.Parent;
+
+            while (current != null)
+            {
+                var mixinDeclaration = current
+                    .Children
+                    .FirstOrDefault(x =>
+                        x.Type == CssNodeType.MixinDeclaration &&
+                        x.Text == name);
+                if (mixinDeclaration != null)
+                {
+                    return mixinDeclaration;
+                }
+                current = current.Parent;
+            }
+            return null;
         }
 
         private static List<string> GetSelectorStringsFromSelectorsCssNode(CssNode selectors)

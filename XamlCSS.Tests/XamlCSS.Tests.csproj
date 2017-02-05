@@ -59,6 +59,7 @@
     </Compile>
     <Compile Include="CssParsing\CssParserTests.cs" />
     <Compile Include="CssParsing\MergedStyleSheetTests.cs" />
+    <Compile Include="CssParsing\MixinTests.cs" />
     <Compile Include="CssParsing\SassStyleTestExtensions.cs" />
     <Compile Include="CssParsing\SassStyleTests.cs" />
     <Compile Include="CssParsing\TriggerTests.cs" />
