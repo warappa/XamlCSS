@@ -560,6 +560,12 @@ namespace XamlCSS.CssParsing
                 currentNode.Children.Add(n);
                 currentNode = n;
             }
+            else if (currentNode.Type == CssNodeType.MixinParameter)
+            {
+                n = new CssNode(CssNodeType.MixinParameterDefaultValue, currentNode, "");
+                currentNode.Children.Add(n);
+                currentNode = n;
+            }
             else if (currentNode.Type == CssNodeType.Key)
             {
                 var nextToken = FirstTokenTypeOf(tokens, currentIndex, new[] { CssTokenType.Semicolon, CssTokenType.DoubleQuotes, CssTokenType.BraceOpen });
@@ -1380,7 +1386,20 @@ namespace XamlCSS.CssParsing
             for (var i = 0; i < parameterAsts.Count; i++)
             {
                 var parameterAst = parameterAsts[i];
-                parameterDict.Add(parameterAst.Text, parameterValues[i]);
+                if (i < parameterValues.Count)
+                {
+                    parameterDict.Add(parameterAst.Text, parameterValues[i]);
+                }
+                else
+                {
+                    var defaultValueAst = parameterAst.Children.FirstOrDefault(x => x.Type == CssNodeType.MixinParameterDefaultValue);
+                    if (defaultValueAst == null)
+                    {
+                        throw new InvalidOperationException($"Parameter missing for parameter '{parameterAst.Text}' which has no default value!");
+                    }
+
+                    parameterDict.Add(parameterAst.Text, defaultValueAst.Text);
+                }
             }
 
             return GetStyleDeclarationsFromBlock(declaration.Children.First(x => x.Type == CssNodeType.StyleDeclarationBlock), parameterDict);
