@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 using XamlCSS.CssParsing;
@@ -17,15 +18,15 @@ namespace XamlCSS.XamarinForms
     {
         public static BaseCss<BindableObject, BindableObject, Style, BindableProperty> instance;
 
-        private static Timer timer;
+        private static Timer uiTimer;
 
         private static Element rootElement;
-
+        private static object lockObject = new object();
         private static bool initialized = false;
 
         private static void StartUiTimer()
         {
-            timer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
+            uiTimer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
             {
                 var tcs = new TaskCompletionSource<object>();
                 Device.BeginInvokeOnMainThread(() =>
@@ -39,78 +40,82 @@ namespace XamlCSS.XamarinForms
 
         public static void Reset()
         {
-            VisualTreeHelper.SubTreeAdded -= VisualTreeHelper_ChildAdded;
-            VisualTreeHelper.SubTreeRemoved -= VisualTreeHelper_ChildRemoved;
+            lock (lockObject)
+            {
+                if (initialized == false)
+                {
+                    return;
+                }
 
-            VisualTreeHelper.Reset();
+                VisualTreeHelper.SubTreeAdded -= VisualTreeHelper_ChildAdded;
+                VisualTreeHelper.SubTreeRemoved -= VisualTreeHelper_ChildRemoved;
 
-            timer?.Cancel();
-            timer?.Dispose();
-            timer = null;
+                VisualTreeHelper.Reset();
 
-            instance = null;
+                uiTimer?.Cancel();
+                uiTimer?.Dispose();
+                uiTimer = null;
 
-            initialized = false;
+                instance = null;
+
+                initialized = false;
+            }
         }
 
         public static void Initialize(Element rootElement)
         {
-            if (initialized &&
-                rootElement == Css.rootElement)
+            lock (lockObject)
             {
-                return;
-            }
-
-            Reset();
-
-            instance = new BaseCss<BindableObject, BindableObject, Style, BindableProperty>(
-                new DependencyPropertyService(),
-                new LogicalTreeNodeProvider(new DependencyPropertyService()),
-                new StyleResourceService(),
-                new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
-                DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
-                new MarkupExtensionParser(),
-                Device.BeginInvokeOnMainThread,
-                new CssFileProvider()
-                );
-
-            Css.rootElement = rootElement;
-
-            VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
-            VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
-
-            VisualTreeHelper.Initialize(rootElement);
-
-            if (rootElement is Application)
-            {
-                var application = rootElement as Application;
-                StartUiTimer();
-
-                // Workaround: MainPage not initialized on appstart
-                Timer workaroundTimer = null;
-
-                workaroundTimer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
+                if (initialized &&
+                    rootElement == Css.rootElement)
                 {
-                    if (application.MainPage == null ||
-                        application.MainPage.Parent != application)
+                    return;
+                }
+
+                Reset();
+
+                instance = new BaseCss<BindableObject, BindableObject, Style, BindableProperty>(
+                    new DependencyPropertyService(),
+                    new LogicalTreeNodeProvider(new DependencyPropertyService()),
+                    new StyleResourceService(),
+                    new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
+                    DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
+                    new MarkupExtensionParser(),
+                    Device.BeginInvokeOnMainThread,
+                    new CssFileProvider()
+                    );
+
+                Css.rootElement = rootElement;
+
+                VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
+                VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
+
+                VisualTreeHelper.Initialize(rootElement);
+
+                if (rootElement is Application)
+                {
+                    var application = rootElement as Application;
+
+                    if (application.MainPage == null)
                     {
-                        // Debug.WriteLine(".");
-                        return;
+                        PropertyChangedEventHandler handler = null;
+                        handler = (s, e) =>
+                        {
+                            if (e.PropertyName == nameof(Application.MainPage))
+                            {
+                                application.PropertyChanged -= handler;
+                                VisualTreeHelper.Include(application.MainPage);
+                            }
+                        };
+
+                        application.PropertyChanged += handler;
                     }
+                }
 
-                    workaroundTimer.Cancel();
-                    workaroundTimer.Dispose();
-
-                    // Debug.WriteLine("Now include mainpage " + application.MainPage.ToString());
-                    VisualTreeHelper.Include(application.MainPage);
-                }, null);
-            }
-            else
-            {
                 StartUiTimer();
-            }
 
-            initialized = true;
+                initialized = true;
+            }
         }
 
         public static void EnqueueRenderStyleSheet(Element styleSheetHolder, StyleSheet styleSheet, Element startFrom)

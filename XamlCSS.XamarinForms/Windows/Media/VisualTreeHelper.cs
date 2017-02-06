@@ -12,13 +12,15 @@ namespace XamlCSS.Windows.Media
         public static event EventHandler SubTreeAdded;
         public static event EventHandler SubTreeRemoved;
 
-        private static Dictionary<Element, List<Element>> parentChildAssociations =
+        public static Dictionary<Element, List<Element>> parentChildAssociations =
             new Dictionary<Element, List<Element>>();
 
-        private static Dictionary<Element, Element> childParentAssociations =
+        public static Dictionary<Element, Element> childParentAssociations =
             new Dictionary<Element, Element>();
 
-        private static Element rootElement;
+        public static Element rootElement;
+        public static bool initialized;
+        private static object lockObject = new object();
 
         public static string PrintRealPath(Element e)
         {
@@ -44,26 +46,41 @@ namespace XamlCSS.Windows.Media
 
         public static void Initialize(Element root)
         {
-            Reset();
+            lock (lockObject)
+            {
+                if (initialized == true)
+                {
+                    return;
+                }
 
-            rootElement = root;
+                Reset();
 
-            AttachedChild(root);
+                rootElement = root;
+
+                AttachedChild(root);
+
+                initialized = true;
+            }
         }
 
         public static void Reset()
         {
-            if (rootElement == null)
+            lock (lockObject)
             {
-                return;
+                if (initialized == false)
+                {
+                    return;
+                }
+
+                UnattachedChild(rootElement);
+
+                rootElement = null;
+
+                parentChildAssociations = new Dictionary<Element, List<Element>>();
+                childParentAssociations = new Dictionary<Element, Element>();
+
+                initialized = false;
             }
-
-            UnattachedChild(rootElement);
-
-            rootElement = null;
-
-            parentChildAssociations = new Dictionary<Element, List<Element>>();
-            childParentAssociations = new Dictionary<Element, Element>();
         }
 
         public static void Exclude(Element cell)
@@ -111,8 +128,6 @@ namespace XamlCSS.Windows.Media
             var parentOfChild = child.Parent;
             if (child.Parent != null)
             {
-
-
                 List<Element> list = null;
                 if (parentChildAssociations.TryGetValue(parentOfChild, out list) == false)
                 {
@@ -128,7 +143,6 @@ namespace XamlCSS.Windows.Media
                 childParentAssociations.Add(child, parentOfChild);
             }
             catch { }
-
 
             if (child is ViewCell)
             {

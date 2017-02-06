@@ -70,18 +70,32 @@ namespace XamlCSS
                     items.Clear();
                 }
 
-                var invalidateAllItem = copy.FirstOrDefault(x => x.Remove && x.StartFrom == null);
-                if (invalidateAllItem != null)
+                var invalidateAllItems = copy
+                    .Where(x => x.Remove && x.StartFrom == null)
+                    .GroupBy(x => x.StyleSheetHolder)
+                    .Select(x => x.First())
+                    .ToList();
+
+                var handledStyleSheetHolders = invalidateAllItems
+                    .Select(x => x.StyleSheetHolder)
+                    .ToList();
+
+                foreach (var invalidateAllItem in invalidateAllItems)
                 {
                     RemoveStyleResourcesInternal(invalidateAllItem.StyleSheetHolder, invalidateAllItem.StyleSheet);
                     UnapplyMatchingStylesInternal(invalidateAllItem.StyleSheetHolder, invalidateAllItem.StyleSheet);
                 }
-                else
+
+                var invalidateSpecificItems = copy
+                    .Where(x => x.Remove && x.StartFrom != null)
+                    .GroupBy(x => x.StartFrom)
+                    .Select(x => x.First())
+                    .Where(x => !handledStyleSheetHolders.Contains(x.StyleSheetHolder))
+                    .ToList();
+
+                foreach (var invalidateSpecificItem in invalidateSpecificItems)
                 {
-                    foreach (var item in copy.Where(x => x.Remove).ToList())
-                    {
-                        UnapplyMatchingStylesInternal(item.StartFrom, item.StyleSheet);
-                    }
+                    UnapplyMatchingStylesInternal(invalidateSpecificItem.StartFrom, invalidateSpecificItem.StyleSheet);
                 }
 
                 copy.RemoveAll(x => x.Remove);
