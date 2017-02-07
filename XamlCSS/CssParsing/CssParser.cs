@@ -567,12 +567,16 @@ namespace XamlCSS.CssParsing
 
         private static void AddImportedStyle(CssNode currentNode)
         {
-            var content = cssFileProvider.LoadFrom(currentNode.Text);
-            var ast = GetAst(content);
+            var content = cssFileProvider?.LoadFrom(currentNode.Text);
 
-            var document = currentNode.Parent;
+            if (content != null)
+            {
+                var ast = GetAst(content);
 
-            document.Children.AddRange(ast.Children);
+                var document = currentNode.Parent;
+
+                document.Children.AddRange(ast.Children);
+            }
         }
 
         private static CssNode ReadColonAst(CssNode currentNode, List<CssToken> tokens, ref int currentIndex)

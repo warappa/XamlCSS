@@ -1,10 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Xamarin.Forms;
-using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 using XamlCSS.Windows.Media;
@@ -62,7 +61,7 @@ namespace XamlCSS.XamarinForms
             }
         }
 
-        public static void Initialize(Element rootElement)
+        public static void Initialize(Element rootElement, Assembly[] resourceSearchAssemblies = null)
         {
             lock (lockObject)
             {
@@ -82,7 +81,7 @@ namespace XamlCSS.XamarinForms
                     DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
                     new MarkupExtensionParser(),
                     Device.BeginInvokeOnMainThread,
-                    new CssFileProvider()
+                    new CssFileProvider(resourceSearchAssemblies ?? new Assembly[0])
                     );
 
                 Css.rootElement = rootElement;

@@ -1,19 +1,45 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 using Windows.Storage;
+using Windows.UI.Xaml;
 using XamlCSS.CssParsing;
 
 namespace XamlCSS.UWP.CssParsing
 {
-    public class CssFileProvider : ICssFileProvider
+    public class CssFileProvider : CssFileProviderBase
     {
-        public string LoadFrom(string source)
+        public CssFileProvider()
+            : base(new[] { Application.Current.GetType().GetTypeInfo().Assembly })
+        {
+        }
+
+        public CssFileProvider(IEnumerable<Assembly> assemblies)
+            : this()
+        {
+            this.assemblies.AddRange(assemblies);
+        }
+
+        protected override Stream TryGetFromFile(string source)
         {
             StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
-            StorageFile sampleFile = storageFolder.GetFileAsync(source).AsTask().Result;
 
-            string text = FileIO.ReadTextAsync(sampleFile).AsTask().Result;
+            var absolutePath = source;
+            if (!Path.IsPathRooted(absolutePath))
+            {
+                absolutePath = Path.Combine(storageFolder.Path, absolutePath);
+            }
 
-            return text;
+            if (File.Exists(absolutePath))
+            {
+                try
+                {
+                    return File.OpenRead(absolutePath);
+                }
+                catch { }
+            }
+
+            return null;
         }
     }
 }

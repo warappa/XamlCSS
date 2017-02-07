@@ -9,6 +9,8 @@ namespace XamlCSS.WPF.TestApp
     public partial class App : Application
     {
         public string cssStyle1 = @"
+@import ""Resources\\baseStyle.scss"";
+
 Button
 {
 	Foreground: Red;

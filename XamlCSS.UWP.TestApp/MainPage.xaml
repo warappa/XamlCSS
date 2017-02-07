@@ -15,6 +15,7 @@
         <ResourceDictionary>
             <css:StyleSheet x:Key="InternalStyle">
                 <css:StyleSheet.Content>
+                    @import "Resources\\baseStyle.scss";
                     Button
 {
     Width: 100;

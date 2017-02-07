@@ -41,6 +41,18 @@ namespace XamlCSS.UWP
         }
 
         private static bool initialized = false;
+
+
+        public static void Reset()
+        {
+            if (!initialized)
+            {
+                return;
+            }
+
+            initialized = false;
+        }
+
         public static void Initialize()
         {
             if (initialized)
@@ -76,7 +88,6 @@ namespace XamlCSS.UWP
         public static readonly DependencyProperty LoadDetectionProperty =
             DependencyProperty.RegisterAttached("LoadDetection", typeof(bool), typeof(LoadedDetectionHelper),
                                                 new PropertyMetadata(false, OnLoadDetectionChanged));
-
         public static bool GetLoadDetection(UIElement element)
         {
             var res = element.ReadLocalValue(LoadDetectionProperty);

@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
+using System.Reflection;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
@@ -41,7 +44,10 @@ namespace XamlCSS.UWP
 
         static Css()
         {
-            Initialize();
+            if (Windows.ApplicationModel.DesignMode.DesignModeEnabled)
+            {
+                Initialize(new[] { Application.Current.GetType().GetTypeInfo().Assembly });
+            }
         }
 
         private static void LoadedDetectionHelper_SubTreeAdded(object sender, EventArgs e)
@@ -53,7 +59,26 @@ namespace XamlCSS.UWP
             instance.UnapplyMatchingStyles(sender as DependencyObject, null);
         }
 
-        public static void Initialize()
+        public static void Reset()
+        {
+            if (!initialized)
+            {
+                return;
+            }
+
+            CompositionTarget.Rendering -= RenderingHandler;
+
+            LoadedDetectionHelper.SubTreeAdded -= LoadedDetectionHelper_SubTreeAdded;
+            LoadedDetectionHelper.SubTreeRemoved -= LoadedDetectionHelper_SubTreeRemoved;
+
+            LoadedDetectionHelper.Reset();
+
+            instance = null;
+
+            initialized = false;
+        }
+
+        public static void Initialize(IEnumerable<Assembly> resourceSearchAssemblies)
         {
             if (initialized)
             {
@@ -68,7 +93,7 @@ namespace XamlCSS.UWP
                 DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button)),
                 new MarkupExtensionParser(),
                 RunOnUIThread,
-                new CssFileProvider()
+                new CssFileProvider(resourceSearchAssemblies)
                 );
 
             LoadedDetectionHelper.Initialize();
@@ -76,12 +101,14 @@ namespace XamlCSS.UWP
             LoadedDetectionHelper.SubTreeAdded += LoadedDetectionHelper_SubTreeAdded;
             LoadedDetectionHelper.SubTreeRemoved += LoadedDetectionHelper_SubTreeRemoved;
 
-            CompositionTarget.Rendering += (sender, e) =>
-            {
-                instance.ExecuteApplyStyles();
-            };
+            CompositionTarget.Rendering += RenderingHandler;
 
             initialized = true;
+        }
+
+        private static void RenderingHandler(object sender, object e)
+        {
+            instance.ExecuteApplyStyles();
         }
 
         #region dependency properties

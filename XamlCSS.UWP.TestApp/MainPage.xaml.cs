@@ -14,8 +14,6 @@ namespace XamlCSS.UWP.TestApp
     {
         public MainPage()
         {
-            Css.Initialize();
-
             this.DataContext = new MainWindowViewModel
             {
                 Message = "Hello World from DataContext!"

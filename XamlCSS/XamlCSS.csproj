@@ -93,6 +93,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="BaseCss.cs" />
+    <Compile Include="CssParsing\CssFileProviderBase.cs" />
     <Compile Include="CssParsing\CssNamespace.cs" />
     <Compile Include="CssParsing\CssNode.cs" />
     <Compile Include="CssParsing\CssNodeType.cs" />

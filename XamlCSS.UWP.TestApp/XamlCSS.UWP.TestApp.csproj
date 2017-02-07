@@ -112,6 +112,9 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <EmbeddedResource Include="Resources\baseStyle.scss">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="XamlCSS.UWP.TestApp_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
