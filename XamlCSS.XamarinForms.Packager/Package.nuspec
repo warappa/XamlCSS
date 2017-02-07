@@ -85,26 +85,32 @@
       <group>
         <dependency id="XamlCSS" version="1.0.6" />
         <dependency id="Xamarin.Forms" version="2.3.3.180" />
+        <dependency id="PCLStorage" version="1.0.2" />
       </group>
       <group targetFramework="Xamarin.iOS10">
         <dependency id="XamlCSS" version="1.0.6" />
         <dependency id="Xamarin.Forms" version="2.3.3.180" />
+        <dependency id="PCLStorage" version="1.0.2" />
       </group>
       <group targetFramework="MonoAndroid10">
         <dependency id="XamlCSS" version="1.0.6" />
         <dependency id="Xamarin.Forms" version="2.3.3.180" />
+        <dependency id="PCLStorage" version="1.0.2" />
       </group>
       <group targetFramework="wp8">
         <dependency id="XamlCSS" version="1.0.6" />
         <dependency id="Xamarin.Forms" version="2.3.3.180" />
+        <dependency id="PCLStorage" version="1.0.2" />
       </group>
       <group targetFramework="wpa81">
         <dependency id="XamlCSS" version="1.0.6" />
         <dependency id="Xamarin.Forms" version="2.3.3.180" />
+        <dependency id="PCLStorage" version="1.0.2" />
       </group>
       <group targetFramework="uap10.0">
         <dependency id="XamlCSS" version="1.0.6" />
         <dependency id="Xamarin.Forms" version="2.3.3.180" />
+        <dependency id="PCLStorage" version="1.0.2" />
       </group>
     </dependencies>
     <references></references>
