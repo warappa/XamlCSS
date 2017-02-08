@@ -46,9 +46,17 @@ namespace XamlCSS.CssParsing
             foreach (var assembly in searchAssemblies)
             {
                 var resourceName = GetEmbeddedResourceName(source, assembly);
-                if (assembly.GetManifestResourceNames().ToList().Contains(resourceName))
+                try
                 {
-                    stream = assembly.GetManifestResourceStream(resourceName);
+                    if (assembly.GetManifestResourceNames().ToList().Contains(resourceName))
+                    {
+                        stream = assembly.GetManifestResourceStream(resourceName);
+                        break;
+                    }
+                }
+                catch
+                {
+
                 }
             }
 
