@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26127.3
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlCSS", "XamlCSS\XamlCSS.csproj", "{A11EA228-BCDC-46EC-8F8B-57FC9227C1AC}"
 EndProject
@@ -468,7 +468,6 @@ Global
 		{95E6DF9D-F335-4B24-8354-BA4EA4C156B3}.Debug|x86.Build.0 = Debug|Any CPU
 		{95E6DF9D-F335-4B24-8354-BA4EA4C156B3}.Debug|x86.Deploy.0 = Debug|Any CPU
 		{95E6DF9D-F335-4B24-8354-BA4EA4C156B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{95E6DF9D-F335-4B24-8354-BA4EA4C156B3}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{95E6DF9D-F335-4B24-8354-BA4EA4C156B3}.Release|ARM.ActiveCfg = Release|Any CPU
 		{95E6DF9D-F335-4B24-8354-BA4EA4C156B3}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{95E6DF9D-F335-4B24-8354-BA4EA4C156B3}.Release|iPhone.Build.0 = Release|Any CPU
@@ -626,7 +625,6 @@ Global
 		{778A8A3E-A21D-441F-924B-946E68CA139A}.Debug|x86.Build.0 = Debug|x86
 		{778A8A3E-A21D-441F-924B-946E68CA139A}.Debug|x86.Deploy.0 = Debug|x86
 		{778A8A3E-A21D-441F-924B-946E68CA139A}.Release|Any CPU.ActiveCfg = Release|x86
-		{778A8A3E-A21D-441F-924B-946E68CA139A}.Release|Any CPU.Deploy.0 = Release|x86
 		{778A8A3E-A21D-441F-924B-946E68CA139A}.Release|ARM.ActiveCfg = Release|ARM
 		{778A8A3E-A21D-441F-924B-946E68CA139A}.Release|iPhone.ActiveCfg = Release|x86
 		{778A8A3E-A21D-441F-924B-946E68CA139A}.Release|iPhoneSimulator.ActiveCfg = Release|x86
