@@ -301,7 +301,13 @@ namespace XamlCSS
                 var otherStyleElements = matchedNodes
                     .Where(x =>
                     {
-                        var elementStyleSheet = dependencyPropertyService.GetStyleSheet(GetStyleSheetParent(x.Element));
+                        var parent = GetStyleSheetParent(x.Element);
+                        // parent happens to be null if class was changed by binding
+                        if (parent == null)
+                        {
+                            return true;
+                        }
+                        var elementStyleSheet = dependencyPropertyService.GetStyleSheet(parent);
                         return elementStyleSheet != null && elementStyleSheet != styleSheet;
                     }).ToList();
 
