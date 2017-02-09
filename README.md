@@ -20,10 +20,13 @@ Supported Features
 - Support **DynamicResource** (except vanilla UWP)
 - Set **simple values** like Foreground, FontSize, FontStyle,... by CSS
 
-### Next
-- Triggers
-- Multiple StyleSheets
-- Nested selectors (like Sass)
+New in 2.0.0
+---
+- **Triggers**
+- **Multiple** StyleSheets
+- **Nested** selectors (like Sass)
+- **Css-variables**
+- **Import** of other css-files
 
 ### Not (yet) supported
 - Visual State Manager
