@@ -12,7 +12,6 @@ using Xamarin.Forms.Xaml;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("XamlCSS.XamarinForms.TestApp")]
-[assembly: AssemblyCopyright("© 2016 David Rettenbacher")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: NeutralResourcesLanguage("en")]

@@ -11,7 +11,6 @@ using Android.App;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("XamlCSS.XamarinForms.TestApp.Droid")]
-[assembly: AssemblyCopyright("© 2016 David Rettenbacher")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 [assembly: ComVisible(false)]

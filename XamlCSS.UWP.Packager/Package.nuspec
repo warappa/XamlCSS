@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XamlCSS.UWP</id>
-    <version>1.0.6</version>
+    <version>2.0.0-pre1</version>
     <title>XamlCSS.UWP</title>
     <authors>David Rettenbacher</authors>
     <owners></owners>
@@ -10,6 +10,12 @@
       Style UWP-apps with Css
     </description>
     <releaseNotes>
+      2.0.0-pre1
+      - #11 Nested selectors, css-variables
+      - #23 Css imports
+      - #24 Sass-like mixins
+      - #28 Fixed bracket parsing
+
       1.0.6
       - #20 Performance: Selectors are parsed too often
 
@@ -72,10 +78,10 @@
     <iconUrl>https://raw.githubusercontent.com/warappa/XamlCSS/master/Content/Logo.jpg</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
-    <copyright>© 2016 David Rettenbacher</copyright>
+    <copyright>© 2017 David Rettenbacher</copyright>
     <dependencies>
       <group targetFramework="uap10.0">
-        <dependency id="XamlCSS" version="1.0.6" />
+        <dependency id="XamlCSS" version="2.0.0-pre1" />
       </group>
     </dependencies>
     <references></references>

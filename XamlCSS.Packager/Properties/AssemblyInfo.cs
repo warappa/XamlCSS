@@ -10,7 +10,6 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("XamlCSS.Packager")]
-[assembly: AssemblyCopyright("© 2016 David Rettenbacher")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

@@ -12,7 +12,6 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("XamlCSS.WPF.TestApp")]
-[assembly: AssemblyCopyright("© 2016 David Rettenbacher")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
@@ -32,12 +31,12 @@ using System.Windows;
 
 
 [assembly: ThemeInfo(
-	ResourceDictionaryLocation.None, //Speicherort der designspezifischen Ressourcenwörterbücher
-									 //(wird verwendet, wenn eine Ressource auf der Seite
-									 // oder in den Anwendungsressourcen-Wörterbüchern nicht gefunden werden kann.)
-	ResourceDictionaryLocation.SourceAssembly //Speicherort des generischen Ressourcenwörterbuchs
-											  //(wird verwendet, wenn eine Ressource auf der Seite, in der Anwendung oder einem 
-											  // designspezifischen Ressourcenwörterbuch nicht gefunden werden kann.)
+    ResourceDictionaryLocation.None, //Speicherort der designspezifischen Ressourcenwörterbücher
+                                     //(wird verwendet, wenn eine Ressource auf der Seite
+                                     // oder in den Anwendungsressourcen-Wörterbüchern nicht gefunden werden kann.)
+    ResourceDictionaryLocation.SourceAssembly //Speicherort des generischen Ressourcenwörterbuchs
+                                              //(wird verwendet, wenn eine Ressource auf der Seite, in der Anwendung oder einem 
+                                              // designspezifischen Ressourcenwörterbuch nicht gefunden werden kann.)
 )]
 
 
