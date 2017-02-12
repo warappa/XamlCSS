@@ -10,7 +10,7 @@ namespace XamlCSS.CssParsing
     {
         public static IEnumerable<CssToken> Tokenize(string cssDocument)
         {
-            var rawTokens = cssDocument.Split(new[] { ' ', '\t', '\n', '\r' })
+            var rawTokens = cssDocument.Split(new[] { ' ', '\t' })
                 .SelectMany(x => new[] { " ", x })
                 .ToList();
 
@@ -18,23 +18,34 @@ namespace XamlCSS.CssParsing
                 .Select(x => x == "" ? " " : x)
                 .ToList();
 
-            var strs2 = new List<string>(rawTokens.Count);
+            var newRawTokens = new List<string>(rawTokens.Count);
 
-            var prevousWasWhitespace = false;
+            var previousWasWhitespace = false;
+            var previousWhitespaceCharacter = "\0";
             for (var i = 0; i < rawTokens.Count; i++)
             {
-                var isWhitespace = string.IsNullOrWhiteSpace(rawTokens[i]);
-                if (isWhitespace == false)
-                    strs2.Add(rawTokens[i]);
-                if (isWhitespace &&
-                    prevousWasWhitespace == false)
+                var currentToken = rawTokens[i];
+                var isWhitespace = string.IsNullOrWhiteSpace(currentToken);
+                if (isWhitespace)
                 {
-                    strs2.Add(rawTokens[i]);
-                }
-                prevousWasWhitespace = isWhitespace;
-            }
-            rawTokens = strs2.ToList();
+                    if (previousWhitespaceCharacter != currentToken)
+                    {
+                        newRawTokens.Add(currentToken);
+                    }
 
+                    previousWhitespaceCharacter = currentToken;
+                }
+                else
+                {
+                    newRawTokens.Add(currentToken);
+                    previousWhitespaceCharacter = "\0";
+                }
+
+                previousWasWhitespace = isWhitespace;
+            }
+
+            rawTokens = newRawTokens.ToList();
+            
             rawTokens = rawTokens
                 .SplitThem('.')
                 .SplitThem(';')
@@ -53,7 +64,10 @@ namespace XamlCSS.CssParsing
                 .SplitThem('{')
                 .SplitThem('}')
                 .SplitThem('\\')
+                .SplitThem('/')
                 .SplitThem('$')
+                .SplitThem('\r')
+                .SplitThem('\n')
                 .ToList();
 
             var strsIndex = 0;
@@ -130,12 +144,21 @@ namespace XamlCSS.CssParsing
                 {
                     t = new CssToken(CssTokenType.Backslash, c);
                 }
+                else if (c == "/")
+                {
+                    t = new CssToken(CssTokenType.Slash, c);
+                }
                 else if (
-                    c == " " ||
-                    c == "\t" ||
-                    c == "\r" ||
-                    c == "\n"
+                    c == " "
                     )
+                {
+                    t = new CssToken(CssTokenType.Whitespace, c);
+                }
+                else if (
+                   c == "\t" ||
+                   c == "\r" ||
+                   c == "\n"
+                   )
                 {
                     t = new CssToken(CssTokenType.Whitespace, c);
                 }

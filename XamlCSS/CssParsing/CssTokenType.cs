@@ -24,5 +24,6 @@
         Dollar = 19,
         SquareBracketOpen = 20,
         SquareBracketClose = 21,
+        Slash = 22,
     }
 }

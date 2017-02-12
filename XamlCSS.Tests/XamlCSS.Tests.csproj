@@ -58,6 +58,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="CssParsing\CssParserTests.cs" />
+    <Compile Include="CssParsing\CommentTests.cs" />
     <Compile Include="CssParsing\MergedStyleSheetTests.cs" />
     <Compile Include="CssParsing\ImportTests.cs" />
     <Compile Include="CssParsing\MixinTests.cs" />

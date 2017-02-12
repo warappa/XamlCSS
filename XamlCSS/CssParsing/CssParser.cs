@@ -30,6 +30,16 @@ namespace XamlCSS.CssParsing
 
                 switch (currentToken.Type)
                 {
+                    case CssTokenType.Slash:
+                        if (tokens[currentIndex + 1].Text == "/")
+                        {
+                            ReadLineCommentText(ref currentNode, tokens, ref currentIndex);
+                        }
+                        else if (tokens[currentIndex + 1].Text == "*")
+                        {
+                            ReadInlineCommentText(ref currentNode, tokens, ref currentIndex);
+                        }
+                        break;
                     case CssTokenType.At:
                         currentNode = ReadAtAst(currentNode, tokens, ref currentIndex);
                         break;
@@ -1094,6 +1104,41 @@ namespace XamlCSS.CssParsing
                 else
                 {
                     currentNode.TextBuilder.Append(tokens[i].Text);
+                }
+                i++;
+            } while (i < tokens.Count);
+        }
+
+        private static void ReadLineCommentText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        {
+            do
+            {
+                if (tokens[i].Type == CssTokenType.Whitespace &&
+                    (tokens[i].Text == "\n" || tokens[i].Text == "\r"))
+                {
+                    break;
+                }
+                else
+                {
+                    
+                }
+                i++;
+            } while (i < tokens.Count);
+        }
+
+        private static void ReadInlineCommentText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        {
+            do
+            {
+                if (tokens[i].Type == CssTokenType.Identifier &&
+                    (tokens[i].Text == "*" && tokens[i + 1].Text == "/"))
+                {
+                    i++;
+                    break;
+                }
+                else
+                {
+                   
                 }
                 i++;
             } while (i < tokens.Count);
