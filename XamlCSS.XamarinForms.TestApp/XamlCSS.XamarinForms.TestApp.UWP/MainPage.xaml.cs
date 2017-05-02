@@ -1,4 +1,6 @@
-﻿namespace XamlCSS.XamarinForms.TestApp.UWP
+﻿using Xamarin.Forms;
+
+namespace XamlCSS.XamarinForms.TestApp.UWP
 {
     public sealed partial class MainPage
     {
