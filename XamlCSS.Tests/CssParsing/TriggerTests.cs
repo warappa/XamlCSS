@@ -38,6 +38,40 @@ Button
         }
 
         [Test]
+        public void EnterActions_should_be_added_to_Triggers()
+        {
+            var content = @"
+Button
+{
+    @Property IsFocussed True
+    {
+        @Enter: BeginStoryboard ""#StaticResource fadeOutAndInStoryboard"", BeginStoryboard ""#StaticResource fadeOutAndInStoryboard2"";
+        
+        BackgroundColor: Red;
+        ForegroundColor: Green;
+
+        @Exit: BeginStoryboard ""#StaticResource fadeOutAndInStoryboard"", 
+            BeginStoryboard ""#StaticResource fadeOutAndInStoryboard2"",
+            BeginStoryboard ""#StaticResource fadeOutAndInStoryboard3"";
+    }
+}
+";
+            var styleSheet = CssParser.Parse(content);
+
+            var first = styleSheet.Rules[0].DeclarationBlock.Triggers[0] as Trigger;
+            first.Property.Should().Be("IsFocussed");
+            first.Value.Should().Be("True");
+
+            first.StyleDeclaraionBlock[0].Property.Should().Be("BackgroundColor");
+            first.StyleDeclaraionBlock[0].Value.Should().Be("Red");
+            first.StyleDeclaraionBlock[1].Property.Should().Be("ForegroundColor");
+            first.StyleDeclaraionBlock[1].Value.Should().Be("Green");
+
+            first.EnterActions.Count.Should().Be(2);
+            first.ExitActions.Count.Should().Be(3);
+        }
+
+        [Test]
         public void PropertyTrigger_with_quoted_value_should_be_added_to_Triggers()
         {
             var content = @"

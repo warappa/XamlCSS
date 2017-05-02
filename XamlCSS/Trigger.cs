@@ -11,7 +11,7 @@ namespace XamlCSS
 
         public StyleDeclarationBlock StyleDeclaraionBlock { get; set; }
 
-        public List<TriggerAction> EnterActions { get; set; }
-        public List<TriggerAction> ExitActions { get; set; }
+        public List<TriggerAction> EnterActions { get; set; } = new List<TriggerAction>();
+        public List<TriggerAction> ExitActions { get; set; } = new List<TriggerAction>();
     }
 }

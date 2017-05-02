@@ -1054,9 +1054,42 @@ namespace XamlCSS.CssParsing
                     currentNode.Children.Add(n);
                     currentNode = n;
                 }
+                else if (identifier.Text == "Enter")
+                {
+                    n = new CssNode(CssNodeType.EnterAction, currentNode, "");
+                    currentNode.Children.Add(n);
+                    currentNode = n;
+
+                    currentIndex++;
+
+                    currentNode = ReadUntilSemicolon(tokens, currentNode, ref currentIndex);
+                }
+                else if (identifier.Text == "Exit")
+                {
+                    n = new CssNode(CssNodeType.ExitAction, currentNode, "");
+                    currentNode.Children.Add(n);
+                    currentNode = n;
+
+                    currentIndex++;
+
+                    currentNode = ReadUntilSemicolon(tokens, currentNode, ref currentIndex);
+                }
             }
 
             return currentNode;
+        }
+
+        private static CssNode ReadUntilSemicolon(List<CssToken> tokens, CssNode currentNode, ref int currentIndex)
+        {
+            while(currentIndex < tokens.Count &&
+                tokens[currentIndex].Type != CssTokenType.Semicolon)
+            {
+                currentNode.TextBuilder.Append(tokens[currentIndex].Text);
+
+                currentIndex++;
+            }
+
+            return currentNode.Parent;
         }
 
         private static void ReadSingleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i, bool goToParent = true)
