@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.Xaml;
@@ -48,7 +49,7 @@ namespace XamlCSS.XamarinForms.TestApp.UWP
 
                 rootFrame.NavigationFailed += OnNavigationFailed;
 
-                Xamarin.Forms.Forms.Init(e);
+                Xamarin.Forms.Forms.Init(e, new[] { typeof(XamlCSS.XamarinForms.TestApp.App).GetTypeInfo().Assembly });
 
                 if (e.PreviousExecutionState == ApplicationExecutionState.Terminated)
                 {
