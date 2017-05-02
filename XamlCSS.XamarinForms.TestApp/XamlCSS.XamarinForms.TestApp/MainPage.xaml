@@ -25,7 +25,11 @@ Button
                     
     @Event Clicked
     {
-        local|ToColorTriggerAction: To #StaticResource ClickedColor, Duration 5000;
+        local|ToColorTriggerAction:
+        {
+            To: #StaticResource ClickedColor;
+            Duration: 5000;
+        }
     }
                     
     @Property Text "Change Style"

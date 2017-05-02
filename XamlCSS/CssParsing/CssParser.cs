@@ -164,6 +164,17 @@ namespace XamlCSS.CssParsing
             {
                 currentNode = currentNode.Parent.Parent;
             }
+
+            if (currentNode.Type == CssNodeType.StyleDeclaration)
+            {
+                currentNode = currentNode.Parent;
+            }
+
+            if(currentNode.Type == CssNodeType.ActionDeclarationBlock)
+            {
+
+            }
+
             return currentNode;
         }
 
@@ -237,7 +248,20 @@ namespace XamlCSS.CssParsing
             {
                 currentNode = currentNode.Parent;
 
-                n = new CssNode(CssNodeType.StyleDeclarationBlock, currentNode, currentToken.Text);
+                n = new CssNode(CssNodeType.ActionDeclarationBlock, currentNode, currentToken.Text);
+                currentNode.Children.Add(n);
+                currentNode = n;
+            }
+            else if (currentNode.Type == CssNodeType.ActionDeclaration)
+            {
+                n = new CssNode(CssNodeType.ActionParameterBlock, currentNode, "");
+                currentNode.Children.Add(n);
+                currentNode = n;
+            }
+            else if (currentNode.Type == CssNodeType.EnterAction ||
+                currentNode.Type == CssNodeType.ExitAction)
+            {
+                n = new CssNode(CssNodeType.ActionDeclarationBlock, currentNode, "");
                 currentNode.Children.Add(n);
                 currentNode = n;
             }
@@ -629,6 +653,10 @@ namespace XamlCSS.CssParsing
                         currentToken = tokens[currentIndex];
                     }
                 }
+                else if (currentNode.Parent.Type == CssNodeType.ActionDeclaration)
+                {
+                    currentNode = currentNode.Parent;
+                }
                 else // selector
                 {
                     currentNode.TextBuilder.Append(currentToken.Text);
@@ -637,6 +665,11 @@ namespace XamlCSS.CssParsing
             else if (currentNode.Type == CssNodeType.SelectorFragment)
             {
                 currentNode.TextBuilder.Append(currentToken.Text);
+            }
+            else if (currentNode.Type == CssNodeType.EnterAction ||
+                currentNode.Type == CssNodeType.ExitAction)
+            {
+                
             }
             else if (currentNode.Type == CssNodeType.Value)
             {
@@ -794,7 +827,27 @@ namespace XamlCSS.CssParsing
         {
             CssNode n = null;
 
-            if (currentNode.Type == CssNodeType.ImportDeclaration)
+            if (currentNode.Type == CssNodeType.ActionDeclarationBlock)
+            {
+                n = new CssNode(CssNodeType.ActionDeclaration, currentNode, "");
+                currentNode.Children.Add(n);
+                currentNode = n;
+
+                n = new CssNode(CssNodeType.Key, currentNode, currentToken.Text);
+                currentNode.Children.Add(n);
+                currentNode = n;
+            }
+            else if (currentNode.Type == CssNodeType.ActionParameterBlock)
+            {
+                n = new CssNode(CssNodeType.ActionParameter, currentNode, "");
+                currentNode.Children.Add(n);
+                currentNode = n;
+
+                n = new CssNode(CssNodeType.Key, currentNode, currentToken.Text);
+                currentNode.Children.Add(n);
+                currentNode = n;
+            }
+            else if (currentNode.Type == CssNodeType.ImportDeclaration)
             {
                 currentNode.TextBuilder.Append(currentToken.Text);
             }
@@ -1062,7 +1115,7 @@ namespace XamlCSS.CssParsing
 
                     currentIndex++;
 
-                    currentNode = ReadUntilSemicolon(tokens, currentNode, ref currentIndex);
+                    //currentNode = ReadUntilSemicolon(tokens, currentNode, ref currentIndex);
                 }
                 else if (identifier.Text == "Exit")
                 {
@@ -1072,7 +1125,7 @@ namespace XamlCSS.CssParsing
 
                     currentIndex++;
 
-                    currentNode = ReadUntilSemicolon(tokens, currentNode, ref currentIndex);
+                    //currentNode = ReadUntilSemicolon(tokens, currentNode, ref currentIndex);
                 }
             }
 
@@ -1081,7 +1134,7 @@ namespace XamlCSS.CssParsing
 
         private static CssNode ReadUntilSemicolon(List<CssToken> tokens, CssNode currentNode, ref int currentIndex)
         {
-            while(currentIndex < tokens.Count &&
+            while (currentIndex < tokens.Count &&
                 tokens[currentIndex].Type != CssTokenType.Semicolon)
             {
                 currentNode.TextBuilder.Append(tokens[currentIndex].Text);
@@ -1153,7 +1206,7 @@ namespace XamlCSS.CssParsing
                 }
                 else
                 {
-                    
+
                 }
                 i++;
             } while (i < tokens.Count);
@@ -1171,7 +1224,7 @@ namespace XamlCSS.CssParsing
                 }
                 else
                 {
-                   
+
                 }
                 i++;
             } while (i < tokens.Count);
@@ -1313,21 +1366,34 @@ namespace XamlCSS.CssParsing
         private static List<TriggerAction> GetActionDeclarationsFromBlock(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
         {
             return astStyleDeclarationBlock.Children
-                .Where(x => x.Type == CssNodeType.StyleDeclaration)
+                .Where(x => x.Type == CssNodeType.ActionDeclaration)
                 .Select(x =>
                 {
-                    var keyAst = x.Children
+                    var actionAst = x.Children
                              .Single(y => y.Type == CssNodeType.Key);
-                    var valueAst = x.Children
-                             .Single(y => y.Type == CssNodeType.Value);
-                    return new TriggerAction
-                    {
-                        Action = keyAst.Text,
-                        Parameters = valueAst.Text != "" ?
+                    var actionBlockAst = x.Children
+                             .Single(y => y.Type == CssNodeType.ActionParameterBlock);
+
+                    var parameters = actionBlockAst.Children
+                        .Select(actionParameter => {
+
+                            var valueAst = actionParameter.Children.Where(c => c.Type == CssNodeType.Value).Single();
+                            var val = valueAst.Text != "" ?
                                  valueAst.Text.Trim() :
                                  valueAst.Children
                                      .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y, parameterValues) : y.Text)
-                                     .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim()
+                                     .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim();
+
+                            return new ActionParameter
+                            {
+                                Property = actionParameter.Children.Where(c => c.Type == CssNodeType.Key).Single().Text,
+                                Value = val
+                            };
+                        });
+                    return new TriggerAction
+                    {
+                        Action = actionAst.Text,
+                        Parameters =  parameters.ToList()
                     };
                 })
                 .ToList();
@@ -1425,6 +1491,47 @@ namespace XamlCSS.CssParsing
                                 var astTriggerStyleDeclarationBlock = x.Children
                                          .Single(y => y.Type == CssNodeType.StyleDeclarationBlock);
 
+                                var enterActions = astTriggerStyleDeclarationBlock.Children
+                                    .Where(y => y.Type == CssNodeType.EnterAction)
+                                    .SelectMany(y => y.Children)
+                                    .Where(y => y.Type == CssNodeType.ActionDeclarationBlock)
+                                    .SingleOrDefault()?.Children
+                                    .Select(y => new TriggerAction
+                                    {
+                                        Action = y.Children.Single(z => z.Type == CssNodeType.Key).Text,
+                                        Parameters = y.Children
+                                            .Single(z => z.Type == CssNodeType.ActionParameterBlock)
+                                            .Children
+                                            .Select(z => new ActionParameter
+                                            {
+                                                Property = z.Children.Single(a => a.Type == CssNodeType.Key).Text,
+                                                Value = z.Children.Single(a => a.Type == CssNodeType.Value).Text,
+                                            })
+                                            .ToList()
+                                    })
+                                    .ToList() ?? new List<TriggerAction>();
+
+                                var exitActions = astTriggerStyleDeclarationBlock.Children
+                                    .Where(y => y.Type == CssNodeType.ExitAction)
+                                    .SelectMany(y => y.Children)
+                                    .Where(y => y.Type == CssNodeType.ActionDeclarationBlock)
+                                    .SingleOrDefault()?.Children
+                                    .Select(y => new TriggerAction
+                                    {
+                                        Action = y.Children.Single(z => z.Type == CssNodeType.Key).Text,
+                                        Parameters = y.Children
+                                            .Single(z => z.Type == CssNodeType.ActionParameterBlock)
+                                            .Children
+                                            .Select(z => new ActionParameter
+                                            {
+                                                Property = z.Children.Single(a => a.Type == CssNodeType.Key).Text,
+                                                Value = z.Children.Single(a => a.Type == CssNodeType.Value).Text,
+                                            })
+                                            .ToList()
+                                    })
+                                    .ToList() ?? new List<TriggerAction>();
+
+
                                 return new Trigger
                                 {
                                     Property = propertyAst.Text.Trim(),
@@ -1433,7 +1540,9 @@ namespace XamlCSS.CssParsing
                                              valueAst.Children
                                                  .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y, null) : y.Text)
                                                  .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim(),
-                                    StyleDeclaraionBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null))
+                                    StyleDeclaraionBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
+                                    EnterActions = enterActions,
+                                    ExitActions = exitActions
                                 };
                             })
                             .ToList<ITrigger>();
@@ -1477,7 +1586,7 @@ namespace XamlCSS.CssParsing
                                          .Single(y => y.Type == CssNodeType.EventTriggerEvent);
 
                                 var astTriggerActionDeclarationBlock = x.Children
-                                         .Single(y => y.Type == CssNodeType.StyleDeclarationBlock);
+                                         .Single(y => y.Type == CssNodeType.ActionDeclarationBlock);
 
                                 return new EventTrigger
                                 {

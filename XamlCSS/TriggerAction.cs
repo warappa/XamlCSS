@@ -1,8 +1,10 @@
-﻿namespace XamlCSS
+﻿using System.Collections.Generic;
+
+namespace XamlCSS
 {
     public class TriggerAction
     {
         public string Action { get; set; }
-        public string Parameters { get; set; }
+        public List<ActionParameter> Parameters { get; set; }
     }
 }

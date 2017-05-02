@@ -29,14 +29,17 @@
                     Button
 {
     Width: 100;
-                    @Property IsEnabled true
-                    {
-                        Background: #StaticResource ToColor;
-                    }
-                    @Event Click
-                    {
-                        animation|BeginStoryboard: Storyboard #StaticResource storyboard;
-                    }
+    @Property IsEnabled true
+    {
+        Background: #StaticResource ToColor;
+    }
+    @Event Click
+    {
+        animation|BeginStoryboard: 
+        {
+            Storyboard: #StaticResource storyboard;
+        }
+    }
 }
 TextBlock
 {

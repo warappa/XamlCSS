@@ -43,6 +43,9 @@
         MixinIncludeParameter = 38,
         ImportDeclaration = 39,
         EnterAction = 40,
-        ExitAction = 41
+        ExitAction = 41,
+        ActionDeclaration = 42,
+        ActionParameterBlock = 43,
+        ActionParameter = 44
     }
 }

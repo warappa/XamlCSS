@@ -45,14 +45,27 @@ Button
 {
     @Property IsFocussed True
     {
-        @Enter: BeginStoryboard ""#StaticResource fadeOutAndInStoryboard"", BeginStoryboard ""#StaticResource fadeOutAndInStoryboard2"";
-        
+        @Enter: 
+        {
+            BeginStoryboard: 
+            {
+                Storyboard: #StaticResource fadeOutAndInStoryboard;
+            }
+            BeginStoryboard:
+            {
+                Storyboard: ""#StaticResource fadeOutAndInStoryboard2"";
+            }
+        }
+
         BackgroundColor: Red;
         ForegroundColor: Green;
 
-        @Exit: BeginStoryboard ""#StaticResource fadeOutAndInStoryboard"", 
-            BeginStoryboard ""#StaticResource fadeOutAndInStoryboard2"",
-            BeginStoryboard ""#StaticResource fadeOutAndInStoryboard3"";
+        @Exit: 
+        {
+            BeginStoryboard: { Storyboard: #StaticResource fadeOutAndInStoryboard; }
+            BeginStoryboard: { Storyboard: #StaticResource fadeOutAndInStoryboard2; }
+            BeginStoryboard: { Storyboard: #StaticResource fadeOutAndInStoryboard3; }
+        }
     }
 }
 ";
@@ -121,8 +134,14 @@ Button
 {
     @Event Clicked
     {
-        BeginStoryboard: #StaticResource fadeOutAndInStoryboard;
-        Transition: FontSize initial 50 500ms ease-in-out, Width 100 200 500ms, Height [ initial 300 200ms, initial 200 500ms];
+        BeginStoryboard: { Storyboard: #StaticResource fadeOutAndInStoryboard; }
+        Transition: 
+        {
+            FontSize: initial 50 500ms ease-in-out;
+            Width: 100 200 500ms;
+            Height: initial 300 200ms;
+            Height: initial 200 500ms;
+        }
     }
 }
 ";
@@ -132,10 +151,14 @@ Button
             first.Event.Should().Be("Clicked");
 
             first.Actions[0].Action.Should().Be("BeginStoryboard");
-            first.Actions[0].Parameters.Should().Be("#StaticResource fadeOutAndInStoryboard");
+            first.Actions[0].Parameters.First().Value.Should().Be("#StaticResource fadeOutAndInStoryboard");
 
             first.Actions[1].Action.Should().Be("Transition");
-            first.Actions[1].Parameters.Should().Be("FontSize initial 50 500ms ease-in-out, Width 100 200 500ms, Height [ initial 300 200ms, initial 200 500ms]");
+            first.Actions[1].Parameters.First().Property.Should().Be("FontSize");
+            first.Actions[1].Parameters.First().Value.Should().Be("initial 50 500ms ease-in-out");
+
+            first.Actions[1].Parameters.Skip(1).First().Property.Should().Be("Width");
+            first.Actions[1].Parameters.Skip(1).First().Value.Should().Be("100 200 500ms");
         }
 
         [Test]

@@ -136,15 +136,15 @@ namespace XamlCSS.WPF
                     var actionType = Type.GetType(actionTypeName);
                     var triggerAction = (System.Windows.TriggerAction)Activator.CreateInstance(actionType);
 
-                    var parameters = action.Parameters.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
+                    /*var parameters = action.Parameters.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
                         .Select(x => x.Trim())
-                        .ToList();
+                        .ToList();*/
 
-                    foreach (var parameter in parameters)
+                    foreach (var parameter in action.Parameters)
                     {
-                        var parameterName = parameter.Split(' ')[0];
+                        var parameterName = parameter.Property;//.Split(' ')[0];
                         object value = null;
-                        var parameterValueExpression = parameter.Substring(parameterName.Length + 1).Trim();
+                        var parameterValueExpression = parameter.Value.Trim();//.Substring(parameterName.Length + 1).Trim();
                         DependencyProperty depProp;
                         var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, triggerAction, parameterName);
 
