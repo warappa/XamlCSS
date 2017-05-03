@@ -26,7 +26,7 @@ namespace XamlCSS.Tests.CssParsing
         [Test]
         public void TestGetAst()
         {
-            var doc = CssParser.GetAst(test1);
+            var doc = AstGenerator.GetAst(test1);
 
             var node = doc.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleRule)
                 ?.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleDeclarationBlock)

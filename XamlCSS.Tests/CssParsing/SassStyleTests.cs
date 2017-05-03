@@ -16,7 +16,7 @@ namespace XamlCSS.Tests.CssParsing
 }
 ";
 
-            var ast = CssParser.GetAst(css);
+            var ast = AstGenerator.GetAst(css);
 
             ast.GetSelectorNode(0, 0, 0).Text.Should().Be(".header");
         }
@@ -34,7 +34,7 @@ namespace XamlCSS.Tests.CssParsing
 }
 ";
 
-            var ast = CssParser.GetAst(css);
+            var ast = AstGenerator.GetAst(css);
             var headerRuleNode = ast.GetRootStyleRuleNode(0);
             var labelRuleNode = headerRuleNode
                 .GetSubStyleRuleNode(0);
