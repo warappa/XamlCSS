@@ -110,17 +110,13 @@ namespace XamlCSS.XamarinForms
                     var actionTypeName = typeNameResolver.ResolveFullTypeName(styleSheet.Namespaces, action.Action);
                     var actionType = Type.GetType(actionTypeName);
                     var triggerAction = (Xamarin.Forms.TriggerAction)Activator.CreateInstance(actionType);
-
-                    var parameters = action.Parameters.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries)
-                        .Select(x => x.Trim())
-                        .ToList();
-
-                    foreach (var parameter in parameters)
+                    
+                    foreach (var parameter in action.Parameters)
                     {
-                        var parameterName = parameter.Split(' ')[0];
+                        var parameterName = parameter.Property;
 
                         object value = null;
-                        var parameterValueExpression = parameter.Substring(parameterName.Length + 1).Trim();
+                        var parameterValueExpression = parameter.Value.Trim(); //.Substring(parameterName.Length + 1).Trim();
                         BindableProperty depProp;
                         var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, triggerAction, parameterName);
 

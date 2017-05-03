@@ -170,11 +170,6 @@ namespace XamlCSS.CssParsing
                 currentNode = currentNode.Parent;
             }
 
-            if(currentNode.Type == CssNodeType.ActionDeclarationBlock)
-            {
-
-            }
-
             return currentNode;
         }
 
@@ -669,7 +664,7 @@ namespace XamlCSS.CssParsing
             else if (currentNode.Type == CssNodeType.EnterAction ||
                 currentNode.Type == CssNodeType.ExitAction)
             {
-                
+
             }
             else if (currentNode.Type == CssNodeType.Value)
             {
@@ -1375,14 +1370,10 @@ namespace XamlCSS.CssParsing
                              .Single(y => y.Type == CssNodeType.ActionParameterBlock);
 
                     var parameters = actionBlockAst.Children
-                        .Select(actionParameter => {
-
+                        .Select(actionParameter =>
+                        {
                             var valueAst = actionParameter.Children.Where(c => c.Type == CssNodeType.Value).Single();
-                            var val = valueAst.Text != "" ?
-                                 valueAst.Text.Trim() :
-                                 valueAst.Children
-                                     .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y, parameterValues) : y.Text)
-                                     .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim();
+                            var val = GetValueFromValueAst(valueAst, parameterValues);
 
                             return new ActionParameter
                             {
@@ -1393,10 +1384,19 @@ namespace XamlCSS.CssParsing
                     return new TriggerAction
                     {
                         Action = actionAst.Text,
-                        Parameters =  parameters.ToList()
+                        Parameters = parameters.ToList()
                     };
                 })
                 .ToList();
+        }
+
+        private static string GetValueFromValueAst(CssNode valueAst, Dictionary<string, string> parameterValues)
+        {
+            return valueAst.Text != "" ?
+                valueAst.Text.Trim() :
+                valueAst.Children
+                    .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y, parameterValues) : y.Text)
+                    .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim();
         }
 
         private static List<StyleDeclaration> GetStyleDeclarationsFromBlock(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
@@ -1415,11 +1415,7 @@ namespace XamlCSS.CssParsing
                     return new StyleDeclaration
                     {
                         Property = keyAst.Text,
-                        Value = valueAst.Text != "" ?
-                                 valueAst.Text.Trim() :
-                                 valueAst.Children
-                                     .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y, parameterValues) : y.Text)
-                                     .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim()
+                        Value = GetValueFromValueAst(valueAst, parameterValues)
                     };
                 }))
                 .GroupBy(x => x.Property, x => x.Value)
@@ -1438,9 +1434,9 @@ namespace XamlCSS.CssParsing
 
             var styleDeclarations = GetStyleDeclarationsFromBlock(astStyleDeclarationBlock, null);
 
-            var propertyTriggers = GetPropertyTriggers(astStyleDeclarationBlock);
-            var dataTriggers = GetDataTriggers(astStyleDeclarationBlock);
-            var eventTriggers = GetEventTriggers(astStyleDeclarationBlock);
+            var propertyTriggers = GetPropertyTriggers(astStyleDeclarationBlock, null);
+            var dataTriggers = GetDataTriggers(astStyleDeclarationBlock, null);
+            var eventTriggers = GetEventTriggers(astStyleDeclarationBlock, null);
 
             var triggers = propertyTriggers.Concat(dataTriggers).Concat(eventTriggers).ToList();
 
@@ -1456,7 +1452,6 @@ namespace XamlCSS.CssParsing
                 .ToList();
 
             var allSelectorsToUse = GetAllRuleSelectors(allSelectorLayers);
-
 
             foreach (var ruleSelectorToUse in allSelectorsToUse)
             {
@@ -1477,7 +1472,7 @@ namespace XamlCSS.CssParsing
             ResolveSubRules(styleSheet, astStyleDeclarationBlock);
         }
 
-        private static List<ITrigger> GetPropertyTriggers(CssNode astStyleDeclarationBlock)
+        private static List<ITrigger> GetPropertyTriggers(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
         {
             return astStyleDeclarationBlock.Children
                             .Where(x => x.Type == CssNodeType.PropertyTrigger)
@@ -1491,55 +1486,14 @@ namespace XamlCSS.CssParsing
                                 var astTriggerStyleDeclarationBlock = x.Children
                                          .Single(y => y.Type == CssNodeType.StyleDeclarationBlock);
 
-                                var enterActions = astTriggerStyleDeclarationBlock.Children
-                                    .Where(y => y.Type == CssNodeType.EnterAction)
-                                    .SelectMany(y => y.Children)
-                                    .Where(y => y.Type == CssNodeType.ActionDeclarationBlock)
-                                    .SingleOrDefault()?.Children
-                                    .Select(y => new TriggerAction
-                                    {
-                                        Action = y.Children.Single(z => z.Type == CssNodeType.Key).Text,
-                                        Parameters = y.Children
-                                            .Single(z => z.Type == CssNodeType.ActionParameterBlock)
-                                            .Children
-                                            .Select(z => new ActionParameter
-                                            {
-                                                Property = z.Children.Single(a => a.Type == CssNodeType.Key).Text,
-                                                Value = z.Children.Single(a => a.Type == CssNodeType.Value).Text,
-                                            })
-                                            .ToList()
-                                    })
-                                    .ToList() ?? new List<TriggerAction>();
+                                var enterActions = GetTriggerActions(astTriggerStyleDeclarationBlock, CssNodeType.EnterAction, parameterValues);
 
-                                var exitActions = astTriggerStyleDeclarationBlock.Children
-                                    .Where(y => y.Type == CssNodeType.ExitAction)
-                                    .SelectMany(y => y.Children)
-                                    .Where(y => y.Type == CssNodeType.ActionDeclarationBlock)
-                                    .SingleOrDefault()?.Children
-                                    .Select(y => new TriggerAction
-                                    {
-                                        Action = y.Children.Single(z => z.Type == CssNodeType.Key).Text,
-                                        Parameters = y.Children
-                                            .Single(z => z.Type == CssNodeType.ActionParameterBlock)
-                                            .Children
-                                            .Select(z => new ActionParameter
-                                            {
-                                                Property = z.Children.Single(a => a.Type == CssNodeType.Key).Text,
-                                                Value = z.Children.Single(a => a.Type == CssNodeType.Value).Text,
-                                            })
-                                            .ToList()
-                                    })
-                                    .ToList() ?? new List<TriggerAction>();
-
+                                var exitActions = GetTriggerActions(astTriggerStyleDeclarationBlock, CssNodeType.ExitAction, parameterValues);
 
                                 return new Trigger
                                 {
                                     Property = propertyAst.Text.Trim(),
-                                    Value = valueAst.Text != "" ?
-                                             valueAst.Text.Trim() :
-                                             valueAst.Children
-                                                 .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y, null) : y.Text)
-                                                 .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim(),
+                                    Value = GetValueFromValueAst(valueAst, parameterValues),
                                     StyleDeclaraionBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
                                     EnterActions = enterActions,
                                     ExitActions = exitActions
@@ -1548,7 +1502,29 @@ namespace XamlCSS.CssParsing
                             .ToList<ITrigger>();
         }
 
-        private static List<ITrigger> GetDataTriggers(CssNode astStyleDeclarationBlock)
+        private static List<TriggerAction> GetTriggerActions(CssNode astTriggerStyleDeclarationBlock, CssNodeType type, Dictionary<string, string> parameterValues)
+        {
+            if (type != CssNodeType.EnterAction &&
+                type != CssNodeType.ExitAction)
+            {
+                throw new InvalidOperationException("Type must be either EnterAction or ExitAction");
+            }
+
+            var actionDeclarationBlockAst = astTriggerStyleDeclarationBlock.Children
+                .Where(y => y.Type == type)
+                .SelectMany(y => y.Children)
+                .Where(y => y.Type == CssNodeType.ActionDeclarationBlock)
+                .SingleOrDefault();
+
+            if (actionDeclarationBlockAst == null)
+            {
+                return new List<TriggerAction>();
+            }
+
+            return GetActionDeclarationsFromBlock(actionDeclarationBlockAst, parameterValues);
+        }
+
+        private static List<ITrigger> GetDataTriggers(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
         {
             return astStyleDeclarationBlock.Children
                             .Where(x => x.Type == CssNodeType.DataTrigger)
@@ -1562,21 +1538,23 @@ namespace XamlCSS.CssParsing
                                 var astTriggerStyleDeclarationBlock = x.Children
                                          .Single(y => y.Type == CssNodeType.StyleDeclarationBlock);
 
+                                var enterActions = GetTriggerActions(astTriggerStyleDeclarationBlock, CssNodeType.EnterAction, parameterValues);
+
+                                var exitActions = GetTriggerActions(astTriggerStyleDeclarationBlock, CssNodeType.ExitAction, parameterValues);
+
                                 return new DataTrigger
                                 {
                                     Binding = bindingAst.Text.Trim(),
-                                    Value = valueAst.Text != "" ?
-                                             valueAst.Text.Trim() :
-                                             valueAst.Children
-                                                 .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y, null) : y.Text)
-                                                 .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim(),
-                                    StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null))
+                                    Value = GetValueFromValueAst(valueAst, parameterValues),
+                                    StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
+                                    EnterActions = enterActions,
+                                    ExitActions = exitActions
                                 };
                             })
                             .ToList<ITrigger>();
         }
 
-        private static List<ITrigger> GetEventTriggers(CssNode astStyleDeclarationBlock)
+        private static List<ITrigger> GetEventTriggers(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
         {
             return astStyleDeclarationBlock.Children
                             .Where(x => x.Type == CssNodeType.EventTrigger)
@@ -1591,7 +1569,7 @@ namespace XamlCSS.CssParsing
                                 return new EventTrigger
                                 {
                                     Event = eventAst.Text.Trim(),
-                                    Actions = new List<TriggerAction>(GetActionDeclarationsFromBlock(astTriggerActionDeclarationBlock, null))
+                                    Actions = new List<TriggerAction>(GetActionDeclarationsFromBlock(astTriggerActionDeclarationBlock, parameterValues))
                                 };
                             })
                             .ToList<ITrigger>();
