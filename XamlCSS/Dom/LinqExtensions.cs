@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using AngleSharp.Dom;
 using AngleSharp.Dom.Css;
-using AngleSharp.Parser.Css;
 
 namespace XamlCSS.Dom
 {
@@ -29,6 +27,7 @@ namespace XamlCSS.Dom
         {
             return string.Equals(current, other, StringComparison.OrdinalIgnoreCase);
         }
+
         public static bool Is(this string current, string other)
         {
             return string.Equals(current, other, StringComparison.Ordinal);
@@ -65,6 +64,7 @@ namespace XamlCSS.Dom
                 }
             }
         }
+
         public static void GetElementsByTagName(this INodeList elements, string tagName, List<IElement> result)
         {
             for (int i = 0; i < elements.Length; i++)
@@ -84,6 +84,7 @@ namespace XamlCSS.Dom
                 }
             }
         }
+
         public static void GetElementsByTagName(this INodeList elements, string namespaceUri, string localName, List<IElement> result)
         {
             for (int i = 0; i < elements.Length; i++)
@@ -103,6 +104,7 @@ namespace XamlCSS.Dom
                 }
             }
         }
+
         public static IList<IElement> QuerySelectorAll(this INodeList elements, ISelector selector)
         {
             List<IElement> list = new List<IElement>();
@@ -111,6 +113,7 @@ namespace XamlCSS.Dom
 
             return list;
         }
+
         public static void QuerySelectorAll(this INodeList elements, ISelector selector, List<IElement> result)
         {
             for (int i = 0; i < elements.Length; i++)
@@ -130,6 +133,7 @@ namespace XamlCSS.Dom
                 }
             }
         }
+
         public static IElement QuerySelector(this INodeList elements, ISelector selector)
         {
             for (int i = 0; i < elements.Length; i++)
@@ -156,6 +160,7 @@ namespace XamlCSS.Dom
 
             return null;
         }
+
         public static T QuerySelector<T>(this INodeList elements, ISelector selectors) where T : class, IElement
         {
             return elements.QuerySelector(selectors) as T;

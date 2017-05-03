@@ -282,7 +282,7 @@ namespace XamlCSS.CssParsing
                                 {
                                     Property = propertyAst.Text.Trim(),
                                     Value = GetValueFromValueAst(valueAst, parameterValues),
-                                    StyleDeclaraionBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
+                                    StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
                                     EnterActions = enterActions,
                                     ExitActions = exitActions
                                 };

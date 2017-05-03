@@ -70,7 +70,7 @@ namespace XamlCSS.WPF
                 nativeTrigger.Property = dependencyProperty;
                 nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property, propertyTrigger.Value);
 
-                foreach (var styleDeclaration in propertyTrigger.StyleDeclaraionBlock)
+                foreach (var styleDeclaration in propertyTrigger.StyleDeclarationBlock)
                 {
                     var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
                     if (property == null)

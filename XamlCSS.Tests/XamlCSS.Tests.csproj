@@ -57,6 +57,11 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CssParsing\AstGeneratorTests.cs" />
+    <Compile Include="CssParsing\CssFileProviderTests.cs" />
+    <Compile Include="CssParsing\CssNamespaceTests.cs" />
+    <Compile Include="CssParsing\PropertyTriggerTests.cs" />
+    <Compile Include="CssParsing\TokenizerTests.cs" />
     <Compile Include="CssParsing\CssParserTests.cs" />
     <Compile Include="CssParsing\CommentTests.cs" />
     <Compile Include="CssParsing\MergedStyleSheetTests.cs" />
@@ -65,7 +70,8 @@
     <Compile Include="CssParsing\SassStyleTestExtensions.cs" />
     <Compile Include="CssParsing\SassStyleTests.cs" />
     <Compile Include="CssParsing\TestCssFileProvider.cs" />
-    <Compile Include="CssParsing\TriggerTests.cs" />
+    <Compile Include="CssParsing\DataTriggerTests.cs" />
+    <Compile Include="CssParsing\EventTriggerTests.cs" />
     <Compile Include="Dom\CssSelectionTests.cs" />
     <Compile Include="Dom\TestNode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -80,6 +86,9 @@
     <Content Include="CssParsing\TestData\ImportCss.scss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <EmbeddedResource Include="CssParsing\TestData\ImportCssEmbedded.scss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

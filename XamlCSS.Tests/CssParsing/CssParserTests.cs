@@ -8,7 +8,7 @@ namespace XamlCSS.Tests.CssParsing
     [TestFixture]
     public class CssParserTests
     {
-        string test1 = @"
+        string css = @"
 @namespace xamlcss ""XamlCss"";
 .main .sub>div xamlcss|Button {
 	background-color: red;
@@ -16,33 +16,11 @@ namespace XamlCSS.Tests.CssParsing
 	Grid.Row: 1;
 }
 ";
-        [Test]
-        public void TestTokenize()
-        {
-            var tokens = Tokenizer.Tokenize(test1).ToList();
-            Assert.Contains(new CssToken(CssTokenType.Identifier, "red"), tokens);
-        }
-
-        [Test]
-        public void TestGetAst()
-        {
-            var doc = AstGenerator.GetAst(test1);
-
-            var node = doc.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleRule)
-                ?.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleDeclarationBlock)
-                ?.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleDeclaration)
-                ?.Children.FirstOrDefault(x =>
-                    x.Type == CssNodeType.Value &&
-                    x.Text == "red")
-                ;
-
-            Assert.NotNull(node);
-        }
 
         [Test]
         public void TestParseCss()
         {
-            var styleSheet = CssParser.Parse(test1);
+            var styleSheet = CssParser.Parse(css);
 
             Assert.AreEqual(1, styleSheet.Rules.Count);
         }

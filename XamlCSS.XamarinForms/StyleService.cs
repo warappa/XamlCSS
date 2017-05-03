@@ -58,7 +58,7 @@ namespace XamlCSS.XamarinForms
                 nativeTrigger.Property = bindableProperty;
                 nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property, propertyTrigger.Value);
 
-                foreach (var styleDeclaration in propertyTrigger.StyleDeclaraionBlock)
+                foreach (var styleDeclaration in propertyTrigger.StyleDeclarationBlock)
                 {
                     var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
                     if (property == null)
