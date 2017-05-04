@@ -22,19 +22,33 @@ Button
     {
         BackgroundColor: #dddddd;
     }
-                    
-    @Event Clicked
-    {
-        local|ToColorTriggerAction:
-        {
-            To: #StaticResource ClickedColor;
-            Duration: 5000;
-        }
-    }
+           
                     
     @Property Text "Change Style"
     {
+        
         HeightRequest: 200;
+    }
+                    
+    @Property Text "Clicked!"
+    {
+        @Enter:
+        {
+            local|ToColorTriggerAction:
+            {
+                To: Blue;
+                Duration: 3000;
+            }
+        }
+                    
+        @Exit:
+        {
+            local|ToColorTriggerAction:
+            {
+                To: Green;
+                Duration: 3000;
+            }
+        }
     }
 }
 Label
@@ -101,7 +115,25 @@ Grid
             
             @Data Test "Hello World from BindingContext!"
             {
+                @Enter:
+                {
+                    local|ToColorTriggerAction:
+                    {
+                        To: Transparent;
+                        Duration: 3000;
+                    }
+                }
+                    
                 Grid.Row: 0;
+                    
+                @Exit:
+                {
+                    local|ToColorTriggerAction:
+                    {
+                        To: Green;
+                        Duration: 3000;
+                    }
+                }
             }
                     
             @Data Test.Length 32
@@ -154,6 +186,7 @@ Grid
                 <Label></Label>
             </Grid>
             <Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
+            <Button Text="Click me" Clicked="Button_Clicked"></Button>
             <ListView ItemsSource="{Binding TestList}">
                 <ListView.ItemTemplate>
                     <DataTemplate>

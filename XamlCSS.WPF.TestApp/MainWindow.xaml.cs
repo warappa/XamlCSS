@@ -9,6 +9,7 @@ namespace XamlCSS.WPF.TestApp
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MainWindowViewModel ViewModel => DataContext as MainWindowViewModel;
 
         public MainWindow()
         {
@@ -47,6 +48,21 @@ namespace XamlCSS.WPF.TestApp
         private void B_Click(object sender, RoutedEventArgs e)
         {
             stack.Children.Remove(sender as Button);
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if((string)button.Content == "Click me")
+            {
+                button.Content = "Clicked!";
+                ViewModel.Message = "...";
+            }
+            else
+            {
+                button.Content = "Click me";
+                ViewModel.Message = "Hello World from DataContext!";
+            }
         }
     }
 }

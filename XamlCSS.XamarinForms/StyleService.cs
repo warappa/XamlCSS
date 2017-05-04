@@ -70,6 +70,20 @@ namespace XamlCSS.XamarinForms
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
                 }
 
+                foreach(var action in propertyTrigger.EnterActions)
+                {
+                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+                    
+                    nativeTrigger.EnterActions.Add(nativeTriggerAction);
+                }
+
+                foreach (var action in propertyTrigger.ExitActions)
+                {
+                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+
+                    nativeTrigger.ExitActions.Add(nativeTriggerAction);
+                }
+
                 return nativeTrigger;
             }
             else if (trigger is DataTrigger)
@@ -96,6 +110,20 @@ namespace XamlCSS.XamarinForms
                     nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
                 }
 
+                foreach (var action in dataTrigger.EnterActions)
+                {
+                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+
+                    nativeTrigger.EnterActions.Add(nativeTriggerAction);
+                }
+
+                foreach (var action in dataTrigger.ExitActions)
+                {
+                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+
+                    nativeTrigger.ExitActions.Add(nativeTriggerAction);
+                }
+
                 return nativeTrigger;
             }
             else if (trigger is EventTrigger)
@@ -107,47 +135,54 @@ namespace XamlCSS.XamarinForms
 
                 foreach (var action in eventTrigger.Actions)
                 {
-                    var actionTypeName = typeNameResolver.ResolveFullTypeName(styleSheet.Namespaces, action.Action);
-                    var actionType = Type.GetType(actionTypeName);
-                    var triggerAction = (Xamarin.Forms.TriggerAction)Activator.CreateInstance(actionType);
+                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
                     
-                    foreach (var parameter in action.Parameters)
-                    {
-                        var parameterName = parameter.Property;
-
-                        object value = null;
-                        var parameterValueExpression = parameter.Value.Trim(); //.Substring(parameterName.Length + 1).Trim();
-                        BindableProperty depProp;
-                        var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, triggerAction, parameterName);
-
-                        if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
-                        {
-                            value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression);
-                        }
-                        else if ((depProp = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, actionType, parameterName)) != null)
-                        {
-                            value = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp);
-                        }
-                        else
-                        {
-                            value = parameterValueExpression;
-                        }
-
-                        if (value is string valueString)
-                        {
-                            value = typeConverterProvider.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? value;
-                        }
-
-                        triggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(triggerAction, value);
-                    }
-
-                    nativeTrigger.Actions.Add(triggerAction);
+                    nativeTrigger.Actions.Add(nativeTriggerAction);
                 }
 
                 return nativeTrigger;
             }
 
             throw new NotSupportedException($"Trigger '{trigger.GetType().FullName}' is not supported!");
+        }
+
+        private Xamarin.Forms.TriggerAction CreateTriggerAction(StyleSheet styleSheet, BindableObject styleResourceReferenceHolder, TriggerAction action)
+        {
+            var actionTypeName = typeNameResolver.ResolveFullTypeName(styleSheet.Namespaces, action.Action);
+            var actionType = Type.GetType(actionTypeName);
+            var nativeTriggerAction = (Xamarin.Forms.TriggerAction)Activator.CreateInstance(actionType);
+
+            foreach (var parameter in action.Parameters)
+            {
+                var parameterName = parameter.Property;
+
+                object value = null;
+                var parameterValueExpression = parameter.Value.Trim(); //.Substring(parameterName.Length + 1).Trim();
+                BindableProperty depProp;
+                var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, nativeTriggerAction, parameterName);
+
+                if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
+                {
+                    value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression);
+                }
+                else if ((depProp = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, actionType, parameterName)) != null)
+                {
+                    value = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp);
+                }
+                else
+                {
+                    value = parameterValueExpression;
+                }
+
+                if (value is string valueString)
+                {
+                    value = typeConverterProvider.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? value;
+                }
+
+                nativeTriggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(nativeTriggerAction, value);
+            }
+
+            return nativeTriggerAction;
         }
 
         private static object GetBasicValue(DataTrigger dataTrigger)

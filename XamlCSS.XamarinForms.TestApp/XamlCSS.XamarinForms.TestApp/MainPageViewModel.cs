@@ -1,18 +1,22 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using Xamarin.Forms;
+using XamlCSS.CssParsing;
 
-namespace XamlCSS.WPF.TestApp
+namespace XamlCSS.XamarinForms.TestApp
 {
-    public class MainWindowViewModel : INotifyPropertyChanged
+    public class MainPageViewModel : INotifyPropertyChanged
     {
-        private string message;
-        public string Message
+        private string test;
+        public string Test
         {
-            get => message;
+            get => test;
             set
             {
-                message = value;
+                test = value;
                 OnPropertyChange();
             }
         }

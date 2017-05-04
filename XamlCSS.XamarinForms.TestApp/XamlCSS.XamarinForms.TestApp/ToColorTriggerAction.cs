@@ -5,7 +5,7 @@ using Xamarin.Forms;
 
 namespace XamlCSS.XamarinForms.TestApp
 {
-    public class ToColorTriggerAction : TriggerAction<Button>
+    public class ToColorTriggerAction : TriggerAction<VisualElement>
     {
         public static Task<bool> ColorTo(VisualElement self, Color fromColor, Color toColor, Action<Color> callback, uint length = 250, Easing easing = null)
         {
@@ -34,7 +34,7 @@ namespace XamlCSS.XamarinForms.TestApp
         public Color To { get; set; }
         public uint Duration { get; set; }
 
-        protected override void Invoke(Button entry)
+        protected override void Invoke(VisualElement entry)
         {
             ColorTo(entry, entry.BackgroundColor, To, c => entry.BackgroundColor = c, Duration, Easing.Linear);
         }

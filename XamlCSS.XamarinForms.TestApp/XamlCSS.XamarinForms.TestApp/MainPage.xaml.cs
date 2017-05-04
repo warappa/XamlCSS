@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Xamarin.Forms;
 using XamlCSS.CssParsing;
 
@@ -7,13 +7,15 @@ namespace XamlCSS.XamarinForms.TestApp
 {
     public partial class MainPage : ContentPage
     {
+        public MainPageViewModel ViewModel => BindingContext as MainPageViewModel;
+
         public MainPage()
         {
-            this.BindingContext = new
+            this.BindingContext = new MainPageViewModel
             {
                 Test = "Hello World from BindingContext!",
                 TestInt = 10,
-                TestList = new List<string> { "a", "b", "c" }
+                TestList = new ObservableCollection<string> { "a", "b", "c" }
             };
 
             InitializeComponent();
@@ -44,6 +46,21 @@ namespace XamlCSS.XamarinForms.TestApp
         private void B_Click(object sender, EventArgs e)
         {
             stack.Children.Remove(sender as Button);
+        }
+
+        private void Button_Clicked(object sender, EventArgs e)
+        {
+            var button = (sender as Button);
+            if (button.Text == "Clicked!")
+            {
+                button.Text = "Click me";
+                ViewModel.Test = "Hello World from BindingContext!";
+            }
+            else
+            {
+                button.Text = "Clicked!";
+                ViewModel.Test = "...";
+            }
         }
     }
 }

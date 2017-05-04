@@ -240,7 +240,8 @@ namespace XamlCSS
                     matchedElementType,
                     startFrom ?? styleResourceReferenceHolder);
 
-                var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers.Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
+                var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers
+                    .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
 
                 if (propertyStyleValues.Keys.Count == 0)
                 {

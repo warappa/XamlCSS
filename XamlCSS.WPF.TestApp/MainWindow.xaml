@@ -18,9 +18,17 @@
             <sys:String x:Key="ToColor">#ffff00</sys:String>
             <Storyboard x:Key="storyboard">
                 <ColorAnimation 
-						Storyboard.TargetProperty="(Button.Background).(SolidColorBrush.Color)" To="Red" Duration="0:0:5.25" >
+						Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)" 
+                    To="Red" Duration="0:0:3" >
                 </ColorAnimation>
             </Storyboard>
+
+            <Storyboard x:Key="storyboard2">
+                <ColorAnimation 
+						Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)" To="Green" Duration="0:0:5.25" >
+                </ColorAnimation>
+            </Storyboard>
+            
             <css:StyleSheet x:Key="InternalStyle">
                 <css:StyleSheet.Content>
                     @import "Resources\\baseStyle.scss";
@@ -32,13 +40,6 @@
     @Property IsEnabled true
     {
         Background: #StaticResource ToColor;
-    }
-    @Event Click
-    {
-        animation|BeginStoryboard: 
-        {
-            Storyboard: #StaticResource storyboard;
-        }
     }
 }
 TextBlock
@@ -98,9 +99,25 @@ Grid
                     
             @Data Message "Hello World from DataContext!"
             {
+                @Enter:
+                {
+                    animation|BeginStoryboard: 
+                    {
+                        Storyboard: #StaticResource storyboard;
+                    }
+                }
+                    
                 Background: #ff00ff;
                 Grid.Row: 0;
 	            Grid.Column: 0;
+                    
+                @Exit:
+                {
+                    animation|BeginStoryboard: 
+                    {
+                        Storyboard: #StaticResource storyboard2;
+                    }
+                }
             }
                     
             @Data Message.Length 29
@@ -144,11 +161,12 @@ Grid
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock></TextBlock>
+                <TextBlock Background="Transparent"></TextBlock>
                 <TextBlock></TextBlock>
                 <TextBlock></TextBlock>
             </Grid>
             <Button Name="thebutton" Click="Button_Click">Change Style</Button>
+            <Button Click="Button_Click_2">Click me</Button>
         </StackPanel>
     </Grid>
 </Window>
