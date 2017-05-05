@@ -36,7 +36,7 @@ namespace XamlCSS.Tests.CssParsing
         }
 
         [Test]
-        public void Test_can_set_attaced_property()
+        public void Test_can_set_attached_property()
         {
             var styleSheet = CssParser.Parse("Button{Grid.Row:1;}");
 

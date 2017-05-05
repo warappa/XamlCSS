@@ -41,7 +41,7 @@ Element {
             styleSheet.Rules[0].DeclarationBlock[2].Property.Should().Be("PropertyC");
             styleSheet.Rules[0].DeclarationBlock[2].Value.Should().Be("Blue");
 
-            styleSheet.Rules[1].SelectorString.Should().Be(".class  .other-class");
+            styleSheet.Rules[1].SelectorString.Should().Be(".class .other-class");
             styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be("PropertyA");
             styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be("Red");
             styleSheet.Rules[1].DeclarationBlock[1].Property.Should().Be("PropertyB");

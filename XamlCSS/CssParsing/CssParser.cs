@@ -17,7 +17,7 @@ namespace XamlCSS.CssParsing
 
         public static StyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
         {
-            var ast = AstGenerator.GetAst(cssDocument);
+            var ast = new AstGenerator().GetAst(cssDocument);
 
             var styleSheet = new StyleSheet();
 
@@ -436,7 +436,7 @@ namespace XamlCSS.CssParsing
         private static List<string> GetSelectorStringsFromSelectorsCssNode(CssNode selectors)
         {
             return selectors.Children
-                            .Select(x => string.Join(" ", x.Children /* selectors */.Select(y => y.Text)))
+                            .Select(x => string.Join(" ", x.Children /* selector-fragment */.Select(y => y.Text)))
                             .ToList();
         }
 
@@ -447,7 +447,7 @@ namespace XamlCSS.CssParsing
                             {
                                 return new Selector
                                 {
-                                    Value = string.Join(" ", x.Children /* selectors */.Select(y => y.Text))
+                                    Value = string.Join(" ", x.Children /* selector-fragment */.Select(y => y.Text))
                                 };
                             })
                             .ToList();

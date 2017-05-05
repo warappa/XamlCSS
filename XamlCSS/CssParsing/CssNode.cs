@@ -16,6 +16,12 @@ namespace XamlCSS.CssParsing
             TextBuilder = new StringBuilder(text);
         }
 
+        public CssNode(CssNodeType type)
+        {
+            Type = type;
+            TextBuilder = new StringBuilder();
+        }
+
         public CssNodeType Type { get; set; }
         public StringBuilder TextBuilder { get; set; }
         public string Text => TextBuilder.ToString();

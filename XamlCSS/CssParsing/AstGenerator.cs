@@ -5,558 +5,521 @@ using System.Text;
 
 namespace XamlCSS.CssParsing
 {
-    public static class AstGenerator
+    public class AstGenerator
     {
-        public static CssNode GetAst(string cssDocument)
+        private List<string> errors;
+        private List<CssToken> tokens;
+        private int currentIndex;
+        private CssNode currentNode;
+        private CssToken currentToken => tokens[currentIndex];
+        private CssToken nextToken => tokens[currentIndex + 1];
+        private CssNode n;
+
+        private void ReadKeyframes()
         {
-            var doc = new CssNode(CssNodeType.Document, null, "");
+            throw new NotSupportedException();
+        }
 
-            var currentNode = doc;
+        private void AddError(string message, CssToken token)
+        {
+            errors.Add($"{message} ({token.Line}:{token.Column})");
+        }
 
-            var tokens = Tokenizer.Tokenize(cssDocument).ToList();
+        private void ReadImport()
+        {
+            SkipWhitespace();
 
-            for (var currentIndex = 0; currentIndex < tokens.Count; currentIndex++)
+            switch (currentToken.Type)
             {
-                var currentToken = tokens[currentIndex];
+                case CssTokenType.DoubleQuotes:
+                    currentIndex++;
+                    ReadDoubleQuoteText(false);
+                    SkipExpectedSemicolon();
+
+                    AddImportedStyle(currentNode);
+
+                    GoToParent();
+                    break;
+                case CssTokenType.SingleQuotes:
+                    currentIndex++;
+                    ReadSingleQuoteText(false);
+                    SkipExpectedSemicolon();
+
+                    AddImportedStyle(currentNode);
+
+                    GoToParent();
+                    break;
+                default:
+                    AddError($"ReadImport: unexpected token '{currentToken.Text}'", currentToken);
+                    SkipUntilLineEnd();
+                    break;
+            }
+
+
+        }
+
+        private void GoToParent()
+        {
+            currentNode = currentNode.Parent;
+        }
+
+        private void AddOnParentAndSetCurrent(CssNode node)
+        {
+            node.Parent = currentNode.Parent;
+
+            currentNode.Parent.Children.Add(node);
+            currentNode = node;
+        }
+
+        private void AddOnParentAndSetCurrent(CssNodeType type)
+        {
+            AddOnParentAndSetCurrent(new CssNode(type));
+        }
+
+        private void AddAndSetCurrent(CssNode node)
+        {
+            node.Parent = currentNode;
+
+            currentNode.Children.Add(node);
+            currentNode = node;
+        }
+        private void AddAndSetCurrent(CssNodeType type)
+        {
+            AddAndSetCurrent(new CssNode(type));
+        }
+
+        private void ReadNamespaceDeclaration()
+        {
+            // current node is NamespaceDeclaration
+
+            var oldParent = currentNode.Parent;
+
+            SkipWhitespace();
+
+            AddAndSetCurrent(CssNodeType.NamespaceKeyword);
+
+            currentIndex++;
+
+            ReadIdentifier(); // namespace keyword
+
+            SkipWhitespace();
+
+            AddOnParentAndSetCurrent(CssNodeType.NamespaceAlias);
+
+            if (currentToken.Type != CssTokenType.DoubleQuotes &&
+                currentToken.Type != CssTokenType.SingleQuotes)
+            {
+                ReadIdentifier(); // namespace alias
+
+                SkipWhitespace();
+            }
+
+            AddOnParentAndSetCurrent(CssNodeType.NamespaceValue);
+
+            switch (currentToken.Type)
+            {
+                case CssTokenType.DoubleQuotes:
+                    currentIndex++;
+
+                    ReadDoubleQuoteText(true);
+                    SkipExpectedSemicolon();
+
+                    //AddImportedStyle(currentNode);
+
+                    GoToParent();
+                    break;
+                case CssTokenType.SingleQuotes:
+                    currentIndex++;
+
+                    ReadSingleQuoteText(true);
+                    SkipExpectedSemicolon();
+
+                    //AddImportedStyle(currentNode);
+                    GoToParent();
+                    break;
+                default:
+                    AddError($"ReadNamespaceDeclaration: unexpected token '{currentToken.Text}'", currentToken);
+                    SkipUntilLineEnd();
+
+                    currentNode = oldParent;
+                    break;
+            }
+        }
+
+        private void SkipExpectedSemicolon()
+        {
+            if (currentToken.Type != CssTokenType.Semicolon)
+            {
+                throw new Exception("");
+            }
+
+            // currentNode.TextBuilder.Append(currentToken.Text);
+            currentIndex++;
+        }
+
+        private void ReadIdentifier()
+        {
+            if (currentToken.Type != CssTokenType.Identifier)
+            {
+                throw new Exception("");
+            }
+
+            currentNode.TextBuilder.Append(currentToken.Text);
+            currentIndex++;
+        }
+
+        private void SkipWhitespace()
+        {
+            while (currentIndex < tokens.Count &&
+                (currentToken.Type == CssTokenType.Whitespace ||
+                (currentToken.Type == CssTokenType.Slash &&
+                       nextToken.Text == "*") ||
+                       (currentToken.Type == CssTokenType.Slash &&
+                    nextToken.Text == "/")))
+            {
+                if (currentToken.Type == CssTokenType.Slash &&
+                       nextToken.Text == "*")
+                {
+                    SkipInlineCommentText();
+                }
+                else if (currentToken.Type == CssTokenType.Slash &&
+                    nextToken.Text == "/")
+                {
+                    SkipLineCommentText();
+                }
+                else
+                {
+                    currentIndex++;
+                }
+            }
+        }
+
+        private void SkipUntilLineEnd()
+        {
+            while (currentIndex < tokens.Count &&
+                currentToken.Text != "\n")
+            {
+                currentIndex++;
+            }
+        }
+
+        private void ReadDocument()
+        {
+            SkipWhitespace();
+
+            while (currentIndex < tokens.Count)
+            {
 
                 switch (currentToken.Type)
                 {
                     case CssTokenType.Slash:
-                        if (tokens[currentIndex + 1].Text == "/")
+                        if (nextToken.Text == "/")
                         {
-                            ReadLineCommentText(ref currentNode, tokens, ref currentIndex);
+                            SkipLineCommentText();
                         }
-                        else if (tokens[currentIndex + 1].Text == "*")
+                        else if (nextToken.Text == "*")
                         {
-                            ReadInlineCommentText(ref currentNode, tokens, ref currentIndex);
+                            SkipInlineCommentText();
                         }
                         break;
                     case CssTokenType.At:
-                        currentNode = ReadAtAst(currentNode, tokens, ref currentIndex);
+                        var identifier = nextToken;// Peek(tokens, currentIndex, CssTokenType.Identifier);
+
+                        if (identifier.Text == "keyframes")
+                        {
+                            n = new CssNode(CssNodeType.KeyframesDeclaration, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+
+                            ReadKeyframes();
+                        }
+                        else if (identifier.Text == "import")
+                        {
+                            n = new CssNode(CssNodeType.ImportDeclaration, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+
+                            currentIndex++;
+                            currentIndex++;
+
+                            ReadImport();
+                        }
+                        else if (identifier.Text == "namespace")
+                        {
+                            n = new CssNode(CssNodeType.NamespaceDeclaration, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+
+                            ReadNamespaceDeclaration();
+                        }
+                        else if (identifier.Text == "mixin")
+                        {
+                            n = new CssNode(CssNodeType.MixinDeclaration, currentNode, "");
+                            currentNode.Children.Add(n);
+                            currentNode = n;
+
+                            currentIndex++;
+
+                            //ReadMixin();
+                        }
+                        else
+                        {
+                            AddError($"ReadDocument: unexpected token '{identifier.Text}'", identifier);
+                        }
                         break;
                     case CssTokenType.Dollar:
-                        currentNode = ReadDollarAst(currentNode, currentToken);
+                        AddAndSetCurrent(CssNodeType.VariableDeclaration);
+
+                        ReadVariable();
                         break;
                     case CssTokenType.Identifier:
-                        currentNode = ReadIdentifierAst(currentNode, currentToken);
-                        break;
-                    case CssTokenType.DoubleQuotes:
-                        currentNode = ReadDoubleQuotesAst(currentNode, tokens, ref currentIndex);
-                        break;
-                    case CssTokenType.SingleQuotes:
-                        currentNode = ReadSingleQuotesAst(currentNode, tokens, ref currentIndex);
-                        break;
-                    case CssTokenType.Colon:
-                        currentNode = ReadColonAst(currentNode, tokens, ref currentIndex);
-                        break;
-                    case CssTokenType.Semicolon:
-                        currentNode = ReadSemicolonAst(currentNode);
-                        break;
                     case CssTokenType.Dot:
-                        currentNode = ReadDotAst(currentNode, tokens, currentIndex, currentToken);
-                        break;
                     case CssTokenType.Hash:
-                        currentNode = ReadHashAst(currentNode, currentToken);
-                        break;
-                    case CssTokenType.AngleBraketClose:
-                        currentNode = ReadAngleBraketCloseAst(currentNode);
-                        break;
-                    case CssTokenType.ParenthesisOpen:
-                    case CssTokenType.ParenthesisClose:
-                        currentNode = ReadParenthesisAst(currentNode, currentToken);
-                        break;
-                    case CssTokenType.Comma:
-                        currentNode = ReadCommaAst(currentNode, currentToken);
-                        break;
-                    case CssTokenType.Pipe:
-                        currentNode = ReadPipeAst(currentNode, currentToken);
-                        break;
-                    case CssTokenType.BraceOpen:
-                        currentNode = ReadBraceOpenAst(currentNode, currentToken);
-                        break;
-                    case CssTokenType.BraceClose:
-                        currentNode = ReadBraceCloseAst(currentNode, currentToken);
-                        break;
-                    case CssTokenType.Whitespace:
-                        currentNode = ReadWhitespaceAst(currentNode, currentToken);
-                        break;
-                    case CssTokenType.Unknown:
-                        break;
-                    case CssTokenType.AngleBraketOpen:
-                        break;
-                    case CssTokenType.Backslash:
-                        break;
                     case CssTokenType.SquareBracketOpen:
-                        currentNode.TextBuilder.Append(currentToken.Text);
-                        break;
-                    case CssTokenType.SquareBracketClose:
-                        currentNode.TextBuilder.Append(currentToken.Text);
+                        ReadStyleRule();
                         break;
                 }
-            }
+                currentIndex++;
 
-            return doc;
+                SkipWhitespace();
+            }
         }
 
-        private static CssNode ReadWhitespaceAst(CssNode currentNode, CssToken currentToken)
+        private void ReadVariable()
         {
-            CssNode n = null;
+            SkipWhitespace();
 
-            if (currentNode.Type == CssNodeType.DataTrigger)
-            {
-                n = new CssNode(CssNodeType.DataTriggerBinding, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.DataTriggerBinding)
-            {
-                currentNode = currentNode.Parent;
+            AddAndSetCurrent(CssNodeType.VariableName);
 
-                n = new CssNode(CssNodeType.DataTriggerValue, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.PropertyTrigger)
-            {
-                n = new CssNode(CssNodeType.PropertyTriggerProperty, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.PropertyTriggerProperty)
-            {
-                currentNode = currentNode.Parent;
+            ReadUntil(CssTokenType.Colon);
+            TrimCurrentNode();
 
-                n = new CssNode(CssNodeType.PropertyTriggerValue, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.EventTrigger)
+            currentIndex++;
+
+            AddOnParentAndSetCurrent(CssNodeType.VariableValue);
+
+            SkipWhitespace();
+
+            if (currentToken.Type == CssTokenType.DoubleQuotes)
             {
-                n = new CssNode(CssNodeType.EventTriggerEvent, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
+                currentIndex++;
+                ReadDoubleQuoteText(false);
+                ReadUntil(CssTokenType.Semicolon);
+            }
+            else if (currentToken.Type == CssTokenType.SingleQuotes)
+            {
+                currentIndex++;
+                ReadSingleQuoteText(false);
+                ReadUntil(CssTokenType.Semicolon);
             }
             else
             {
-                currentNode.TextBuilder.Append(currentToken.Text);
+                ReadUntil(CssTokenType.Semicolon);
             }
 
-            return currentNode;
+            TrimCurrentNode();
+            currentIndex++;
+
+            GoToParent();
+            GoToParent();
         }
 
-        private static CssNode ReadBraceCloseAst(CssNode currentNode, CssToken currentToken)
+        private void ReadStyleRule()
         {
-            if (currentNode.Type == CssNodeType.Value)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-                currentNode = currentNode.Parent;
-            }
-            else
-            {
-                currentNode = currentNode.Parent.Parent;
-            }
+            AddAndSetCurrent(CssNodeType.StyleRule);
+            AddAndSetCurrent(CssNodeType.Selectors);
 
-            if (currentNode.Type == CssNodeType.StyleDeclaration)
-            {
-                currentNode = currentNode.Parent;
-            }
+            ReadSelectors();
 
-            return currentNode;
+            AddAndSetCurrent(CssNodeType.StyleDeclarationBlock);
+
+            currentIndex++;
+
+            ReadStyleDeclarationBlock();
+
+            GoToParent();
         }
 
-        private static CssNode ReadBraceOpenAst(CssNode currentNode, CssToken currentToken)
+        private void ReadStyleDeclarationBlock()
         {
-            CssNode n = null;
+            SkipWhitespace();
 
-            TrimCurrentNode(currentNode);
-
-            if (currentNode.Type == CssNodeType.MixinParameter)
+            while (currentToken.Type != CssTokenType.BraceClose)
             {
-                currentNode = currentNode.Parent;
-            }
-            if (currentNode.Type == CssNodeType.MixinParameters)
-            {
-                currentNode = currentNode.Parent;
-            }
+                SkipWhitespace();
 
-            if (currentNode.Type == CssNodeType.Key)
-            {
-                var keyValue = currentNode.Text;
-
-                var styleDeclaration = currentNode.Parent;
-                styleDeclaration.Children.Remove(currentNode);
-
-                var subRule = styleDeclaration;
-                subRule.Type = CssNodeType.StyleRule;
-
-                var selectors = new CssNode(CssNodeType.Selectors, subRule, "");
-                subRule.Children.Add(selectors);
-
-                currentNode = selectors;
-
-                var selector = new CssNode(CssNodeType.Selector, currentNode, "");
-                currentNode.Children.Add(selector);
-                currentNode = selector;
-
-                var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, keyValue);
-                currentNode.Children.Add(selectorFragment);
-                currentNode = selectorFragment;
-            }
-
-            currentNode.TextBuilder = new StringBuilder(currentNode.TextBuilder.ToString().Trim());
-            if (currentNode.Type == CssNodeType.StyleDeclaration)
-            {
-                n = new CssNode(CssNodeType.Value, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.Value)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.PropertyTriggerValue)
-            {
-                currentNode = currentNode.Parent;
-
-                n = new CssNode(CssNodeType.StyleDeclarationBlock, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.DataTriggerValue)
-            {
-                currentNode = currentNode.Parent;
-
-                n = new CssNode(CssNodeType.StyleDeclarationBlock, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.EventTriggerEvent)
-            {
-                currentNode = currentNode.Parent;
-
-                n = new CssNode(CssNodeType.ActionDeclarationBlock, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.ActionDeclaration)
-            {
-                n = new CssNode(CssNodeType.ActionParameterBlock, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.EnterAction ||
-                currentNode.Type == CssNodeType.ExitAction)
-            {
-                n = new CssNode(CssNodeType.ActionDeclarationBlock, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else
-            {
-                if (currentNode.Type == CssNodeType.SelectorFragment)
+                if (currentToken.Text[0] == '$')
                 {
-                    currentNode = currentNode.Parent;
+                    AddAndSetCurrent(CssNodeType.VariableDeclaration);
+
+                    ReadVariable();
+
+                    GoToParent();
                 }
-                if (currentNode.Type == CssNodeType.Selector)
+                else
                 {
-                    currentNode = currentNode.Parent;
+                    if (currentNode.Type == CssNodeType.StyleDeclarationBlock)
+                    {
+                        AddAndSetCurrent(CssNodeType.StyleDeclaration);
+                    }
+                    else
+                    {
+                        AddOnParentAndSetCurrent(CssNodeType.StyleDeclaration);
+                    }
+
+                    AddAndSetCurrent(CssNodeType.Key);
+
+                    ReadUntil(CssTokenType.Colon);
+                    currentIndex++;
+
+                    TrimCurrentNode();
+
+                    AddOnParentAndSetCurrent(CssNodeType.Value);
+
+                    SkipWhitespace();
+
+                    if (currentToken.Type == CssTokenType.DoubleQuotes)
+                    {
+                        currentIndex++;
+                        ReadDoubleQuoteText(false);
+                        ReadUntil(CssTokenType.Semicolon);
+                    }
+                    else if (currentToken.Type == CssTokenType.SingleQuotes)
+                    {
+                        currentIndex++;
+                        ReadSingleQuoteText(false);
+                        ReadUntil(CssTokenType.Semicolon);
+                    }
+                    else
+                    {
+                        ReadUntil(CssTokenType.Semicolon);
+                    }
+
+                    currentIndex++;
+
+                    TrimCurrentNode();
+
+                    if (currentNode.Text[0] == '$')
+                    {
+                        var variable = currentNode.Text;
+                        currentNode.TextBuilder.Clear();
+                        AddAndSetCurrent(CssNodeType.VariableReference);
+                        currentNode.TextBuilder.Append(variable);
+                        GoToParent();
+                    }
+
+                    SkipWhitespace();
+
+                    GoToParent();
+                    GoToParent();
                 }
+            }
+
+            GoToParent();
+        }
+
+        private void ReadSelectors()
+        {
+            while (currentToken.Type != CssTokenType.BraceOpen)
+            {
+                SkipWhitespace();
+
                 if (currentNode.Type == CssNodeType.Selectors)
                 {
-                    currentNode = currentNode.Parent;
+                    AddAndSetCurrent(CssNodeType.Selector);
                 }
-                n = new CssNode(CssNodeType.StyleDeclarationBlock, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
+                else
+                {
+                    AddOnParentAndSetCurrent(CssNodeType.Selector);
+                }
+
+                while (currentToken.Type != CssTokenType.BraceOpen &&
+                    currentToken.Type != CssTokenType.Comma)
+                {
+
+                    if (currentNode.Type == CssNodeType.Selector)
+                    {
+                        AddAndSetCurrent(CssNodeType.SelectorFragment);
+                    }
+                    else
+                    {
+                        AddOnParentAndSetCurrent(CssNodeType.SelectorFragment);
+                    }
+
+                    ReadUntil(CssTokenType.BraceOpen, CssTokenType.Comma, CssTokenType.Whitespace);
+
+                    TrimCurrentNode();
+
+                    SkipWhitespace();
+
+                    GoToParent();
+                }
+
+                SkipIfFound(CssTokenType.Comma);
             }
 
-            return currentNode;
+            SkipWhitespace();
+
+            GoToParent();
+            GoToParent();
         }
 
-        private static CssNode ReadPipeAst(CssNode currentNode, CssToken currentToken)
+        private void SkipIfFound(CssTokenType type)
         {
-            if (currentNode.Type == CssNodeType.SelectorFragment)
+            if (currentToken.Type == type)
             {
-                currentNode.TextBuilder.Append(currentToken.Text);
+                currentIndex++;
             }
-            else if (currentNode.Type == CssNodeType.Key)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-
-            return currentNode;
         }
 
-        private static CssNode ReadCommaAst(CssNode currentNode, CssToken currentToken)
+        private void ReadUntil(params CssTokenType[] types)
         {
-            if (currentNode.Type == CssNodeType.MixinIncludeParameter)
+            while (currentIndex < tokens.Count &&
+                types.Contains(currentToken.Type) == false)
             {
-                currentNode = currentNode.Parent;
+                if (currentToken.Type == CssTokenType.Slash &&
+                    nextToken.Text == "*")
+                {
+                    SkipInlineCommentText();
+                }
+                else if (currentToken.Type == CssTokenType.Slash &&
+                    nextToken.Text == "/")
+                {
+                    SkipLineCommentText();
+                }
+                else
+                {
+                    currentNode.TextBuilder.Append(currentToken.Text);
+                    currentIndex++;
+                }
             }
-            else if (currentNode.Type == CssNodeType.MixinParameter)
-            {
-                currentNode = currentNode.Parent;
-            }
-            else if (currentNode.Type == CssNodeType.Key)
-            {
-                var keyValue = currentNode.Text;
+        }
 
-                var styleDeclaration = currentNode.Parent;
-                styleDeclaration.Children.Remove(currentNode);
+        public CssNode GetAst(string cssDocument)
+        {
+            errors = new List<string>();
 
-                var subRule = styleDeclaration;
-                subRule.Type = CssNodeType.StyleRule;
+            currentNode = new CssNode(CssNodeType.Document, null, "");
 
-                var selectors = new CssNode(CssNodeType.Selectors, subRule, "");
-                subRule.Children.Add(selectors);
+            currentIndex = 0;
 
-                currentNode = selectors;
+            tokens = Tokenizer.Tokenize(cssDocument).ToList();
 
-                var selector = new CssNode(CssNodeType.Selector, currentNode, "");
-                currentNode.Children.Add(selector);
-                currentNode = selector;
-
-                var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, keyValue);
-                currentNode.Children.Add(selectorFragment);
-                currentNode = selectorFragment;
-            }
-            if (currentNode.Type == CssNodeType.SelectorFragment)
-            {
-                currentNode = currentNode.Parent;
-            }
-            if (currentNode.Type == CssNodeType.Selector)
-            {
-                currentNode = currentNode.Parent;
-            }
-            if (currentNode.Type == CssNodeType.Value)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
+            ReadDocument();
 
             return currentNode;
         }
 
-        private static void TrimCurrentNode(CssNode currentNode)
+        private void TrimCurrentNode()
         {
             currentNode.TextBuilder = new StringBuilder(currentNode.Text.Trim());
         }
 
-        private static CssNode ReadParenthesisAst(CssNode currentNode, CssToken currentToken)
+
+        private CssNode _ReadSemicolonAst()
         {
-            if (currentNode.Type == CssNodeType.MixinIncludeParameter)
-            {
-                currentNode = currentNode.Parent;
-            }
-            if (currentNode.Type == CssNodeType.MixinIncludeParameters)
-            {
-                currentNode = currentNode.Parent;
-            }
+            TrimCurrentNode();
 
-            if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
-            {
-                currentNode = currentNode.Parent;
-            }
-            if (currentNode.Type == CssNodeType.MixinParameter)
-            {
-                currentNode = currentNode.Parent;
-            }
-            if (currentNode.Type == CssNodeType.MixinParameters)
-            {
-                currentNode = currentNode.Parent;
-            }
-
-            if (currentNode.Type == CssNodeType.MixinInclude)
-            {
-                if (currentToken.Text == "(")
-                {
-                    var node = new CssNode(CssNodeType.MixinIncludeParameters, currentNode, "");
-                    currentNode.Children.Add(node);
-                    currentNode = node;
-                }
-                else
-                {
-                    TrimCurrentNode(currentNode);
-                }
-            }
-            else if (currentNode.Type == CssNodeType.Value)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.Key) // selector
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.SelectorFragment)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.MixinDeclaration)
-            {
-                if (currentToken.Text == "(")
-                {
-                    var node = new CssNode(CssNodeType.MixinParameters, currentNode, "");
-                    currentNode.Children.Add(node);
-                    currentNode = node;
-                }
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadAngleBraketCloseAst(CssNode currentNode)
-        {
-            if (currentNode.Type == CssNodeType.SelectorFragment)
-            {
-                currentNode = currentNode.Parent;
-            }
-            if (currentNode.Type == CssNodeType.Selector)
-            {
-                currentNode.Children.Add(new CssNode(CssNodeType.SelectorFragment, currentNode, ">"));
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadHashAst(CssNode currentNode, CssToken currentToken)
-        {
-            CssNode n = null;
-
-            if (currentNode.Type == CssNodeType.Document)
-            {
-                n = new CssNode(CssNodeType.StyleRule, currentNode, "");
-                var selectors = new CssNode(CssNodeType.Selectors, n, "");
-                n.Children.Add(selectors);
-
-                currentNode.Children.Add(n);
-                currentNode = selectors;
-
-                var selector = new CssNode(CssNodeType.Selector, currentNode, "");
-                currentNode.Children.Add(selector);
-                currentNode = selector;
-
-                var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, currentToken.Text);
-                currentNode.Children.Add(selectorFragment);
-                currentNode = selectorFragment;
-            }
-            else if (currentNode.Type == CssNodeType.Selectors)
-            {
-                var selector = new CssNode(CssNodeType.Selector, currentNode, "");
-                currentNode.Children.Add(selector);
-                currentNode = selector;
-                var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, currentToken.Text);
-                currentNode.Children.Add(selectorFragment);
-                currentNode = selectorFragment;
-            }
-            else if (currentNode.Type == CssNodeType.Selector)
-            {
-                var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, ".");
-                currentNode.Children.Add(selectorFragment);
-                currentNode = selectorFragment;
-            }
-            else if (currentNode.Type == CssNodeType.SelectorFragment)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.StyleDeclaration)
-            {
-                n = new CssNode(CssNodeType.Value, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.Value)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.VariableValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadDotAst(CssNode currentNode, List<CssToken> tokens, int currentIndex, CssToken currentToken)
-        {
-            CssNode n = null;
-
-            if (currentNode.Type == CssNodeType.Document ||
-                                        currentNode.Type == CssNodeType.StyleDeclarationBlock)
-            {
-                n = new CssNode(CssNodeType.StyleRule, currentNode, "");
-                var selectors = new CssNode(CssNodeType.Selectors, n, "");
-                n.Children.Add(selectors);
-
-                currentNode.Children.Add(n);
-                currentNode = selectors;
-
-                var selector = new CssNode(CssNodeType.Selector, currentNode, "");
-                currentNode.Children.Add(selector);
-                currentNode = selector;
-
-                var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, currentToken.Text);
-                currentNode.Children.Add(selectorFragment);
-                currentNode = selectorFragment;
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceAlias)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.Selectors)
-            {
-                var selector = new CssNode(CssNodeType.Selector, currentNode, "");
-                currentNode.Children.Add(selector);
-
-                var selectorFragment = new CssNode(CssNodeType.SelectorFragment, selector, tokens[currentIndex].Text);
-                selector.Children.Add(selectorFragment);
-
-                currentNode = selectorFragment;
-            }
-            else if (currentNode.Type == CssNodeType.Selector)
-            {
-                var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, ".");
-                currentNode.Children.Add(selectorFragment);
-                currentNode = selectorFragment;
-            }
-            else if (currentNode.Type == CssNodeType.SelectorFragment)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.Key)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.Value)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.PropertyTriggerProperty ||
-                currentNode.Type == CssNodeType.PropertyTriggerValue ||
-                currentNode.Type == CssNodeType.DataTriggerBinding ||
-                currentNode.Type == CssNodeType.DataTriggerValue ||
-                currentNode.Type == CssNodeType.EventTriggerEvent)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadSemicolonAst(CssNode currentNode)
-        {
-            TrimCurrentNode(currentNode);
-
-            if (currentNode.Type == CssNodeType.ImportDeclaration)
-            {
-                AddImportedStyle(currentNode);
-            }
             if (currentNode.Type == CssNodeType.VariableReference)
             {
                 currentNode = currentNode.Parent;
@@ -578,14 +541,14 @@ namespace XamlCSS.CssParsing
                 currentNode = currentNode.Parent;
             }
 
-            TrimCurrentNode(currentNode);
+            TrimCurrentNode();
 
             currentNode = currentNode.Parent;
 
             return currentNode;
         }
 
-        private static void AddImportedStyle(CssNode currentNode)
+        private void AddImportedStyle(CssNode currentNode)
         {
             var content = CssParser.cssFileProvider?.LoadFrom(currentNode.Text);
 
@@ -599,594 +562,64 @@ namespace XamlCSS.CssParsing
             }
         }
 
-        private static CssNode ReadColonAst(CssNode currentNode, List<CssToken> tokens, ref int currentIndex)
-        {
-            CssNode n = null;
-            CssToken currentToken = tokens[currentIndex];
-
-            if (currentNode.Type == CssNodeType.VariableName)
-            {
-                currentNode = currentNode.Parent;
-
-                n = new CssNode(CssNodeType.VariableValue, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.MixinParameter)
-            {
-                n = new CssNode(CssNodeType.MixinParameterDefaultValue, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.Key)
-            {
-                var nextToken = FirstTokenTypeOf(tokens, currentIndex, new[] { CssTokenType.Semicolon, CssTokenType.DoubleQuotes, CssTokenType.BraceOpen });
-
-                // normal value
-                if (nextToken == CssTokenType.Semicolon ||
-                    nextToken == CssTokenType.DoubleQuotes)
-                {
-                    currentNode = currentNode.Parent;
-
-                    n = new CssNode(CssNodeType.Value, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-
-                    currentIndex++;
-                    while (currentToken.Type == CssTokenType.Whitespace)
-                    {
-                        currentIndex++;
-                        currentToken = tokens[currentIndex];
-                    }
-                }
-                else if (currentNode.Parent.Type == CssNodeType.ActionDeclaration)
-                {
-                    currentNode = currentNode.Parent;
-                }
-                else // selector
-                {
-                    currentNode.TextBuilder.Append(currentToken.Text);
-                }
-            }
-            else if (currentNode.Type == CssNodeType.SelectorFragment)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.EnterAction ||
-                currentNode.Type == CssNodeType.ExitAction)
-            {
-
-            }
-            else if (currentNode.Type == CssNodeType.Value)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadSingleQuotesAst(CssNode currentNode, List<CssToken> tokens, ref int currentIndex)
-        {
-            CssNode n = null;
-            CssToken currentToken = tokens[currentIndex];
-
-            if (currentNode.Type == CssNodeType.MixinParameter)
-            {
-                currentIndex++;
-
-                ReadSingleQuoteText(ref currentNode, tokens, ref currentIndex);
-            }
-            else if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
-            {
-                currentIndex++;
-
-                ReadSingleQuoteText(ref currentNode, tokens, ref currentIndex);
-            }
-            else if (currentNode.Type == CssNodeType.StyleDeclaration)
-            {
-                n = new CssNode(CssNodeType.Value, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.Key)
-            {
-                n = new CssNode(CssNodeType.Value, currentNode.Parent, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            if (currentNode.Type == CssNodeType.Value)
-            {
-                n = new CssNode(CssNodeType.SingleQuoteText, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-                currentIndex++;
-
-                ReadSingleQuoteText(ref currentNode, tokens, ref currentIndex);
-            }
-            else if (currentNode.Type == CssNodeType.VariableValue)
-            {
-                currentIndex++;
-
-                ReadSingleQuoteText(ref currentNode, tokens, ref currentIndex);
-            }
-            else if (currentNode.Type == CssNodeType.SingleQuoteText)
-            {
-                currentNode = currentNode.Parent;
-            }
-            else if (currentNode.Type == CssNodeType.SelectorFragment)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.ImportDeclaration)
-            {
-                currentIndex++;
-
-                ReadSingleQuoteText(ref currentNode, tokens, ref currentIndex, false);
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadDoubleQuotesAst(CssNode currentNode, List<CssToken> tokens, ref int currentIndex)
-        {
-            CssNode n = null;
-            CssToken currentToken = tokens[currentIndex];
-
-            if (currentNode.Type == CssNodeType.MixinParameter)
-            {
-                currentIndex++;
-
-                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
-            }
-            else if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
-            {
-                currentIndex++;
-
-                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceKeyword)
-            {
-                currentNode = currentNode.Parent;
-                currentNode.Children.Add(new CssNode(CssNodeType.NamespaceAlias, currentNode, ""));
-                n = new CssNode(CssNodeType.NamespaceValue, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceAlias)
-            {
-                currentNode = currentNode.Parent;
-                n = new CssNode(CssNodeType.NamespaceValue, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.StyleDeclaration)
-            {
-                n = new CssNode(CssNodeType.Value, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.Key)
-            {
-                n = new CssNode(CssNodeType.Value, currentNode.Parent, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            if (currentNode.Type == CssNodeType.Value)
-            {
-                n = new CssNode(CssNodeType.DoubleQuoteText, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-
-                currentIndex++;
-
-                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
-            }
-            else if (currentNode.Type == CssNodeType.VariableValue)
-            {
-                currentIndex++;
-
-                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex);
-            }
-            else if (currentNode.Type == CssNodeType.DoubleQuoteText)
-            {
-                currentNode = currentNode.Parent;
-            }
-            else if (currentNode.Type == CssNodeType.SelectorFragment)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.ImportDeclaration)
-            {
-                currentIndex++;
-
-                ReadDoubleQuoteText(ref currentNode, tokens, ref currentIndex, false);
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadIdentifierAst(CssNode currentNode, CssToken currentToken)
-        {
-            CssNode n = null;
-
-            if (currentNode.Type == CssNodeType.ActionDeclarationBlock)
-            {
-                n = new CssNode(CssNodeType.ActionDeclaration, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-
-                n = new CssNode(CssNodeType.Key, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.ActionParameterBlock)
-            {
-                n = new CssNode(CssNodeType.ActionParameter, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-
-                n = new CssNode(CssNodeType.Key, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.ImportDeclaration)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.MixinIncludeParameters)
-            {
-                n = new CssNode(CssNodeType.MixinIncludeParameter, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.MixinInclude)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.MixinDeclaration)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.MixinParameter)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.EventTrigger)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.EventTriggerEvent)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.PropertyTrigger)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.PropertyTriggerProperty)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.DataTrigger)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.DataTriggerBinding)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.PropertyTriggerValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.DataTriggerValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.VariableName)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.VariableValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.VariableReference)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceDeclaration)
-            {
-                n = new CssNode(CssNodeType.NamespaceKeyword, currentNode, "@" + currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceKeyword)
-            {
-                currentNode = currentNode.Parent;
-                n = new CssNode(CssNodeType.NamespaceAlias, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.Selectors)
-            {
-                n = new CssNode(CssNodeType.Selector, currentNode, "");
-                currentNode.Children.Add(n);
-                var fragment = new CssNode(CssNodeType.SelectorFragment, n, currentToken.Text);
-                n.Children.Add(fragment);
-                currentNode = fragment;
-            }
-            else if (currentNode.Type == CssNodeType.Selector)
-            {
-                n = new CssNode(CssNodeType.SelectorFragment, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.SelectorFragment)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.StyleDeclarationBlock)
-            {
-                n = new CssNode(CssNodeType.StyleDeclaration, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-
-                n = new CssNode(CssNodeType.Key, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.StyleDeclaration)
-            {
-                n = new CssNode(CssNodeType.Value, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.Key)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.Value)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.Document)
-            {
-                n = new CssNode(CssNodeType.StyleRule, currentNode, "");
-                var selectors = new CssNode(CssNodeType.Selectors, n, "");
-                n.Children.Add(selectors);
-
-                currentNode.Children.Add(n);
-                currentNode = selectors;
-
-                var selector = new CssNode(CssNodeType.Selector, currentNode, "");
-                currentNode.Children.Add(selector);
-                currentNode = selector;
-
-                var selectorFragment = new CssNode(CssNodeType.SelectorFragment, currentNode, currentToken.Text);
-                currentNode.Children.Add(selectorFragment);
-                currentNode = selectorFragment;
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadDollarAst(CssNode currentNode, CssToken currentToken)
-        {
-            CssNode n = null;
-            if (currentNode.Type == CssNodeType.MixinDeclaration)
-            {
-                n = new CssNode(CssNodeType.MixinParameters, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-
-            if (currentNode.Type == CssNodeType.MixinParameters)
-            {
-                n = new CssNode(CssNodeType.MixinParameter, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.Document ||
-                currentNode.Type == CssNodeType.StyleDeclarationBlock)
-            {
-                n = new CssNode(CssNodeType.VariableDeclaration, currentNode, "");
-                currentNode.Children.Add(n);
-                currentNode = n;
-
-                n = new CssNode(CssNodeType.VariableName, currentNode, currentToken.Text);
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-            else if (currentNode.Type == CssNodeType.Value)
-            {
-                n = new CssNode(CssNodeType.VariableReference, currentNode, "$");
-                currentNode.Children.Add(n);
-                currentNode = n;
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadAtAst(CssNode currentNode, List<CssToken> tokens, ref int currentIndex)
-        {
-            CssToken currentToken = tokens[currentIndex];
-            CssNode n = null;
-
-            if (currentNode.Type == CssNodeType.Document)
-            {
-                var identifier = Peek(tokens, currentIndex, CssTokenType.Identifier);
-
-                if (identifier.Text == "keyframes")
-                {
-                    n = new CssNode(CssNodeType.KeyframesDeclaration, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-                }
-                else if (identifier.Text == "import")
-                {
-                    n = new CssNode(CssNodeType.ImportDeclaration, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-
-                    currentIndex++;
-                }
-                else if (identifier.Text == "namespace")
-                {
-                    n = new CssNode(CssNodeType.NamespaceDeclaration, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-                }
-                else if (identifier.Text == "mixin")
-                {
-                    n = new CssNode(CssNodeType.MixinDeclaration, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-
-                    currentIndex++;
-                }
-            }
-            else if (currentNode.Type == CssNodeType.Value ||
-                currentNode.Type == CssNodeType.VariableValue)
-            {
-                currentNode.TextBuilder.Append(currentToken.Text);
-            }
-            else if (currentNode.Type == CssNodeType.StyleDeclarationBlock)
-            {
-                var identifier = Peek(tokens, currentIndex, CssTokenType.Identifier);
-
-                if (identifier.Text == "include")
-                {
-                    n = new CssNode(CssNodeType.MixinInclude, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-
-                    currentIndex++;
-                }
-                else if (identifier.Text == "Property")
-                {
-                    n = new CssNode(CssNodeType.PropertyTrigger, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-                }
-                else if (identifier.Text == "Data")
-                {
-                    n = new CssNode(CssNodeType.DataTrigger, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-                }
-                else if (identifier.Text == "Event")
-                {
-                    n = new CssNode(CssNodeType.EventTrigger, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-                }
-                else if (identifier.Text == "Enter")
-                {
-                    n = new CssNode(CssNodeType.EnterAction, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-
-                    currentIndex++;
-
-                    //currentNode = ReadUntilSemicolon(tokens, currentNode, ref currentIndex);
-                }
-                else if (identifier.Text == "Exit")
-                {
-                    n = new CssNode(CssNodeType.ExitAction, currentNode, "");
-                    currentNode.Children.Add(n);
-                    currentNode = n;
-
-                    currentIndex++;
-
-                    //currentNode = ReadUntilSemicolon(tokens, currentNode, ref currentIndex);
-                }
-            }
-
-            return currentNode;
-        }
-
-        private static CssNode ReadUntilSemicolon(List<CssToken> tokens, CssNode currentNode, ref int currentIndex)
-        {
-            while (currentIndex < tokens.Count &&
-                tokens[currentIndex].Type != CssTokenType.Semicolon)
-            {
-                currentNode.TextBuilder.Append(tokens[currentIndex].Text);
-
-                currentIndex++;
-            }
-
-            return currentNode.Parent;
-        }
-
-        private static void ReadSingleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i, bool goToParent = true)
+        private void ReadSingleQuoteText(bool goToParent = true)
         {
             do
             {
-                if (tokens[i].Type == CssTokenType.Backslash)
+                if (tokens[currentIndex].Type == CssTokenType.Backslash)
                 {
-                    i++;
-                    currentNode.TextBuilder.Append(tokens[i].Text);
+                    currentIndex++;
+                    currentNode.TextBuilder.Append(tokens[currentIndex].Text);
                 }
-                else if (tokens[i].Type == CssTokenType.SingleQuotes)
+                else if (tokens[currentIndex].Type == CssTokenType.SingleQuotes)
                 {
                     if (goToParent)
                     {
                         currentNode = currentNode.Parent;
                     }
+                    currentIndex++;
                     break;
                 }
                 else
                 {
-                    currentNode.TextBuilder.Append(tokens[i].Text);
+                    currentNode.TextBuilder.Append(tokens[currentIndex].Text);
                 }
-                i++;
-            } while (i < tokens.Count);
+                currentIndex++;
+            } while (currentIndex < tokens.Count);
         }
 
-        private static void ReadDoubleQuoteText(ref CssNode currentNode, List<CssToken> tokens, ref int i, bool goToParent = true)
+        private void ReadDoubleQuoteText(bool goToParent = true)
         {
             do
             {
-                if (tokens[i].Type == CssTokenType.Backslash)
+                if (tokens[currentIndex].Type == CssTokenType.Backslash)
                 {
-                    i++;
-                    currentNode.TextBuilder.Append(tokens[i].Text);
+                    currentIndex++;
+                    currentNode.TextBuilder.Append(tokens[currentIndex].Text);
                 }
-                else if (tokens[i].Type == CssTokenType.DoubleQuotes)
+                else if (tokens[currentIndex].Type == CssTokenType.DoubleQuotes)
                 {
                     if (goToParent)
                     {
                         currentNode = currentNode.Parent;
                     }
+                    currentIndex++;
                     break;
                 }
                 else
                 {
-                    currentNode.TextBuilder.Append(tokens[i].Text);
+                    currentNode.TextBuilder.Append(tokens[currentIndex].Text);
                 }
-                i++;
-            } while (i < tokens.Count);
+                currentIndex++;
+            } while (currentIndex < tokens.Count);
         }
 
-        private static void ReadLineCommentText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        private void SkipLineCommentText()
         {
             do
             {
-                if (tokens[i].Type == CssTokenType.Whitespace &&
-                    (tokens[i].Text == "\n" || tokens[i].Text == "\r"))
+                if (tokens[currentIndex].Type == CssTokenType.Whitespace &&
+                    (tokens[currentIndex].Text == "\n" || tokens[currentIndex].Text == "\r"))
                 {
                     break;
                 }
@@ -1194,26 +627,27 @@ namespace XamlCSS.CssParsing
                 {
 
                 }
-                i++;
-            } while (i < tokens.Count);
+                currentIndex++;
+            } while (currentIndex < tokens.Count);
         }
 
-        private static void ReadInlineCommentText(ref CssNode currentNode, List<CssToken> tokens, ref int i)
+        private void SkipInlineCommentText()
         {
             do
             {
-                if (tokens[i].Type == CssTokenType.Identifier &&
-                    (tokens[i].Text == "*" && tokens[i + 1].Text == "/"))
+                if (tokens[currentIndex].Type == CssTokenType.Identifier &&
+                    (tokens[currentIndex].Text == "*" && tokens[currentIndex + 1].Text == "/"))
                 {
-                    i++;
+                    currentIndex++;
+                    currentIndex++;
                     break;
                 }
                 else
                 {
 
                 }
-                i++;
-            } while (i < tokens.Count);
+                currentIndex++;
+            } while (currentIndex < tokens.Count);
         }
 
         private static CssToken Peek(List<CssToken> tokens, int currentIndex, CssTokenType type = CssTokenType.Unknown)
