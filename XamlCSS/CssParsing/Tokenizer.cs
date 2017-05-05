@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace XamlCSS.CssParsing
 {
@@ -10,165 +7,157 @@ namespace XamlCSS.CssParsing
     {
         public static IEnumerable<CssToken> Tokenize(string cssDocument)
         {
-            var rawTokens = cssDocument.Split(new[] { ' ', '\t' })
-                .SelectMany(x => new[] { " ", x })
-                .ToList();
+            var line = 1;
+            var column = 1;
 
-            rawTokens = rawTokens
-                .Select(x => x == "" ? " " : x)
-                .ToList();
-
-            var newRawTokens = new List<string>(rawTokens.Count);
-
-            var previousWasWhitespace = false;
-            var previousWhitespaceCharacter = "\0";
-            for (var i = 0; i < rawTokens.Count; i++)
+            var theRawTokens = new List<RawToken>();
+            var currentRawToken = new RawToken()
             {
-                var currentToken = rawTokens[i];
-                var isWhitespace = string.IsNullOrWhiteSpace(currentToken);
-                if (isWhitespace)
+                Line = line,
+                Column = column
+            };
+            theRawTokens.Add(currentRawToken);
+            foreach (var character in cssDocument)
+            {
+                if (char.IsLetterOrDigit(character))
                 {
-                    if (previousWhitespaceCharacter != currentToken)
+                    if (currentRawToken.IsLetterOrDigit == false)
                     {
-                        newRawTokens.Add(currentToken);
+                        currentRawToken = new RawToken
+                        {
+                            Line = line,
+                            Column = column
+                        };
+
+                        theRawTokens.Add(currentRawToken);
                     }
 
-                    previousWhitespaceCharacter = currentToken;
+                    currentRawToken.Value.Append(character);
                 }
                 else
                 {
-                    newRawTokens.Add(currentToken);
-                    previousWhitespaceCharacter = "\0";
+                    currentRawToken = new RawToken
+                    {
+                        Line = line,
+                        Column = column
+                    };
+
+                    theRawTokens.Add(currentRawToken);
+
+                    currentRawToken.Value.Append(character);
                 }
 
-                previousWasWhitespace = isWhitespace;
+                column++;
+
+                if (character == '\n')
+                {
+                    column = 1;
+                    line++;
+                }
             }
 
-            rawTokens = newRawTokens.ToList();
-            
-            rawTokens = rawTokens
-                .SplitThem('.')
-                .SplitThem(';')
-                .SplitThem('|')
-                .SplitThem('>')
-                .SplitThem('<')
-                .SplitThem('@')
-                .SplitThem('"')
-                .SplitThem('\'')
-                .SplitThem(':')
-                .SplitThem(',')
-                .SplitThem(')')
-                .SplitThem('(')
-                .SplitThem(' ')
-                .SplitThem('#')
-                .SplitThem('{')
-                .SplitThem('}')
-                .SplitThem('\\')
-                .SplitThem('/')
-                .SplitThem('$')
-                .SplitThem('\r')
-                .SplitThem('\n')
+            theRawTokens = theRawTokens
+                .Where(x => x.Value.Length > 0)
                 .ToList();
-
+            
             var strsIndex = 0;
 
             var tokens = new List<CssToken>();
 
-            string c;
-            while (strsIndex < rawTokens.Count)
+            RawToken c;
+            while (strsIndex < theRawTokens.Count)
             {
-                c = rawTokens[strsIndex++];
+                c = theRawTokens[strsIndex++];
                 CssToken t;
+                var firstChar = c.Value.ToString()[0];
 
-                if (c == "@")
+                if (firstChar == '@')
                 {
-                    t = new CssToken(CssTokenType.At, c);
+                    t = new CssToken(CssTokenType.At, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "{")
+                else if (firstChar == '{')
                 {
-                    t = new CssToken(CssTokenType.BraceOpen, c);
+                    t = new CssToken(CssTokenType.BraceOpen, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "}")
+                else if (firstChar == '}')
                 {
-                    t = new CssToken(CssTokenType.BraceClose, c);
+                    t = new CssToken(CssTokenType.BraceClose, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == ";")
+                else if (firstChar == ';')
                 {
-                    t = new CssToken(CssTokenType.Semicolon, c);
+                    t = new CssToken(CssTokenType.Semicolon, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == ",")
+                else if (firstChar == ',')
                 {
-                    t = new CssToken(CssTokenType.Comma, c);
+                    t = new CssToken(CssTokenType.Comma, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == ":")
+                else if (firstChar == ':')
                 {
-                    t = new CssToken(CssTokenType.Colon, c);
+                    t = new CssToken(CssTokenType.Colon, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == ".")
+                else if (firstChar == '.')
                 {
-                    t = new CssToken(CssTokenType.Dot, c);
+                    t = new CssToken(CssTokenType.Dot, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "<")
+                else if (firstChar == '<')
                 {
-                    t = new CssToken(CssTokenType.AngleBraketOpen, c);
+                    t = new CssToken(CssTokenType.AngleBraketOpen, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == ">")
+                else if (firstChar == '>')
                 {
-                    t = new CssToken(CssTokenType.AngleBraketClose, c);
+                    t = new CssToken(CssTokenType.AngleBraketClose, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "|")
+                else if (firstChar == '|')
                 {
-                    t = new CssToken(CssTokenType.Pipe, c);
+                    t = new CssToken(CssTokenType.Pipe, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "\"")
+                else if (firstChar == '\"')
                 {
-                    t = new CssToken(CssTokenType.DoubleQuotes, c);
+                    t = new CssToken(CssTokenType.DoubleQuotes, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "'")
+                else if (firstChar == '\'')
                 {
-                    t = new CssToken(CssTokenType.SingleQuotes, c);
+                    t = new CssToken(CssTokenType.SingleQuotes, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "(")
+                else if (firstChar == '(')
                 {
-                    t = new CssToken(CssTokenType.ParenthesisOpen, c);
+                    t = new CssToken(CssTokenType.ParenthesisOpen, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == ")")
+                else if (firstChar == ')')
                 {
-                    t = new CssToken(CssTokenType.ParenthesisClose, c);
+                    t = new CssToken(CssTokenType.ParenthesisClose, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "#")
+                else if (firstChar == '#')
                 {
-                    t = new CssToken(CssTokenType.Hash, c);
+                    t = new CssToken(CssTokenType.Hash, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "\\")
+                else if (firstChar == '\\')
                 {
-                    t = new CssToken(CssTokenType.Backslash, c);
+                    t = new CssToken(CssTokenType.Backslash, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "/")
+                else if (firstChar == '/')
                 {
-                    t = new CssToken(CssTokenType.Slash, c);
+                    t = new CssToken(CssTokenType.Slash, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (
-                    c == " "
-                    )
+                else if (firstChar == ' ')
                 {
-                    t = new CssToken(CssTokenType.Whitespace, c);
+                    t = new CssToken(CssTokenType.Whitespace, c.Value.ToString(), c.Line, c.Column);
                 }
                 else if (
-                   c == "\t" ||
-                   c == "\r" ||
-                   c == "\n"
+                   firstChar == '\t' ||
+                   firstChar == '\r' ||
+                   firstChar == '\n'
                    )
                 {
-                    t = new CssToken(CssTokenType.Whitespace, c);
+                    t = new CssToken(CssTokenType.Whitespace, c.Value.ToString(), c.Line, c.Column);
                 }
-                else if (c == "$")
+                else if (firstChar == '$')
                 {
-                    t = new CssToken(CssTokenType.Dollar, c);
+                    t = new CssToken(CssTokenType.Dollar, c.Value.ToString(), c.Line, c.Column);
                 }
                 else
                 {
-                    t = new CssToken(CssTokenType.Identifier, c);
+                    t = new CssToken(CssTokenType.Identifier, c.Value.ToString(), c.Line, c.Column);
                 }
 
                 tokens.Add(t);

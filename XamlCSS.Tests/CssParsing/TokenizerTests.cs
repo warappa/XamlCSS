@@ -40,7 +40,7 @@ namespace XamlCSS.Tests.CssParsing
                 CssTokenType.Whitespace
             };
 
-            Assert.Contains(new CssToken(CssTokenType.Identifier, "red"), tokens);
+            Assert.Contains(new CssToken(CssTokenType.Identifier, "red", 0,0), tokens);
         }
     }
 }

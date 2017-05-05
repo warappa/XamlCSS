@@ -7,12 +7,16 @@ namespace XamlCSS.CssParsing
 	{
 		public CssTokenType Type { get; set; }
 		public string Text { get; set; }
-        
-		public CssToken(CssTokenType type, string text)
+        public int Line { get; set; }
+        public int Column { get; set; }
+
+        public CssToken(CssTokenType type, string text, int line, int column)
 		{
 			Type = type;
 			Text = text;
-		}
+            Line = line;
+            Column = column;
+        }
 
 		public override bool Equals(object obj)
 		{
