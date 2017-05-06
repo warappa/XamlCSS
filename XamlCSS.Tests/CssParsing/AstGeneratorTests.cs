@@ -18,7 +18,7 @@ namespace XamlCSS.Tests.CssParsing
         [Test]
         public void Can_generate_ast()
         {
-            var doc = new AstGenerator().GetAst(css);
+            var doc = new AstGenerator().GetAst(css).Root;
 
             var node = doc.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleRule)
                 ?.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleDeclarationBlock)

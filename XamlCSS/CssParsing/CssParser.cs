@@ -17,7 +17,8 @@ namespace XamlCSS.CssParsing
 
         public static StyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
         {
-            var ast = new AstGenerator().GetAst(cssDocument);
+            var result = new AstGenerator().GetAst(cssDocument);
+            var ast = result.Root;
 
             var styleSheet = new StyleSheet();
 

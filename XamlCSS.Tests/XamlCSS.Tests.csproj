@@ -57,6 +57,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="CssParsing\AstErrorTests.cs" />
     <Compile Include="CssParsing\AstGeneratorTests.cs" />
     <Compile Include="CssParsing\CssFileProviderTests.cs" />
     <Compile Include="CssParsing\CssNamespaceTests.cs" />

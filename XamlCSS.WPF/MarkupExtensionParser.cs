@@ -116,7 +116,7 @@ namespace XamlCSS.WPF
                 return binding.ProvideValue(null);
             }
 
-            if (parseResult.GetType().Name == "ResourceReferenceExpression")
+            if (parseResult?.GetType().Name == "ResourceReferenceExpression")
             {
                 var resourceKeyProperty = parseResult.GetType().GetProperty("ResourceKey");
 

@@ -7,7 +7,9 @@ namespace XamlCSS.CssParsing
 {
     public class AstGenerator
     {
-        private List<string> errors;
+        private List<LineInfo> errors;
+        private List<LineInfo> warnings;
+
         private List<CssToken> tokens;
         private int currentIndex;
         private CssNode currentNode;
@@ -21,38 +23,100 @@ namespace XamlCSS.CssParsing
             throw new NotSupportedException();
         }
 
-        private void AddError(string message, CssToken token)
+        private void Error(string message, CssToken token)
         {
-            errors.Add($"{message} ({token.Line}:{token.Column})");
+            errors.Add(new LineInfo
+            {
+                Message = $"ERROR ({token.Line}:{token.Column} - {token.Line}:{token.Column + token.Text.Length}): {message}",
+                Line = token.Line,
+                Column = token.Column,
+                Token = token
+            });
+        }
+
+        private void Warning(string message, CssToken token)
+        {
+            warnings.Add(new LineInfo
+            {
+                Message = $"WARNING ({token.Line}:{token.Column} - {token.Line}:{token.Column + token.Text.Length}): {message}",
+                Line = token.Line,
+                Column = token.Column,
+                Token = token
+            });
+        }
+
+        private void SkipToEndOfBlock()
+        {
+            var innerOpenedBlocks = 0;
+            while (currentToken.Type != CssTokenType.BraceClose ||
+                innerOpenedBlocks > 0)
+            {
+                if (currentToken.Type == CssTokenType.DoubleQuotes)
+                {
+                    ReadDoubleQuoteText(false);
+                }
+                else if (currentToken.Type == CssTokenType.SingleQuotes)
+                {
+                    ReadSingleQuoteText(false);
+                }
+                else if (currentToken.Type == CssTokenType.Slash &&
+                    nextToken.Type == CssTokenType.Slash)
+                {
+                    SkipLineCommentText();
+                }
+                else if (currentToken.Type == CssTokenType.Slash &&
+                    nextToken.Type == CssTokenType.Asterisk)
+                {
+                    SkipInlineCommentText();
+                }
+                else if (currentToken.Type == CssTokenType.BraceOpen)
+                {
+                    innerOpenedBlocks++;
+                }
+
+                currentIndex++;
+            }
+
+            currentIndex++;
         }
 
         private void ReadImport()
         {
-            SkipWhitespace();
+            var oldCurrentNode = currentNode;
 
-            switch (currentToken.Type)
+            try
             {
-                case CssTokenType.DoubleQuotes:
-                    SkipExpected(CssTokenType.DoubleQuotes);
-                    ReadDoubleQuoteText(false);
-                    SkipExpected(CssTokenType.Semicolon);
+                SkipWhitespace();
 
-                    AddImportedStyle(currentNode);
-                    break;
-                case CssTokenType.SingleQuotes:
-                    SkipExpected(CssTokenType.SingleQuotes);
-                    ReadSingleQuoteText(false);
-                    SkipExpected(CssTokenType.Semicolon);
+                switch (currentToken.Type)
+                {
+                    case CssTokenType.DoubleQuotes:
+                        SkipExpected(CssTokenType.DoubleQuotes);
+                        ReadDoubleQuoteText(false);
+                        SkipExpected(CssTokenType.Semicolon);
 
-                    AddImportedStyle(currentNode);
-                    break;
-                default:
-                    AddError($"ReadImport: unexpected token '{currentToken.Text}'", currentToken);
-                    SkipUntilLineEnd();
-                    break;
+                        AddImportedStyle(currentNode);
+                        break;
+                    case CssTokenType.SingleQuotes:
+                        SkipExpected(CssTokenType.SingleQuotes);
+                        ReadSingleQuoteText(false);
+                        SkipExpected(CssTokenType.Semicolon);
+
+                        AddImportedStyle(currentNode);
+                        break;
+                    default:
+                        throw new AstGenerationException($"ReadImport: unexpected token '{currentToken.Text}'", currentToken);
+                        break;
+                }
             }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
 
+                SkipUntilLineEnd();
 
+                currentNode = oldCurrentNode;
+            }
         }
 
         private void GoToParent()
@@ -89,53 +153,67 @@ namespace XamlCSS.CssParsing
         {
             // current node is NamespaceDeclaration
 
-            var oldParent = currentNode.Parent;
+            var oldCurrentNode = currentNode;
 
-            SkipWhitespace();
-
-            AddAndSetCurrent(CssNodeType.NamespaceKeyword);
-
-            SkipExpected(CssTokenType.At);
-
-            ReadIdentifier(); // namespace keyword
-
-            SkipWhitespace();
-
-            AddOnParentAndSetCurrent(CssNodeType.NamespaceAlias);
-
-            if (currentToken.Type != CssTokenType.DoubleQuotes &&
-                currentToken.Type != CssTokenType.SingleQuotes)
+            try
             {
-                ReadIdentifier(); // namespace alias
 
-                SkipWhitespace();
+                SkipWhitespace(false);
+
+                AddAndSetCurrent(CssNodeType.NamespaceKeyword);
+
+                SkipExpected(CssTokenType.At);
+
+                ReadIdentifier(); // namespace keyword
+
+                SkipWhitespace(false);
+
+                ExpectToken(CssTokenType.DoubleQuotes, CssTokenType.SingleQuotes, CssTokenType.Identifier);
+
+                AddOnParentAndSetCurrent(CssNodeType.NamespaceAlias);
+
+                if (currentToken.Type != CssTokenType.DoubleQuotes &&
+                    currentToken.Type != CssTokenType.SingleQuotes)
+                {
+                    ReadIdentifier(); // namespace alias
+
+                    SkipWhitespace(false);
+                }
+
+                ExpectToken(CssTokenType.DoubleQuotes, CssTokenType.SingleQuotes);
+
+                AddOnParentAndSetCurrent(CssNodeType.NamespaceValue);
+
+                switch (currentToken.Type)
+                {
+                    case CssTokenType.DoubleQuotes:
+                        SkipExpected(CssTokenType.DoubleQuotes);
+
+                        ReadDoubleQuoteText(false);
+                        SkipExpected(CssTokenType.Semicolon);
+
+                        GoToParent();
+                        break;
+                    case CssTokenType.SingleQuotes:
+                        SkipExpected(CssTokenType.SingleQuotes);
+
+                        ReadSingleQuoteText(false);
+                        SkipExpected(CssTokenType.Semicolon);
+                        GoToParent();
+                        break;
+                    default:
+                        throw new AstGenerationException($"ReadNamespaceDeclaration: unexpected token '{currentToken.Text}'", currentToken);
+
+                        break;
+                }
             }
-
-            AddOnParentAndSetCurrent(CssNodeType.NamespaceValue);
-
-            switch (currentToken.Type)
+            catch (AstGenerationException e)
             {
-                case CssTokenType.DoubleQuotes:
-                    SkipExpected(CssTokenType.DoubleQuotes);
+                Error(e.Message, e.Token);
 
-                    ReadDoubleQuoteText(false);
-                    SkipExpected(CssTokenType.Semicolon);
+                SkipUntilLineEnd();
 
-                    GoToParent();
-                    break;
-                case CssTokenType.SingleQuotes:
-                    SkipExpected(CssTokenType.SingleQuotes);
-
-                    ReadSingleQuoteText(false);
-                    SkipExpected(CssTokenType.Semicolon);
-                    GoToParent();
-                    break;
-                default:
-                    AddError($"ReadNamespaceDeclaration: unexpected token '{currentToken.Text}'", currentToken);
-                    SkipUntilLineEnd();
-
-                    currentNode = oldParent;
-                    break;
+                currentNode = oldCurrentNode;
             }
         }
 
@@ -143,7 +221,7 @@ namespace XamlCSS.CssParsing
         {
             if (currentToken.Type != type)
             {
-                throw new Exception("");
+                throw new AstGenerationException($"Expected token-type '{type}' but current token was '{currentToken.Type}'!", currentToken);
             }
 
             currentIndex++;
@@ -151,16 +229,13 @@ namespace XamlCSS.CssParsing
 
         private void ReadIdentifier()
         {
-            if (currentToken.Type != CssTokenType.Identifier)
-            {
-                throw new Exception("");
-            }
+            ExpectToken(CssTokenType.Identifier);
 
             currentNode.TextBuilder.Append(currentToken.Text);
             currentIndex++;
         }
 
-        private void SkipWhitespace()
+        private void SkipWhitespace(bool skipLineEnding = true)
         {
             while (currentIndex < tokens.Count &&
                 (currentToken.Type == CssTokenType.Whitespace ||
@@ -170,7 +245,7 @@ namespace XamlCSS.CssParsing
                     nextToken.Type == CssTokenType.Slash)))
             {
                 if (currentToken.Type == CssTokenType.Slash &&
-                       nextToken.Type== CssTokenType.Asterisk)
+                       nextToken.Type == CssTokenType.Asterisk)
                 {
                     SkipInlineCommentText();
                 }
@@ -179,6 +254,12 @@ namespace XamlCSS.CssParsing
                 {
                     SkipLineCommentText();
                 }
+                else if (!skipLineEnding &&
+                    (currentToken.Text[0] == '\n' ||
+                    currentToken.Text[0] == '\r'))
+                {
+                    break;
+                }
                 else
                 {
                     currentIndex++;
@@ -186,10 +267,11 @@ namespace XamlCSS.CssParsing
             }
         }
 
-        private void SkipUntilLineEnd()
+        private void SkipUntilLineEnd(params CssTokenType[] orTypes)
         {
             while (currentIndex < tokens.Count &&
-                currentToken.Text[0] != '\n')
+                currentToken.Text[0] != '\n' &&
+                !orTypes.Contains(currentToken.Type))
             {
                 currentIndex++;
             }
@@ -197,368 +279,597 @@ namespace XamlCSS.CssParsing
 
         private void ReadDocument()
         {
-            SkipWhitespace();
-
-            while (currentIndex < tokens.Count)
+            var oldCurrentNode = currentNode;
+            try
             {
-                switch (currentToken.Type)
-                {
-                    case CssTokenType.Slash:
-                        if (nextToken.Type == CssTokenType.Slash)
-                        {
-                            SkipLineCommentText();
-                        }
-                        else if (nextToken.Type == CssTokenType.Asterisk)
-                        {
-                            SkipInlineCommentText();
-                        }
-                        break;
-                    case CssTokenType.At:
-                        var identifier = nextToken;// Peek(tokens, currentIndex, CssTokenType.Identifier);
-
-                        if (identifier.Text == "keyframes")
-                        {
-                            AddAndSetCurrent(CssNodeType.KeyframesDeclaration);
-
-                            ReadKeyframes();
-
-                            GoToParent();
-                        }
-                        else if (identifier.Text == "import")
-                        {
-                            AddAndSetCurrent(CssNodeType.ImportDeclaration);
-
-                            SkipExpected(CssTokenType.At);
-                            SkipExpected(CssTokenType.Identifier);
-
-                            ReadImport();
-
-                            GoToParent();
-                        }
-                        else if (identifier.Text == "namespace")
-                        {
-                            AddAndSetCurrent(CssNodeType.NamespaceDeclaration);
-
-                            ReadNamespaceDeclaration();
-
-                            GoToParent();
-                        }
-                        else if (identifier.Text == "mixin")
-                        {
-                            AddAndSetCurrent(CssNodeType.MixinDeclaration);
-
-                            SkipExpected(CssTokenType.At);
-                            SkipExpected(CssTokenType.Identifier);
-
-                            ReadMixin();
-
-                            GoToParent();
-                        }
-                        else
-                        {
-                            AddError($"ReadDocument: unexpected token '{identifier.Text}'", identifier);
-                        }
-                        break;
-                    case CssTokenType.Dollar:
-                        AddAndSetCurrent(CssNodeType.VariableDeclaration);
-
-                        ReadVariable();
-
-                        GoToParent();
-                        break;
-                    case CssTokenType.Identifier:
-                    case CssTokenType.Dot:
-                    case CssTokenType.Hash:
-                    case CssTokenType.SquareBracketOpen:
-                    case CssTokenType.Asterisk:
-                    case CssTokenType.Tilde:
-                    case CssTokenType.Circumflex:
-                    case CssTokenType.Colon:
-                    case CssTokenType.Underscore:
-                        AddAndSetCurrent(CssNodeType.StyleRule);
-
-                        ReadStyleRule();
-
-                        GoToParent();
-                        break;
-                    default:
-                        throw new Exception(currentToken.Type.ToString());
-                        break;
-                }
-
                 SkipWhitespace();
+
+                while (currentIndex < tokens.Count)
+                {
+                    switch (currentToken.Type)
+                    {
+                        case CssTokenType.Slash:
+                            if (nextToken.Type == CssTokenType.Slash)
+                            {
+                                SkipLineCommentText();
+                            }
+                            else if (nextToken.Type == CssTokenType.Asterisk)
+                            {
+                                SkipInlineCommentText();
+                            }
+                            break;
+                        case CssTokenType.At:
+                            var identifier = nextToken;// Peek(tokens, currentIndex, CssTokenType.Identifier);
+
+                            if (identifier.Text == "keyframes")
+                            {
+                                AddAndSetCurrent(CssNodeType.KeyframesDeclaration);
+
+                                ReadKeyframes();
+
+                                GoToParent();
+                            }
+                            else if (identifier.Text == "import")
+                            {
+                                AddAndSetCurrent(CssNodeType.ImportDeclaration);
+
+                                SkipExpected(CssTokenType.At);
+                                SkipExpected(CssTokenType.Identifier);
+
+                                ReadImport();
+
+                                GoToParent();
+                            }
+                            else if (identifier.Text == "namespace")
+                            {
+                                AddAndSetCurrent(CssNodeType.NamespaceDeclaration);
+
+                                ReadNamespaceDeclaration();
+
+                                GoToParent();
+                            }
+                            else if (identifier.Text == "mixin")
+                            {
+                                AddAndSetCurrent(CssNodeType.MixinDeclaration);
+
+                                SkipExpected(CssTokenType.At);
+                                SkipExpected(CssTokenType.Identifier);
+
+                                ReadMixin();
+
+                                GoToParent();
+                            }
+                            else
+                            {
+                                Error($"ReadDocument: unexpected token '{identifier.Text}'", identifier);
+                            }
+                            break;
+                        case CssTokenType.Dollar:
+                            AddAndSetCurrent(CssNodeType.VariableDeclaration);
+
+                            ReadVariable();
+
+                            GoToParent();
+                            break;
+                        case CssTokenType.Identifier:
+                        case CssTokenType.Dot:
+                        case CssTokenType.Hash:
+                        case CssTokenType.SquareBracketOpen:
+                        case CssTokenType.Asterisk:
+                        case CssTokenType.Tilde:
+                        case CssTokenType.Circumflex:
+                        case CssTokenType.Colon:
+                        case CssTokenType.Underscore:
+                            AddAndSetCurrent(CssNodeType.StyleRule);
+
+                            ReadStyleRule();
+
+                            GoToParent();
+                            break;
+                        default:
+                            throw new AstGenerationException(currentToken.Type.ToString(), currentToken);
+                    }
+
+                    SkipWhitespace();
+                }
+            }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
+
+                currentNode = oldCurrentNode;
             }
         }
 
-        private void CheckExpected(CssNodeType type)
+        private void ExpectNode(params CssNodeType[] types)
         {
-            if (currentNode.Type != type)
+            if (!types.Contains(currentNode.Type))
             {
-                throw new Exception($"CheckExpected: {type.ToString()}");
+                throw new AstGenerationException($"Expected node type {string.Join(" or ", types.Select(x => $"'{x}'"))} but got '{currentNode.Type}'!", currentToken);
+            }
+        }
+
+        private void ExpectToken(params CssTokenType[] types)
+        {
+            if (!types.Contains(currentToken.Type))
+            {
+                throw new AstGenerationException($"Expected token type {string.Join(" or ", types.Select(x => $"'{x}'"))} but got '{currentToken.Type}'!", currentToken);
             }
         }
 
         private void ReadMixin()
         {
-            SkipWhitespace();
+            var oldCurrentNode = currentNode;
 
-            ReadUntil(CssTokenType.ParenthesisOpen);
-            TrimCurrentNode();
-
-            SkipExpected(CssTokenType.ParenthesisOpen);
-
-            AddAndSetCurrent(CssNodeType.MixinParameters);
-
-            while (currentToken.Type != CssTokenType.ParenthesisClose)
+            try
             {
                 SkipWhitespace();
 
-                CheckExpected(CssNodeType.MixinParameters);
+                ReadUntil(CssTokenType.ParenthesisOpen);
+                TrimCurrentNode();
 
-                AddAndSetCurrent(CssNodeType.MixinParameter);
+                SkipExpected(CssTokenType.ParenthesisOpen);
 
-                ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma, CssTokenType.Colon);
+                AddAndSetCurrent(CssNodeType.MixinParameters);
 
-                if (currentToken.Type == CssTokenType.Colon)
+                while (currentToken.Type != CssTokenType.ParenthesisClose)
                 {
-                    SkipExpected(CssTokenType.Colon);
                     SkipWhitespace();
 
-                    AddAndSetCurrent(CssNodeType.MixinParameterDefaultValue);
+                    ExpectNode(CssNodeType.MixinParameters);
 
-                    if (currentToken.Type == CssTokenType.DoubleQuotes)
+                    AddAndSetCurrent(CssNodeType.MixinParameter);
+
+                    ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma, CssTokenType.Colon);
+
+                    if (currentToken.Type == CssTokenType.Colon)
                     {
-                        SkipExpected(CssTokenType.DoubleQuotes);
-                        ReadDoubleQuoteText(false);
-                        ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
-                    }
-                    else if (currentToken.Type == CssTokenType.SingleQuotes)
-                    {
-                        SkipExpected(CssTokenType.SingleQuotes);
-                        ReadSingleQuoteText(false);
-                        ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
-                    }
-                    else
-                    {
-                        ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
+                        SkipExpected(CssTokenType.Colon);
+                        SkipWhitespace();
+
+                        AddAndSetCurrent(CssNodeType.MixinParameterDefaultValue);
+
+                        if (currentToken.Type == CssTokenType.DoubleQuotes)
+                        {
+                            SkipExpected(CssTokenType.DoubleQuotes);
+                            ReadDoubleQuoteText(false);
+                            ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
+                        }
+                        else if (currentToken.Type == CssTokenType.SingleQuotes)
+                        {
+                            SkipExpected(CssTokenType.SingleQuotes);
+                            ReadSingleQuoteText(false);
+                            ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
+                        }
+                        else
+                        {
+                            ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
+                        }
+
+                        TrimCurrentNode();
+
+                        GoToParent();
                     }
 
-                    TrimCurrentNode();
+                    SkipWhitespace();
+
+                    if (currentToken.Type != CssTokenType.ParenthesisClose)
+                    {
+                        currentIndex++;
+                    }
 
                     GoToParent();
                 }
 
-                SkipWhitespace();
-
-                if (currentToken.Type != CssTokenType.ParenthesisClose)
-                {
-                    currentIndex++;
-                }
+                SkipExpected(CssTokenType.ParenthesisClose);
 
                 GoToParent();
+
+                SkipWhitespace();
+
+                //SkipExpected(CssTokenType.BraceOpen);
+
+                AddAndSetCurrent(CssNodeType.StyleDeclarationBlock);
+
+                ReadStyleDeclarationBlock();
+
+                GoToParent();
+
+                SkipWhitespace();
             }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
 
-            SkipExpected(CssTokenType.ParenthesisClose);
+                SkipToEndOfBlock();
 
-            GoToParent();
-
-            SkipWhitespace();
-
-            //SkipExpected(CssTokenType.BraceOpen);
-
-            AddAndSetCurrent(CssNodeType.StyleDeclarationBlock);
-
-            ReadStyleDeclarationBlock();
-
-            GoToParent();
-
-            SkipWhitespace();
+                currentNode = oldCurrentNode;
+            }
         }
 
         private void ReadVariable()
         {
-            SkipWhitespace();
-
-            AddAndSetCurrent(CssNodeType.VariableName);
-
-            ReadUntil(CssTokenType.Colon);
-            TrimCurrentNode();
-
-            SkipExpected(CssTokenType.Colon);
-
-            AddOnParentAndSetCurrent(CssNodeType.VariableValue);
-
-            SkipWhitespace();
-
-            if (currentToken.Type == CssTokenType.DoubleQuotes)
+            var oldCurrentNode = currentNode;
+            try
             {
-                SkipExpected(CssTokenType.DoubleQuotes);
-                ReadDoubleQuoteText(false);
-                ReadUntil(CssTokenType.Semicolon);
-            }
-            else if (currentToken.Type == CssTokenType.SingleQuotes)
-            {
-                SkipExpected(CssTokenType.SingleQuotes);
-                ReadSingleQuoteText(false);
-                ReadUntil(CssTokenType.Semicolon);
-            }
-            else
-            {
-                ReadUntil(CssTokenType.Semicolon);
-            }
+                SkipWhitespace();
 
-            TrimCurrentNode();
-            SkipExpected(CssTokenType.Semicolon);
+                AddAndSetCurrent(CssNodeType.VariableName);
 
-            GoToParent();
+                ReadUntil(CssTokenType.Colon);
+                TrimCurrentNode();
+
+                SkipExpected(CssTokenType.Colon);
+
+                AddOnParentAndSetCurrent(CssNodeType.VariableValue);
+
+                SkipWhitespace();
+
+                if (currentToken.Type == CssTokenType.DoubleQuotes)
+                {
+                    SkipExpected(CssTokenType.DoubleQuotes);
+                    ReadDoubleQuoteText(false);
+                    ReadUntil(CssTokenType.Semicolon);
+                }
+                else if (currentToken.Type == CssTokenType.SingleQuotes)
+                {
+                    SkipExpected(CssTokenType.SingleQuotes);
+                    ReadSingleQuoteText(false);
+                    ReadUntil(CssTokenType.Semicolon);
+                }
+                else
+                {
+                    ReadUntil(CssTokenType.Semicolon);
+                }
+
+                TrimCurrentNode();
+                SkipExpected(CssTokenType.Semicolon);
+
+                GoToParent();
+            }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
+
+                SkipUntilLineEnd();
+
+                currentNode = oldCurrentNode;
+            }
         }
 
         private void ReadStyleRule()
         {
-            AddAndSetCurrent(CssNodeType.Selectors);
+            var old = currentNode;
 
-            ReadSelectors();
+            try
+            {
+                AddAndSetCurrent(CssNodeType.Selectors);
 
-            AddAndSetCurrent(CssNodeType.StyleDeclarationBlock);
+                ReadSelectors();
 
-            ReadStyleDeclarationBlock();
-            GoToParent();
+                AddAndSetCurrent(CssNodeType.StyleDeclarationBlock);
+
+                ReadStyleDeclarationBlock();
+                GoToParent();
+            }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
+
+                SkipToEndOfBlock();
+
+                currentNode = old;
+            }
         }
 
         private void ReadStyleDeclarationBlock()
         {
-            SkipWhitespace();
+            var old = currentNode;
 
-            SkipExpected(CssTokenType.BraceOpen);
-
-            SkipWhitespace();
-
-            while (currentToken.Type != CssTokenType.BraceClose)
+            try
             {
+
                 SkipWhitespace();
 
-                if (currentToken.Type== CssTokenType.Dollar)
+                SkipExpected(CssTokenType.BraceOpen);
+
+                SkipWhitespace();
+
+                while (currentToken.Type != CssTokenType.BraceClose)
                 {
-                    AddAndSetCurrent(CssNodeType.VariableDeclaration);
+                    SkipWhitespace(false);
 
-                    ReadVariable();
-
-                    GoToParent();
-                }
-
-                else if (currentToken.Type== CssTokenType.At)
-                {
-                    var identifier = nextToken.Text;
-
-                    if (identifier == "include")
+                    if (currentToken.Type == CssTokenType.Dollar)
                     {
-                        SkipExpected(CssTokenType.At);
-                        SkipExpected(CssTokenType.Identifier);
+                        AddAndSetCurrent(CssNodeType.VariableDeclaration);
 
-                        AddAndSetCurrent(CssNodeType.MixinInclude);
-
-                        ReadMixinInclude();
+                        ReadVariable();
 
                         GoToParent();
                     }
-                    else if (identifier == "Property")
+
+                    else if (currentToken.Type == CssTokenType.At)
                     {
-                        SkipExpected(CssTokenType.At);
-                        SkipExpected(CssTokenType.Identifier);
+                        var identifier = nextToken.Text;
 
-                        AddAndSetCurrent(CssNodeType.PropertyTrigger);
+                        if (identifier == "include")
+                        {
+                            SkipExpected(CssTokenType.At);
+                            SkipExpected(CssTokenType.Identifier);
 
-                        ReadPropertyTrigger();
+                            AddAndSetCurrent(CssNodeType.MixinInclude);
 
-                        GoToParent();
+                            ReadMixinInclude();
+
+                            GoToParent();
+                        }
+                        else if (identifier == "Property")
+                        {
+                            SkipExpected(CssTokenType.At);
+                            SkipExpected(CssTokenType.Identifier);
+
+                            AddAndSetCurrent(CssNodeType.PropertyTrigger);
+
+                            ReadPropertyTrigger();
+
+                            GoToParent();
+                        }
+                        else if (identifier == "Data")
+                        {
+                            SkipExpected(CssTokenType.At);
+                            SkipExpected(CssTokenType.Identifier);
+
+                            AddAndSetCurrent(CssNodeType.DataTrigger);
+
+                            ReadDataTrigger();
+
+                            GoToParent();
+                        }
+                        else if (identifier == "Event")
+                        {
+                            SkipExpected(CssTokenType.At);
+                            SkipExpected(CssTokenType.Identifier);
+
+                            AddAndSetCurrent(CssNodeType.EventTrigger);
+
+                            ReadEventTrigger();
+
+                            GoToParent();
+                        }
+                        else if (identifier == "Enter")
+                        {
+                            SkipExpected(CssTokenType.At);
+                            SkipExpected(CssTokenType.Identifier);
+
+                            SkipWhitespace();
+
+                            SkipExpected(CssTokenType.Colon);
+
+                            AddAndSetCurrent(CssNodeType.EnterAction);
+
+                            ReadEnterOrExitAction();
+
+                            GoToParent();
+                        }
+                        else if (identifier == "Exit")
+                        {
+                            SkipExpected(CssTokenType.At);
+                            SkipExpected(CssTokenType.Identifier);
+
+                            SkipWhitespace();
+
+                            SkipExpected(CssTokenType.Colon);
+
+                            AddAndSetCurrent(CssNodeType.ExitAction);
+
+                            ReadEnterOrExitAction();
+
+                            GoToParent();
+                        }
+                        else
+                        {
+                            Error($"ReadStyleDeclarationBlock: '@{identifier}' not supported!", currentToken);
+                            currentIndex++;
+                            throw new Exception("");
+                        }
                     }
-                    else if (identifier == "Data")
+                    else if (
+                       currentNode.Parent.Type == CssNodeType.StyleRule &&
+                       (
+                           FirstTokenTypeOf(tokens, currentIndex, new[]
+                           {
+                           CssTokenType.Semicolon,
+                           CssTokenType.BraceOpen,
+                           CssTokenType.BraceClose,
+                           CssTokenType.DoubleQuotes,
+                           CssTokenType.SingleQuotes
+                           }) == CssTokenType.BraceOpen))
                     {
-                        SkipExpected(CssTokenType.At);
-                        SkipExpected(CssTokenType.Identifier);
+                        AddAndSetCurrent(CssNodeType.StyleRule);
 
-                        AddAndSetCurrent(CssNodeType.DataTrigger);
-
-                        ReadDataTrigger();
-
-                        GoToParent();
-                    }
-                    else if (identifier == "Event")
-                    {
-                        SkipExpected(CssTokenType.At);
-                        SkipExpected(CssTokenType.Identifier);
-
-                        AddAndSetCurrent(CssNodeType.EventTrigger);
-
-                        ReadEventTrigger();
-
-                        GoToParent();
-                    }
-                    else if (identifier == "Enter")
-                    {
-                        SkipExpected(CssTokenType.At);
-                        SkipExpected(CssTokenType.Identifier);
-
-                        SkipWhitespace();
-
-                        SkipExpected(CssTokenType.Colon);
-
-                        AddAndSetCurrent(CssNodeType.EnterAction);
-
-                        ReadEnterOrExitAction();
-
-                        GoToParent();
-                    }
-                    else if (identifier == "Exit")
-                    {
-                        SkipExpected(CssTokenType.At);
-                        SkipExpected(CssTokenType.Identifier);
-
-                        SkipWhitespace();
-
-                        SkipExpected(CssTokenType.Colon);
-
-                        AddAndSetCurrent(CssNodeType.ExitAction);
-
-                        ReadEnterOrExitAction();
+                        ReadStyleRule();
 
                         GoToParent();
                     }
                     else
                     {
-                        AddError($"ReadStyleDeclarationBlock: '@{identifier}' not supported!", currentToken);
-                        currentIndex++;
-                        throw new Exception("");
+                        ExpectNode(CssNodeType.StyleDeclarationBlock);
+
+                        AddAndSetCurrent(CssNodeType.StyleDeclaration);
+
+                        var styleDeclarationNode = currentNode;
+
+                        AddAndSetCurrent(CssNodeType.Key);
+
+                        var keyNode = currentNode;
+
+                        ReadUntil(CssTokenType.Colon, CssTokenType.BraceClose, CssTokenType.Whitespace);
+                        try
+                        {
+                            SkipExpected(CssTokenType.Colon);
+
+                            TrimCurrentNode();
+
+                            AddOnParentAndSetCurrent(CssNodeType.Value);
+
+                            SkipWhitespace(false);
+
+                            if (currentToken.Type == CssTokenType.DoubleQuotes)
+                            {
+                                SkipExpected(CssTokenType.DoubleQuotes);
+                                ReadDoubleQuoteText(false);
+                                ReadUntil(CssTokenType.Semicolon);
+                            }
+                            else if (currentToken.Type == CssTokenType.SingleQuotes)
+                            {
+                                SkipExpected(CssTokenType.SingleQuotes);
+                                ReadSingleQuoteText(false);
+                                ReadUntil(CssTokenType.Semicolon);
+                            }
+                            else
+                            {
+                                ReadUntil(CssTokenType.Semicolon);
+                            }
+
+                            if (currentNode.Text == "")
+                            {
+                                throw new AstGenerationException($"No value for key '{keyNode.Text}' provided!", currentToken);
+                            }
+
+                            SkipExpected(CssTokenType.Semicolon);
+
+                            TrimCurrentNode();
+
+                            if (currentNode.TextBuilder.Length > 0 &&
+                                currentNode.Text[0] == '$')
+                            {
+                                var variable = currentNode.Text;
+                                currentNode.TextBuilder.Clear();
+                                AddAndSetCurrent(CssNodeType.VariableReference);
+                                currentNode.TextBuilder.Append(variable);
+                                GoToParent();
+                            }
+
+                            SkipWhitespace();
+                        }
+                        catch (AstGenerationException e)
+                        {
+                            Error(e.Message, currentToken);
+                            
+                            SkipUntilLineEnd(CssTokenType.Semicolon);
+
+                            SkipIfFound(CssTokenType.Semicolon);
+
+                            styleDeclarationNode.Parent.Children.Remove(styleDeclarationNode);
+                        }
+
+                        GoToParent();
+                        GoToParent();
                     }
+
+                    SkipWhitespace();
                 }
-                else if (
-                   currentNode.Parent.Type == CssNodeType.StyleRule &&
-                   (
-                       FirstTokenTypeOf(tokens, currentIndex, new[]
-                       {
-                           CssTokenType.Semicolon,
-                           CssTokenType.BraceOpen,
-                           CssTokenType.DoubleQuotes,
-                           CssTokenType.SingleQuotes
-                       }) == CssTokenType.BraceOpen))
+
+                SkipExpected(CssTokenType.BraceClose);
+
+                SkipWhitespace();
+            }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
+
+                SkipToEndOfBlock();
+
+                currentNode = old;
+            }
+        }
+
+        private void ReadEnterOrExitAction()
+        {
+            var old = currentNode;
+            try
+            {
+                SkipWhitespace();
+
+                AddAndSetCurrent(CssNodeType.ActionDeclarationBlock);
+
+                ReadActionDeclarationBlock();
+
+                GoToParent();
+            }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
+
+                SkipToEndOfBlock();
+
+                currentNode = old;
+            }
+        }
+
+        private void ReadActionDeclarationBlock()
+        {
+            var old = currentNode;
+
+            try
+            {
+                SkipWhitespace();
+                SkipExpected(CssTokenType.BraceOpen);
+                SkipWhitespace();
+
+                while (currentToken.Type != CssTokenType.BraceClose)
                 {
-                    AddAndSetCurrent(CssNodeType.StyleRule);
+                    SkipWhitespace();
 
-                    ReadStyleRule();
-
-                    GoToParent();
-                }
-                else
-                {
-                    CheckExpected(CssNodeType.StyleDeclarationBlock);
-
-                    AddAndSetCurrent(CssNodeType.StyleDeclaration);
-
+                    AddAndSetCurrent(CssNodeType.ActionDeclaration);
                     AddAndSetCurrent(CssNodeType.Key);
 
                     ReadUntil(CssTokenType.Colon);
                     SkipExpected(CssTokenType.Colon);
+                    TrimCurrentNode();
 
+                    AddOnParentAndSetCurrent(CssNodeType.ActionParameterBlock);
+
+                    ReadActionParameterBlock();
+
+                    GoToParent();
+
+                    SkipWhitespace();
+
+                    GoToParent();
+                }
+
+                SkipExpected(CssTokenType.BraceClose);
+            }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
+
+                SkipToEndOfBlock();
+
+                currentNode = old;
+            }
+        }
+
+        private void ReadActionParameterBlock()
+        {
+            var old = currentNode;
+
+            try
+            {
+                SkipWhitespace();
+                SkipExpected(CssTokenType.BraceOpen);
+                SkipWhitespace();
+
+                while (currentToken.Type != CssTokenType.BraceClose)
+                {
+                    SkipWhitespace();
+
+                    AddAndSetCurrent(CssNodeType.ActionParameter);
+                    AddAndSetCurrent(CssNodeType.Key);
+
+                    ReadUntil(CssTokenType.Colon);
+                    SkipExpected(CssTokenType.Colon);
                     TrimCurrentNode();
 
                     AddOnParentAndSetCurrent(CssNodeType.Value);
@@ -584,300 +895,265 @@ namespace XamlCSS.CssParsing
 
                     SkipExpected(CssTokenType.Semicolon);
 
-                    TrimCurrentNode();
-
-                    if (currentNode.TextBuilder.Length > 0 &&
-                        currentNode.Text[0] == '$')
-                    {
-                        var variable = currentNode.Text;
-                        currentNode.TextBuilder.Clear();
-                        AddAndSetCurrent(CssNodeType.VariableReference);
-                        currentNode.TextBuilder.Append(variable);
-                        GoToParent();
-                    }
-
                     SkipWhitespace();
 
                     GoToParent();
                     GoToParent();
                 }
 
-                SkipWhitespace();
+                SkipExpected(CssTokenType.BraceClose);
             }
-
-            SkipExpected(CssTokenType.BraceClose);
-
-            SkipWhitespace();
-        }
-
-        private void ReadEnterOrExitAction()
-        {
-            SkipWhitespace();
-
-            AddAndSetCurrent(CssNodeType.ActionDeclarationBlock);
-
-            ReadActionDeclarationBlock();
-
-            GoToParent();
-        }
-
-        private void ReadActionDeclarationBlock()
-        {
-            SkipWhitespace();
-            SkipExpected(CssTokenType.BraceOpen);
-            SkipWhitespace();
-
-            while (currentToken.Type != CssTokenType.BraceClose)
+            catch (AstGenerationException e)
             {
-                SkipWhitespace();
+                Error(e.Message, e.Token);
 
-                AddAndSetCurrent(CssNodeType.ActionDeclaration);
-                AddAndSetCurrent(CssNodeType.Key);
+                SkipToEndOfBlock();
 
-                ReadUntil(CssTokenType.Colon);
-                SkipExpected(CssTokenType.Colon);
-                TrimCurrentNode();
-
-                AddOnParentAndSetCurrent(CssNodeType.ActionParameterBlock);
-
-                ReadActionParameterBlock();
-
-                GoToParent();
-
-                SkipWhitespace();
-
-                GoToParent();
+                currentNode = old;
             }
-
-            SkipExpected(CssTokenType.BraceClose);
-        }
-
-        private void ReadActionParameterBlock()
-        {
-            SkipWhitespace();
-            SkipExpected(CssTokenType.BraceOpen);
-            SkipWhitespace();
-
-            while (currentToken.Type != CssTokenType.BraceClose)
-            {
-                SkipWhitespace();
-
-                AddAndSetCurrent(CssNodeType.ActionParameter);
-                AddAndSetCurrent(CssNodeType.Key);
-
-                ReadUntil(CssTokenType.Colon);
-                SkipExpected(CssTokenType.Colon);
-                TrimCurrentNode();
-
-                AddOnParentAndSetCurrent(CssNodeType.Value);
-
-                SkipWhitespace();
-
-                if (currentToken.Type == CssTokenType.DoubleQuotes)
-                {
-                    SkipExpected(CssTokenType.DoubleQuotes);
-                    ReadDoubleQuoteText(false);
-                    ReadUntil(CssTokenType.Semicolon);
-                }
-                else if (currentToken.Type == CssTokenType.SingleQuotes)
-                {
-                    SkipExpected(CssTokenType.SingleQuotes);
-                    ReadSingleQuoteText(false);
-                    ReadUntil(CssTokenType.Semicolon);
-                }
-                else
-                {
-                    ReadUntil(CssTokenType.Semicolon);
-                }
-
-                SkipExpected(CssTokenType.Semicolon);
-
-                SkipWhitespace();
-
-                GoToParent();
-                GoToParent();
-            }
-
-            SkipExpected(CssTokenType.BraceClose);
         }
 
 
         private void ReadPropertyTrigger()
         {
-            SkipWhitespace();
+            var old = currentNode;
 
-            AddAndSetCurrent(CssNodeType.PropertyTriggerProperty);
-            ReadUntil(CssTokenType.Whitespace);
-            SkipExpected(CssTokenType.Whitespace);
-            TrimCurrentNode();
-
-            AddOnParentAndSetCurrent(CssNodeType.PropertyTriggerValue);
-
-            if (currentToken.Type == CssTokenType.DoubleQuotes)
+            try
             {
-                SkipExpected(CssTokenType.DoubleQuotes);
-                ReadDoubleQuoteText(false);
+                SkipWhitespace();
+
+                AddAndSetCurrent(CssNodeType.PropertyTriggerProperty);
                 ReadUntil(CssTokenType.Whitespace);
+                SkipExpected(CssTokenType.Whitespace);
+                TrimCurrentNode();
+
+                AddOnParentAndSetCurrent(CssNodeType.PropertyTriggerValue);
+
+                if (currentToken.Type == CssTokenType.DoubleQuotes)
+                {
+                    SkipExpected(CssTokenType.DoubleQuotes);
+                    ReadDoubleQuoteText(false);
+                    ReadUntil(CssTokenType.Whitespace);
+                }
+                else if (currentToken.Type == CssTokenType.SingleQuotes)
+                {
+                    SkipExpected(CssTokenType.SingleQuotes);
+                    ReadSingleQuoteText(false);
+                    ReadUntil(CssTokenType.Whitespace);
+                }
+                else
+                {
+                    ReadUntil(CssTokenType.Whitespace);
+                }
+
+                SkipExpected(CssTokenType.Whitespace);
+                TrimCurrentNode();
+
+                AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
+
+                ReadStyleDeclarationBlock();
+
+                GoToParent();
             }
-            else if (currentToken.Type == CssTokenType.SingleQuotes)
+            catch (AstGenerationException e)
             {
-                SkipExpected(CssTokenType.SingleQuotes);
-                ReadSingleQuoteText(false);
-                ReadUntil(CssTokenType.Whitespace);
+                Error(e.Message, e.Token);
+
+                SkipToEndOfBlock();
+
+                currentNode = old;
             }
-            else
-            {
-                ReadUntil(CssTokenType.Whitespace);
-            }
-
-            SkipExpected(CssTokenType.Whitespace);
-            TrimCurrentNode();
-
-            AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
-
-            ReadStyleDeclarationBlock();
-
-            GoToParent();
         }
 
         private void ReadDataTrigger()
         {
-            SkipWhitespace();
+            var old = currentNode;
 
-            AddAndSetCurrent(CssNodeType.DataTriggerBinding);
-            ReadUntil(CssTokenType.Whitespace);
-            SkipExpected(CssTokenType.Whitespace);
-            TrimCurrentNode();
-
-            AddOnParentAndSetCurrent(CssNodeType.DataTriggerValue);
-
-            if (currentToken.Type == CssTokenType.DoubleQuotes)
+            try
             {
-                SkipExpected(CssTokenType.DoubleQuotes);
-                ReadDoubleQuoteText(false);
+                SkipWhitespace();
+
+                AddAndSetCurrent(CssNodeType.DataTriggerBinding);
                 ReadUntil(CssTokenType.Whitespace);
+                SkipExpected(CssTokenType.Whitespace);
+                TrimCurrentNode();
+
+                AddOnParentAndSetCurrent(CssNodeType.DataTriggerValue);
+
+                if (currentToken.Type == CssTokenType.DoubleQuotes)
+                {
+                    SkipExpected(CssTokenType.DoubleQuotes);
+                    ReadDoubleQuoteText(false);
+                    ReadUntil(CssTokenType.Whitespace);
+                }
+                else if (currentToken.Type == CssTokenType.SingleQuotes)
+                {
+                    SkipExpected(CssTokenType.SingleQuotes);
+                    ReadSingleQuoteText(false);
+                    ReadUntil(CssTokenType.Whitespace);
+                }
+                else
+                {
+                    ReadUntil(CssTokenType.Whitespace);
+                }
+
+                SkipExpected(CssTokenType.Whitespace);
+                TrimCurrentNode();
+
+                AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
+
+                ReadStyleDeclarationBlock();
+
+                GoToParent();
             }
-            else if (currentToken.Type == CssTokenType.SingleQuotes)
+            catch (AstGenerationException e)
             {
-                SkipExpected(CssTokenType.SingleQuotes);
-                ReadSingleQuoteText(false);
-                ReadUntil(CssTokenType.Whitespace);
+                Error(e.Message, e.Token);
+
+                SkipToEndOfBlock();
+
+                currentNode = old;
             }
-            else
-            {
-                ReadUntil(CssTokenType.Whitespace);
-            }
-
-            SkipExpected(CssTokenType.Whitespace);
-            TrimCurrentNode();
-
-            AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
-
-            ReadStyleDeclarationBlock();
-
-            GoToParent();
         }
 
         private void ReadEventTrigger()
         {
-            SkipWhitespace();
+            var old = currentNode;
 
-            AddAndSetCurrent(CssNodeType.EventTriggerEvent);
-            ReadUntil(CssTokenType.Whitespace);
-            SkipExpected(CssTokenType.Whitespace);
-            TrimCurrentNode();
+            try
+            {
+                SkipWhitespace();
 
-            AddOnParentAndSetCurrent(CssNodeType.ActionDeclarationBlock);
+                AddAndSetCurrent(CssNodeType.EventTriggerEvent);
+                ReadUntil(CssTokenType.Whitespace);
+                SkipExpected(CssTokenType.Whitespace);
+                TrimCurrentNode();
 
-            ReadActionDeclarationBlock();
+                AddOnParentAndSetCurrent(CssNodeType.ActionDeclarationBlock);
 
-            GoToParent();
+                ReadActionDeclarationBlock();
+
+                GoToParent();
+            }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
+
+                SkipToEndOfBlock();
+
+                currentNode = old;
+            }
         }
 
         private void ReadMixinInclude()
         {
-            SkipWhitespace();
-
-            ReadUntil(CssTokenType.ParenthesisOpen, CssTokenType.Semicolon);
-            TrimCurrentNode();
-
-            AddAndSetCurrent(CssNodeType.MixinIncludeParameters);
-
-            if (currentToken.Type == CssTokenType.ParenthesisOpen)
+            var old = currentNode;
+            try
             {
-                SkipExpected(CssTokenType.ParenthesisOpen);
+                SkipWhitespace();
 
-                while (currentToken.Type != CssTokenType.ParenthesisClose)
+                ReadUntil(CssTokenType.ParenthesisOpen, CssTokenType.Semicolon);
+                TrimCurrentNode();
+
+                AddAndSetCurrent(CssNodeType.MixinIncludeParameters);
+
+                if (currentToken.Type == CssTokenType.ParenthesisOpen)
                 {
-                    SkipWhitespace();
+                    SkipExpected(CssTokenType.ParenthesisOpen);
 
-                    AddAndSetCurrent(CssNodeType.MixinIncludeParameter);
-
-                    ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
-                    TrimCurrentNode();
-
-                    if (currentToken.Type != CssTokenType.ParenthesisClose)
+                    while (currentToken.Type != CssTokenType.ParenthesisClose)
                     {
-                        SkipExpected(CssTokenType.Comma);
+                        SkipWhitespace();
+
+                        AddAndSetCurrent(CssNodeType.MixinIncludeParameter);
+
+                        ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
+                        TrimCurrentNode();
+
+                        if (currentToken.Type != CssTokenType.ParenthesisClose)
+                        {
+                            SkipExpected(CssTokenType.Comma);
+                        }
+
+                        SkipWhitespace();
+
+                        GoToParent();
                     }
 
-                    SkipWhitespace();
-
-                    GoToParent();
+                    SkipExpected(CssTokenType.ParenthesisClose);
                 }
 
-                SkipExpected(CssTokenType.ParenthesisClose);
+                SkipExpected(CssTokenType.Semicolon);
+
+                GoToParent();
             }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
 
-            SkipExpected(CssTokenType.Semicolon);
+                SkipToEndOfBlock();
 
-            GoToParent();
+                currentNode = old;
+            }
         }
 
         private void ReadSelectors()
         {
-            while (currentToken.Type != CssTokenType.BraceOpen)
+            var old = currentNode;
+            try
             {
-                SkipWhitespace();
 
-                if (currentNode.Type == CssNodeType.Selectors)
+                while (currentToken.Type != CssTokenType.BraceOpen)
                 {
-                    AddAndSetCurrent(CssNodeType.Selector);
-                }
-                else
-                {
-                    AddOnParentAndSetCurrent(CssNodeType.Selector);
-                }
+                    SkipWhitespace();
 
-                while (currentToken.Type != CssTokenType.BraceOpen &&
-                    currentToken.Type != CssTokenType.Comma)
-                {
-
-                    if (currentNode.Type == CssNodeType.Selector)
+                    if (currentNode.Type == CssNodeType.Selectors)
                     {
-                        AddAndSetCurrent(CssNodeType.SelectorFragment);
+                        AddAndSetCurrent(CssNodeType.Selector);
                     }
                     else
                     {
-                        AddOnParentAndSetCurrent(CssNodeType.SelectorFragment);
+                        AddOnParentAndSetCurrent(CssNodeType.Selector);
                     }
 
-                    ReadUntil(CssTokenType.BraceOpen, CssTokenType.Comma, CssTokenType.Whitespace);
+                    while (currentToken.Type != CssTokenType.BraceOpen &&
+                        currentToken.Type != CssTokenType.Comma)
+                    {
 
-                    TrimCurrentNode();
+                        if (currentNode.Type == CssNodeType.Selector)
+                        {
+                            AddAndSetCurrent(CssNodeType.SelectorFragment);
+                        }
+                        else
+                        {
+                            AddOnParentAndSetCurrent(CssNodeType.SelectorFragment);
+                        }
 
-                    SkipWhitespace();
+                        ReadUntil(CssTokenType.BraceOpen, CssTokenType.Comma, CssTokenType.Whitespace);
 
-                    GoToParent();
+                        TrimCurrentNode();
+
+                        SkipWhitespace();
+
+                        GoToParent();
+                    }
+
+                    SkipIfFound(CssTokenType.Comma);
                 }
 
-                SkipIfFound(CssTokenType.Comma);
+                SkipWhitespace();
+
+                GoToParent();
+                GoToParent();
             }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Token);
 
-            SkipWhitespace();
+                SkipToEndOfBlock();
 
-            GoToParent();
-            GoToParent();
+                currentNode = old;
+            }
         }
 
         private void SkipIfFound(CssTokenType type)
@@ -911,9 +1187,10 @@ namespace XamlCSS.CssParsing
             }
         }
 
-        public CssNode GetAst(string cssDocument)
+        public GeneratorResult GetAst(string cssDocument)
         {
-            errors = new List<string>();
+            errors = new List<LineInfo>();
+            warnings = new List<LineInfo>();
 
             currentNode = new CssNode(CssNodeType.Document, null, "");
 
@@ -923,7 +1200,12 @@ namespace XamlCSS.CssParsing
 
             ReadDocument();
 
-            return currentNode;
+            return new GeneratorResult
+            {
+                Root = currentNode,
+                Errors = errors,
+                Warnings = warnings
+            };
         }
 
         private void TrimCurrentNode()
@@ -939,11 +1221,16 @@ namespace XamlCSS.CssParsing
 
             if (content != null)
             {
-                var ast = new AstGenerator().GetAst(content);
+                var result = new AstGenerator().GetAst(content);
+                var ast = result.Root;
 
                 var document = currentNode.Parent;
 
                 document.Children.AddRange(ast.Children);
+            }
+            else
+            {
+                Error($"Cannot load '{currentNode.Text}'!", currentToken);
             }
         }
 
