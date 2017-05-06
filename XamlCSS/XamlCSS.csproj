@@ -94,7 +94,6 @@
     </Compile>
     <Compile Include="ActionParameter.cs" />
     <Compile Include="BaseCss.cs" />
-    <Compile Include="CssParsing\AstGenerator - Kopieren.cs" />
     <Compile Include="CssParsing\AstGenerator.cs" />
     <Compile Include="CssParsing\CssFileProviderBase.cs" />
     <Compile Include="CssParsing\CssNamespace.cs" />
