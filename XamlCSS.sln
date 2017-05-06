@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26127.3
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XamlCSS", "XamlCSS\XamlCSS.csproj", "{A11EA228-BCDC-46EC-8F8B-57FC9227C1AC}"
 EndProject
@@ -259,6 +259,7 @@ Global
 		{AA1D9BD6-BD95-451B-9544-302A9B5DDBCD}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{AA1D9BD6-BD95-451B-9544-302A9B5DDBCD}.Debug|x86.Build.0 = Debug|Any CPU
 		{AA1D9BD6-BD95-451B-9544-302A9B5DDBCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA1D9BD6-BD95-451B-9544-302A9B5DDBCD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AA1D9BD6-BD95-451B-9544-302A9B5DDBCD}.Release|ARM.ActiveCfg = Release|Any CPU
 		{AA1D9BD6-BD95-451B-9544-302A9B5DDBCD}.Release|iPhone.ActiveCfg = Release|Any CPU
 		{AA1D9BD6-BD95-451B-9544-302A9B5DDBCD}.Release|iPhone.Build.0 = Release|Any CPU

@@ -25,5 +25,16 @@
         SquareBracketOpen = 20,
         SquareBracketClose = 21,
         Slash = 22,
+        Asterisk = 23,
+        ExclamationMark = 24,
+        QuestionMark = 25,
+        Minus = 26,
+        Plus = 27,
+        Percentage = 28,
+        Assign = 29,
+        Ampersand = 30,
+        Circumflex = 31,
+        Underscore = 32,
+        Tilde = 33,
     }
 }

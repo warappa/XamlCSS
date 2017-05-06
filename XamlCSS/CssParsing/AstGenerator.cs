@@ -145,7 +145,7 @@ namespace XamlCSS.CssParsing
             {
                 throw new Exception("");
             }
-            
+
             currentIndex++;
         }
 
@@ -165,17 +165,17 @@ namespace XamlCSS.CssParsing
             while (currentIndex < tokens.Count &&
                 (currentToken.Type == CssTokenType.Whitespace ||
                 (currentToken.Type == CssTokenType.Slash &&
-                       nextToken.Text == "*") ||
+                       nextToken.Type == CssTokenType.Asterisk) ||
                        (currentToken.Type == CssTokenType.Slash &&
-                    nextToken.Text == "/")))
+                    nextToken.Type == CssTokenType.Slash)))
             {
                 if (currentToken.Type == CssTokenType.Slash &&
-                       nextToken.Text == "*")
+                       nextToken.Type== CssTokenType.Asterisk)
                 {
                     SkipInlineCommentText();
                 }
                 else if (currentToken.Type == CssTokenType.Slash &&
-                    nextToken.Text == "/")
+                    nextToken.Type == CssTokenType.Slash)
                 {
                     SkipLineCommentText();
                 }
@@ -189,7 +189,7 @@ namespace XamlCSS.CssParsing
         private void SkipUntilLineEnd()
         {
             while (currentIndex < tokens.Count &&
-                currentToken.Text != "\n")
+                currentToken.Text[0] != '\n')
             {
                 currentIndex++;
             }
@@ -204,11 +204,11 @@ namespace XamlCSS.CssParsing
                 switch (currentToken.Type)
                 {
                     case CssTokenType.Slash:
-                        if (nextToken.Text == "/")
+                        if (nextToken.Type == CssTokenType.Slash)
                         {
                             SkipLineCommentText();
                         }
-                        else if (nextToken.Text == "*")
+                        else if (nextToken.Type == CssTokenType.Asterisk)
                         {
                             SkipInlineCommentText();
                         }
@@ -308,7 +308,7 @@ namespace XamlCSS.CssParsing
                 CheckExpected(CssNodeType.MixinParameters);
 
                 AddAndSetCurrent(CssNodeType.MixinParameter);
-                
+
                 ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma, CssTokenType.Colon);
 
                 if (currentToken.Type == CssTokenType.Colon)
@@ -346,7 +346,7 @@ namespace XamlCSS.CssParsing
                 {
                     currentIndex++;
                 }
-                
+
                 GoToParent();
             }
 
@@ -429,7 +429,7 @@ namespace XamlCSS.CssParsing
             {
                 SkipWhitespace();
 
-                if (currentToken.Text[0] == '$')
+                if (currentToken.Type== CssTokenType.Dollar)
                 {
                     AddAndSetCurrent(CssNodeType.VariableDeclaration);
 
@@ -437,8 +437,8 @@ namespace XamlCSS.CssParsing
 
                     GoToParent();
                 }
-                
-                else if (currentToken.Text[0] == '@')
+
+                else if (currentToken.Type== CssTokenType.At)
                 {
                     var identifier = nextToken.Text;
 
@@ -494,7 +494,7 @@ namespace XamlCSS.CssParsing
                         SkipWhitespace();
 
                         SkipExpected(CssTokenType.Colon);
-                        
+
                         AddAndSetCurrent(CssNodeType.EnterAction);
 
                         ReadEnterOrExitAction();
@@ -509,7 +509,7 @@ namespace XamlCSS.CssParsing
                         SkipWhitespace();
 
                         SkipExpected(CssTokenType.Colon);
-                        
+
                         AddAndSetCurrent(CssNodeType.ExitAction);
 
                         ReadEnterOrExitAction();
@@ -635,7 +635,7 @@ namespace XamlCSS.CssParsing
                 ReadActionParameterBlock();
 
                 GoToParent();
-                
+
                 SkipWhitespace();
 
                 GoToParent();
@@ -683,7 +683,7 @@ namespace XamlCSS.CssParsing
                 }
 
                 SkipExpected(CssTokenType.Semicolon);
-                
+
                 SkipWhitespace();
 
                 GoToParent();
@@ -692,7 +692,7 @@ namespace XamlCSS.CssParsing
 
             SkipExpected(CssTokenType.BraceClose);
         }
-        
+
 
         private void ReadPropertyTrigger()
         {
@@ -886,12 +886,12 @@ namespace XamlCSS.CssParsing
                 types.Contains(currentToken.Type) == false)
             {
                 if (currentToken.Type == CssTokenType.Slash &&
-                    nextToken.Text == "*")
+                    nextToken.Type == CssTokenType.Asterisk)
                 {
                     SkipInlineCommentText();
                 }
                 else if (currentToken.Type == CssTokenType.Slash &&
-                    nextToken.Text == "/")
+                    nextToken.Type == CssTokenType.Slash)
                 {
                     SkipLineCommentText();
                 }
@@ -993,15 +993,11 @@ namespace XamlCSS.CssParsing
         {
             do
             {
-                if (tokens[currentIndex].Type == CssTokenType.Whitespace &&
-                    (tokens[currentIndex].Text == "\n" || tokens[currentIndex].Text == "\r"))
+                if (currentToken.Text[0] == '\n' || currentToken.Text[0] == '\r')
                 {
                     break;
                 }
-                else
-                {
 
-                }
                 currentIndex++;
             } while (currentIndex < tokens.Count);
         }
@@ -1010,17 +1006,13 @@ namespace XamlCSS.CssParsing
         {
             do
             {
-                if (tokens[currentIndex].Type == CssTokenType.Identifier &&
-                    (tokens[currentIndex].Text == "*" && tokens[currentIndex + 1].Text == "/"))
+                if (currentToken.Type == CssTokenType.Asterisk && nextToken.Type == CssTokenType.Slash)
                 {
                     currentIndex++;
                     currentIndex++;
                     break;
                 }
-                else
-                {
 
-                }
                 currentIndex++;
             } while (currentIndex < tokens.Count);
         }

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text;
 
 namespace XamlCSS.CssParsing
 {
@@ -35,5 +36,19 @@ namespace XamlCSS.CssParsing
 		{
 			return this.Type.GetHashCode() ^ this.Text.GetHashCode();
 		}
-	}
+
+        private bool? cachedIsLetterOrDigit;
+        public bool? IsLetterOrDigit(StringBuilder value)
+        {
+            if (cachedIsLetterOrDigit != null)
+                return cachedIsLetterOrDigit.Value;
+
+            if (value.Length == 0)
+                return null;
+
+            cachedIsLetterOrDigit = char.IsLetterOrDigit(value[0]);
+
+            return cachedIsLetterOrDigit.Value;
+        }
+    }
 }

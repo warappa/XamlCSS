@@ -60,6 +60,7 @@
     <Compile Include="CssParsing\AstGeneratorTests.cs" />
     <Compile Include="CssParsing\CssFileProviderTests.cs" />
     <Compile Include="CssParsing\CssNamespaceTests.cs" />
+    <Compile Include="CssParsing\ParsingPerformance.cs" />
     <Compile Include="CssParsing\PropertyTriggerTests.cs" />
     <Compile Include="CssParsing\TokenizerTests.cs" />
     <Compile Include="CssParsing\CssParserTests.cs" />
@@ -87,6 +88,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <EmbeddedResource Include="CssParsing\TestData\ImportCssEmbedded.scss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="CssParsing\TestData\BigCss.scss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <None Include="packages.config" />
