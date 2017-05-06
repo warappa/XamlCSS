@@ -23,8 +23,8 @@ namespace XamlCSS.CssParsing
 
             var localNamespaces = ast.Children.Where(x => x.Type == CssNodeType.NamespaceDeclaration)
                     .Select(x => new CssNamespace(
-                        x.Children.First(y => y.Type == CssNodeType.NamespaceAlias).TextBuilder.ToString().Trim(),
-                        x.Children.First(y => y.Type == CssNodeType.NamespaceValue).TextBuilder.ToString().Trim('"')))
+                        x.Children.First(y => y.Type == CssNodeType.NamespaceAlias).Text,
+                        x.Children.First(y => y.Type == CssNodeType.NamespaceValue).Text.Trim('"')))
                     .ToList();
 
             styleSheet.LocalNamespaces.AddRange(localNamespaces);
@@ -121,21 +121,18 @@ namespace XamlCSS.CssParsing
             }
 
             var current = variableReferenceAst.Parent;
+            CssNode foundDeclaration = null;
             while (current != null)
             {
-                var foundDeclaration = current.Children
-                    .LastOrDefault(x =>
-                        x.Type == CssNodeType.VariableDeclaration &&
-                        x.Children.Any(y => y.Type == CssNodeType.VariableName && y.Text == variableName));
-
-                if (foundDeclaration == null)
+                if (current.Type == CssNodeType.StyleDeclarationBlock ||
+                    current.Type == CssNodeType.Document)
                 {
                     foundDeclaration = current.Children
                         .LastOrDefault(x =>
-                            x.Type == CssNodeType.MixinParameter &&
-                            x.Text == variableName
-                            );
+                            x.Type == CssNodeType.VariableDeclaration &&
+                            x.Children.Any(y => y.Type == CssNodeType.VariableName && y.Text == variableName));
                 }
+
                 if (foundDeclaration != null)
                 {
                     return foundDeclaration.Children.First(y => y.Type == CssNodeType.VariableValue).Text;
@@ -180,11 +177,18 @@ namespace XamlCSS.CssParsing
 
         private static string GetValueFromValueAst(CssNode valueAst, Dictionary<string, string> parameterValues)
         {
-            return valueAst.Text != "" ?
-                valueAst.Text.Trim() :
-                valueAst.Children
-                    .Select(y => y.Type == CssNodeType.VariableReference ? GetVariableValue(y, parameterValues) : y.Text)
-                    .Aggregate("", (a, b) => a + (a != "" ? " " : "") + b).Trim();
+            if (valueAst.Text != "")
+            {
+                return valueAst.Text;
+            }
+            var variable = valueAst.Children
+                    .FirstOrDefault(y => y.Type == CssNodeType.VariableReference);
+            if (variable == null)
+            {
+                return "";
+            }
+            
+            return GetVariableValue(variable, parameterValues);
         }
 
         private static List<StyleDeclaration> GetStyleDeclarationsFromBlock(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
@@ -280,7 +284,7 @@ namespace XamlCSS.CssParsing
 
                                 return new Trigger
                                 {
-                                    Property = propertyAst.Text.Trim(),
+                                    Property = propertyAst.Text,
                                     Value = GetValueFromValueAst(valueAst, parameterValues),
                                     StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
                                     EnterActions = enterActions,
@@ -332,7 +336,7 @@ namespace XamlCSS.CssParsing
 
                                 return new DataTrigger
                                 {
-                                    Binding = bindingAst.Text.Trim(),
+                                    Binding = bindingAst.Text,
                                     Value = GetValueFromValueAst(valueAst, parameterValues),
                                     StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
                                     EnterActions = enterActions,
@@ -356,7 +360,7 @@ namespace XamlCSS.CssParsing
 
                                 return new EventTrigger
                                 {
-                                    Event = eventAst.Text.Trim(),
+                                    Event = eventAst.Text,
                                     Actions = new List<TriggerAction>(GetActionDeclarationsFromBlock(astTriggerActionDeclarationBlock, parameterValues))
                                 };
                             })
@@ -531,6 +535,6 @@ namespace XamlCSS.CssParsing
             return false;
         }
 
-        
+
     }
 }

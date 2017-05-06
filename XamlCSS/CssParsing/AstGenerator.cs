@@ -270,11 +270,19 @@ namespace XamlCSS.CssParsing
                     case CssTokenType.Dot:
                     case CssTokenType.Hash:
                     case CssTokenType.SquareBracketOpen:
+                    case CssTokenType.Asterisk:
+                    case CssTokenType.Tilde:
+                    case CssTokenType.Circumflex:
+                    case CssTokenType.Colon:
+                    case CssTokenType.Underscore:
                         AddAndSetCurrent(CssNodeType.StyleRule);
 
                         ReadStyleRule();
 
                         GoToParent();
+                        break;
+                    default:
+                        throw new Exception(currentToken.Type.ToString());
                         break;
                 }
 
@@ -920,7 +928,9 @@ namespace XamlCSS.CssParsing
 
         private void TrimCurrentNode()
         {
-            currentNode.TextBuilder = new StringBuilder(currentNode.Text.Trim());
+            var trimmed = currentNode.Text.Trim();
+            currentNode.TextBuilder.Clear();
+            currentNode.TextBuilder.Append(trimmed);
         }
 
         private void AddImportedStyle(CssNode currentNode)
