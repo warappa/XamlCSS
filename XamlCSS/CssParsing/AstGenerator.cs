@@ -13,6 +13,7 @@ namespace XamlCSS.CssParsing
         private CssNode currentNode;
         private CssToken currentToken => tokens[currentIndex];
         private CssToken nextToken => tokens[currentIndex + 1];
+        private CssToken previousToken => currentIndex > 0 ? tokens[currentIndex - 1] : null;
         private CssNode n;
 
         private void ReadKeyframes()
@@ -32,14 +33,14 @@ namespace XamlCSS.CssParsing
             switch (currentToken.Type)
             {
                 case CssTokenType.DoubleQuotes:
-                    currentIndex++;
+                    SkipExpected(CssTokenType.DoubleQuotes);
                     ReadDoubleQuoteText(false);
                     SkipExpected(CssTokenType.Semicolon);
 
                     AddImportedStyle(currentNode);
                     break;
                 case CssTokenType.SingleQuotes:
-                    currentIndex++;
+                    SkipExpected(CssTokenType.SingleQuotes);
                     ReadSingleQuoteText(false);
                     SkipExpected(CssTokenType.Semicolon);
 
@@ -94,7 +95,7 @@ namespace XamlCSS.CssParsing
 
             AddAndSetCurrent(CssNodeType.NamespaceKeyword);
 
-            currentIndex++;
+            SkipExpected(CssTokenType.At);
 
             ReadIdentifier(); // namespace keyword
 
@@ -115,7 +116,7 @@ namespace XamlCSS.CssParsing
             switch (currentToken.Type)
             {
                 case CssTokenType.DoubleQuotes:
-                    currentIndex++;
+                    SkipExpected(CssTokenType.DoubleQuotes);
 
                     ReadDoubleQuoteText(false);
                     SkipExpected(CssTokenType.Semicolon);
@@ -123,7 +124,7 @@ namespace XamlCSS.CssParsing
                     GoToParent();
                     break;
                 case CssTokenType.SingleQuotes:
-                    currentIndex++;
+                    SkipExpected(CssTokenType.SingleQuotes);
 
                     ReadSingleQuoteText(false);
                     SkipExpected(CssTokenType.Semicolon);
@@ -144,8 +145,7 @@ namespace XamlCSS.CssParsing
             {
                 throw new Exception("");
             }
-
-            // currentNode.TextBuilder.Append(currentToken.Text);
+            
             currentIndex++;
         }
 
@@ -228,8 +228,8 @@ namespace XamlCSS.CssParsing
                         {
                             AddAndSetCurrent(CssNodeType.ImportDeclaration);
 
-                            currentIndex++;
-                            currentIndex++;
+                            SkipExpected(CssTokenType.At);
+                            SkipExpected(CssTokenType.Identifier);
 
                             ReadImport();
 
@@ -247,8 +247,8 @@ namespace XamlCSS.CssParsing
                         {
                             AddAndSetCurrent(CssNodeType.MixinDeclaration);
 
-                            currentIndex++;
-                            currentIndex++;
+                            SkipExpected(CssTokenType.At);
+                            SkipExpected(CssTokenType.Identifier);
 
                             ReadMixin();
 
@@ -277,9 +277,16 @@ namespace XamlCSS.CssParsing
                         GoToParent();
                         break;
                 }
-                currentIndex++;
 
                 SkipWhitespace();
+            }
+        }
+
+        private void CheckExpected(CssNodeType type)
+        {
+            if (currentNode.Type != type)
+            {
+                throw new Exception($"CheckExpected: {type.ToString()}");
             }
         }
 
@@ -290,7 +297,7 @@ namespace XamlCSS.CssParsing
             ReadUntil(CssTokenType.ParenthesisOpen);
             TrimCurrentNode();
 
-            currentIndex++;
+            SkipExpected(CssTokenType.ParenthesisOpen);
 
             AddAndSetCurrent(CssNodeType.MixinParameters);
 
@@ -298,33 +305,28 @@ namespace XamlCSS.CssParsing
             {
                 SkipWhitespace();
 
-                if (currentNode.Type == CssNodeType.MixinParameters)
-                {
-                    AddAndSetCurrent(CssNodeType.MixinParameter);
-                }
-                else
-                {
-                    AddOnParentAndSetCurrent(CssNodeType.MixinParameter);
-                }
+                CheckExpected(CssNodeType.MixinParameters);
 
+                AddAndSetCurrent(CssNodeType.MixinParameter);
+                
                 ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma, CssTokenType.Colon);
 
                 if (currentToken.Type == CssTokenType.Colon)
                 {
-                    currentIndex++;
+                    SkipExpected(CssTokenType.Colon);
                     SkipWhitespace();
 
                     AddAndSetCurrent(CssNodeType.MixinParameterDefaultValue);
 
                     if (currentToken.Type == CssTokenType.DoubleQuotes)
                     {
-                        currentIndex++;
+                        SkipExpected(CssTokenType.DoubleQuotes);
                         ReadDoubleQuoteText(false);
                         ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
                     }
                     else if (currentToken.Type == CssTokenType.SingleQuotes)
                     {
-                        currentIndex++;
+                        SkipExpected(CssTokenType.SingleQuotes);
                         ReadSingleQuoteText(false);
                         ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
                     }
@@ -338,23 +340,23 @@ namespace XamlCSS.CssParsing
                     GoToParent();
                 }
 
+                SkipWhitespace();
+
                 if (currentToken.Type != CssTokenType.ParenthesisClose)
                 {
                     currentIndex++;
                 }
-
-                SkipWhitespace();
-
+                
                 GoToParent();
             }
 
-            GoToParent();
+            SkipExpected(CssTokenType.ParenthesisClose);
 
-            SkipIfFound(CssTokenType.ParenthesisClose);
+            GoToParent();
 
             SkipWhitespace();
 
-            SkipExpected(CssTokenType.BraceOpen);
+            //SkipExpected(CssTokenType.BraceOpen);
 
             AddAndSetCurrent(CssNodeType.StyleDeclarationBlock);
 
@@ -374,7 +376,7 @@ namespace XamlCSS.CssParsing
             ReadUntil(CssTokenType.Colon);
             TrimCurrentNode();
 
-            currentIndex++;
+            SkipExpected(CssTokenType.Colon);
 
             AddOnParentAndSetCurrent(CssNodeType.VariableValue);
 
@@ -382,13 +384,13 @@ namespace XamlCSS.CssParsing
 
             if (currentToken.Type == CssTokenType.DoubleQuotes)
             {
-                currentIndex++;
+                SkipExpected(CssTokenType.DoubleQuotes);
                 ReadDoubleQuoteText(false);
                 ReadUntil(CssTokenType.Semicolon);
             }
             else if (currentToken.Type == CssTokenType.SingleQuotes)
             {
-                currentIndex++;
+                SkipExpected(CssTokenType.SingleQuotes);
                 ReadSingleQuoteText(false);
                 ReadUntil(CssTokenType.Semicolon);
             }
@@ -398,7 +400,7 @@ namespace XamlCSS.CssParsing
             }
 
             TrimCurrentNode();
-            currentIndex++;
+            SkipExpected(CssTokenType.Semicolon);
 
             GoToParent();
         }
@@ -411,8 +413,6 @@ namespace XamlCSS.CssParsing
 
             AddAndSetCurrent(CssNodeType.StyleDeclarationBlock);
 
-            currentIndex++;
-
             ReadStyleDeclarationBlock();
             GoToParent();
         }
@@ -421,7 +421,7 @@ namespace XamlCSS.CssParsing
         {
             SkipWhitespace();
 
-            SkipIfFound(CssTokenType.BraceOpen);
+            SkipExpected(CssTokenType.BraceOpen);
 
             SkipWhitespace();
 
@@ -437,29 +437,15 @@ namespace XamlCSS.CssParsing
 
                     GoToParent();
                 }
-                else if (
-                    currentNode.Parent.Type == CssNodeType.StyleRule &&
-                    (
-                        currentToken.Text[0] == '&' ||
-                        currentToken.Text[0] == '.' ||
-                        (
-                            currentToken.Text[0] != '@' &&
-                            FirstTokenTypeOf(tokens, currentIndex, new[] { CssTokenType.Semicolon, CssTokenType.BraceOpen, CssTokenType.DoubleQuotes, CssTokenType.SingleQuotes}) == CssTokenType.BraceOpen)))
-                {
-                    AddAndSetCurrent(CssNodeType.StyleRule);
-
-                    ReadStyleRule();
-
-                    GoToParent();
-                }
+                
                 else if (currentToken.Text[0] == '@')
                 {
                     var identifier = nextToken.Text;
 
                     if (identifier == "include")
                     {
-                        currentIndex++;
-                        currentIndex++;
+                        SkipExpected(CssTokenType.At);
+                        SkipExpected(CssTokenType.Identifier);
 
                         AddAndSetCurrent(CssNodeType.MixinInclude);
 
@@ -469,8 +455,8 @@ namespace XamlCSS.CssParsing
                     }
                     else if (identifier == "Property")
                     {
-                        currentIndex++;
-                        currentIndex++;
+                        SkipExpected(CssTokenType.At);
+                        SkipExpected(CssTokenType.Identifier);
 
                         AddAndSetCurrent(CssNodeType.PropertyTrigger);
 
@@ -480,8 +466,8 @@ namespace XamlCSS.CssParsing
                     }
                     else if (identifier == "Data")
                     {
-                        currentIndex++;
-                        currentIndex++;
+                        SkipExpected(CssTokenType.At);
+                        SkipExpected(CssTokenType.Identifier);
 
                         AddAndSetCurrent(CssNodeType.DataTrigger);
 
@@ -491,8 +477,8 @@ namespace XamlCSS.CssParsing
                     }
                     else if (identifier == "Event")
                     {
-                        currentIndex++;
-                        currentIndex++;
+                        SkipExpected(CssTokenType.At);
+                        SkipExpected(CssTokenType.Identifier);
 
                         AddAndSetCurrent(CssNodeType.EventTrigger);
 
@@ -502,15 +488,13 @@ namespace XamlCSS.CssParsing
                     }
                     else if (identifier == "Enter")
                     {
-                        currentIndex++;
-                        currentIndex++;
+                        SkipExpected(CssTokenType.At);
+                        SkipExpected(CssTokenType.Identifier);
 
                         SkipWhitespace();
 
                         SkipExpected(CssTokenType.Colon);
-
-                        currentIndex++;
-
+                        
                         AddAndSetCurrent(CssNodeType.EnterAction);
 
                         ReadEnterOrExitAction();
@@ -519,15 +503,13 @@ namespace XamlCSS.CssParsing
                     }
                     else if (identifier == "Exit")
                     {
-                        currentIndex++;
-                        currentIndex++;
+                        SkipExpected(CssTokenType.At);
+                        SkipExpected(CssTokenType.Identifier);
 
                         SkipWhitespace();
 
                         SkipExpected(CssTokenType.Colon);
-
-                        currentIndex++;
-
+                        
                         AddAndSetCurrent(CssNodeType.ExitAction);
 
                         ReadEnterOrExitAction();
@@ -538,23 +520,36 @@ namespace XamlCSS.CssParsing
                     {
                         AddError($"ReadStyleDeclarationBlock: '@{identifier}' not supported!", currentToken);
                         currentIndex++;
+                        throw new Exception("");
                     }
+                }
+                else if (
+                   currentNode.Parent.Type == CssNodeType.StyleRule &&
+                   (
+                       FirstTokenTypeOf(tokens, currentIndex, new[]
+                       {
+                           CssTokenType.Semicolon,
+                           CssTokenType.BraceOpen,
+                           CssTokenType.DoubleQuotes,
+                           CssTokenType.SingleQuotes
+                       }) == CssTokenType.BraceOpen))
+                {
+                    AddAndSetCurrent(CssNodeType.StyleRule);
+
+                    ReadStyleRule();
+
+                    GoToParent();
                 }
                 else
                 {
-                    if (currentNode.Type == CssNodeType.StyleDeclarationBlock)
-                    {
-                        AddAndSetCurrent(CssNodeType.StyleDeclaration);
-                    }
-                    else
-                    {
-                        AddOnParentAndSetCurrent(CssNodeType.StyleDeclaration);
-                    }
+                    CheckExpected(CssNodeType.StyleDeclarationBlock);
+
+                    AddAndSetCurrent(CssNodeType.StyleDeclaration);
 
                     AddAndSetCurrent(CssNodeType.Key);
 
                     ReadUntil(CssTokenType.Colon);
-                    currentIndex++;
+                    SkipExpected(CssTokenType.Colon);
 
                     TrimCurrentNode();
 
@@ -564,13 +559,13 @@ namespace XamlCSS.CssParsing
 
                     if (currentToken.Type == CssTokenType.DoubleQuotes)
                     {
-                        currentIndex++;
+                        SkipExpected(CssTokenType.DoubleQuotes);
                         ReadDoubleQuoteText(false);
                         ReadUntil(CssTokenType.Semicolon);
                     }
                     else if (currentToken.Type == CssTokenType.SingleQuotes)
                     {
-                        currentIndex++;
+                        SkipExpected(CssTokenType.SingleQuotes);
                         ReadSingleQuoteText(false);
                         ReadUntil(CssTokenType.Semicolon);
                     }
@@ -579,7 +574,7 @@ namespace XamlCSS.CssParsing
                         ReadUntil(CssTokenType.Semicolon);
                     }
 
-                    currentIndex++;
+                    SkipExpected(CssTokenType.Semicolon);
 
                     TrimCurrentNode();
 
@@ -602,9 +597,9 @@ namespace XamlCSS.CssParsing
                 SkipWhitespace();
             }
 
+            SkipExpected(CssTokenType.BraceClose);
 
             SkipWhitespace();
-
         }
 
         private void ReadEnterOrExitAction()
@@ -632,7 +627,7 @@ namespace XamlCSS.CssParsing
                 AddAndSetCurrent(CssNodeType.Key);
 
                 ReadUntil(CssTokenType.Colon);
-                currentIndex++;
+                SkipExpected(CssTokenType.Colon);
                 TrimCurrentNode();
 
                 AddOnParentAndSetCurrent(CssNodeType.ActionParameterBlock);
@@ -640,12 +635,7 @@ namespace XamlCSS.CssParsing
                 ReadActionParameterBlock();
 
                 GoToParent();
-
-                if (currentToken.Type != CssTokenType.BraceClose)
-                {
-                    currentIndex++;
-                }
-
+                
                 SkipWhitespace();
 
                 GoToParent();
@@ -668,7 +658,7 @@ namespace XamlCSS.CssParsing
                 AddAndSetCurrent(CssNodeType.Key);
 
                 ReadUntil(CssTokenType.Colon);
-                currentIndex++;
+                SkipExpected(CssTokenType.Colon);
                 TrimCurrentNode();
 
                 AddOnParentAndSetCurrent(CssNodeType.Value);
@@ -677,13 +667,13 @@ namespace XamlCSS.CssParsing
 
                 if (currentToken.Type == CssTokenType.DoubleQuotes)
                 {
-                    currentIndex++;
+                    SkipExpected(CssTokenType.DoubleQuotes);
                     ReadDoubleQuoteText(false);
                     ReadUntil(CssTokenType.Semicolon);
                 }
                 else if (currentToken.Type == CssTokenType.SingleQuotes)
                 {
-                    currentIndex++;
+                    SkipExpected(CssTokenType.SingleQuotes);
                     ReadSingleQuoteText(false);
                     ReadUntil(CssTokenType.Semicolon);
                 }
@@ -692,17 +682,15 @@ namespace XamlCSS.CssParsing
                     ReadUntil(CssTokenType.Semicolon);
                 }
 
-                if (currentToken.Type != CssTokenType.BraceClose)
-                {
-                    currentIndex++;
-                }
-
+                SkipExpected(CssTokenType.Semicolon);
+                
                 SkipWhitespace();
 
                 GoToParent();
                 GoToParent();
             }
-            currentIndex++;
+
+            SkipExpected(CssTokenType.BraceClose);
         }
         
 
@@ -712,20 +700,20 @@ namespace XamlCSS.CssParsing
 
             AddAndSetCurrent(CssNodeType.PropertyTriggerProperty);
             ReadUntil(CssTokenType.Whitespace);
-            currentIndex++;
+            SkipExpected(CssTokenType.Whitespace);
             TrimCurrentNode();
 
             AddOnParentAndSetCurrent(CssNodeType.PropertyTriggerValue);
 
             if (currentToken.Type == CssTokenType.DoubleQuotes)
             {
-                currentIndex++;
+                SkipExpected(CssTokenType.DoubleQuotes);
                 ReadDoubleQuoteText(false);
                 ReadUntil(CssTokenType.Whitespace);
             }
             else if (currentToken.Type == CssTokenType.SingleQuotes)
             {
-                currentIndex++;
+                SkipExpected(CssTokenType.SingleQuotes);
                 ReadSingleQuoteText(false);
                 ReadUntil(CssTokenType.Whitespace);
             }
@@ -734,7 +722,7 @@ namespace XamlCSS.CssParsing
                 ReadUntil(CssTokenType.Whitespace);
             }
 
-            currentIndex++;
+            SkipExpected(CssTokenType.Whitespace);
             TrimCurrentNode();
 
             AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
@@ -750,20 +738,20 @@ namespace XamlCSS.CssParsing
 
             AddAndSetCurrent(CssNodeType.DataTriggerBinding);
             ReadUntil(CssTokenType.Whitespace);
-            currentIndex++;
+            SkipExpected(CssTokenType.Whitespace);
             TrimCurrentNode();
 
             AddOnParentAndSetCurrent(CssNodeType.DataTriggerValue);
 
             if (currentToken.Type == CssTokenType.DoubleQuotes)
             {
-                currentIndex++;
+                SkipExpected(CssTokenType.DoubleQuotes);
                 ReadDoubleQuoteText(false);
                 ReadUntil(CssTokenType.Whitespace);
             }
             else if (currentToken.Type == CssTokenType.SingleQuotes)
             {
-                currentIndex++;
+                SkipExpected(CssTokenType.SingleQuotes);
                 ReadSingleQuoteText(false);
                 ReadUntil(CssTokenType.Whitespace);
             }
@@ -772,7 +760,7 @@ namespace XamlCSS.CssParsing
                 ReadUntil(CssTokenType.Whitespace);
             }
 
-            currentIndex++;
+            SkipExpected(CssTokenType.Whitespace);
             TrimCurrentNode();
 
             AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
@@ -788,7 +776,7 @@ namespace XamlCSS.CssParsing
 
             AddAndSetCurrent(CssNodeType.EventTriggerEvent);
             ReadUntil(CssTokenType.Whitespace);
-            currentIndex++;
+            SkipExpected(CssTokenType.Whitespace);
             TrimCurrentNode();
 
             AddOnParentAndSetCurrent(CssNodeType.ActionDeclarationBlock);
@@ -809,29 +797,20 @@ namespace XamlCSS.CssParsing
 
             if (currentToken.Type == CssTokenType.ParenthesisOpen)
             {
-
                 SkipExpected(CssTokenType.ParenthesisOpen);
-
 
                 while (currentToken.Type != CssTokenType.ParenthesisClose)
                 {
                     SkipWhitespace();
 
-                    if (currentNode.Type == CssNodeType.MixinIncludeParameters)
-                    {
-                        AddAndSetCurrent(CssNodeType.MixinIncludeParameter);
-                    }
-                    else
-                    {
-                        AddOnParentAndSetCurrent(CssNodeType.MixinIncludeParameter);
-                    }
+                    AddAndSetCurrent(CssNodeType.MixinIncludeParameter);
 
                     ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
                     TrimCurrentNode();
 
                     if (currentToken.Type != CssTokenType.ParenthesisClose)
                     {
-                        currentIndex++;
+                        SkipExpected(CssTokenType.Comma);
                     }
 
                     SkipWhitespace();
@@ -839,7 +818,7 @@ namespace XamlCSS.CssParsing
                     GoToParent();
                 }
 
-                SkipIfFound(CssTokenType.ParenthesisClose);
+                SkipExpected(CssTokenType.ParenthesisClose);
             }
 
             SkipExpected(CssTokenType.Semicolon);
@@ -942,39 +921,6 @@ namespace XamlCSS.CssParsing
         private void TrimCurrentNode()
         {
             currentNode.TextBuilder = new StringBuilder(currentNode.Text.Trim());
-        }
-
-
-        private CssNode _ReadSemicolonAst()
-        {
-            TrimCurrentNode();
-
-            if (currentNode.Type == CssNodeType.VariableReference)
-            {
-                currentNode = currentNode.Parent;
-            }
-            if (currentNode.Type == CssNodeType.Value)
-            {
-                currentNode = currentNode.Parent;
-            }
-            else if (currentNode.Type == CssNodeType.NamespaceValue)
-            {
-                currentNode = currentNode.Parent;
-            }
-            else if (currentNode.Type == CssNodeType.VariableValue)
-            {
-                currentNode = currentNode.Parent;
-            }
-            else if (currentNode.Type == CssNodeType.MixinParameterDefaultValue)
-            {
-                currentNode = currentNode.Parent;
-            }
-
-            TrimCurrentNode();
-
-            currentNode = currentNode.Parent;
-
-            return currentNode;
         }
 
         private void AddImportedStyle(CssNode currentNode)
