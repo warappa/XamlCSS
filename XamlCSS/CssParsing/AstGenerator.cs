@@ -48,8 +48,9 @@ namespace XamlCSS.CssParsing
         private void SkipToEndOfBlock()
         {
             var innerOpenedBlocks = 0;
-            while (currentToken.Type != CssTokenType.BraceClose ||
-                innerOpenedBlocks > 0)
+            while (currentIndex < tokens.Count &&
+                (currentToken.Type != CssTokenType.BraceClose ||
+                innerOpenedBlocks > 0))
             {
                 if (currentToken.Type == CssTokenType.DoubleQuotes)
                 {
@@ -412,7 +413,8 @@ namespace XamlCSS.CssParsing
 
                 AddAndSetCurrent(CssNodeType.MixinParameters);
 
-                while (currentToken.Type != CssTokenType.ParenthesisClose)
+                while (currentIndex < tokens.Count &&
+                    currentToken.Type != CssTokenType.ParenthesisClose)
                 {
                     SkipWhitespace();
 
@@ -575,7 +577,8 @@ namespace XamlCSS.CssParsing
 
                 SkipWhitespace();
 
-                while (currentToken.Type != CssTokenType.BraceClose)
+                while (currentIndex < tokens.Count &&
+                    currentToken.Type != CssTokenType.BraceClose)
                 {
                     SkipWhitespace(false);
 
@@ -714,6 +717,9 @@ namespace XamlCSS.CssParsing
 
                             SkipWhitespace(false);
 
+                            var wasQuoted = currentToken.Type == CssTokenType.DoubleQuotes ||
+                                currentToken.Type == CssTokenType.SingleQuotes;
+
                             if (currentToken.Type == CssTokenType.DoubleQuotes)
                             {
                                 SkipExpected(CssTokenType.DoubleQuotes);
@@ -728,7 +734,8 @@ namespace XamlCSS.CssParsing
                             ReadUntil(CssTokenType.Semicolon, CssTokenType.At, CssTokenType.BraceClose, CssTokenType.BraceOpen);
 
                             TrimCurrentNode();
-                            if (currentNode.Text == "")
+                            if (currentNode.Text == "" &&
+                                !wasQuoted)
                             {
                                 throw new AstGenerationException($"No value for key '{keyNode.Text}' provided!", currentToken);
                             }
@@ -750,7 +757,7 @@ namespace XamlCSS.CssParsing
                         catch (AstGenerationException e)
                         {
                             Error(e.Message, currentToken);
-                            
+
                             SkipUntilLineEnd(CssTokenType.Semicolon, CssTokenType.BraceClose, CssTokenType.At);
 
                             SkipIfFound(CssTokenType.Semicolon);
@@ -812,7 +819,8 @@ namespace XamlCSS.CssParsing
                 SkipExpected(CssTokenType.BraceOpen);
                 SkipWhitespace();
 
-                while (currentToken.Type != CssTokenType.BraceClose)
+                while (currentIndex < tokens.Count &&
+                    currentToken.Type != CssTokenType.BraceClose)
                 {
                     SkipWhitespace();
 
@@ -856,7 +864,8 @@ namespace XamlCSS.CssParsing
                 SkipExpected(CssTokenType.BraceOpen);
                 SkipWhitespace();
 
-                while (currentToken.Type != CssTokenType.BraceClose)
+                while (currentIndex < tokens.Count &&
+                    currentToken.Type != CssTokenType.BraceClose)
                 {
                     SkipWhitespace();
 
@@ -1056,7 +1065,8 @@ namespace XamlCSS.CssParsing
                 {
                     SkipExpected(CssTokenType.ParenthesisOpen);
 
-                    while (currentToken.Type != CssTokenType.ParenthesisClose)
+                    while (currentIndex < tokens.Count &&
+                        currentToken.Type != CssTokenType.ParenthesisClose)
                     {
                         SkipWhitespace();
 
@@ -1098,7 +1108,8 @@ namespace XamlCSS.CssParsing
             try
             {
 
-                while (currentToken.Type != CssTokenType.BraceOpen)
+                while (currentIndex < tokens.Count &&
+                    currentToken.Type != CssTokenType.BraceOpen)
                 {
                     SkipWhitespace();
 
@@ -1111,7 +1122,8 @@ namespace XamlCSS.CssParsing
                         AddOnParentAndSetCurrent(CssNodeType.Selector);
                     }
 
-                    while (currentToken.Type != CssTokenType.BraceOpen &&
+                    while (currentIndex < tokens.Count &&
+                        currentToken.Type != CssTokenType.BraceOpen &&
                         currentToken.Type != CssTokenType.Comma)
                     {
 
@@ -1162,7 +1174,7 @@ namespace XamlCSS.CssParsing
         private void ReadUntil(params CssTokenType[] types)
         {
             while (currentIndex < tokens.Count &&
-                types.Contains(currentToken.Type) == false)
+                !types.Contains(currentToken.Type))
             {
                 if (currentToken.Type == CssTokenType.Slash &&
                     nextToken.Type == CssTokenType.Asterisk)
