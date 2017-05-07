@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace XamlCSS.CssParsing
@@ -21,6 +22,20 @@ namespace XamlCSS.CssParsing
             var ast = result.Root;
 
             var styleSheet = new StyleSheet();
+
+            if (result.Errors.Any() ||
+                result.Warnings.Any())
+            {
+                foreach (var error in result.Errors)
+                {
+                    styleSheet.Errors.Add(error.Message);
+                }
+
+                foreach (var warning in result.Warnings)
+                {
+                    styleSheet.Warnings.Add(warning.Message);
+                }
+            }
 
             var localNamespaces = ast.Children.Where(x => x.Type == CssNodeType.NamespaceDeclaration)
                     .Select(x => new CssNamespace(
@@ -188,7 +203,7 @@ namespace XamlCSS.CssParsing
             {
                 return "";
             }
-            
+
             return GetVariableValue(variable, parameterValues);
         }
 

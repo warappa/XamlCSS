@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using XamlCSS.CssParsing;
@@ -67,12 +68,54 @@ namespace XamlCSS
                 Reset();
 
                 var sheet = CssParser.Parse(content);
+
+                this.Errors.Clear();
+                this.Warnings.Clear();
+                foreach (var error in sheet.Errors)
+                {
+                    this.Errors.Add(error);
+                }
+                foreach (var warning in sheet.Warnings)
+                {
+                    this.Warnings.Add(warning);
+                }
+
                 this.LocalNamespaces = sheet.LocalNamespaces;
                 this.LocalRules = sheet.LocalRules;
 
                 inheritedStyleSheets = null;
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
+            }
+        }
+
+        private ObservableCollection<string> errors = new ObservableCollection<string>();
+        virtual public ObservableCollection<string> Errors
+        {
+            get
+            {
+                return errors;
+            }
+            set
+            {
+                errors = value;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
+            }
+        }
+
+        private ObservableCollection<string> warnings = new ObservableCollection<string>();
+        virtual public ObservableCollection<string> Warnings
+        {
+            get
+            {
+                return warnings;
+            }
+            set
+            {
+                warnings = value;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Warnings"));
             }
         }
 

@@ -15,6 +15,7 @@
     cssWPF:Css.StyleSheet="{StaticResource appStyleSheet}">
     <Window.Resources>
         <ResourceDictionary>
+            <local:ListToStringConverter x:Key="ListToStringConverter"></local:ListToStringConverter>
             <Brush x:Key="ToColor">#00aa00</Brush>
             <Storyboard x:Key="storyboard">
                 <ColorAnimation 
@@ -35,7 +36,7 @@
                     
                     Button
 {
-    Width: 300;
+    Width:;
     @Property IsEnabled true
     {
         Background: #DynamicResource ToColor;
@@ -166,6 +167,9 @@ Grid
             </Grid>
             <Button Name="thebutton" Click="Button_Click">Change Style</Button>
             <Button Click="Button_Click_2">Click me</Button>
+            <TextBlock Background="White" Foreground="Red"
+                       Text="{Binding Errors, Source={StaticResource InternalStyle}, Converter={StaticResource ListToStringConverter}}">
+            </TextBlock>
         </StackPanel>
     </Grid>
 </Window>

@@ -718,27 +718,22 @@ namespace XamlCSS.CssParsing
                             {
                                 SkipExpected(CssTokenType.DoubleQuotes);
                                 ReadDoubleQuoteText(false);
-                                ReadUntil(CssTokenType.Semicolon);
                             }
                             else if (currentToken.Type == CssTokenType.SingleQuotes)
                             {
                                 SkipExpected(CssTokenType.SingleQuotes);
                                 ReadSingleQuoteText(false);
-                                ReadUntil(CssTokenType.Semicolon);
-                            }
-                            else
-                            {
-                                ReadUntil(CssTokenType.Semicolon);
                             }
 
+                            ReadUntil(CssTokenType.Semicolon, CssTokenType.At, CssTokenType.BraceClose, CssTokenType.BraceOpen);
+
+                            TrimCurrentNode();
                             if (currentNode.Text == "")
                             {
                                 throw new AstGenerationException($"No value for key '{keyNode.Text}' provided!", currentToken);
                             }
 
                             SkipExpected(CssTokenType.Semicolon);
-
-                            TrimCurrentNode();
 
                             if (currentNode.TextBuilder.Length > 0 &&
                                 currentNode.Text[0] == '$')
