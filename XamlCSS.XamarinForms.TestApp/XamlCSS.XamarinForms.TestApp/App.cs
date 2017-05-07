@@ -19,7 +19,7 @@ namespace XamlCSS.XamarinForms.TestApp
         }
 
         public string cssStyle1 = @"
-@import ""Resources\\baseStyle.scss"";
+@import ""Resources/baseStyle.scss"";
 
 Button
 {

@@ -64,7 +64,7 @@ namespace XamlCSS.CssParsing
 
         protected virtual string GetEmbeddedResourceName(string source, Assembly assembly)
         {
-            return GetEmbeddedResourcePrefix(assembly) + source.Replace("\\", ".");
+            return GetEmbeddedResourcePrefix(assembly) + source.Replace("\\", ".").Replace("/", ".");
         }
 
         protected virtual string GetEmbeddedResourcePrefix(Assembly assembly)
@@ -74,7 +74,7 @@ namespace XamlCSS.CssParsing
             {
                 prefix = prefix.Substring(0, prefix.Length - 4);
             }
-            return prefix.Replace("\\", ".") + ".";
+            return prefix.Replace("\\", ".").Replace("/", ".") + ".";
         }
     }
 }
