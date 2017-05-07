@@ -15,21 +15,7 @@
                     @namespace local "XamlCSS.XamarinForms.TestApp, XamlCSS.XamarinForms.TestApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
                     
 Button
-{
-    WidthRequest: 100;
-                    
-    @Property IsEnabled false
-    {
-        BackgroundColor: #dddddd;
-    }
-           
-                    
-    @Property Text "Change Style"
-    {
-        
-        HeightRequest: 200;
-    }
-                    
+{         
     @Property Text "Clicked!"
     {
         @Enter:

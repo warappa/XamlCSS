@@ -15,7 +15,7 @@
     cssWPF:Css.StyleSheet="{StaticResource appStyleSheet}">
     <Window.Resources>
         <ResourceDictionary>
-            <sys:String x:Key="ToColor">#ffff00</sys:String>
+            <Brush x:Key="ToColor">#00aa00</Brush>
             <Storyboard x:Key="storyboard">
                 <ColorAnimation 
 						Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)" 
@@ -28,18 +28,17 @@
 						Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)" To="Green" Duration="0:0:5.25" >
                 </ColorAnimation>
             </Storyboard>
-            
-            <css:StyleSheet x:Key="InternalStyle">
+            <css:StyleSheet x:Key="InternalStyle" xml:space="preserve">
                 <css:StyleSheet.Content>
-                    @import "Resources\\baseStyle.scss";
+                    @import "Resources/baseStyle.scss";
                     @namespace animation "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
                     
                     Button
 {
-    Width: 100;
+    Width: 300;
     @Property IsEnabled true
     {
-        Background: #StaticResource ToColor;
+        Background: #DynamicResource ToColor;
     }
 }
 TextBlock

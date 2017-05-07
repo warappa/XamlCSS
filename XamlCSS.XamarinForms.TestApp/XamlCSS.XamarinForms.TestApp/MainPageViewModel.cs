@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using Xamarin.Forms;
-using XamlCSS.CssParsing;
 
 namespace XamlCSS.XamarinForms.TestApp
 {
@@ -31,6 +27,7 @@ namespace XamlCSS.XamarinForms.TestApp
                 OnPropertyChange();
             }
         }
+
         private ObservableCollection<string> testList = new ObservableCollection<string>();
         public ObservableCollection<string> TestList
         {
@@ -41,10 +38,12 @@ namespace XamlCSS.XamarinForms.TestApp
                 OnPropertyChange();
             }
         }
+
         private void OnPropertyChange([CallerMemberName] string property = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(property));
         }
+
         public event PropertyChangedEventHandler PropertyChanged;
     }
 }

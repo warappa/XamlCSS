@@ -756,7 +756,7 @@ namespace XamlCSS.CssParsing
                         {
                             Error(e.Message, currentToken);
                             
-                            SkipUntilLineEnd(CssTokenType.Semicolon);
+                            SkipUntilLineEnd(CssTokenType.Semicolon, CssTokenType.BraceClose, CssTokenType.At);
 
                             SkipIfFound(CssTokenType.Semicolon);
 
