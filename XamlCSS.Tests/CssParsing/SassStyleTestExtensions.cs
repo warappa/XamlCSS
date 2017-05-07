@@ -20,7 +20,7 @@ namespace XamlCSS.Tests.CssParsing
 
             if (node.Type == CssNodeType.Document)
             {
-                node = node.Children[nthRule];
+                node = node.Children.ToList()[nthRule];
             }
 
             return node;
@@ -55,19 +55,19 @@ namespace XamlCSS.Tests.CssParsing
         {
             if (node.Type == CssNodeType.Document)
             {
-                node = node.Children[nthRule];
+                node = node.Children.ToList()[nthRule];
             }
             if (node.Type == CssNodeType.StyleRule)
             {
-                node = node.Children[nthSelector];
+                node = node.Children.ToList()[nthSelector];
             }
             if (node.Type == CssNodeType.Selectors)
             {
-                node = node.Children[0];
+                node = node.Children.ToList()[0];
             }
             if (node.Type == CssNodeType.Selector)
             {
-                node = node.Children[nthSelectorFragment];
+                node = node.Children.ToList()[nthSelectorFragment];
             }
 
             return node;

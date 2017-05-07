@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace XamlCSS.CssParsing
@@ -29,6 +31,62 @@ namespace XamlCSS.CssParsing
             (text = TextBuilder.ToString());
         public CssNode Parent { get; set; }
 
-        public List<CssNode> Children { get; set; } = new List<CssNode>();
+        private List<CssNode> children = new List<CssNode>();
+        public IEnumerable<CssNode> Children { get => children; }
+
+        private Dictionary<string, CssNode> cachedVariables;
+        internal CssNode GetVariableDeclaration(string variableName)
+        {
+            if (cachedVariables == null)
+            {
+                cachedVariables = new Dictionary<string, CssNode>();
+
+                var variableDeclarations = Children
+                        .Where(x => x.Type == CssNodeType.VariableDeclaration)
+                            .ToList();
+
+                foreach (var declaration in variableDeclarations)
+                {
+                    cachedVariables[declaration.Children.First(y => y.Type == CssNodeType.VariableName).Text] = declaration;
+                }
+            }
+
+            CssNode foundVariableDeclaration;
+
+            if (cachedVariables.TryGetValue(variableName, out foundVariableDeclaration))
+            {
+                return foundVariableDeclaration;
+            }
+
+            return null;
+        }
+
+        internal void AddChildren(IEnumerable<CssNode> children)
+        {
+            foreach (var child in children)
+            {
+                AddChild(child);
+            }
+        }
+
+        internal void AddChild(CssNode child)
+        {
+            children.Add(child);
+
+            if (child.Type == CssNodeType.VariableDeclaration)
+            {
+                cachedVariables = null;
+            }
+        }
+
+        internal void RemoveChild(CssNode child)
+        {
+            children.Remove(child);
+
+            if (child.Type == CssNodeType.VariableDeclaration)
+            {
+                cachedVariables = null;
+            }
+        }
     }
 }

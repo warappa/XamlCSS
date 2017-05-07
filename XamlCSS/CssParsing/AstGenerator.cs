@@ -128,7 +128,7 @@ namespace XamlCSS.CssParsing
         {
             node.Parent = currentNode.Parent;
 
-            currentNode.Parent.Children.Add(node);
+            currentNode.Parent.AddChild(node);
             currentNode = node;
         }
 
@@ -141,7 +141,7 @@ namespace XamlCSS.CssParsing
         {
             node.Parent = currentNode;
 
-            currentNode.Children.Add(node);
+            currentNode.AddChild(node);
             currentNode = node;
         }
         private void AddAndSetCurrent(CssNodeType type)
@@ -755,7 +755,7 @@ namespace XamlCSS.CssParsing
 
                             SkipIfFound(CssTokenType.Semicolon);
 
-                            styleDeclarationNode.Parent.Children.Remove(styleDeclarationNode);
+                            styleDeclarationNode.Parent.RemoveChild(styleDeclarationNode);
                         }
 
                         GoToParent();
@@ -1184,6 +1184,11 @@ namespace XamlCSS.CssParsing
 
         public GeneratorResult GetAst(string cssDocument)
         {
+            return GetAst(Tokenizer.Tokenize(cssDocument));
+        }
+
+        public GeneratorResult GetAst(List<CssToken> tokens)
+        {
             errors = new List<LineInfo>();
             warnings = new List<LineInfo>();
 
@@ -1191,7 +1196,7 @@ namespace XamlCSS.CssParsing
 
             currentIndex = 0;
 
-            tokens = Tokenizer.Tokenize(cssDocument).ToList();
+            this.tokens = tokens;
 
             ReadDocument();
 
@@ -1221,7 +1226,7 @@ namespace XamlCSS.CssParsing
 
                 var document = currentNode.Parent;
 
-                document.Children.AddRange(ast.Children);
+                document.AddChildren(ast.Children);
             }
             else
             {

@@ -16,9 +16,25 @@ namespace XamlCSS.CssParsing
             CssParser.cssFileProvider = cssFileProvider;
         }
 
-        public static StyleSheet Parse(string cssDocument, string defaultCssNamespace = null)
+        public static StyleSheet Parse(string document, string defaultCssNamespace = null)
         {
-            var result = new AstGenerator().GetAst(cssDocument);
+            var result = new AstGenerator().GetAst(document);
+
+            return Parse(result, defaultCssNamespace);
+        }
+
+        public static StyleSheet Parse(CssNode document, string defaultCssNamespace = null)
+        {
+            return Parse(new GeneratorResult
+            {
+                Errors = new List<LineInfo>(),
+                Warnings = new List<LineInfo>(),
+                Root = document
+            }, defaultCssNamespace);
+        }
+
+        public static StyleSheet Parse(GeneratorResult result, string defaultCssNamespace = null)
+        {
             var ast = result.Root;
 
             var styleSheet = new StyleSheet();
@@ -143,16 +159,14 @@ namespace XamlCSS.CssParsing
                 if (current.Type == CssNodeType.StyleDeclarationBlock ||
                     current.Type == CssNodeType.Document)
                 {
-                    foundDeclaration = current.Children
-                        .LastOrDefault(x =>
-                            x.Type == CssNodeType.VariableDeclaration &&
-                            x.Children.Any(y => y.Type == CssNodeType.VariableName && y.Text == variableName));
+                    foundDeclaration = current.GetVariableDeclaration(variableName);
+                    
+                    if (foundDeclaration != null)
+                    {
+                        return foundDeclaration.Children.First(y => y.Type == CssNodeType.VariableValue).Text;
+                    }
                 }
 
-                if (foundDeclaration != null)
-                {
-                    return foundDeclaration.Children.First(y => y.Type == CssNodeType.VariableValue).Text;
-                }
                 current = current.Parent;
             }
 
@@ -411,9 +425,9 @@ namespace XamlCSS.CssParsing
 
             var parameterDict = new Dictionary<string, string>();
             var parameterAsts = declaration.Children.First(x => x.Type == CssNodeType.MixinParameters).Children;
-            for (var i = 0; i < parameterAsts.Count; i++)
+            var i = 0;
+            foreach (var parameterAst in parameterAsts)
             {
-                var parameterAst = parameterAsts[i];
                 if (i < parameterValues.Count)
                 {
                     parameterDict.Add(parameterAst.Text, parameterValues[i]);
@@ -428,6 +442,8 @@ namespace XamlCSS.CssParsing
 
                     parameterDict.Add(parameterAst.Text, defaultValueAst.Text);
                 }
+
+                i++;
             }
 
             return GetStyleDeclarationsFromBlock(declaration.Children.First(x => x.Type == CssNodeType.StyleDeclarationBlock), parameterDict);

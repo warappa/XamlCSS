@@ -73,10 +73,7 @@ background: red;
             string css = @"
 Button {
 Width: ;
- @Property IsEnabled true
-    {
-        Background: #StaticResource ToColor;
-    }
+background: red;
 }
 
 .class2 {
@@ -89,7 +86,7 @@ Width: ;
             result.Errors.Count.Should().Be(1);
             result.Errors[0].Message.Should().Contain("No value for key");
             result.Errors[0].Line.Should().Be(3);
-            result.Errors[0].Column.Should().Be(15);
+            result.Errors[0].Column.Should().Be(8);
 
 
             // faulty style-declaration removed, good one added

@@ -16,7 +16,7 @@ namespace XamlCSS.CssParsing
             }
         }
 
-        public static IEnumerable<CssToken> Tokenize(string cssDocument)
+        public static List<CssToken> Tokenize(string cssDocument)
         {
             var value = new StringBuilder();
             var line = 1;
