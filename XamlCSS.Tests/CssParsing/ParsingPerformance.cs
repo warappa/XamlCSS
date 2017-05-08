@@ -15,6 +15,7 @@ namespace XamlCSS.Tests.CssParsing
     public class ParsingPerformance
     {
         private string css;
+        private int iterations = 1;
 
         [SetUp]
         public void Setup()
@@ -29,7 +30,7 @@ namespace XamlCSS.Tests.CssParsing
         [Test]
         public void Test_parse_performance()
         {
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < iterations; i++)
             {
                 ParseIteration();
             }
@@ -38,7 +39,7 @@ namespace XamlCSS.Tests.CssParsing
         [Test]
         public void Test_ast_generation_performance()
         {
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < iterations; i++)
             {
                 AstGenerationIteration();
             }
@@ -47,7 +48,7 @@ namespace XamlCSS.Tests.CssParsing
         [Test]
         public void Test_tokenzie_performance()
         {
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < iterations; i++)
             {
                 TokenizeGenerationIteration();
             }

@@ -24,8 +24,10 @@ namespace XamlCSS.Tests.CssParsing
 
             result.Errors.Count.Should().Be(1);
             result.Errors[0].Message.Should().Contain("got 'Whitespace'");
-            result.Errors[0].Line.Should().Be(2);
-            result.Errors[0].Column.Should().Be(19);
+            result.Errors[0].FromLine.Should().Be(2);
+            result.Errors[0].FromColumn.Should().Be(1);
+            result.Errors[0].ToLine.Should().Be(2);
+            result.Errors[0].ToColumn.Should().Be(19);
 
             var node = doc.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleRule)
                 ?.Children.FirstOrDefault(x => x.Type == CssNodeType.Selectors)
@@ -54,8 +56,10 @@ background: red;
 
             result.Errors.Count.Should().Be(1);
             result.Errors[0].Message.Should().Contain("was 'Whitespace'");
-            result.Errors[0].Line.Should().Be(3);
-            result.Errors[0].Column.Should().Be(14);
+            result.Errors[0].FromLine.Should().Be(3);
+            result.Errors[0].FromColumn.Should().Be(1);
+            result.Errors[0].ToLine.Should().Be(3);
+            result.Errors[0].ToColumn.Should().Be(14);
 
 
             // faulty style-declaration removed, good one added
@@ -85,8 +89,10 @@ background: red;
 
             result.Errors.Count.Should().Be(1);
             result.Errors[0].Message.Should().Contain("No value for key");
-            result.Errors[0].Line.Should().Be(3);
-            result.Errors[0].Column.Should().Be(8);
+            result.Errors[0].FromLine.Should().Be(3);
+            result.Errors[0].FromColumn.Should().Be(1);
+            result.Errors[0].ToLine.Should().Be(3);
+            result.Errors[0].ToColumn.Should().Be(8);
 
 
             // faulty style-declaration removed, good one added

@@ -29,12 +29,14 @@ namespace XamlCSS.CssParsing
 			}
 
 			return this.Type == other.Type &&
-				this.Text == other.Text;
+				this.Text == other.Text &&
+                this.Line == other.Line &&
+                this.Column == other.Column;
 		}
 
 		public override int GetHashCode()
 		{
-			return this.Type.GetHashCode() ^ this.Text.GetHashCode();
+			return this.Type.GetHashCode() ^ this.Text.GetHashCode() ^ this.Line.GetHashCode() ^ this.Column.GetHashCode();
 		}
 
         private bool? cachedIsLetterOrDigit;

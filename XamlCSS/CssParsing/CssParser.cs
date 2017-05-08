@@ -44,7 +44,7 @@ namespace XamlCSS.CssParsing
             {
                 foreach (var error in result.Errors)
                 {
-                    styleSheet.Errors.Add(error.Message);
+                    styleSheet.Errors.Add(error.Message + $" ({error.Text})");
                 }
 
                 foreach (var warning in result.Warnings)

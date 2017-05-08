@@ -94,6 +94,7 @@
     </Compile>
     <Compile Include="ActionParameter.cs" />
     <Compile Include="BaseCss.cs" />
+    <Compile Include="CreateStyleDictionaryFromDeclarationBlockResult`1.cs" />
     <Compile Include="CssParsing\AstGenerationException.cs" />
     <Compile Include="CssParsing\AstGenerator.cs" />
     <Compile Include="CssParsing\CssFileProviderBase.cs" />
@@ -105,6 +106,7 @@
     <Compile Include="CssParsing\CssTokenType.cs" />
     <Compile Include="CssParsing\GeneratorResult.cs" />
     <Compile Include="CssParsing\ICssFileProvider.cs" />
+    <Compile Include="CssParsing\LineInfo.cs" />
     <Compile Include="CssParsing\Tokenizer.cs" />
     <Compile Include="CssTypeHelper.cs" />
     <Compile Include="DataTrigger.cs" />

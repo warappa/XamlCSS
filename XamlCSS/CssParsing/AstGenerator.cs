@@ -23,26 +23,14 @@ namespace XamlCSS.CssParsing
             throw new NotSupportedException();
         }
 
-        private void Error(string message, CssToken token)
+        private void Error(string message, IEnumerable<CssToken> tokens)
         {
-            errors.Add(new LineInfo
-            {
-                Message = $"ERROR ({token.Line}:{token.Column} - {token.Line}:{token.Column + token.Text.Length}): {message}",
-                Line = token.Line,
-                Column = token.Column,
-                Token = token
-            });
+            errors.Add(new LineInfo($"ERROR ({tokens.First().Line}:{tokens.First().Column} - {tokens.Last().Line}:{tokens.Last().Column}): {message}", tokens));
         }
 
         private void Warning(string message, CssToken token)
         {
-            warnings.Add(new LineInfo
-            {
-                Message = $"WARNING ({token.Line}:{token.Column} - {token.Line}:{token.Column + token.Text.Length}): {message}",
-                Line = token.Line,
-                Column = token.Column,
-                Token = token
-            });
+            warnings.Add(new LineInfo($"WARNING ({tokens.First().Line}:{tokens.First().Column} - {tokens.Last().Line}:{tokens.Last().Column}): {message}", tokens));
         }
 
         private void SkipToEndOfBlock()
@@ -84,6 +72,7 @@ namespace XamlCSS.CssParsing
         private void ReadImport()
         {
             var oldCurrentNode = currentNode;
+            var startToken = currentToken;
 
             try
             {
@@ -92,32 +81,87 @@ namespace XamlCSS.CssParsing
                 switch (currentToken.Type)
                 {
                     case CssTokenType.DoubleQuotes:
-                        SkipExpected(CssTokenType.DoubleQuotes);
+                        SkipExpected(startToken, CssTokenType.DoubleQuotes);
                         ReadDoubleQuoteText(false);
-                        SkipExpected(CssTokenType.Semicolon);
+                        SkipExpected(startToken, CssTokenType.Semicolon);
 
                         AddImportedStyle(currentNode);
                         break;
                     case CssTokenType.SingleQuotes:
-                        SkipExpected(CssTokenType.SingleQuotes);
+                        SkipExpected(startToken, CssTokenType.SingleQuotes);
                         ReadSingleQuoteText(false);
-                        SkipExpected(CssTokenType.Semicolon);
+                        SkipExpected(startToken, CssTokenType.Semicolon);
 
                         AddImportedStyle(currentNode);
                         break;
                     default:
-                        throw new AstGenerationException($"ReadImport: unexpected token '{currentToken.Text}'", currentToken);
+                        throw new AstGenerationException($"ReadImport: unexpected token '{currentToken.Text}'", GetTokens(startToken, currentToken));
                         break;
                 }
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipUntilLineEnd();
 
                 currentNode = oldCurrentNode;
             }
+        }
+
+        private List<CssToken> GetTokens(CssToken startToken, CssToken endToken)
+        {
+            return GetTokens(tokens.IndexOf(startToken), tokens.IndexOf(endToken));
+        }
+
+        private List<CssToken> GetTokens(int startIndex, int endIndex)
+        {
+            if (startIndex < 0 ||
+                startIndex > endIndex)
+            {
+                throw new ArgumentException($"startIndex invalid: {startIndex} ({startIndex}, {endIndex}, {tokens.Count})");
+            }
+            if (endIndex < 0 ||
+                endIndex >= tokens.Count)
+            {
+                throw new ArgumentException($"endIndex invalid: {endIndex} ({startIndex}, {endIndex}, {tokens.Count})");
+            }
+
+            var list = new List<CssToken>();
+            
+            for (var i = startIndex; i <= endIndex; i++)
+            {
+                list.Add(tokens[i]);
+            }
+
+            return list;
+        }
+
+        private string GetStringFromTokens(CssToken startToken, CssToken endToken)
+        {
+            return GetStringFromTokens(tokens.IndexOf(startToken), tokens.IndexOf(endToken));
+        }
+
+        private string GetStringFromTokens(int startIndex, int endIndex)
+        {
+            if (startIndex < 0 ||
+                startIndex > endIndex)
+            {
+                throw new ArgumentException($"startIndex invalid: {startIndex} ({startIndex}, {endIndex}, {tokens.Count})");
+            }
+            if (endIndex < 0 ||
+                endIndex >= tokens.Count)
+            {
+                throw new ArgumentException($"endIndex invalid: {endIndex} ({startIndex}, {endIndex}, {tokens.Count})");
+            }
+
+            var stringBuilder = new StringBuilder();
+            for (var i = startIndex; i < endIndex; i++)
+            {
+                stringBuilder.Append(tokens[i].Text);
+            }
+
+            return stringBuilder.ToString();
         }
 
         private void GoToParent()
@@ -155,6 +199,7 @@ namespace XamlCSS.CssParsing
             // current node is NamespaceDeclaration
 
             var oldCurrentNode = currentNode;
+            var startToken = currentToken;
 
             try
             {
@@ -163,13 +208,13 @@ namespace XamlCSS.CssParsing
 
                 AddAndSetCurrent(CssNodeType.NamespaceKeyword);
 
-                SkipExpected(CssTokenType.At);
+                SkipExpected(startToken, CssTokenType.At);
 
                 ReadIdentifier(); // namespace keyword
 
                 SkipWhitespace(false);
 
-                ExpectToken(CssTokenType.DoubleQuotes, CssTokenType.SingleQuotes, CssTokenType.Identifier);
+                ExpectToken(startToken, CssTokenType.DoubleQuotes, CssTokenType.SingleQuotes, CssTokenType.Identifier);
 
                 AddOnParentAndSetCurrent(CssNodeType.NamespaceAlias);
 
@@ -181,36 +226,36 @@ namespace XamlCSS.CssParsing
                     SkipWhitespace(false);
                 }
 
-                ExpectToken(CssTokenType.DoubleQuotes, CssTokenType.SingleQuotes);
+                ExpectToken(startToken, CssTokenType.DoubleQuotes, CssTokenType.SingleQuotes);
 
                 AddOnParentAndSetCurrent(CssNodeType.NamespaceValue);
 
                 switch (currentToken.Type)
                 {
                     case CssTokenType.DoubleQuotes:
-                        SkipExpected(CssTokenType.DoubleQuotes);
+                        SkipExpected(startToken, CssTokenType.DoubleQuotes);
 
                         ReadDoubleQuoteText(false);
-                        SkipExpected(CssTokenType.Semicolon);
+                        SkipExpected(startToken, CssTokenType.Semicolon);
 
                         GoToParent();
                         break;
                     case CssTokenType.SingleQuotes:
-                        SkipExpected(CssTokenType.SingleQuotes);
+                        SkipExpected(startToken, CssTokenType.SingleQuotes);
 
                         ReadSingleQuoteText(false);
-                        SkipExpected(CssTokenType.Semicolon);
+                        SkipExpected(startToken, CssTokenType.Semicolon);
                         GoToParent();
                         break;
                     default:
-                        throw new AstGenerationException($"ReadNamespaceDeclaration: unexpected token '{currentToken.Text}'", currentToken);
+                        throw new AstGenerationException($"ReadNamespaceDeclaration: unexpected token '{currentToken.Text}'", GetTokens(startToken, currentToken));
 
                         break;
                 }
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipUntilLineEnd();
 
@@ -218,11 +263,11 @@ namespace XamlCSS.CssParsing
             }
         }
 
-        private void SkipExpected(CssTokenType type)
+        private void SkipExpected(CssToken startToken, CssTokenType type)
         {
             if (currentToken.Type != type)
             {
-                throw new AstGenerationException($"Expected token-type '{type}' but current token was '{currentToken.Type}'!", currentToken);
+                throw new AstGenerationException($"Expected token-type '{type}' but current token was '{currentToken.Type}'!", GetTokens(startToken, currentToken));
             }
 
             currentIndex++;
@@ -230,7 +275,7 @@ namespace XamlCSS.CssParsing
 
         private void ReadIdentifier()
         {
-            ExpectToken(CssTokenType.Identifier);
+            ExpectToken(currentToken, CssTokenType.Identifier);
 
             currentNode.TextBuilder.Append(currentToken.Text);
             currentIndex++;
@@ -281,12 +326,15 @@ namespace XamlCSS.CssParsing
         private void ReadDocument()
         {
             var oldCurrentNode = currentNode;
+
             try
             {
                 SkipWhitespace();
 
                 while (currentIndex < tokens.Count)
                 {
+                    var startToken = currentToken;
+
                     switch (currentToken.Type)
                     {
                         case CssTokenType.Slash:
@@ -314,8 +362,8 @@ namespace XamlCSS.CssParsing
                             {
                                 AddAndSetCurrent(CssNodeType.ImportDeclaration);
 
-                                SkipExpected(CssTokenType.At);
-                                SkipExpected(CssTokenType.Identifier);
+                                SkipExpected(startToken, CssTokenType.At);
+                                SkipExpected(startToken, CssTokenType.Identifier);
 
                                 ReadImport();
 
@@ -333,8 +381,8 @@ namespace XamlCSS.CssParsing
                             {
                                 AddAndSetCurrent(CssNodeType.MixinDeclaration);
 
-                                SkipExpected(CssTokenType.At);
-                                SkipExpected(CssTokenType.Identifier);
+                                SkipExpected(startToken, CssTokenType.At);
+                                SkipExpected(startToken, CssTokenType.Identifier);
 
                                 ReadMixin();
 
@@ -342,7 +390,7 @@ namespace XamlCSS.CssParsing
                             }
                             else
                             {
-                                Error($"ReadDocument: unexpected token '{identifier.Text}'", identifier);
+                                Error($"ReadDocument: unexpected token '{identifier.Text}'", GetTokens(startToken, identifier));
                             }
                             break;
                         case CssTokenType.Dollar:
@@ -376,7 +424,7 @@ namespace XamlCSS.CssParsing
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 currentNode = oldCurrentNode;
             }
@@ -390,18 +438,18 @@ namespace XamlCSS.CssParsing
             }
         }
 
-        private void ExpectToken(params CssTokenType[] types)
+        private void ExpectToken(CssToken startToken, params CssTokenType[] types)
         {
             if (!types.Contains(currentToken.Type))
             {
-                throw new AstGenerationException($"Expected token type {string.Join(" or ", types.Select(x => $"'{x}'"))} but got '{currentToken.Type}'!", currentToken);
+                throw new AstGenerationException($"Expected token type {string.Join(" or ", types.Select(x => $"'{x}'"))} but got '{currentToken.Type}'!", GetTokens(startToken, currentToken));
             }
         }
 
         private void ReadMixin()
         {
             var oldCurrentNode = currentNode;
-
+            var startToken = currentToken;
             try
             {
                 SkipWhitespace();
@@ -409,13 +457,15 @@ namespace XamlCSS.CssParsing
                 ReadUntil(CssTokenType.ParenthesisOpen);
                 TrimCurrentNode();
 
-                SkipExpected(CssTokenType.ParenthesisOpen);
+                SkipExpected(startToken, CssTokenType.ParenthesisOpen);
 
                 AddAndSetCurrent(CssNodeType.MixinParameters);
 
                 while (currentIndex < tokens.Count &&
                     currentToken.Type != CssTokenType.ParenthesisClose)
                 {
+                    var parameterToken = currentToken;
+
                     SkipWhitespace();
 
                     ExpectNode(CssNodeType.MixinParameters);
@@ -426,20 +476,20 @@ namespace XamlCSS.CssParsing
 
                     if (currentToken.Type == CssTokenType.Colon)
                     {
-                        SkipExpected(CssTokenType.Colon);
+                        SkipExpected(parameterToken, CssTokenType.Colon);
                         SkipWhitespace();
 
                         AddAndSetCurrent(CssNodeType.MixinParameterDefaultValue);
 
                         if (currentToken.Type == CssTokenType.DoubleQuotes)
                         {
-                            SkipExpected(CssTokenType.DoubleQuotes);
+                            SkipExpected(parameterToken, CssTokenType.DoubleQuotes);
                             ReadDoubleQuoteText(false);
                             ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
                         }
                         else if (currentToken.Type == CssTokenType.SingleQuotes)
                         {
-                            SkipExpected(CssTokenType.SingleQuotes);
+                            SkipExpected(parameterToken, CssTokenType.SingleQuotes);
                             ReadSingleQuoteText(false);
                             ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Comma);
                         }
@@ -463,7 +513,7 @@ namespace XamlCSS.CssParsing
                     GoToParent();
                 }
 
-                SkipExpected(CssTokenType.ParenthesisClose);
+                SkipExpected(startToken, CssTokenType.ParenthesisClose);
 
                 GoToParent();
 
@@ -481,7 +531,7 @@ namespace XamlCSS.CssParsing
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -492,6 +542,7 @@ namespace XamlCSS.CssParsing
         private void ReadVariable()
         {
             var oldCurrentNode = currentNode;
+            var startToken = currentToken;
             try
             {
                 SkipWhitespace();
@@ -501,7 +552,7 @@ namespace XamlCSS.CssParsing
                 ReadUntil(CssTokenType.Colon);
                 TrimCurrentNode();
 
-                SkipExpected(CssTokenType.Colon);
+                SkipExpected(startToken, CssTokenType.Colon);
 
                 AddOnParentAndSetCurrent(CssNodeType.VariableValue);
 
@@ -509,13 +560,13 @@ namespace XamlCSS.CssParsing
 
                 if (currentToken.Type == CssTokenType.DoubleQuotes)
                 {
-                    SkipExpected(CssTokenType.DoubleQuotes);
+                    SkipExpected(startToken, CssTokenType.DoubleQuotes);
                     ReadDoubleQuoteText(false);
                     ReadUntil(CssTokenType.Semicolon);
                 }
                 else if (currentToken.Type == CssTokenType.SingleQuotes)
                 {
-                    SkipExpected(CssTokenType.SingleQuotes);
+                    SkipExpected(startToken, CssTokenType.SingleQuotes);
                     ReadSingleQuoteText(false);
                     ReadUntil(CssTokenType.Semicolon);
                 }
@@ -525,13 +576,13 @@ namespace XamlCSS.CssParsing
                 }
 
                 TrimCurrentNode();
-                SkipExpected(CssTokenType.Semicolon);
+                SkipExpected(startToken, CssTokenType.Semicolon);
 
                 GoToParent();
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipUntilLineEnd();
 
@@ -556,7 +607,7 @@ namespace XamlCSS.CssParsing
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -567,19 +618,22 @@ namespace XamlCSS.CssParsing
         private void ReadStyleDeclarationBlock()
         {
             var old = currentNode;
+            var startToken = currentToken;
 
             try
             {
 
                 SkipWhitespace();
 
-                SkipExpected(CssTokenType.BraceOpen);
+                SkipExpected(startToken, CssTokenType.BraceOpen);
 
                 SkipWhitespace();
 
                 while (currentIndex < tokens.Count &&
                     currentToken.Type != CssTokenType.BraceClose)
                 {
+                    var styleDeclarationStartToken = currentToken;
+
                     SkipWhitespace(false);
 
                     if (currentToken.Type == CssTokenType.Dollar)
@@ -597,8 +651,8 @@ namespace XamlCSS.CssParsing
 
                         if (identifier == "include")
                         {
-                            SkipExpected(CssTokenType.At);
-                            SkipExpected(CssTokenType.Identifier);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.At);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Identifier);
 
                             AddAndSetCurrent(CssNodeType.MixinInclude);
 
@@ -608,8 +662,8 @@ namespace XamlCSS.CssParsing
                         }
                         else if (identifier == "Property")
                         {
-                            SkipExpected(CssTokenType.At);
-                            SkipExpected(CssTokenType.Identifier);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.At);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Identifier);
 
                             AddAndSetCurrent(CssNodeType.PropertyTrigger);
 
@@ -619,8 +673,8 @@ namespace XamlCSS.CssParsing
                         }
                         else if (identifier == "Data")
                         {
-                            SkipExpected(CssTokenType.At);
-                            SkipExpected(CssTokenType.Identifier);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.At);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Identifier);
 
                             AddAndSetCurrent(CssNodeType.DataTrigger);
 
@@ -630,8 +684,8 @@ namespace XamlCSS.CssParsing
                         }
                         else if (identifier == "Event")
                         {
-                            SkipExpected(CssTokenType.At);
-                            SkipExpected(CssTokenType.Identifier);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.At);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Identifier);
 
                             AddAndSetCurrent(CssNodeType.EventTrigger);
 
@@ -641,12 +695,12 @@ namespace XamlCSS.CssParsing
                         }
                         else if (identifier == "Enter")
                         {
-                            SkipExpected(CssTokenType.At);
-                            SkipExpected(CssTokenType.Identifier);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.At);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Identifier);
 
                             SkipWhitespace();
 
-                            SkipExpected(CssTokenType.Colon);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Colon);
 
                             AddAndSetCurrent(CssNodeType.EnterAction);
 
@@ -656,12 +710,12 @@ namespace XamlCSS.CssParsing
                         }
                         else if (identifier == "Exit")
                         {
-                            SkipExpected(CssTokenType.At);
-                            SkipExpected(CssTokenType.Identifier);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.At);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Identifier);
 
                             SkipWhitespace();
 
-                            SkipExpected(CssTokenType.Colon);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Colon);
 
                             AddAndSetCurrent(CssNodeType.ExitAction);
 
@@ -671,9 +725,7 @@ namespace XamlCSS.CssParsing
                         }
                         else
                         {
-                            Error($"ReadStyleDeclarationBlock: '@{identifier}' not supported!", currentToken);
-                            currentIndex++;
-                            throw new Exception("");
+                            throw new AstGenerationException($"ReadStyleDeclarationBlock: '@{identifier}' not supported!", GetTokens(styleDeclarationStartToken, currentToken));
                         }
                     }
                     else if (
@@ -685,7 +737,8 @@ namespace XamlCSS.CssParsing
                            CssTokenType.BraceOpen,
                            CssTokenType.BraceClose,
                            CssTokenType.DoubleQuotes,
-                           CssTokenType.SingleQuotes
+                           CssTokenType.SingleQuotes,
+                           CssTokenType.At
                            }) == CssTokenType.BraceOpen))
                     {
                         AddAndSetCurrent(CssNodeType.StyleRule);
@@ -706,10 +759,10 @@ namespace XamlCSS.CssParsing
 
                         var keyNode = currentNode;
 
-                        ReadUntil(CssTokenType.Colon, CssTokenType.BraceClose, CssTokenType.Whitespace);
+                        ReadUntil(CssTokenType.Colon, CssTokenType.BraceClose, CssTokenType.Whitespace, CssTokenType.At);
                         try
                         {
-                            SkipExpected(CssTokenType.Colon);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Colon);
 
                             TrimCurrentNode();
 
@@ -722,12 +775,12 @@ namespace XamlCSS.CssParsing
 
                             if (currentToken.Type == CssTokenType.DoubleQuotes)
                             {
-                                SkipExpected(CssTokenType.DoubleQuotes);
+                                SkipExpected(styleDeclarationStartToken, CssTokenType.DoubleQuotes);
                                 ReadDoubleQuoteText(false);
                             }
                             else if (currentToken.Type == CssTokenType.SingleQuotes)
                             {
-                                SkipExpected(CssTokenType.SingleQuotes);
+                                SkipExpected(styleDeclarationStartToken, CssTokenType.SingleQuotes);
                                 ReadSingleQuoteText(false);
                             }
 
@@ -740,7 +793,7 @@ namespace XamlCSS.CssParsing
                                 throw new AstGenerationException($"No value for key '{keyNode.Text}' provided!", currentToken);
                             }
 
-                            SkipExpected(CssTokenType.Semicolon);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Semicolon);
 
                             if (currentNode.TextBuilder.Length > 0 &&
                                 currentNode.Text[0] == '$')
@@ -756,7 +809,7 @@ namespace XamlCSS.CssParsing
                         }
                         catch (AstGenerationException e)
                         {
-                            Error(e.Message, currentToken);
+                            Error(e.Message, GetTokens(styleDeclarationStartToken, currentToken));
 
                             SkipUntilLineEnd(CssTokenType.Semicolon, CssTokenType.BraceClose, CssTokenType.At);
 
@@ -772,13 +825,13 @@ namespace XamlCSS.CssParsing
                     SkipWhitespace();
                 }
 
-                SkipExpected(CssTokenType.BraceClose);
+                SkipExpected(startToken, CssTokenType.BraceClose);
 
                 SkipWhitespace();
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -801,7 +854,7 @@ namespace XamlCSS.CssParsing
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -812,11 +865,12 @@ namespace XamlCSS.CssParsing
         private void ReadActionDeclarationBlock()
         {
             var old = currentNode;
+            var startToken = currentToken;
 
             try
             {
                 SkipWhitespace();
-                SkipExpected(CssTokenType.BraceOpen);
+                SkipExpected(startToken, CssTokenType.BraceOpen);
                 SkipWhitespace();
 
                 while (currentIndex < tokens.Count &&
@@ -828,7 +882,7 @@ namespace XamlCSS.CssParsing
                     AddAndSetCurrent(CssNodeType.Key);
 
                     ReadUntil(CssTokenType.Colon);
-                    SkipExpected(CssTokenType.Colon);
+                    SkipExpected(startToken, CssTokenType.Colon);
                     TrimCurrentNode();
 
                     AddOnParentAndSetCurrent(CssNodeType.ActionParameterBlock);
@@ -842,11 +896,11 @@ namespace XamlCSS.CssParsing
                     GoToParent();
                 }
 
-                SkipExpected(CssTokenType.BraceClose);
+                SkipExpected(startToken, CssTokenType.BraceClose);
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -857,23 +911,26 @@ namespace XamlCSS.CssParsing
         private void ReadActionParameterBlock()
         {
             var old = currentNode;
+            var startToken = currentToken;
 
             try
             {
                 SkipWhitespace();
-                SkipExpected(CssTokenType.BraceOpen);
+                SkipExpected(startToken, CssTokenType.BraceOpen);
                 SkipWhitespace();
 
                 while (currentIndex < tokens.Count &&
                     currentToken.Type != CssTokenType.BraceClose)
                 {
+                    var actionParameterToken = currentToken;
+
                     SkipWhitespace();
 
                     AddAndSetCurrent(CssNodeType.ActionParameter);
                     AddAndSetCurrent(CssNodeType.Key);
 
                     ReadUntil(CssTokenType.Colon);
-                    SkipExpected(CssTokenType.Colon);
+                    SkipExpected(actionParameterToken, CssTokenType.Colon);
                     TrimCurrentNode();
 
                     AddOnParentAndSetCurrent(CssNodeType.Value);
@@ -882,13 +939,13 @@ namespace XamlCSS.CssParsing
 
                     if (currentToken.Type == CssTokenType.DoubleQuotes)
                     {
-                        SkipExpected(CssTokenType.DoubleQuotes);
+                        SkipExpected(actionParameterToken, CssTokenType.DoubleQuotes);
                         ReadDoubleQuoteText(false);
                         ReadUntil(CssTokenType.Semicolon);
                     }
                     else if (currentToken.Type == CssTokenType.SingleQuotes)
                     {
-                        SkipExpected(CssTokenType.SingleQuotes);
+                        SkipExpected(actionParameterToken, CssTokenType.SingleQuotes);
                         ReadSingleQuoteText(false);
                         ReadUntil(CssTokenType.Semicolon);
                     }
@@ -897,7 +954,7 @@ namespace XamlCSS.CssParsing
                         ReadUntil(CssTokenType.Semicolon);
                     }
 
-                    SkipExpected(CssTokenType.Semicolon);
+                    SkipExpected(actionParameterToken, CssTokenType.Semicolon);
 
                     SkipWhitespace();
 
@@ -905,11 +962,11 @@ namespace XamlCSS.CssParsing
                     GoToParent();
                 }
 
-                SkipExpected(CssTokenType.BraceClose);
+                SkipExpected(startToken, CssTokenType.BraceClose);
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -921,6 +978,7 @@ namespace XamlCSS.CssParsing
         private void ReadPropertyTrigger()
         {
             var old = currentNode;
+            var startToken = currentToken;
 
             try
             {
@@ -928,20 +986,20 @@ namespace XamlCSS.CssParsing
 
                 AddAndSetCurrent(CssNodeType.PropertyTriggerProperty);
                 ReadUntil(CssTokenType.Whitespace);
-                SkipExpected(CssTokenType.Whitespace);
+                SkipExpected(startToken, CssTokenType.Whitespace);
                 TrimCurrentNode();
 
                 AddOnParentAndSetCurrent(CssNodeType.PropertyTriggerValue);
 
                 if (currentToken.Type == CssTokenType.DoubleQuotes)
                 {
-                    SkipExpected(CssTokenType.DoubleQuotes);
+                    SkipExpected(startToken, CssTokenType.DoubleQuotes);
                     ReadDoubleQuoteText(false);
                     ReadUntil(CssTokenType.Whitespace);
                 }
                 else if (currentToken.Type == CssTokenType.SingleQuotes)
                 {
-                    SkipExpected(CssTokenType.SingleQuotes);
+                    SkipExpected(startToken, CssTokenType.SingleQuotes);
                     ReadSingleQuoteText(false);
                     ReadUntil(CssTokenType.Whitespace);
                 }
@@ -950,7 +1008,7 @@ namespace XamlCSS.CssParsing
                     ReadUntil(CssTokenType.Whitespace);
                 }
 
-                SkipExpected(CssTokenType.Whitespace);
+                SkipExpected(startToken, CssTokenType.Whitespace);
                 TrimCurrentNode();
 
                 AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
@@ -961,7 +1019,7 @@ namespace XamlCSS.CssParsing
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -972,6 +1030,7 @@ namespace XamlCSS.CssParsing
         private void ReadDataTrigger()
         {
             var old = currentNode;
+            var startToken = currentToken;
 
             try
             {
@@ -979,20 +1038,20 @@ namespace XamlCSS.CssParsing
 
                 AddAndSetCurrent(CssNodeType.DataTriggerBinding);
                 ReadUntil(CssTokenType.Whitespace);
-                SkipExpected(CssTokenType.Whitespace);
+                SkipExpected(startToken, CssTokenType.Whitespace);
                 TrimCurrentNode();
 
                 AddOnParentAndSetCurrent(CssNodeType.DataTriggerValue);
 
                 if (currentToken.Type == CssTokenType.DoubleQuotes)
                 {
-                    SkipExpected(CssTokenType.DoubleQuotes);
+                    SkipExpected(startToken, CssTokenType.DoubleQuotes);
                     ReadDoubleQuoteText(false);
                     ReadUntil(CssTokenType.Whitespace);
                 }
                 else if (currentToken.Type == CssTokenType.SingleQuotes)
                 {
-                    SkipExpected(CssTokenType.SingleQuotes);
+                    SkipExpected(startToken, CssTokenType.SingleQuotes);
                     ReadSingleQuoteText(false);
                     ReadUntil(CssTokenType.Whitespace);
                 }
@@ -1001,7 +1060,7 @@ namespace XamlCSS.CssParsing
                     ReadUntil(CssTokenType.Whitespace);
                 }
 
-                SkipExpected(CssTokenType.Whitespace);
+                SkipExpected(startToken, CssTokenType.Whitespace);
                 TrimCurrentNode();
 
                 AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
@@ -1012,7 +1071,7 @@ namespace XamlCSS.CssParsing
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -1023,6 +1082,7 @@ namespace XamlCSS.CssParsing
         private void ReadEventTrigger()
         {
             var old = currentNode;
+            var startToken = currentToken;
 
             try
             {
@@ -1030,7 +1090,7 @@ namespace XamlCSS.CssParsing
 
                 AddAndSetCurrent(CssNodeType.EventTriggerEvent);
                 ReadUntil(CssTokenType.Whitespace);
-                SkipExpected(CssTokenType.Whitespace);
+                SkipExpected(startToken, CssTokenType.Whitespace);
                 TrimCurrentNode();
 
                 AddOnParentAndSetCurrent(CssNodeType.ActionDeclarationBlock);
@@ -1041,7 +1101,7 @@ namespace XamlCSS.CssParsing
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -1052,6 +1112,8 @@ namespace XamlCSS.CssParsing
         private void ReadMixinInclude()
         {
             var old = currentNode;
+            var startToken = currentToken;
+
             try
             {
                 SkipWhitespace();
@@ -1063,11 +1125,13 @@ namespace XamlCSS.CssParsing
 
                 if (currentToken.Type == CssTokenType.ParenthesisOpen)
                 {
-                    SkipExpected(CssTokenType.ParenthesisOpen);
+                    SkipExpected(startToken, CssTokenType.ParenthesisOpen);
 
                     while (currentIndex < tokens.Count &&
                         currentToken.Type != CssTokenType.ParenthesisClose)
                     {
+                        var inclueParameterToken = currentToken;
+
                         SkipWhitespace();
 
                         AddAndSetCurrent(CssNodeType.MixinIncludeParameter);
@@ -1077,7 +1141,7 @@ namespace XamlCSS.CssParsing
 
                         if (currentToken.Type != CssTokenType.ParenthesisClose)
                         {
-                            SkipExpected(CssTokenType.Comma);
+                            SkipExpected(inclueParameterToken, CssTokenType.Comma);
                         }
 
                         SkipWhitespace();
@@ -1085,16 +1149,16 @@ namespace XamlCSS.CssParsing
                         GoToParent();
                     }
 
-                    SkipExpected(CssTokenType.ParenthesisClose);
+                    SkipExpected(startToken, CssTokenType.ParenthesisClose);
                 }
 
-                SkipExpected(CssTokenType.Semicolon);
+                SkipExpected(startToken, CssTokenType.Semicolon);
 
                 GoToParent();
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -1155,7 +1219,7 @@ namespace XamlCSS.CssParsing
             }
             catch (AstGenerationException e)
             {
-                Error(e.Message, e.Token);
+                Error(e.Message, e.Tokens);
 
                 SkipToEndOfBlock();
 
@@ -1242,7 +1306,7 @@ namespace XamlCSS.CssParsing
             }
             else
             {
-                Error($"Cannot load '{currentNode.Text}'!", currentToken);
+                Error($"Cannot load '{currentNode.Text}'!", GetTokens(currentToken, currentToken));
             }
         }
 

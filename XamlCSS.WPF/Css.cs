@@ -163,11 +163,14 @@ namespace XamlCSS.WPF
 
         private static void StyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var styleSheet = sender as StyleSheet;
-            var attachedTo = styleSheet.AttachedTo as FrameworkElement;
+            if (e.PropertyName == nameof(StyleSheet.Content))
+            {
+                var styleSheet = sender as StyleSheet;
+                var attachedTo = styleSheet.AttachedTo as FrameworkElement;
 
-            instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);
-            instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, null);
+                instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);
+                instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, null);
+            }
         }
 
         public static readonly DependencyProperty ClassProperty =

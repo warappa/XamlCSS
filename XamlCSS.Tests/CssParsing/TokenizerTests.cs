@@ -23,14 +23,14 @@ namespace XamlCSS.Tests.CssParsing
 
             var expectedTokens = new[]
             {
-                CssTokenType.Whitespace, CssTokenType.Whitespace, CssTokenType.Whitespace, CssTokenType.At, CssTokenType.Identifier,
+                CssTokenType.Whitespace, CssTokenType.Whitespace, CssTokenType.At, CssTokenType.Identifier,
                 CssTokenType.Whitespace, CssTokenType.Identifier, CssTokenType.Whitespace, CssTokenType.DoubleQuotes, CssTokenType.Identifier,
                 CssTokenType.DoubleQuotes, CssTokenType.Semicolon, CssTokenType.Whitespace, CssTokenType.Whitespace, CssTokenType.Dot,
                 CssTokenType.Identifier, CssTokenType.Whitespace, CssTokenType.Dot, CssTokenType.Identifier, CssTokenType.AngleBraketClose,
                 CssTokenType.Identifier, CssTokenType.Whitespace, CssTokenType.Identifier, CssTokenType.Pipe, CssTokenType.Identifier,
                 CssTokenType.Whitespace, CssTokenType.BraceOpen, CssTokenType.Whitespace, CssTokenType.Whitespace, CssTokenType.Whitespace,
-                CssTokenType.Identifier, CssTokenType.Colon, CssTokenType.Whitespace, CssTokenType.Identifier, CssTokenType.Semicolon,
-                CssTokenType.Whitespace, CssTokenType.Whitespace, CssTokenType.Whitespace, CssTokenType.Identifier, CssTokenType.Colon,
+                CssTokenType.Identifier, CssTokenType.Minus, CssTokenType.Identifier, CssTokenType.Colon, CssTokenType.Whitespace, CssTokenType.Identifier,
+                CssTokenType.Semicolon, CssTokenType.Whitespace, CssTokenType.Whitespace, CssTokenType.Whitespace, CssTokenType.Identifier, CssTokenType.Colon,
                 CssTokenType.Whitespace, CssTokenType.Hash, CssTokenType.Identifier, CssTokenType.Comma, CssTokenType.Whitespace,
                 CssTokenType.Identifier, CssTokenType.Comma, CssTokenType.Whitespace, CssTokenType.Identifier, CssTokenType.ParenthesisOpen,
                 CssTokenType.SingleQuotes, CssTokenType.Identifier, CssTokenType.SingleQuotes, CssTokenType.ParenthesisClose,
@@ -40,7 +40,9 @@ namespace XamlCSS.Tests.CssParsing
                 CssTokenType.Whitespace
             };
 
-            Assert.Contains(new CssToken(CssTokenType.Identifier, "red", 0,0), tokens);
+            Assert.AreEqual(expectedTokens, tokens.Select(x => x.Type));
+
+            Assert.Contains(new CssToken(CssTokenType.Identifier, "red", 4, 20), tokens);
         }
     }
 }

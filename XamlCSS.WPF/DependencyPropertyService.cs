@@ -72,7 +72,7 @@ namespace XamlCSS.WPF
             if (val?.GetType().Name == "ResourceReferenceExpression")
             {
                 var resourceKeyProperty = val.GetType().GetProperty("ResourceKey");
-                
+
                 val = GetDynamicResourceValue(resourceKeyProperty.GetValue(val), obj);
             }
 

@@ -234,11 +234,19 @@ namespace XamlCSS
                     continue;
                 }
 
-                var propertyStyleValues = CreateStyleDictionaryFromDeclarationBlock(
+                var result = CreateStyleDictionaryFromDeclarationBlock(
                     styleSheet.Namespaces,
                     styleMatchInfo.Rule.DeclarationBlock,
                     matchedElementType,
                     startFrom ?? styleResourceReferenceHolder);
+
+                var propertyStyleValues = result.PropertyStyleValues;
+
+                foreach(var error in result.Errors)
+                {
+                    styleSheet.AddError(error);
+                }
+                
 
                 var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers
                     .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
@@ -369,14 +377,14 @@ namespace XamlCSS
             Debug.WriteLine("----------------");
         }
 
-        private Dictionary<TDependencyProperty, object> CreateStyleDictionaryFromDeclarationBlock(
+        private CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> CreateStyleDictionaryFromDeclarationBlock(
             List<CssNamespace> namespaces,
             StyleDeclarationBlock declarationBlock,
             Type matchedType,
             TDependencyObject dependencyObject)
         {
-            var propertyStyleValues = new Dictionary<TDependencyProperty, object>();
-
+            var result = new CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty>();
+            
             foreach (var styleDeclaration in declarationBlock)
             {
                 var property = cssTypeHelper.GetDependencyProperty(namespaces, matchedType, styleDeclaration.Property);
@@ -386,15 +394,20 @@ namespace XamlCSS
                     continue;
                 }
 
-                var propertyValue = cssTypeHelper.GetPropertyValue(matchedType, dependencyObject, styleDeclaration.Value, property);
+                try
+                {
+                    var propertyValue = cssTypeHelper.GetPropertyValue(matchedType, dependencyObject, styleDeclaration.Value, property);
 
-                propertyStyleValues[property] = propertyValue;
+                    result.PropertyStyleValues[property] = propertyValue;
+                }
+                catch
+                {
+                    result.Errors.Add($"Cannot get property-value for '{styleDeclaration.Property}' with value '{styleDeclaration.Value}'!");
+                }
             }
 
-            return propertyStyleValues;
+            return result;
         }
-
-
 
         public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
         {

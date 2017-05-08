@@ -69,8 +69,6 @@ namespace XamlCSS
 
                 var sheet = CssParser.Parse(content);
 
-                this.Errors.Clear();
-                this.Warnings.Clear();
                 foreach (var error in sheet.Errors)
                 {
                     this.Errors.Add(error);
@@ -86,6 +84,8 @@ namespace XamlCSS
                 inheritedStyleSheets = null;
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Warnings"));
             }
         }
 
@@ -267,6 +267,15 @@ namespace XamlCSS
         {
             combinedRules = null;
             combinedNamespaces = null;
+
+            this.Errors.Clear();
+            this.Warnings.Clear();
+        }
+
+        internal void AddError(string error)
+        {
+            Errors.Add(error);
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
         }
     }
 }
