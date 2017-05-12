@@ -144,9 +144,14 @@ namespace XamlCSS
                 var strs = cssTypeExpression.Split('|');
                 var alias = strs[0];
                 var namespaceFragments = namespaces
-                    .First(x => x.Alias == alias)
-                    .Namespace
+                    .FirstOrDefault(x => x.Alias == alias)
+                    ?.Namespace
                     .Split(',');
+
+                if (namespaceFragments == null)
+                {
+                    throw new Exception($@"Namespace ""{alias}"" not found!");
+                }
 
                 typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
             }
