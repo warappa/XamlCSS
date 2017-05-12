@@ -128,7 +128,7 @@ namespace XamlCSS.CssParsing
             }
 
             var list = new List<CssToken>();
-            
+
             for (var i = startIndex; i <= endIndex; i++)
             {
                 list.Add(tokens[i]);
@@ -265,6 +265,11 @@ namespace XamlCSS.CssParsing
 
         private void SkipExpected(CssToken startToken, CssTokenType type)
         {
+            if (currentIndex >= tokens.Count)
+            {
+                throw new AstGenerationException($"Expected token-type '{type}' but end of style was reached!", GetTokens(startToken, tokens[tokens.Count - 1]));
+            }
+
             if (currentToken.Type != type)
             {
                 throw new AstGenerationException($"Expected token-type '{type}' but current token was '{currentToken.Type}'!", GetTokens(startToken, currentToken));
