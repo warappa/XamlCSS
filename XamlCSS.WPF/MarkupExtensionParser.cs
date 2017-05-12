@@ -15,6 +15,7 @@ namespace XamlCSS.WPF
     {
         private static MethodInfo addLogicalChild;
         private static MethodInfo removeLogicalChild;
+        public const string MarkupParserHelperId = "__markupParserHelper";
 
         static MarkupExtensionParser()
         {
@@ -66,7 +67,7 @@ namespace XamlCSS.WPF
 
             var test = $@"
 <DataTemplate DataType=""{{x:Type x:String}}"">
-	<TextBlock x:Name=""aaa"" Tag=""{expression}"" />
+	<TextBlock x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />
 </DataTemplate>";
 
             var pc = new ParserContext();

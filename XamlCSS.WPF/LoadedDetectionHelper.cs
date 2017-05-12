@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace XamlCSS.WPF
 {
@@ -58,6 +59,12 @@ namespace XamlCSS.WPF
 
         private static void OnLoadDetectionChanged(DependencyObject dpo, DependencyPropertyChangedEventArgs ev)
         {
+            if ((dpo is TextBlock t) &&
+                t.Name == MarkupExtensionParser.MarkupParserHelperId)
+            {
+                return;
+            }
+
             if ((bool)ev.NewValue == true)
             {
                 SubTreeAdded?.Invoke(dpo, new EventArgs());
