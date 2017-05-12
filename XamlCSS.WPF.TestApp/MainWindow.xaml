@@ -36,7 +36,7 @@
                     
                     Button
 {
-    Width:;
+    Width:yd;
     @Property IsEnabled true
     {
         Background: #DynamicResource ToColor;
@@ -167,8 +167,9 @@ Grid
             </Grid>
             <Button Name="thebutton" Click="Button_Click">Change Style</Button>
             <Button Click="Button_Click_2">Click me</Button>
-            <TextBlock Background="White" Foreground="Red"
-                       Text="{Binding Errors, Source={StaticResource InternalStyle}, Converter={StaticResource ListToStringConverter}}">
+            <TextBlock Background="White" Foreground="Red" VerticalAlignment="Bottom"
+                       Text="{Binding Errors, Source={StaticResource InternalStyle}, Converter={StaticResource ListToStringConverter}}"
+                       >
             </TextBlock>
         </StackPanel>
     </Grid>
