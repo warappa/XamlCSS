@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -76,7 +77,15 @@ namespace XamlCSS.WPF
 
             var dataTemplate = (XamlReader.Parse(test, pc) as DataTemplate);
 
-            var textBlock = (TextBlock)dataTemplate.LoadContent();
+            TextBlock textBlock;
+            try
+            {
+                textBlock = (TextBlock)dataTemplate.LoadContent();
+            }
+            catch (Exception e)
+            {
+                throw new Exception($@"Cannot evaluate markup-expression ""{expression}""!");
+            }
             AddLogicalChild(obj, textBlock);
 
             object localValue;
