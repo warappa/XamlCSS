@@ -18,6 +18,11 @@ namespace XamlCSS.CssParsing
 
         public static List<CssToken> Tokenize(string cssDocument)
         {
+            if (string.IsNullOrEmpty(cssDocument))
+            {
+                return new List<CssToken>();
+            }
+
             var value = new StringBuilder();
             var line = 1;
             var column = 1;
