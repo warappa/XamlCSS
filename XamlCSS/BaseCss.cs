@@ -234,31 +234,38 @@ namespace XamlCSS
                     continue;
                 }
 
-                var result = CreateStyleDictionaryFromDeclarationBlock(
-                    styleSheet.Namespaces,
-                    styleMatchInfo.Rule.DeclarationBlock,
-                    matchedElementType,
-                    startFrom ?? styleResourceReferenceHolder);
-
-                var propertyStyleValues = result.PropertyStyleValues;
-
-                foreach(var error in result.Errors)
+                CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> result = null;
+                try
                 {
-                    styleSheet.AddError(error);
+                    result = CreateStyleDictionaryFromDeclarationBlock(
+                        styleSheet.Namespaces,
+                        styleMatchInfo.Rule.DeclarationBlock,
+                        matchedElementType,
+                        startFrom ?? styleResourceReferenceHolder);
+
+                    var propertyStyleValues = result.PropertyStyleValues;
+
+                    foreach (var error in result.Errors)
+                    {
+                        styleSheet.AddError($@"ERROR in Selector ""{styleMatchInfo.Rule.SelectorString}"": {error}");
+                    }
+                    
+                    var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers
+                        .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
+
+                    if (propertyStyleValues.Keys.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var style = nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType);
+
+                    applicationResourcesService.SetResource(resourceKey, style);
                 }
-                
-
-                var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers
-                    .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
-
-                if (propertyStyleValues.Keys.Count == 0)
+                catch (Exception e)
                 {
-                    continue;
+                    styleSheet.AddError($@"ERROR in Selector ""{styleMatchInfo.Rule.SelectorString}"": {e.Message}");
                 }
-
-                var style = nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType);
-
-                applicationResourcesService.SetResource(resourceKey, style);
             }
         }
 
@@ -384,7 +391,7 @@ namespace XamlCSS
             TDependencyObject dependencyObject)
         {
             var result = new CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty>();
-            
+
             foreach (var styleDeclaration in declarationBlock)
             {
                 var property = cssTypeHelper.GetDependencyProperty(namespaces, matchedType, styleDeclaration.Property);
