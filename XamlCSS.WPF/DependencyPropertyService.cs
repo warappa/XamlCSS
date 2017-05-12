@@ -92,7 +92,14 @@ namespace XamlCSS.WPF
                         break;
                     }
 
-                    element = ((FrameworkElement)element).Parent;
+                    if (element is Window)
+                    {
+                        element = Application.Current;
+                    }
+                    else
+                    {
+                        element = ((FrameworkElement)element).Parent;
+                    }
                 }
                 else if (element is FrameworkContentElement)
                 {
@@ -101,7 +108,20 @@ namespace XamlCSS.WPF
                         val = ((FrameworkContentElement)element).Resources[resourceKey];
                         break;
                     }
+
                     element = ((FrameworkContentElement)element).Parent;
+                }
+                else if (element is Application)
+                {
+                    element = Application.Current;
+
+                    if (((Application)element).Resources?.Contains(resourceKey) == true)
+                    {
+                        val = ((Application)element).Resources[resourceKey];
+                        break;
+                    }
+
+                    element = null;
                 }
                 else
                 {
