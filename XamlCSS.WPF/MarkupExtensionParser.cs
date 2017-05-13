@@ -41,23 +41,6 @@ namespace XamlCSS.WPF
             removeLogicalChild.Invoke(null, new object[] { parent, child });
         }
 
-        public object Parse(string expression)
-        {
-            string myBindingExpression = expression;
-            var test = "<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" Tag=\"" + myBindingExpression + "\" />";
-
-            var result = XamlReader.Parse(test) as TextBlock;
-
-            var bindingExpression = result.ReadLocalValue(FrameworkElement.TagProperty);
-            var binding = bindingExpression;
-
-            if (binding is BindingExpression)
-            {
-                binding = ((BindingExpression)binding).ParentBinding;
-            }
-
-            return binding;
-        }
         public object Parse(string expression, FrameworkElement obj)
         {
             var wasStaticResourceExtension = expression.Replace(" ", "").StartsWith("{StaticResource");

@@ -12,6 +12,8 @@ namespace XamlCSS.XamarinForms.Internals
 {
     public class MarkupExtensionParser : IMarkupExtensionParser
     {
+        private IMarkupExtension markupExtension;
+
         internal static bool MatchMarkup(out string match, string expression, out int end)
         {
             if (expression.Length < 2)
@@ -58,7 +60,7 @@ namespace XamlCSS.XamarinForms.Internals
             return true;
         }
 
-        public object ParseExpression(ref string expression, IServiceProvider serviceProvider)
+        private object ParseExpression(ref string expression, IServiceProvider serviceProvider)
         {
             if (serviceProvider == null)
             {
@@ -186,10 +188,8 @@ namespace XamlCSS.XamarinForms.Internals
             }
             return piece.ToString();
         }
-
-        private IMarkupExtension markupExtension;
-
-        public object Parse(string expression)
+        
+        private object Parse(string expression)
         {
             expression = expression.Trim().Substring(1);
 
@@ -198,7 +198,8 @@ namespace XamlCSS.XamarinForms.Internals
 
             return Parse(strs[0], ref remaining, new XamlServiceProvider());
         }
-        public object Parse(string match, ref string remaining, IServiceProvider serviceProvider)
+
+        private object Parse(string match, ref string remaining, IServiceProvider serviceProvider)
         {
             IXamlTypeResolver typeResolver = serviceProvider.GetService(typeof(IXamlTypeResolver)) as IXamlTypeResolver;
             if (match == "Binding")
@@ -276,6 +277,7 @@ namespace XamlCSS.XamarinForms.Internals
             }
             return this.markupExtension;
         }
+
         internal static string GetContentPropertyName(TypeInfo typeInfo)
         {
             while (typeInfo != null)
@@ -303,6 +305,7 @@ namespace XamlCSS.XamarinForms.Internals
             }
             return null;
         }
+
         protected void SetPropertyValue(string prop, string strValue, object value, IServiceProvider serviceProvider)
         {
             MethodInfo setter;
@@ -329,6 +332,7 @@ namespace XamlCSS.XamarinForms.Internals
                 value
             });
         }
+
         internal static object ConvertTo(object value, Type toType, Func<object> getConverter, IServiceProvider serviceProvider)
         {
             if (value == null)
@@ -421,9 +425,7 @@ namespace XamlCSS.XamarinForms.Internals
             }
             return value;
         }
-
-
-
+        
         public object ProvideValue(string expression, object targetObject)
         {
             var serviceProvider = new XamlServiceProvider();
