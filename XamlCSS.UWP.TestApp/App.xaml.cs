@@ -23,13 +23,12 @@ namespace XamlCSS.UWP.TestApp
                 Microsoft.ApplicationInsights.WindowsCollectors.Metadata |
                 Microsoft.ApplicationInsights.WindowsCollectors.Session);
 
-            Css.Initialize(new[] { GetType().GetTypeInfo().Assembly });
-
             this.InitializeComponent();
+            
             this.Suspending += OnSuspending;
             this.UnhandledException += App_UnhandledException;
         }
-
+        
         private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
 
@@ -126,6 +125,8 @@ Grid Grid
         /// <param name="e">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs e)
         {
+            Css.Initialize(new[] { GetType().GetTypeInfo().Assembly });
+
 #if DEBUG
             if (System.Diagnostics.Debugger.IsAttached)
             {
