@@ -79,7 +79,7 @@ namespace XamlCSS.WPF
                     }
                     try
                     {
-                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
+                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property, styleSheet.Namespaces);
 
                         if (value is string valueString)
                         {
@@ -131,7 +131,7 @@ namespace XamlCSS.WPF
 
                 var expression = "{Binding " + dataTrigger.Binding + "}";
 
-                var binding = (System.Windows.Data.BindingBase)markupExtensionParser.ProvideValue(expression, null);
+                var binding = (System.Windows.Data.BindingBase)markupExtensionParser.ProvideValue(expression, null, styleSheet.Namespaces);
                 nativeTrigger.Binding = binding;
 
                 nativeTrigger.Value = GetBasicValue(dataTrigger);
@@ -146,7 +146,7 @@ namespace XamlCSS.WPF
                             continue;
                         }
 
-                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
+                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property, styleSheet.Namespaces);
 
                         if (value is string valueString)
                         {
@@ -236,11 +236,11 @@ namespace XamlCSS.WPF
 
                 if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                 {
-                    value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression);
+                    value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces);
                 }
                 else if ((depProp = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, actionType, parameterName)) != null)
                 {
-                    value = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp);
+                    value = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp, styleSheet.Namespaces);
 
                     if (value is DynamicResourceExtension)
                     {

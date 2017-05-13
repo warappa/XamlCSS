@@ -67,7 +67,7 @@ namespace XamlCSS.XamarinForms
                     }
                     try
                     {
-                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
+                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property, styleSheet.Namespaces);
 
                         nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
                     }
@@ -114,7 +114,7 @@ namespace XamlCSS.XamarinForms
 
                 var expression = "{Binding " + dataTrigger.Binding + "}";
 
-                var binding = (Binding)markupExtensionParser.ProvideValue(expression, null);
+                var binding = (Binding)markupExtensionParser.ProvideValue(expression, null, styleSheet.Namespaces);
                 nativeTrigger.Binding = binding;
 
                 nativeTrigger.Value = GetBasicValue(dataTrigger);
@@ -129,7 +129,7 @@ namespace XamlCSS.XamarinForms
                             continue;
                         }
 
-                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
+                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property, styleSheet.Namespaces);
 
                         nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
                     }
@@ -213,11 +213,11 @@ namespace XamlCSS.XamarinForms
 
                 if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                 {
-                    value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression);
+                    value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces);
                 }
                 else if ((depProp = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, actionType, parameterName)) != null)
                 {
-                    value = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp);
+                    value = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp, styleSheet.Namespaces);
                 }
                 else
                 {

@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Xml.Linq;
+using XamlCSS.CssParsing;
 
 namespace XamlCSS.WPF
 {
@@ -41,7 +42,7 @@ namespace XamlCSS.WPF
             removeLogicalChild.Invoke(null, new object[] { parent, child });
         }
 
-        public object Parse(string expression, FrameworkElement obj)
+        public object Parse(string expression, FrameworkElement obj, IEnumerable<CssNamespace> namespaces)
         {
             var wasStaticResourceExtension = expression.Replace(" ", "").StartsWith("{StaticResource");
             if (wasStaticResourceExtension)
@@ -53,14 +54,14 @@ namespace XamlCSS.WPF
 <DataTemplate 
 xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
 xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+{string.Join(" ", namespaces.Where(x => x.Alias != "").Select(x => "xmlns:" + x.Alias + "=\"clr-namespace:" + x.Namespace.Split(',')[0] + ";assembly=" + x.Namespace.Split(',')[1] + "\""))}
 DataType=""{{x:Type x:String}}"">
 	<TextBlock x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />
 </DataTemplate>";
             /*
             var pc = new ParserContext();
             pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
-            pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");
-            */
+            pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");*/
             var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
 
             TextBlock textBlock;
@@ -103,9 +104,9 @@ DataType=""{{x:Type x:String}}"">
             return localValue;
         }
 
-        public object ProvideValue(string expression, object obj)
+        public object ProvideValue(string expression, object obj, IEnumerable<CssNamespace> namespaces)
         {
-            object parseResult = Parse(expression, (FrameworkElement)obj);
+            object parseResult = Parse(expression, (FrameworkElement)obj, namespaces);
 
             if (parseResult is Binding binding)
             {

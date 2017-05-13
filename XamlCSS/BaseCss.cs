@@ -403,7 +403,7 @@ namespace XamlCSS
 
                 try
                 {
-                    var propertyValue = cssTypeHelper.GetPropertyValue(matchedType, dependencyObject, styleDeclaration.Value, property);
+                    var propertyValue = cssTypeHelper.GetPropertyValue(matchedType, dependencyObject, styleDeclaration.Value, property, namespaces);
 
                     result.PropertyStyleValues[property] = propertyValue;
                 }

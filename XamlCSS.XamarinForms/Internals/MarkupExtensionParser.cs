@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
@@ -7,6 +8,7 @@ using System.Xml;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Forms.Xaml.Internals;
+using XamlCSS.CssParsing;
 
 namespace XamlCSS.XamarinForms.Internals
 {
@@ -426,7 +428,7 @@ namespace XamlCSS.XamarinForms.Internals
             return value;
         }
         
-        public object ProvideValue(string expression, object targetObject)
+        public object ProvideValue(string expression, object targetObject, IEnumerable<CssNamespace> namespaces)
         {
             var serviceProvider = new XamlServiceProvider();
             serviceProvider.Add(typeof(IProvideValueTarget), new ProvideValueTarget(targetObject));

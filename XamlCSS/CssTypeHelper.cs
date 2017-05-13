@@ -34,7 +34,7 @@ namespace XamlCSS
             return false;
         }
 
-        public object GetMarkupExtensionValue(TDependencyObject targetObject, string valueExpression)
+        public object GetMarkupExtensionValue(TDependencyObject targetObject, string valueExpression, IEnumerable<CssNamespace> namespaces)
         {
             object propertyValue = null;
             if (IsMarkupExtension(valueExpression))
@@ -44,13 +44,13 @@ namespace XamlCSS
                     valueExpression = "{" + valueExpression.Substring(1) + "}";
                 }
 
-                propertyValue = markupExpressionParser.ProvideValue(valueExpression, targetObject);
+                propertyValue = markupExpressionParser.ProvideValue(valueExpression, targetObject, namespaces);
             }
 
             return propertyValue;
         }
 
-        public object GetPropertyValue(Type matchedType, TDependencyObject targetObject, string valueExpression, TDependencyProperty property)
+        public object GetPropertyValue(Type matchedType, TDependencyObject targetObject, string valueExpression, TDependencyProperty property, IEnumerable<CssNamespace> namespaces)
         {
             object propertyValue;
             if (valueExpression != null &&
@@ -62,7 +62,7 @@ namespace XamlCSS
                     valueExpression = "{" + valueExpression.Substring(1) + "}";
                 }
 
-                propertyValue = markupExpressionParser.ProvideValue(valueExpression, targetObject);
+                propertyValue = markupExpressionParser.ProvideValue(valueExpression, targetObject, namespaces);
             }
             else
             {

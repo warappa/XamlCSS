@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Markup;
+using XamlCSS.CssParsing;
 
 namespace XamlCSS.UWP
 {
@@ -64,12 +67,13 @@ namespace XamlCSS.UWP
             RemoveLogicalChild((FrameworkElement)parent.Parent, child, oldContent);
         }
 
-        private object Parse(string expression, FrameworkElement obj)
+        private object Parse(string expression, FrameworkElement obj, IEnumerable<CssNamespace> namespaces)
         {
             var test = $@"
 <DataTemplate 
 xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
 xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+{string.Join(" ", namespaces.Where(x => x.Alias != "").Select(x => "xmlns:" + x.Alias + "=\"using:" + x.Namespace.Split(',')[0] + "\""))}
 >
 	<TextBlock x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />
 </DataTemplate>";
@@ -112,9 +116,9 @@ xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
             return localValue;
         }
 
-        public object ProvideValue(string expression, object obj)
+        public object ProvideValue(string expression, object obj, IEnumerable<CssNamespace> namespaces)
         {
-            return Parse(expression, (FrameworkElement)obj);
+            return Parse(expression, (FrameworkElement)obj, namespaces);
         }
     }
 }
