@@ -38,6 +38,8 @@ namespace XamlCSS.WPF.TestApp
         }
 
         private int count = 0;
+        private StyleEditor styleEditor;
+
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             var b = new Button() { Content = "Abc" + count++, Name = "B" + Guid.NewGuid().ToString("N") };
@@ -62,6 +64,22 @@ namespace XamlCSS.WPF.TestApp
             {
                 button.Content = "Click me";
                 ViewModel.Message = "Hello World from DataContext!";
+            }
+        }
+
+        private void Button_Click_3(object sender, RoutedEventArgs e)
+        {
+            if (styleEditor == null ||
+                styleEditor.IsActive == false)
+            {
+                styleEditor = new StyleEditor();
+
+                styleEditor.Show();
+            }
+            else
+            {
+                styleEditor.Close();
+                styleEditor = null;
             }
         }
     }

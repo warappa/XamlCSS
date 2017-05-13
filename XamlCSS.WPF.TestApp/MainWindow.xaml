@@ -11,138 +11,9 @@
 		xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}"
-        Title="MainWindow" Height="350" Width="525"
-    cssWPF:Css.StyleSheet="{StaticResource appStyleSheet}">
+        Title="MainWindow" Height="350" Width="525">
     <Window.Resources>
-        <ResourceDictionary>
-            <local:ListToStringConverter x:Key="ListToStringConverter"></local:ListToStringConverter>
-            <Brush x:Key="ToColor">#00aa00</Brush>
-            <Storyboard x:Key="storyboard">
-                <ColorAnimation 
-						Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)" 
-                    To="Red" Duration="0:0:3" >
-                </ColorAnimation>
-            </Storyboard>
-
-            <Storyboard x:Key="storyboard2">
-                <ColorAnimation 
-						Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)" To="Green" Duration="0:0:5.25" >
-                </ColorAnimation>
-            </Storyboard>
-            <css:StyleSheet x:Key="InternalStyle" xml:space="preserve">
-                <css:StyleSheet.Content>
-                    @import "Resources/baseStyle.scss";
-                    @namespace animation "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
-                    
-                    Button
-{
-    Width:yd;
-    @Property IsEnabled true
-    {
-        Background: #DynamicResource ToColor;
-    }
-}
-TextBlock
-{
-	Foreground: #6497b1;
-}
-#thegrid
-{
-    Background: #011f4b;
-}
-#thebutton
-{
-    FontSize: 30;
-    Width: 200;
-    Margin: 20;
-    Foreground: #fff;
-    Background: #FF5733;
-}
-.container
-{
-	Background: #005b96;
-                    
-    Button
-    {
-        Foreground: #fff;
-	    Background: #581;
-        Padding: 5;
-        Margin: 5;
-    }
-    TextBlock
-    {
-	    Foreground: #b3cde0;
-    }
-}
-.jumbo
-{
-	FontSize: 50;
-    HorizontalAlignment: Center;
-}
-.important
-{
-    FontWeight: Bold;
-}
-.jumbo.important
-{
-    Foreground: Red;
-}
-Grid
-{
-    Grid 
-    {
-        TextBlock:nth-of-type(1)
-        {
-	        Grid.Row: 1;
-	        Grid.Column: 1;
-	        Text: #Binding Message;
-                    
-            @Data Message "Hello World from DataContext!"
-            {
-                @Enter:
-                {
-                    animation|BeginStoryboard: 
-                    {
-                        Storyboard: #StaticResource storyboard;
-                    }
-                }
-                    
-                Background: #ff00ff;
-                Grid.Row: 0;
-	            Grid.Column: 0;
-                    
-                @Exit:
-                {
-                    animation|BeginStoryboard: 
-                    {
-                        Storyboard: #StaticResource storyboard2;
-                    }
-                }
-            }
-                    
-            @Data Message.Length 29
-            {
-                Foreground: Red;
-            } 
-        }
-        TextBlock:nth-of-type(2)
-        {
-	        Grid.Row: 1;
-	        Grid.Column: 0;
-	        Text: #StaticResource testString;
-        }
-                    
-        TextBlock:nth-of-type(3)
-        {
-	        Grid.Row: 0;
-	        Grid.Column: 1;
-	        Text: "{DynamicResource testString}";
-        }
-    }
-}
-                </css:StyleSheet.Content>
-            </css:StyleSheet>
-        </ResourceDictionary>
+        
     </Window.Resources>
     <Grid x:Name="thegrid"
           cssWPF:Css.StyleSheet="{DynamicResource InternalStyle}"
@@ -167,10 +38,8 @@ Grid
             </Grid>
             <Button Name="thebutton" Click="Button_Click">Change Style</Button>
             <Button Click="Button_Click_2">Click me</Button>
-            <TextBlock Background="White" Foreground="Red" VerticalAlignment="Bottom"
-                       Text="{Binding Errors, Source={StaticResource InternalStyle}, Converter={StaticResource ListToStringConverter}}"
-                       >
-            </TextBlock>
+            <Button Click="Button_Click_3">Open live Style Editor</Button>
+            
         </StackPanel>
     </Grid>
 </Window>
