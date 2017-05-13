@@ -66,6 +66,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="StringToImageConverter.cs" />
     <Compile Include="StyleEditor.xaml.cs">
       <DependentUpon>StyleEditor.xaml</DependentUpon>
     </Compile>

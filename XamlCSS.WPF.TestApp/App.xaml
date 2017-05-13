@@ -6,6 +6,7 @@
              xmlns:css="clr-namespace:XamlCSS;assembly=XamlCSS"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+        <local:StringToImageConverter x:Key="StringToImageConverter" />
         <sys:String x:Key="AppStaticResource">App Static Resource</sys:String>
         <sys:String x:Key="testString">Hello World from StaticResource!</sys:String>
         <css:StyleSheet x:Key="appStyleSheet">
@@ -35,13 +36,14 @@
                 <css:StyleSheet.Content>
 @import "Resources/baseStyle.scss";
 @namespace animation "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
+@namespace local "XamlCSS.WPF.TestApp, XamlCSS.WPF.TestApp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
                     
 Button
 {
     Width:80;
     @Property IsEnabled true
     {
-        Background: "{DynamicResource ToColor}";
+        Background: "{local:UrlBrush {}https://www.google.at/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png}";
     }
 }
 TextBlock
