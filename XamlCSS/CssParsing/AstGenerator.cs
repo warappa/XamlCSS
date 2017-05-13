@@ -259,6 +259,8 @@ namespace XamlCSS.CssParsing
 
                 SkipUntilLineEnd();
 
+                oldCurrentNode.Parent.RemoveChild(oldCurrentNode);
+
                 currentNode = oldCurrentNode;
             }
         }
@@ -350,6 +352,10 @@ namespace XamlCSS.CssParsing
                             else if (nextToken.Type == CssTokenType.Asterisk)
                             {
                                 SkipInlineCommentText();
+                            }
+                            else
+                            {
+                                SkipUntilLineEnd();
                             }
                             break;
                         case CssTokenType.At:
@@ -814,7 +820,7 @@ namespace XamlCSS.CssParsing
                         }
                         catch (AstGenerationException e)
                         {
-                            Error(e.Message, GetTokens(styleDeclarationStartToken, currentToken));
+                            Error(e.Message, GetTokens(styleDeclarationStartToken, ReachedEnd ? tokens[tokens.Count - 1] : currentToken));
 
                             SkipUntilLineEnd(CssTokenType.Semicolon, CssTokenType.BraceClose, CssTokenType.At);
 
@@ -843,6 +849,8 @@ namespace XamlCSS.CssParsing
                 currentNode = old;
             }
         }
+
+        private bool ReachedEnd => currentIndex >= tokens.Count;
 
         private void ReadEnterOrExitAction()
         {
@@ -1234,6 +1242,11 @@ namespace XamlCSS.CssParsing
 
         private void SkipIfFound(CssTokenType type)
         {
+            if (currentIndex >= tokens.Count)
+            {
+                throw new AstGenerationException($"Checked for token-type '{type}' but end of style was reached!", GetTokens(tokens[tokens.Count - 1], tokens[tokens.Count - 1]));
+            }
+
             if (currentToken.Type == type)
             {
                 currentIndex++;
@@ -1315,10 +1328,18 @@ namespace XamlCSS.CssParsing
             }
         }
 
-        private void ReadSingleQuoteText(bool goToParent = true)
+        private void ReadSingleQuoteText(bool goToParent = true, bool supportMultipleLines = false)
         {
+            var startToken = currentToken;
             do
             {
+                if (!supportMultipleLines &&
+                    tokens[currentIndex].Type == CssTokenType.Whitespace &&
+                    tokens[currentIndex].Text == "\n")
+                {
+                    throw new AstGenerationException("Quoted text doesn't support multiple lines!", GetTokens(startToken, currentToken));
+                }
+
                 if (tokens[currentIndex].Type == CssTokenType.Backslash)
                 {
                     currentIndex++;
@@ -1341,10 +1362,18 @@ namespace XamlCSS.CssParsing
             } while (currentIndex < tokens.Count);
         }
 
-        private void ReadDoubleQuoteText(bool goToParent = true)
+        private void ReadDoubleQuoteText(bool goToParent = true, bool supportMultipleLines = false)
         {
+            var startToken = currentToken;
             do
             {
+                if (!supportMultipleLines &&
+                    tokens[currentIndex].Type == CssTokenType.Whitespace &&
+                    tokens[currentIndex].Text == "\n")
+                {
+                    throw new AstGenerationException("Quoted text doesn't support multiple lines!", GetTokens(startToken, currentToken));
+                }
+
                 if (tokens[currentIndex].Type == CssTokenType.Backslash)
                 {
                     currentIndex++;
