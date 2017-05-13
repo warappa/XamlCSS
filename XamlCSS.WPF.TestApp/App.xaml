@@ -41,7 +41,7 @@ Button
     Width:30;
     @Property IsEnabled true
     {
-        Background: #DynamicResource ToColor;
+        Background: "{DynamicResource ToColor}";
     }
 }
 TextBlock

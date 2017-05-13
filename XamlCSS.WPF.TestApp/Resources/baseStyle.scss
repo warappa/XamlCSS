@@ -1,3 +1,12 @@
 ﻿Button {
     FontSize: 5;
 }
+             
+Button
+{
+    Width:30;
+    @Property IsEnabled true
+    {
+        Background: #DynamicResource ToColor;
+    }
+}

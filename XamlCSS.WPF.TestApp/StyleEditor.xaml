@@ -26,12 +26,19 @@
             Background="Blue"
             Height="5"/>
         <StackPanel Grid.Row="2" >
-            <TextBlock>Errors:</TextBlock>
+            <TextBlock Foreground="Red">Errors:</TextBlock>
+            
             <ScrollViewer HorizontalAlignment="Stretch">
-                <TextBlock Background="White" Foreground="Red" VerticalAlignment="Bottom"
-                       Text="{Binding Errors, Converter={StaticResource ListToStringConverter}}"
-                       >
-                </TextBlock>
+                <ItemsControl ItemsSource="{Binding Errors}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Background="White" Foreground="Red" VerticalAlignment="Bottom"
+                                Text="{Binding}">
+                            </TextBlock>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+                
             </ScrollViewer>
         </StackPanel>
     </Grid>
