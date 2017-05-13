@@ -65,23 +65,44 @@ namespace XamlCSS.XamarinForms
                     {
                         continue;
                     }
-                    var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
+                    try
+                    {
+                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
 
-                    nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
+                        nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
+                    }
                 }
 
-                foreach(var action in propertyTrigger.EnterActions)
+                foreach (var action in propertyTrigger.EnterActions)
                 {
-                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
-                    
-                    nativeTrigger.EnterActions.Add(nativeTriggerAction);
+                    try
+                    {
+                        var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+
+                        nativeTrigger.EnterActions.Add(nativeTriggerAction);
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value}"" enter action: {e.Message}");
+                    }
                 }
 
                 foreach (var action in propertyTrigger.ExitActions)
                 {
-                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+                    try
+                    {
+                        var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
 
-                    nativeTrigger.ExitActions.Add(nativeTriggerAction);
+                        nativeTrigger.ExitActions.Add(nativeTriggerAction);
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value}"" exit action: {e.Message}");
+                    }
                 }
 
                 return nativeTrigger;
@@ -100,28 +121,50 @@ namespace XamlCSS.XamarinForms
 
                 foreach (var styleDeclaration in dataTrigger.StyleDeclarationBlock)
                 {
-                    var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
-                    if (property == null)
+                    try
                     {
-                        continue;
-                    }
-                    var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
+                        var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
+                        if (property == null)
+                        {
+                            continue;
+                        }
 
-                    nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
+                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property);
+
+                        nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
+                    }
                 }
 
                 foreach (var action in dataTrigger.EnterActions)
                 {
-                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+                    try
+                    {
+                        var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
 
-                    nativeTrigger.EnterActions.Add(nativeTriggerAction);
+                        nativeTrigger.EnterActions.Add(nativeTriggerAction);
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {action}"" enter action: {e.Message}");
+                    }
                 }
 
                 foreach (var action in dataTrigger.ExitActions)
                 {
-                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+                    try
+                    {
+                        var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
 
-                    nativeTrigger.ExitActions.Add(nativeTriggerAction);
+                        nativeTrigger.ExitActions.Add(nativeTriggerAction);
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {action}"" exit action: {e.Message}");
+                    }
                 }
 
                 return nativeTrigger;
@@ -135,9 +178,16 @@ namespace XamlCSS.XamarinForms
 
                 foreach (var action in eventTrigger.Actions)
                 {
-                    var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
-                    
-                    nativeTrigger.Actions.Add(nativeTriggerAction);
+                    try
+                    {
+                        var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+
+                        nativeTrigger.Actions.Add(nativeTriggerAction);
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in event trigger ""{eventTrigger.Event} {action.Action}"": {e.Message}");
+                    }
                 }
 
                 return nativeTrigger;

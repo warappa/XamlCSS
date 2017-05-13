@@ -64,7 +64,7 @@ namespace XamlCSS.UWP
             RemoveLogicalChild((FrameworkElement)parent.Parent, child, oldContent);
         }
 
-        public object Parse(string expression, FrameworkElement obj)
+        private object Parse(string expression, FrameworkElement obj)
         {
             var test = $@"
 <DataTemplate 

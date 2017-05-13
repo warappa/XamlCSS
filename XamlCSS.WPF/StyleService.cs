@@ -90,7 +90,7 @@ namespace XamlCSS.WPF
                     }
                     catch (Exception e)
                     {
-                        styleSheet.Errors.Add($@"property trigger ""{propertyTrigger.Property} {propertyTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
+                        styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
                     }
                 }
 
@@ -157,7 +157,7 @@ namespace XamlCSS.WPF
                     }
                     catch (Exception e)
                     {
-                        styleSheet.Errors.Add($@"ERROR in property trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
+                        styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
                     }
                 }
 
