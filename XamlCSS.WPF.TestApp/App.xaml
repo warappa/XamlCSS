@@ -38,7 +38,7 @@
                     
 Button
 {
-    Width:30;
+    Width:80;
     @Property IsEnabled true
     {
         Background: "{DynamicResource ToColor}";
@@ -52,9 +52,9 @@ TextBlock
 {
     Background: #011f4b;
 }
-#thebutton
+.important-button-container>Button
 {
-    FontSize: 30;
+    FontSize: 20;
     Width: 200;
     Margin: 20;
     Foreground: #fff;

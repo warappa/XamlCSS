@@ -36,10 +36,12 @@
                 <TextBlock></TextBlock>
                 <TextBlock></TextBlock>
             </Grid>
-            <Button Name="thebutton" Click="Button_Click">Change Style</Button>
             <Button Click="Button_Click_2">Click me</Button>
-            <Button Click="Button_Click_3">Open live Style Editor</Button>
             
+            <StackPanel Orientation="Horizontal" cssWPF:Css.Class="important-button-container">
+                <Button Click="Button_Click_3">Open live Style Editor</Button>
+                <Button Name="thebutton" Click="Button_Click">Change Style</Button>
+            </StackPanel>
         </StackPanel>
     </Grid>
 </Window>

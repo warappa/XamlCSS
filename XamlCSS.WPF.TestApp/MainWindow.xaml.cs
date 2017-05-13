@@ -25,11 +25,15 @@ namespace XamlCSS.WPF.TestApp
         {
             var app = Application.Current as App;
 
-            app.currentStyle = app.currentStyle == app.cssStyle1 ? app.cssStyle2 : app.cssStyle1;
+            var currentStyle = (app.Resources["InternalStyle"] as StyleSheet).Content;
 
-            var sheet = XamlCSS.CssParsing.CssParser.Parse(app.currentStyle);
+            (app.Resources["InternalStyle"] as StyleSheet).Content = currentStyle == app.cssStyle1 ? app.cssStyle2 : app.cssStyle1;
 
-            Css.SetStyleSheet(thegrid, sheet);
+            if (styleEditor != null)
+            {
+                styleEditor.Close();
+                styleEditor = null;
+            }
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
@@ -69,8 +73,7 @@ namespace XamlCSS.WPF.TestApp
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            if (styleEditor == null ||
-                styleEditor.IsActive == false)
+            if (styleEditor == null)
             {
                 styleEditor = new StyleEditor();
 
