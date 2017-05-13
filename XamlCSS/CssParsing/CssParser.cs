@@ -95,6 +95,86 @@ namespace XamlCSS.CssParsing
                         };
                     });
                 })
+                .GroupBy(x => x.SelectorString)
+                .Select(x =>
+                {
+                    var combinedStyleDeclaration = x.First();
+
+                    foreach (var styleDeclarationBlockToImport in x.Skip(1).Select(y => y.DeclarationBlock))
+                    {
+                        foreach (var styleDeclarationToImport in styleDeclarationBlockToImport)
+                        {
+                            var existing = combinedStyleDeclaration.DeclarationBlock.FirstOrDefault(y => y.Property == styleDeclarationToImport.Property);
+                            if (existing != null)
+                            {
+                                existing.Value = styleDeclarationToImport.Value;
+                            }
+                            else
+                            {
+                                combinedStyleDeclaration.DeclarationBlock.Add(styleDeclarationToImport);
+                            }
+                        }
+
+                        foreach (var trigger in styleDeclarationBlockToImport.Triggers)
+                        {
+                            if (trigger is Trigger propertyTrigger)
+                            {
+                                var existing = combinedStyleDeclaration.DeclarationBlock.Triggers
+                                    .OfType<Trigger>()
+                                    .FirstOrDefault(y => 
+                                        y.Property == propertyTrigger.Property &&
+                                        y.Value == propertyTrigger.Value);
+
+                                if (existing != null)
+                                {
+                                    existing.EnterActions = propertyTrigger.EnterActions;
+                                    existing.ExitActions = propertyTrigger.ExitActions;
+                                    existing.StyleDeclarationBlock = propertyTrigger.StyleDeclarationBlock;
+                                }
+                                else
+                                {
+                                    combinedStyleDeclaration.DeclarationBlock.Triggers.Add(propertyTrigger);
+                                }
+                            }
+                            else if (trigger is EventTrigger eventTrigger)
+                            {
+                                var existing = combinedStyleDeclaration.DeclarationBlock.Triggers
+                                    .OfType<EventTrigger>()
+                                    .FirstOrDefault(y => y.Event == eventTrigger.Event);
+
+                                if (existing != null)
+                                {
+                                    existing.Actions = eventTrigger.Actions;
+                                }
+                                else
+                                {
+                                    combinedStyleDeclaration.DeclarationBlock.Triggers.Add(eventTrigger);
+                                }
+                            }
+                            else if (trigger is DataTrigger dataTrigger)
+                            {
+                                var existing = combinedStyleDeclaration.DeclarationBlock.Triggers
+                                    .OfType<DataTrigger>()
+                                    .FirstOrDefault(y => 
+                                        y.Binding == dataTrigger.Binding &&
+                                        y.Value == dataTrigger.Value);
+                                
+                                if (existing != null)
+                                {
+                                    existing.EnterActions = dataTrigger.EnterActions;
+                                    existing.ExitActions = dataTrigger.ExitActions;
+                                    existing.StyleDeclarationBlock = dataTrigger.StyleDeclarationBlock;
+                                }
+                                else
+                                {
+                                    combinedStyleDeclaration.DeclarationBlock.Triggers.Add(dataTrigger);
+                                }
+                            }
+                        }
+                    }
+
+                    return combinedStyleDeclaration;
+                })
                 .OrderBy(x => x.Selectors[0].IdSpecificity)
                 .ThenBy(x => x.Selectors[0].ClassSpecificity)
                 .ThenBy(x => x.Selectors[0].SimpleSpecificity)
