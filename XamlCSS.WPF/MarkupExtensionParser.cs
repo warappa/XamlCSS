@@ -67,15 +67,18 @@ namespace XamlCSS.WPF
             }
 
             var test = $@"
-<DataTemplate DataType=""{{x:Type x:String}}"">
+<DataTemplate 
+xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+DataType=""{{x:Type x:String}}"">
 	<TextBlock x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />
 </DataTemplate>";
-
+            /*
             var pc = new ParserContext();
             pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
             pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");
-
-            var dataTemplate = (XamlReader.Parse(test, pc) as DataTemplate);
+            */
+            var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
 
             TextBlock textBlock;
             try
