@@ -101,6 +101,12 @@ namespace XamlCSS.UWP
 
         private static void OnLoadDetectionChanged(DependencyObject dpo, DependencyPropertyChangedEventArgs ev)
         {
+            if ((dpo is TextBlock t) &&
+                   t.Name == MarkupExtensionParser.MarkupParserHelperId)
+            {
+                return;
+            }
+
             var element = dpo as FrameworkElement;
             if ((bool)ev.NewValue == true)
             {

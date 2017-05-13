@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
@@ -6,45 +6,115 @@ using Windows.UI.Xaml.Markup;
 
 namespace XamlCSS.UWP
 {
-	public class MarkupExtensionParser : IMarkupExtensionParser
-	{
-		public object Parse(string expression)
-		{
-            var test = $"<TextBlock xmlns=\"http://schemas.microsoft.com/winfx/2006/xaml/presentation\" Tag=\"{ expression }\" />";
-            
-            var result = XamlReader.Load(test) as TextBlock;
-			var bindingExpression = result.ReadLocalValue(TextBlock.TagProperty);
+    public class MarkupExtensionParser : IMarkupExtensionParser
+    {
+        public const string MarkupParserHelperId = "__markupParserHelper";
 
-			var binding = bindingExpression;
+        private object AddLogicalChild(FrameworkElement parent, object child)
+        {
+            if (parent == null)
+            {
+                return null;
+            }
 
-			if (binding is BindingExpression)
-			{
-				binding = ((BindingExpression)binding).ParentBinding;
-			}
+            var panel = parent as Panel;
+            if (panel != null)
+            {
+                panel.Children.Add(child as UIElement);
+                return null;
+            }
 
-			return binding;
-		}
+            var contentControl = parent as ContentControl;
+            if (contentControl != null)
+            {
+                var oldContent = contentControl.Content;
+                contentControl.Content = child;
+                return oldContent;
+            }
 
-		protected IEnumerable<FrameworkElement> GetParents(FrameworkElement obj)
-		{
-			var parent = obj;
-			while (parent != null)
-			{
-				yield return parent;
-				parent = ((dynamic)parent).Parent;
-			}
-		}
+            if (parent.Parent != null)
+            {
+                return AddLogicalChild((FrameworkElement)parent.Parent, child);
+            }
 
-		public object ProvideValue(string expression, object obj)
-		{
-			var binding = Parse(expression);
+            return null;
+        }
 
-			if (binding is Binding)
-			{
-				return (binding as Binding);
-			}
+        private void RemoveLogicalChild(FrameworkElement parent, object child, object oldContent)
+        {
+            if (parent == null)
+            {
+                return;
+            }
 
-			return binding;
-		}
-	}
+            var panel = parent as Panel;
+            if (panel != null)
+            {
+                panel.Children.Remove(child as UIElement);
+                return;
+            }
+
+            var contentControl = parent as ContentControl;
+            if (contentControl != null)
+            {
+                contentControl.Content = oldContent;
+                return;
+            }
+
+            RemoveLogicalChild((FrameworkElement)parent.Parent, child, oldContent);
+        }
+
+        public object Parse(string expression, FrameworkElement obj)
+        {
+            var test = $@"
+<DataTemplate 
+xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+>
+	<TextBlock x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />
+</DataTemplate>";
+
+            TextBlock textBlock;
+            try
+            {
+                var dataTemplate = (XamlReader.Load(test) as DataTemplate);
+                textBlock = (TextBlock)dataTemplate.LoadContent();
+            }
+            catch (Exception e)
+            {
+                throw new Exception($@"Cannot evaluate markup-expression ""{expression}""!");
+            }
+
+            var oldContent = AddLogicalChild(obj, textBlock);
+
+            object localValue;
+            object resolvedValue;
+
+            try
+            {
+                localValue = textBlock.ReadLocalValue(FrameworkElement.TagProperty);
+                resolvedValue = textBlock.GetValue(FrameworkElement.TagProperty);
+            }
+            finally
+            {
+                RemoveLogicalChild(obj, textBlock, oldContent);
+            }
+
+            if (localValue is BindingExpression)
+            {
+                return ((BindingExpression)localValue).ParentBinding;
+            }
+            else if (resolvedValue == DependencyProperty.UnsetValue)
+            {
+                return localValue;
+            }
+
+            return localValue;
+        }
+
+        public object ProvideValue(string expression, object obj)
+        {
+            return Parse(expression, (FrameworkElement)obj);
+        }
+    }
 }

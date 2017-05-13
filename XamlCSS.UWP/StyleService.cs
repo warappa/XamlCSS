@@ -21,7 +21,6 @@ namespace XamlCSS.UWP
 
         public override IEnumerable<DependencyObject> GetTriggersAsList(Style style)
         {
-            // throw new Exception("Triggers are not supported on UWP!");
             return new List<DependencyObject>();
         }
 
