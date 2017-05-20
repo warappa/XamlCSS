@@ -26,7 +26,11 @@
                     To="Red" Duration="0:0:3" >
             </ColorAnimation>
         </Storyboard>
-
+        <ControlTemplate x:Key="abc" TargetType="Button">            
+            <Border Background="{TemplateBinding Background}">
+                <ContentPresenter />
+            </Border>
+        </ControlTemplate>
         <Storyboard x:Key="storyboard2">
             <ColorAnimation 
 						Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)" To="Green" Duration="0:0:5.25" >
@@ -41,7 +45,8 @@
 Button
 {
     Width:80;
-    @Property IsEnabled true
+    Template: #StaticResource abc;
+    @Property IsMouseOver true
     {
         Background: "{local:UrlBrush {}https://www.google.at/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png}";
     }
