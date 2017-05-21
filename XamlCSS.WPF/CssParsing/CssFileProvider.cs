@@ -45,22 +45,7 @@ namespace XamlCSS.WPF.CssParsing
 
             return stream;
         }
-
-        protected virtual string GetResourceName(string source, Assembly assembly)
-        {
-            return GetResourcePrefix(assembly) + source;
-        }
-
-        protected virtual string GetResourcePrefix(Assembly assembly)
-        {
-            var prefix = assembly.ManifestModule.Name;
-            if (prefix.EndsWith(".dll", System.StringComparison.OrdinalIgnoreCase))
-            {
-                prefix = prefix.Substring(0, prefix.Length - 4);
-            }
-            return prefix.Replace("\\", ".") + ".";
-        }
-
+        
         protected override Stream TryGetFromFile(string source)
         {
             var absolutePath = source;
