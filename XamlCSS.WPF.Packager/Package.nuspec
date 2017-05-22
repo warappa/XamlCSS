@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XamlCSS.WPF</id>
-    <version>2.0.0-pre1</version>
+    <version>2.0.0</version>
     <title>XamlCSS.WPF</title>
     <authors>David Rettenbacher</authors>
     <owners></owners>
@@ -10,6 +10,15 @@
       Style WPF-apps with Css
     </description>
     <releaseNotes>
+      2.0.0
+      - #29 Support comments
+      - #30 Support enter/exit trigger actions
+      - #31 Better error information
+      - Rewritten tokenizer, css-parser (performance, maintainability)
+      - Better markup-extension parsing
+      - Fixed same selector property overrides
+      - Support namespaces in markup-extensions
+      
       2.0.0-pre1
       - #11 Nested selectors, css-variables
       - #23 Css imports
@@ -80,7 +89,7 @@
     <copyright>© 2017 David Rettenbacher</copyright>
     <dependencies>
       <group>
-        <dependency id="XamlCSS" version="2.0.0-pre1" />
+        <dependency id="XamlCSS" version="2.0.0" />
       </group>
     </dependencies>
     <references></references>
