@@ -1,102 +1,105 @@
 <?xml version="1.0"?>
-<package >
-  <metadata>
-    <id>XamlCSS.WPF</id>
-    <version>2.0.0</version>
-    <title>XamlCSS.WPF</title>
-    <authors>David Rettenbacher</authors>
-    <owners></owners>
-    <description>
-      Style WPF-apps with Css
-    </description>
-    <releaseNotes>
-      2.0.0
-      - #29 Support comments
-      - #30 Support enter/exit trigger actions
-      - #31 Better error information
-      - Rewritten tokenizer, css-parser (performance, maintainability)
-      - Better markup-extension parsing
-      - Fixed same selector property overrides
-      - Support namespaces in markup-extensions
-      
-      2.0.0-pre1
-      - #11 Nested selectors, css-variables
-      - #23 Css imports
-      - #24 Sass-like mixins
-      - #27 Support triggers (property, data, event)
-      - #28 Fixed bracket parsing
+<package>
+    <metadata>
+        <id>XamlCSS.WPF</id>
+        <version>2.0.1</version>
+        <title>XamlCSS.WPF</title>
+        <authors>David Rettenbacher</authors>
+        <owners></owners>
+        <description>
+            Style WPF-apps with Css
+        </description>
+        <releaseNotes>
+            2.0.1
+            - #36 Fixed "XamlCSS does not support unicode escapes"
 
-      1.0.6
-      - #20 Performance: Selectors are parsed too often
+            2.0.0
+            - #29 Support comments
+            - #30 Support enter/exit trigger actions
+            - #31 Better error information
+            - Rewritten tokenizer, css-parser (performance, maintainability)
+            - Better markup-extension parsing
+            - Fixed same selector property overrides
+            - Support namespaces in markup-extensions
 
-      1.0.5
-      - #16 WPF: Resource FontFamily doesn't work in Css
-      - #19 Decimal Number not parsed correctly
-      - #18 Class not properly parsed in grouped selectors
-      - #13 CSS-Parser: Broken String-Literal Handling
+            2.0.0-pre1
+            - #11 Nested selectors, css-variables
+            - #23 Css imports
+            - #24 Sass-like mixins
+            - #27 Support triggers (property, data, event)
+            - #28 Fixed bracket parsing
 
-      1.0.4
-      - Css namespacing support fixed
-      - Flickering when control added to view
+            1.0.6
+            - #20 Performance: Selectors are parsed too often
 
-      1.0.3
-      - Fixed NullReferenceException
+            1.0.5
+            - #16 WPF: Resource FontFamily doesn't work in Css
+            - #19 Decimal Number not parsed correctly
+            - #18 Class not properly parsed in grouped selectors
+            - #13 CSS-Parser: Broken String-Literal Handling
 
-      1.0.2
-      - Xaml-Designer Preview support
-      - CssParser Tokenizer fixed
-      - Better Logical-/Visual-Tree handling
+            1.0.4
+            - Css namespacing support fixed
+            - Flickering when control added to view
 
-      1.0.1
-      - Define stylesheet in Xaml-files with css text
-      - Fixed selector specificity
+            1.0.3
+            - Fixed NullReferenceException
 
-      1.0.0
-      - Performance/memory improvements: Caching dom-elements, dom-children,...
-      - Batch-Rendering
-      - Define stylesheet in Xaml-files with css text
-      - Fixed selector specificity
+            1.0.2
+            - Xaml-Designer Preview support
+            - CssParser Tokenizer fixed
+            - Better Logical-/Visual-Tree handling
 
-      0.9.0-beta-1
-      - Added better css-quotes support
-      - Support modal pages
-      - fixed bool value support
-      - Fixed VisualTreeCell.Include="true"
-      - Performance improvement
-      - AngleSharp 0.9.8
+            1.0.1
+            - Define stylesheet in Xaml-files with css text
+            - Fixed selector specificity
 
-      0.9.0-alpha-5
-      - Fix partial updates: not finding all parents while executing css-parser
+            1.0.0
+            - Performance/memory improvements: Caching dom-elements, dom-children,...
+            - Batch-Rendering
+            - Define stylesheet in Xaml-files with css text
+            - Fixed selector specificity
 
-      0.9.0-alpha-3
-      - Support more general UI types
+            0.9.0-beta-1
+            - Added better css-quotes support
+            - Support modal pages
+            - fixed bool value support
+            - Fixed VisualTreeCell.Include="true"
+            - Performance improvement
+            - AngleSharp 0.9.8
 
-      0.9.0-alpha
-      - experimental support for MarkupExtensions
+            0.9.0-alpha-5
+            - Fix partial updates: not finding all parents while executing css-parser
 
-      0.8.0
-      - Support for attached properties
-      - Support for CSS-namespaces
-    </releaseNotes>
-    <summary>
-      Style WPF-apps with Css
-    </summary>
-    <language>en-US</language>
-    <projectUrl>https://github.com/warappa/XamlCSS</projectUrl>
-    <iconUrl>https://raw.githubusercontent.com/warappa/XamlCSS/master/Content/Logo.jpg</iconUrl>
-    <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
-    <copyright>© 2017 David Rettenbacher</copyright>
-    <dependencies>
-      <group>
-        <dependency id="XamlCSS" version="2.0.0" />
-      </group>
-    </dependencies>
-    <references></references>
-    <tags>xaml css style wpf</tags>
-  </metadata>
-  <files>
-    <file src="..\XamlCss.WPF\bin\Release\XamlCss.WPF.dll" target="lib\dotnet" />
-    <file src="..\XamlCss.WPF\bin\Release\XamlCss.WPF.pdb" target="lib\dotnet" />
-  </files>
+            0.9.0-alpha-3
+            - Support more general UI types
+
+            0.9.0-alpha
+            - experimental support for MarkupExtensions
+
+            0.8.0
+            - Support for attached properties
+            - Support for CSS-namespaces
+        </releaseNotes>
+        <summary>
+            Style WPF-apps with Css
+        </summary>
+        <language>en-US</language>
+        <projectUrl>https://github.com/warappa/XamlCSS</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/warappa/XamlCSS/master/Content/Logo.jpg</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
+        <copyright>© 2017 David Rettenbacher</copyright>
+        <dependencies>
+            <group>
+                <dependency id="XamlCSS" version="2.0.1" />
+            </group>
+        </dependencies>
+        <references></references>
+        <tags>xaml css style wpf</tags>
+    </metadata>
+    <files>
+        <file src="..\XamlCss.WPF\bin\Release\XamlCss.WPF.dll" target="lib\dotnet" />
+        <file src="..\XamlCss.WPF\bin\Release\XamlCss.WPF.pdb" target="lib\dotnet" />
+    </files>
 </package>
