@@ -39,11 +39,13 @@
             <Button Click="Button_Click_2">Click me</Button>
 
             <StackPanel Orientation="Horizontal" cssWPF:Css.Class="important-button-container">
-                <Button Click="Button_Click_3">Open live Style Editor</Button>
+                <Button Click="Button_Click_3">
+                    <TextBlock>
+                        <Run cssWPF:Css.Class="fa fa-css3"></Run>
+                        <Run>Open live Style Editor</Run>
+                    </TextBlock></Button>
                 <Button Name="thebutton" Click="Button_Click">
                     <TextBlock>
-                        <Run cssWPF:Css.Class="fa fa-bars"></Run>
-                        <Run cssWPF:Css.Class="fa fa-lock"></Run>
                         <Run>Change Style</Run>
                     </TextBlock>
                 </Button>

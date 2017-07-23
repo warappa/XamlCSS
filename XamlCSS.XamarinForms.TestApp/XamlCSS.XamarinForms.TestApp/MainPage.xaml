@@ -13,7 +13,14 @@
             <css:StyleSheet x:Key="LocalStyle">
                 <css:StyleSheet.Content>
                     @namespace local "XamlCSS.XamarinForms.TestApp, XamlCSS.XamarinForms.TestApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
-                    
+
+.fa {
+    FontFamily: "Assets/fonts/fontawesomewebfont.ttf#FontAwesome";
+    &amp;.fa-heart {
+        Text: "\f004";
+    }
+}
+
 Button
 {         
     @Property Text "Clicked!"
@@ -182,6 +189,7 @@ Grid
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
+            <Label cssXF:Css.Class="fa fa-heart"></Label>
         </StackLayout>
     </Grid>
 </ContentPage>

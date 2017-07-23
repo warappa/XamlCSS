@@ -45,6 +45,11 @@
 .fa {
     FontFamily: "Assets/fonts/fontawesome-webfont.ttf#FontAwesome";
 
+                    
+    &.fa-css3 {
+        Text: "\f13c";
+    }
+                    
     &.fa-bars {
         // Text: ""; // f0c9
         Text: "\f0c9";
