@@ -13,7 +13,7 @@
         d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}"
         Title="MainWindow" Height="350" Width="525">
     <Window.Resources>
-        
+
     </Window.Resources>
     <Grid x:Name="thegrid"
           cssWPF:Css.StyleSheet="{DynamicResource InternalStyle}"
@@ -37,10 +37,16 @@
                 <TextBlock></TextBlock>
             </Grid>
             <Button Click="Button_Click_2">Click me</Button>
-            
+
             <StackPanel Orientation="Horizontal" cssWPF:Css.Class="important-button-container">
                 <Button Click="Button_Click_3">Open live Style Editor</Button>
-                <Button Name="thebutton" Click="Button_Click">Change Style</Button>
+                <Button Name="thebutton" Click="Button_Click">
+                    <TextBlock>
+                        <Run cssWPF:Css.Class="fa fa-bars"></Run>
+                        <Run cssWPF:Css.Class="fa fa-lock"></Run>
+                        <Run>Change Style</Run>
+                    </TextBlock>
+                </Button>
             </StackPanel>
         </StackPanel>
     </Grid>

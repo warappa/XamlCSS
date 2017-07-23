@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -1390,10 +1391,83 @@ namespace XamlCSS.CssParsing
                 }
                 else
                 {
-                    currentNode.TextBuilder.Append(tokens[currentIndex].Text);
+                    currentNode.TextBuilder.Append(ResolveEscapedUnicodeCharacters(tokens[currentIndex]));
                 }
                 currentIndex++;
             } while (currentIndex < tokens.Count);
+        }
+
+        private static string ResolveEscapedUnicodeCharacters(CssToken token)
+        {
+            if (token.EscapedUnicodeCharacterCount == 0)
+            {
+                return token.Text;
+            }
+
+            var foundCharacters = 0;
+            var text = token.Text;
+            var textLength = text.Length;
+            var resolvedText = new StringBuilder();
+
+            for (var i = 0; i < textLength; i++)
+            {
+                if (text[i] == '\\' &&
+                    foundCharacters < token.EscapedUnicodeCharacterCount)
+                {
+                    var unicode = new StringBuilder();
+                    var current = (char)0;
+
+                    i++;
+                    while (i < textLength)
+                    {
+                        current = text[i];
+                        if (current == '\\' ||
+                        !(
+                            (current >= 'a' && current <= 'f') ||
+                            (current >= 'A' && current <= 'F') ||
+                            (current >= '0' && current <= '9')
+                        ))
+                        {
+                            break;
+                        }
+
+                        unicode.Append(text[i]);
+
+                        i++;
+                        if (unicode.Length == 6)
+                        {
+                            break;
+                        }
+                    }
+
+                    if (i < textLength &&
+                        text[i] == ' ')
+                    {
+                        // swallow space
+                        i++;
+                    }
+
+                    i--;
+
+                    if (uint.TryParse(unicode.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint parsedIntValue))
+                    {
+                        var parsedValue = (char)parsedIntValue;
+
+                        resolvedText.Append(parsedValue);
+                        foundCharacters++;
+                    }
+                    else
+                    {
+                        resolvedText.Append(unicode);
+                    }
+                }
+                else
+                {
+                    resolvedText.Append(text[i]);
+                }
+            }
+
+            return resolvedText.ToString();
         }
 
         private void SkipLineCommentText()

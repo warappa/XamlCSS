@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 
@@ -6,13 +7,13 @@ namespace XamlCSS.CssParsing
 {
     public class Tokenizer
     {
-        private static readonly CssTokenType[] tokenTypeMap = new CssTokenType[256];
+        private static readonly IDictionary<char, CssTokenType> tokenTypeMap = new Dictionary<char, CssTokenType>();
 
         static Tokenizer()
         {
             for (var i = 0; i < 256; i++)
             {
-                tokenTypeMap[i] = ReturnTokenType((char)i);
+                tokenTypeMap[(char)i] = ReturnTokenType((char)i);
             }
         }
 
@@ -27,12 +28,12 @@ namespace XamlCSS.CssParsing
             var line = 1;
             var column = 1;
 
-            var theRawTokens = new List<CssToken>(cssDocument.Length);
+            var rawTokens = new List<CssToken>(cssDocument.Length);
 
             var currentRawToken = new CssToken(CssTokenType.Unknown, "", line, column);
             currentRawToken.Type = tokenTypeMap[cssDocument[0]];
 
-            theRawTokens.Add(currentRawToken);
+            rawTokens.Add(currentRawToken);
 
             var docLength = cssDocument.Length;
             for (var i = 0; i < docLength; i++)
@@ -42,28 +43,68 @@ namespace XamlCSS.CssParsing
                 {
                     if (currentRawToken.IsLetterOrDigit(value) == false)
                     {
-                        currentRawToken.Text = value.ToString();
+                        var valueString = value.ToString();
+                        if (valueString == "\\")
+                        {
+                            var oldI = i;
+                            var escapedUnicodeCharacter = ReadEscapedUnicodeCharacter(cssDocument, ref i);
+                            if (escapedUnicodeCharacter != null)
+                            {
+                                i++;
+
+                                valueString = "\\" + cssDocument.Substring(oldI, i - oldI);
+                                value.Clear();
+
+
+                                column += i - oldI;
+
+                                currentRawToken.Type = CssTokenType.Identifier;
+                                currentRawToken.EscapedUnicodeCharacterCount++;
+
+                                character = cssDocument[i];
+                            }
+                            else
+                            {
+                                i = oldI;
+                            }
+                        }
+
+                        currentRawToken.Text = valueString;
                         value.Clear();
 
                         currentRawToken = new CssToken(CssTokenType.Unknown, "", line, column);
+                        if (!tokenTypeMap.TryGetValue(character, out CssTokenType type))
+                        {
+                            tokenTypeMap[character] = ReturnTokenType(character);
+                        }
+
                         currentRawToken.Type = tokenTypeMap[character];
 
-                        theRawTokens.Add(currentRawToken);
+                        rawTokens.Add(currentRawToken);
                     }
 
                     value.Append(character);
                 }
                 else
                 {
+                    // new token
+
+                    // old token in cache?
                     if (value.Length > 0)
                     {
+                        // old token
                         currentRawToken.Text = value.ToString();
                         value.Clear();
 
+                        // new token for next round
                         currentRawToken = new CssToken(CssTokenType.Unknown, "", line, column);
+                        if (!tokenTypeMap.TryGetValue(character, out CssTokenType type))
+                        {
+                            tokenTypeMap[character] = ReturnTokenType(character);
+                        }
                         currentRawToken.Type = tokenTypeMap[character];
 
-                        theRawTokens.Add(currentRawToken);
+                        rawTokens.Add(currentRawToken);
                     }
 
                     value.Append(character);
@@ -80,7 +121,77 @@ namespace XamlCSS.CssParsing
 
             currentRawToken.Text = value.ToString();
 
-            return theRawTokens;
+            FixUnicodeEscapedIdentifiers(rawTokens);
+
+            return rawTokens;
+        }
+
+        private static void FixUnicodeEscapedIdentifiers(List<CssToken> tokens)
+        {
+            CssToken previousToken = null;
+            for (var j = 0; j < tokens.Count; j++)
+            {
+                var currentTokenType = tokens[j].Type;
+                if (previousToken?.Type == CssTokenType.Identifier &&
+                    currentTokenType == CssTokenType.Identifier)
+                {
+                    previousToken.Text += tokens[j].Text;
+                    previousToken.EscapedUnicodeCharacterCount += tokens[j].EscapedUnicodeCharacterCount;
+                    tokens.RemoveAt(j);
+                    j--;
+                }
+                else
+                {
+                    previousToken = tokens[j];
+                }
+            }
+        }
+
+        private static char? ReadEscapedUnicodeCharacter(string cssDocument, ref int i)
+        {
+            var stringB = new StringBuilder();
+            var current = (char)0;
+            var count = 0;
+            var documentLength = cssDocument.Length;
+            while (i < documentLength)
+            {
+                current = cssDocument[i];
+                if (current == '\\' ||
+                !(
+                    (current >= 'a' && current <= 'f') ||
+                    (current >= 'A' && current <= 'F') ||
+                    (current >= '0' && current <= '9')
+                ))
+                {
+                    break;
+                }
+                stringB.Append(cssDocument[i]);
+
+                i++;
+                count++;
+
+                if (count == 6)
+                {
+                    // 6 hexadecimal digits is maximum
+                    break;
+                }
+            }
+
+            if (i < documentLength &&
+                cssDocument[i] == ' ')
+            {
+                // swallow space
+                i++;
+            }
+
+            i--;
+
+            if (uint.TryParse(stringB.ToString(), NumberStyles.HexNumber, CultureInfo.InvariantCulture, out uint parsedIntValue))
+            {
+                return (char)parsedIntValue;
+            }
+
+            return null;
         }
 
         private static CssTokenType ReturnTokenType(char firstChar)

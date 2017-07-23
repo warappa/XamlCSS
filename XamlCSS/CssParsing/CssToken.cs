@@ -10,6 +10,7 @@ namespace XamlCSS.CssParsing
 		public string Text { get; set; }
         public int Line { get; set; }
         public int Column { get; set; }
+        public int EscapedUnicodeCharacterCount { get; set; }
 
         public CssToken(CssTokenType type, string text, int line, int column)
 		{
@@ -31,12 +32,13 @@ namespace XamlCSS.CssParsing
 			return this.Type == other.Type &&
 				this.Text == other.Text &&
                 this.Line == other.Line &&
+                this.EscapedUnicodeCharacterCount == other.EscapedUnicodeCharacterCount &&
                 this.Column == other.Column;
 		}
 
 		public override int GetHashCode()
 		{
-			return this.Type.GetHashCode() ^ this.Text.GetHashCode() ^ this.Line.GetHashCode() ^ this.Column.GetHashCode();
+			return this.Type.GetHashCode() ^ this.Text.GetHashCode() ^ this.Line.GetHashCode() ^ this.Column.GetHashCode() ^ this.EscapedUnicodeCharacterCount.GetHashCode();
 		}
 
         private bool? cachedIsLetterOrDigit;

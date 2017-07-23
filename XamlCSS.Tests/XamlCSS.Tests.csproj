@@ -63,6 +63,7 @@
     <Compile Include="CssParsing\CssNamespaceTests.cs" />
     <Compile Include="CssParsing\ParsingPerformance.cs" />
     <Compile Include="CssParsing\PropertyTriggerTests.cs" />
+    <Compile Include="CssParsing\ParseEscapedStringTests.cs" />
     <Compile Include="CssParsing\TokenizerTests.cs" />
     <Compile Include="CssParsing\CssParserTests.cs" />
     <Compile Include="CssParsing\CommentTests.cs" />
