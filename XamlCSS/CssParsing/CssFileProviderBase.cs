@@ -69,12 +69,12 @@ namespace XamlCSS.CssParsing
 
         protected virtual string GetEmbeddedResourcePrefix(Assembly assembly)
         {
-            var prefix = assembly.ManifestModule.Name;
-            if (prefix.EndsWith(".dll", System.StringComparison.OrdinalIgnoreCase))
-            {
-                prefix = prefix.Substring(0, prefix.Length - 4);
-            }
-            return prefix.Replace("\\", ".").Replace("/", ".") + ".";
+            return GetEmbeddedResourcePrefix(assembly.GetName().Name);
+        }
+
+        protected virtual string GetEmbeddedResourcePrefix(string assemblyName)
+        {
+            return assemblyName.Replace("\\", ".").Replace("/", ".") + ".";
         }
     }
 }
