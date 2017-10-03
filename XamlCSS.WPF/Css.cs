@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Threading;
 using XamlCSS.Dom;
 using XamlCSS.WPF.CssParsing;
 using XamlCSS.WPF.Dom;
@@ -34,6 +35,8 @@ namespace XamlCSS.WPF
 
             initialized = true;
 
+            var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+
             instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
                 new DependencyPropertyService(),
                 new LogicalTreeNodeProvider(new DependencyPropertyService()),
@@ -41,7 +44,7 @@ namespace XamlCSS.WPF
                 new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
                 DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(System.Windows.Controls.Button)),
                 new MarkupExtensionParser(),
-                Application.Current.Dispatcher.Invoke,
+                dispatcher.Invoke,
                 new CssFileProvider()
                 );
 

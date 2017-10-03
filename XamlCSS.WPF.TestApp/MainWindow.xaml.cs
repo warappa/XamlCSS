@@ -59,7 +59,7 @@ namespace XamlCSS.WPF.TestApp
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
             var button = sender as Button;
-            if((string)button.Content == "Click me")
+            if ((string)button.Content == "Click me")
             {
                 button.Content = "Clicked!";
                 ViewModel.Message = "...";
@@ -84,6 +84,11 @@ namespace XamlCSS.WPF.TestApp
                 styleEditor.Close();
                 styleEditor = null;
             }
+        }
+
+        private void Button_Click_4(object sender, RoutedEventArgs e)
+        {
+            this.ToggleClass("light dark");
         }
     }
 }

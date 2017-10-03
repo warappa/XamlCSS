@@ -22,7 +22,7 @@ namespace XamlCSS.WPF.TestApp
 
         [ConstructorArgument("value")]
         public object Value { get; set; }
-        
+
         public IValueConverter Converter { get; set; }
 
         public override object ProvideValue(IServiceProvider serviceProvider)
@@ -66,7 +66,16 @@ namespace XamlCSS.WPF.TestApp
                 return null;
             }
 
-            return new ImageBrush(new BitmapImage(new Uri((string)value)));
+            try
+            {
+                var bitmap = new BitmapImage(new Uri((string)value));
+                return new ImageBrush(bitmap);
+            }
+            catch
+            {
+            }
+
+            return null;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

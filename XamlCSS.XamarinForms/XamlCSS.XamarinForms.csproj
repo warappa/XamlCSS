@@ -92,6 +92,7 @@
     <Compile Include="..\SharedAssemblyInfo.cs">
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
+    <Compile Include="ClassExtensions.cs" />
     <Compile Include="ComponentModel\EnumTypeConverter.cs" />
     <Compile Include="ComponentModel\GenericTypeConverter.cs" />
     <Compile Include="ComponentModel\NumberTypeConverter.cs" />
