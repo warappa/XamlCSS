@@ -207,7 +207,7 @@ namespace XamlCSS.CssParsing
             var ruleSelectors = new List<string>();
             foreach (var currentLayerSelector in currentLayerSelectors)
             {
-                var selector = currentLayerSelector.StartsWith("&") ? currentLayerSelector.Substring(1) : currentLayerSelector;
+                var selector = currentLayerSelector.Contains("&") ? currentLayerSelector.Substring(1) : currentLayerSelector;
 
                 ruleSelectors.AddRange(GetAllRuleSelectorsSub(CombineSelectors(baseSelector, selector), newRemainingSelectorLayers));
             }
@@ -217,9 +217,15 @@ namespace XamlCSS.CssParsing
 
         private static string CombineSelectors(string baseSelector, string currentSelector)
         {
-            var isConcatSelector = currentSelector.StartsWith("&");
+            var isConcatSelector = currentSelector.Contains("&");
             var hasBaseSelector = baseSelector != null;
-            return $"{(!hasBaseSelector ? "" : baseSelector)}{(!isConcatSelector && hasBaseSelector ? " " : "")}{(isConcatSelector ? "" + currentSelector.Substring(1) : currentSelector)}";
+
+            if (isConcatSelector)
+            {
+                return currentSelector.Replace("&", baseSelector);
+            }
+
+            return (hasBaseSelector ? baseSelector + " " : "" ) + currentSelector;
         }
 
         private static string GetVariableValue(CssNode variableReferenceAst, Dictionary<string, string> parameterValues)

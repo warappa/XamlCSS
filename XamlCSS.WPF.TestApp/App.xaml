@@ -85,9 +85,19 @@ TextBlock
     Foreground: #fff;
     Background: #FF5733;
 }
+                    
 .container
 {
-	Background: #005b96;
+	
+    .light & {
+        Background: #eee;
+    }
+    .dark & {
+        Background: #005b96;
+    }
+	
+           
+                    
                     
     Button
     {

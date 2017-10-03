@@ -1183,6 +1183,7 @@ namespace XamlCSS.CssParsing
         private void ReadSelectors()
         {
             var old = currentNode;
+            var startToken = currentToken;
             try
             {
 
@@ -1204,6 +1205,11 @@ namespace XamlCSS.CssParsing
                         currentToken.Type != CssTokenType.BraceOpen &&
                         currentToken.Type != CssTokenType.Comma)
                     {
+                        if (currentToken.Type == CssTokenType.Ampersand &&
+                            currentNode.Parent?.Parent?.Parent?.Type == CssNodeType.Document)
+                        {
+                            Error($"Ampersand found but no parent rule!", GetTokens(startToken, currentToken));
+                        }
 
                         if (currentNode.Type == CssNodeType.Selector)
                         {
@@ -1245,7 +1251,7 @@ namespace XamlCSS.CssParsing
         {
             if (currentIndex >= tokens.Count)
             {
-                throw new AstGenerationException($"Checked for token-type '{type}' but end of style was reached!", GetTokens(tokens[tokens.Count - 1], tokens[tokens.Count - 1]));
+                return;
             }
 
             if (currentToken.Type == type)

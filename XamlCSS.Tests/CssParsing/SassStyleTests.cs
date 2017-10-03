@@ -182,6 +182,54 @@ StackLayout {
         }
 
         [Test]
+        public void Can_parse_nested_ampersand_element_selector_to_stylesheet_when_not_first_token()
+        {
+            var css = @"
+.header {
+    BackgroundColor: Green;
+
+    StackLayout & {
+        BackgroundColor: Red;
+    }
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(2);
+
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Green");
+
+            styleSheet.Rules[1].SelectorString.Should().Be("StackLayout .header");
+            styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be("Red");
+        }
+
+        [Test]
+        public void Ampersand_selector_without_parent_should_yield_error()
+        {
+            var css = @"
+.header {
+    BackgroundColor: Green;
+}
+
+StackLayout & {
+    BackgroundColor: Red;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(2);
+
+            styleSheet.Errors.Count.Should().Be(1);
+            styleSheet.Errors[0].Should().Contain("Ampersand found but no parent rule!");
+        }
+
+        [Test]
         public void Can_parse_nested_selector_to_stylesheet_with_multiple_selectors_on_root_rule()
         {
             var css = @"
