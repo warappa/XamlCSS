@@ -656,7 +656,6 @@ namespace XamlCSS.CssParsing
 
                         GoToParent();
                     }
-
                     else if (currentToken.Type == CssTokenType.At)
                     {
                         var identifier = nextToken.Text;
@@ -669,6 +668,17 @@ namespace XamlCSS.CssParsing
                             AddAndSetCurrent(CssNodeType.MixinInclude);
 
                             ReadMixinInclude();
+
+                            GoToParent();
+                        }
+                        else if (identifier == "extend")
+                        {
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.At);
+                            SkipExpected(styleDeclarationStartToken, CssTokenType.Identifier);
+
+                            AddAndSetCurrent(CssNodeType.Extend);
+
+                            ReadExtend();
 
                             GoToParent();
                         }
@@ -1169,6 +1179,31 @@ namespace XamlCSS.CssParsing
                 SkipExpected(startToken, CssTokenType.Semicolon);
 
                 GoToParent();
+            }
+            catch (AstGenerationException e)
+            {
+                Error(e.Message, e.Tokens);
+
+                SkipToEndOfBlock();
+
+                currentNode = old;
+            }
+        }
+
+        private void ReadExtend()
+        {
+            var old = currentNode;
+            var startToken = currentToken;
+
+            try
+            {
+                SkipWhitespace();
+
+                ReadUntil(CssTokenType.Semicolon);
+                SkipExpected(currentToken, CssTokenType.Semicolon);
+                SkipWhitespace();
+
+                TrimCurrentNode();
             }
             catch (AstGenerationException e)
             {

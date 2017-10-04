@@ -1,7 +1,9 @@
-﻿using System.Linq;
+﻿using System.Diagnostics;
+using System.Linq;
 
 namespace XamlCSS
 {
+    [DebuggerDisplay("{Value}")]
     public class Selector
     {
         protected string val;

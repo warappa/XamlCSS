@@ -1,5 +1,8 @@
-﻿namespace XamlCSS
+﻿using System.Diagnostics;
+
+namespace XamlCSS
 {
+    [DebuggerDisplay("{Property}: {Value}")]
     public class StyleDeclaration
     {
         public string Property { get; set; }

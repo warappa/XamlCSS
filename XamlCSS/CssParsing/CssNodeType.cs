@@ -46,6 +46,7 @@
         ExitAction = 41,
         ActionDeclaration = 42,
         ActionParameterBlock = 43,
-        ActionParameter = 44
+        ActionParameter = 44,
+        Extend = 45
     }
 }

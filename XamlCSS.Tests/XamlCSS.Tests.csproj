@@ -61,6 +61,7 @@
     <Compile Include="CssParsing\AstGeneratorTests.cs" />
     <Compile Include="CssParsing\CssFileProviderTests.cs" />
     <Compile Include="CssParsing\CssNamespaceTests.cs" />
+    <Compile Include="CssParsing\ExtendTests.cs" />
     <Compile Include="CssParsing\ParsingPerformance.cs" />
     <Compile Include="CssParsing\PropertyTriggerTests.cs" />
     <Compile Include="CssParsing\ParseEscapedStringTests.cs" />

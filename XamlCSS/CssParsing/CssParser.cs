@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 
 namespace XamlCSS.CssParsing
@@ -89,8 +88,7 @@ namespace XamlCSS.CssParsing
                         return new StyleRule
                         {
                             Selectors = new List<Selector>(new[] { selector }),
-                            DeclarationBlock = rule.DeclarationBlock,
-                            SelectorString = selector.Value,
+                            DeclarationBlock = new StyleDeclarationBlock(rule.DeclarationBlock, rule.DeclarationBlock.Triggers),
                             SelectorType = rule.SelectorType
                         };
                     });
@@ -335,12 +333,33 @@ namespace XamlCSS.CssParsing
                 .ToList();
         }
 
+        private static IEnumerable<KeyValuePair<string, string>> GetExtends(CssNode astStyleDeclarationBlock)
+        {
+            var currentSelectors = astStyleDeclarationBlock.Parent.Children
+                .First(x => x.Type == CssNodeType.Selectors)
+                .Children
+                .Where(x => x.Type == CssNodeType.Selector)
+                .SelectMany(x => x.Children.Where(y => y.Type == CssNodeType.SelectorFragment))
+                .Select(x => x.Text);
+
+            var selectorsToExtend = astStyleDeclarationBlock
+                .Children.Where(x => x.Type == CssNodeType.Extend)
+                .Select(x => x.Text)
+                .ToList();
+
+            return currentSelectors
+                .SelectMany(current => selectorsToExtend
+                    .Select(extend => new KeyValuePair<string, string>(current, extend)))
+                .ToList();
+        }
+
         private static void GetStyleRules(StyleSheet styleSheet, CssNode astRule)
         {
             var astStyleDeclarationBlock = astRule.Children
                    .Single(x => x.Type == CssNodeType.StyleDeclarationBlock);
 
             var styleDeclarations = GetStyleDeclarationsFromBlock(astStyleDeclarationBlock, null);
+            HandleExtends(styleSheet, astStyleDeclarationBlock);
 
             var propertyTriggers = GetPropertyTriggers(astStyleDeclarationBlock, null);
             var dataTriggers = GetDataTriggers(astStyleDeclarationBlock, null);
@@ -369,8 +388,6 @@ namespace XamlCSS.CssParsing
 
                 rule.Selectors = new List<Selector>(new[] { new Selector() { Value = ruleSelectorToUse } });
 
-                rule.SelectorString = string.Join(",", rule.Selectors.Select(x => x.Value));
-
                 rule.DeclarationBlock.AddRange(styleDeclarations);
                 rule.DeclarationBlock.Triggers = triggers;
 
@@ -378,6 +395,27 @@ namespace XamlCSS.CssParsing
             }
 
             ResolveSubRules(styleSheet, astStyleDeclarationBlock);
+        }
+
+        private static void HandleExtends(StyleSheet styleSheet, CssNode astStyleDeclarationBlock)
+        {
+            var extends = GetExtends(astStyleDeclarationBlock);
+
+            foreach (var extend in extends)
+            {
+                var rules = styleSheet.LocalRules
+                    .Where(rule => rule.Selectors
+                        .Where(selector => selector.Value == extend.Value).Any())
+                    .ToList();
+
+                foreach (var rule in rules)
+                {
+                    rule.Selectors.Add(new Selector
+                    {
+                        Value = extend.Key
+                    });
+                }
+            }
         }
 
         private static List<ITrigger> GetPropertyTriggers(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
