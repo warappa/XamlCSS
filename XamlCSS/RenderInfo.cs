@@ -2,7 +2,7 @@
 
 namespace XamlCSS
 {
-    [DebuggerDisplay("{Remove} {StartFrom.GetType().Name}  {GetHashCode()}")]
+    [DebuggerDisplay("{ChangeKind} {StartFrom.GetType().Name} {GetHashCode()}")]
     public class RenderInfo<TDependencyObject, TUIElement>
         where TDependencyObject : class
         where TUIElement : class, TDependencyObject
@@ -10,7 +10,9 @@ namespace XamlCSS
         public TUIElement StyleSheetHolder { get; set; }
         public StyleSheet StyleSheet { get; set; }
         public TUIElement StartFrom { get; set; }
-        public bool Remove { get; set; }
+        // public bool Remove { get; set; }
+        public RenderTargetKind RenderTargetKind { get; internal set; }
+        public ChangeKind ChangeKind { get; internal set; }
 
         public override bool Equals(object obj)
         {
@@ -23,7 +25,9 @@ namespace XamlCSS
             return StyleSheetHolder == other.StyleSheetHolder &&
                 StyleSheet == other.StyleSheet &&
                 StartFrom == other.StartFrom &&
-                Remove == other.Remove;
+                // Remove == other.Remove
+                RenderTargetKind == other.RenderTargetKind &&
+                ChangeKind == other.ChangeKind;
         }
 
         public override int GetHashCode()
@@ -32,8 +36,15 @@ namespace XamlCSS
             result = (result * 397) ^ (StyleSheetHolder?.GetHashCode() ?? 0);
             result = (result * 397) ^ (StyleSheet?.GetHashCode() ?? 0);
             result = (result * 397) ^ (StartFrom?.GetHashCode() ?? 0);
-            result = (result * 397) ^ (Remove.GetHashCode());
+            // result = (result * 397) ^ (Remove.GetHashCode());
+            result = (result * 397) ^ (RenderTargetKind.GetHashCode());
+            result = (result * 397) ^ (ChangeKind.GetHashCode());
             return result;
+        }
+
+        public override string ToString()
+        {
+            return $"{ChangeKind} {RenderTargetKind} {StartFrom?.GetType().Name ?? "null"} {GetHashCode()}";
         }
     }
 }

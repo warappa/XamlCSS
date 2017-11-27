@@ -35,6 +35,10 @@ namespace XamlCSS.WPF
             {
                 Css.instance.UpdateElement(sender);
             }
+            else
+            {
+                Css.instance.UpdateElement(sender);
+            }
         }
 
         #region LoadDetection
@@ -77,8 +81,6 @@ namespace XamlCSS.WPF
                 {
                     (dpo as FrameworkContentElement).Loaded += LoadedEventHandler;
                 }
-
-                Css.instance.UpdateElement(dpo);
             }
             else
             {

@@ -19,7 +19,7 @@ namespace XamlCSS
 
                 IdSpecificity = value.ToCharArray().Count(x => x == '#');
                 ClassSpecificity = value.ToCharArray().Count(x => x == '.');
-                var a = value.Split(' ').Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
+                var a = value.Split(new[] { ' ' , '>'}).Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
                 SimpleSpecificity = a;
             }
         }
@@ -44,6 +44,30 @@ namespace XamlCSS
                     return $"{SimpleSpecificity}";
                 }
             }
+        }
+
+        public static bool operator <(Selector e1, Selector e2)
+        {
+            if (e1.IdSpecificity < e2.IdSpecificity)
+                return true;
+            if (e1.ClassSpecificity < e2.ClassSpecificity)
+                return true;
+            if (e1.SimpleSpecificity < e2.SimpleSpecificity)
+                return true;
+
+            return false;
+        }
+
+        public static bool operator >(Selector e1, Selector e2)
+        {
+            if (e1.IdSpecificity > e2.IdSpecificity)
+                return true;
+            if (e1.ClassSpecificity > e2.ClassSpecificity)
+                return true;
+            if (e1.SimpleSpecificity > e2.SimpleSpecificity)
+                return true;
+
+            return false;
         }
     }
 }

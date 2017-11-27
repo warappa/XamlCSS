@@ -12,12 +12,12 @@ namespace XamlCSS.UWP.Dom
         {
         }
 
-        protected override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
+        protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
             return new LogicalDomElement(dependencyObject, this);
         }
 
-        protected override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
+        protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
         {
             return node is LogicalDomElement;
         }
@@ -68,6 +68,11 @@ namespace XamlCSS.UWP.Dom
         public override DependencyObject GetParent(DependencyObject element)
         {
             return (element as FrameworkElement)?.Parent;
+        }
+
+        public override bool IsInTree(DependencyObject tUIElement)
+        {
+            return true;
         }
     }
 }

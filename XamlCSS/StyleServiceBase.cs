@@ -40,7 +40,7 @@ namespace XamlCSS
 
         public string GetStyleResourceKey(string styleSheetId, Type type, string selector)
         {
-            return $"{StyleSheetStyleKey}_{styleSheetId}_${type.FullName}_{selector}";
+            return $"{StyleSheetStyleKey}_{styleSheetId}_${type.FullName}{{{selector}";
         }
 
         public abstract IEnumerable<TDependencyObject> GetTriggersAsList(TStyle style);

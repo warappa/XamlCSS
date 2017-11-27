@@ -12,12 +12,12 @@ namespace XamlCSS.XamarinForms.Dom
         {
         }
 
-        protected override IDomElement<BindableObject> CreateTreeNode(BindableObject dependencyObject)
+        protected internal override IDomElement<BindableObject> CreateTreeNode(BindableObject dependencyObject)
         {
             return new VisualDomElement(dependencyObject, this);
         }
 
-        protected override bool IsCorrectTreeNode(IDomElement<BindableObject> node)
+        protected internal override bool IsCorrectTreeNode(IDomElement<BindableObject> node)
         {
             return node is VisualDomElement;
         }
@@ -35,6 +35,11 @@ namespace XamlCSS.XamarinForms.Dom
             }
 
             return VisualTreeHelper.GetParent(element as Element);
+        }
+
+        public override bool IsInTree(BindableObject tUIElement)
+        {
+            return true;
         }
     }
 }

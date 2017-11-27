@@ -116,17 +116,7 @@ namespace XamlCSS.XamarinForms
                 initialized = true;
             }
         }
-
-        public static void EnqueueRenderStyleSheet(Element styleSheetHolder, StyleSheet styleSheet, Element startFrom)
-        {
-            instance.EnqueueRenderStyleSheet(styleSheetHolder, styleSheet, startFrom as Element);
-        }
-
-        public static void EnqueueRemoveStyleSheet(Element styleSheetHolder, StyleSheet styleSheet, Element startFrom)
-        {
-            instance.EnqueueRemoveStyleSheet(styleSheetHolder, styleSheet, startFrom as Element);
-        }
-
+        
         public static readonly BindableProperty MatchingStylesProperty =
             BindableProperty.CreateAttached(
                 "MatchingStyles",
@@ -321,7 +311,7 @@ namespace XamlCSS.XamarinForms
                 oldStyleSheet.PropertyChanged -= StyleSheet_PropertyChanged;
                 oldStyleSheet.AttachedTo = null;
 
-                instance.RemoveStyleResources(element, (StyleSheet)oldValue);
+                instance.EnqueueRemoveStyleSheet(element, (StyleSheet)oldValue);
             }
 
             var newStyleSheet = (StyleSheet)newValue;
@@ -334,7 +324,7 @@ namespace XamlCSS.XamarinForms
             newStyleSheet.PropertyChanged += StyleSheet_PropertyChanged;
             newStyleSheet.AttachedTo = element;
 
-            instance.EnqueueRenderStyleSheet(element, newStyleSheet, null);
+            instance.EnqueueRenderStyleSheet(element, newStyleSheet);
         }
 
         private static void StyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -342,8 +332,7 @@ namespace XamlCSS.XamarinForms
             var styleSheet = sender as StyleSheet;
             var attachedTo = styleSheet.AttachedTo as Element;
 
-            instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);
-            instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, null);
+            instance.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
         }
 
         private static void StylePropertyAttached(BindableObject d, object oldValue, object newValue)

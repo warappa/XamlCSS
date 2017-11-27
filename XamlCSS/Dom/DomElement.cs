@@ -162,7 +162,7 @@ namespace XamlCSS.Dom
 
         public int ChildElementCount { get { return Children.Count(); } }
 
-        public INodeList ChildNodes => childNodes ?? (childNodes = GetChildNodes(dependencyObject));
+        public INodeList ChildNodes => childNodes ?? (GetChildNodes(dependencyObject));
 
         public IHtmlCollection<IElement> Children
         {
@@ -196,9 +196,9 @@ namespace XamlCSS.Dom
 
         public string Id { get { return id; } set { id = value; } }
 
-        public string InnerHtml { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+        public string InnerHtml { get { return ""; } set { } }
 
-        public bool IsFocused { get { throw new NotImplementedException(); } }
+        public bool IsFocused { get { return false; } }
 
         public INode LastChild { get { return ChildNodes.LastOrDefault(); } }
 
@@ -221,7 +221,8 @@ namespace XamlCSS.Dom
 
                 var thisIndex = parentChildren.IndexOf(this);
 
-                if (thisIndex == parentChildren.Length - 1)
+                if (thisIndex == parentChildren.Length - 1 ||
+                    thisIndex < 0)
                 {
                     return null;
                 }
@@ -242,7 +243,8 @@ namespace XamlCSS.Dom
                 var parentChildren = Parent.ChildNodes;
                 var thisIndex = parentChildren.IndexOf(this);
 
-                if (thisIndex == parentChildren.Length - 1)
+                if (thisIndex == parentChildren.Length - 1 ||
+                    thisIndex < 0)
                 {
                     return null;
                 }
@@ -255,9 +257,9 @@ namespace XamlCSS.Dom
 
         public NodeType NodeType { get; protected set; }
 
-        public string NodeValue { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+        public string NodeValue { get { return ""; } set { } }
 
-        public string OuterHtml { get { throw new NotImplementedException(); } set { throw new NotImplementedException(); } }
+        public string OuterHtml { get { return ""; } set {  } }
 
         public IDocument Owner
         {
@@ -318,7 +320,7 @@ namespace XamlCSS.Dom
                 var parentChildren = ParentElement.Children;
                 var thisIndex = parentChildren.IndexOf(this);
 
-                if (thisIndex == 0)
+                if (thisIndex <= 0)
                 {
                     return null;
                 }
@@ -339,7 +341,7 @@ namespace XamlCSS.Dom
                 var parentChildren = ParentElement.ChildNodes;
                 var thisIndex = parentChildren.IndexOf(this);
 
-                if (thisIndex == 0)
+                if (thisIndex <= 0)
                 {
                     return null;
                 }
@@ -352,7 +354,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -360,12 +362,10 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
-
             set
             {
-                throw new NotImplementedException();
             }
         }
 
@@ -373,7 +373,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -383,12 +383,11 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
-
             set
             {
-                throw new NotImplementedException();
+                
             }
         }
 
@@ -396,7 +395,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -404,7 +403,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -412,7 +411,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -420,12 +419,10 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
-
             set
             {
-                throw new NotImplementedException();
             }
         }
 
@@ -433,12 +430,10 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
-
             set
             {
-                throw new NotImplementedException();
             }
         }
 
@@ -446,7 +441,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
         }
 
@@ -454,7 +449,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
         }
 
@@ -462,7 +457,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
         }
 
@@ -470,7 +465,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
         }
 
@@ -478,7 +473,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
         }
 
@@ -486,7 +481,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -494,7 +489,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -502,7 +497,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
         }
 
@@ -510,7 +505,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return DocumentReadyState.Complete;
             }
         }
 
@@ -518,7 +513,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -526,7 +521,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -534,7 +529,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -542,7 +537,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -550,7 +545,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -558,7 +553,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -566,7 +561,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -574,12 +569,10 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
-
             set
             {
-                throw new NotImplementedException();
             }
         }
 
@@ -587,7 +580,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -595,12 +588,10 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
-
             set
             {
-                throw new NotImplementedException();
             }
         }
 
@@ -608,12 +599,10 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
-
             set
             {
-                throw new NotImplementedException();
             }
         }
 
@@ -621,7 +610,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
         }
 
@@ -629,12 +618,10 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
-
             set
             {
-                throw new NotImplementedException();
             }
         }
 
@@ -642,7 +629,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return "";
             }
         }
 
@@ -650,7 +637,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -658,7 +645,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -666,7 +653,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -674,7 +661,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -682,7 +669,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -698,12 +685,10 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
-
             set
             {
-                throw new NotImplementedException();
             }
         }
 
@@ -711,7 +696,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -719,7 +704,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
@@ -727,48 +712,44 @@ namespace XamlCSS.Dom
         {
             get
             {
-                throw new NotImplementedException();
+                return null;
             }
         }
 
         public void AddEventListener(string type, DomEventHandler callback = null, bool capture = false)
         {
-            throw new NotImplementedException();
         }
 
         public void After(params INode[] nodes)
         {
-            throw new NotImplementedException();
         }
 
         public void Append(params INode[] nodes)
         {
-            throw new NotImplementedException();
         }
 
         public INode AppendChild(INode child)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IShadowRoot AttachShadow(ShadowRootMode mode = ShadowRootMode.Open)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void Before(params INode[] nodes)
         {
-            throw new NotImplementedException();
         }
 
         public INode Clone(bool deep = true)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public DocumentPositions CompareDocumentPosition(INode otherNode)
         {
-            throw new NotImplementedException();
+            return DocumentPositions.ImplementationSpecific;
         }
 
         public bool Contains(INode otherNode)
@@ -778,7 +759,7 @@ namespace XamlCSS.Dom
 
         public bool Dispatch(Event ev)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public bool Equals(INode otherNode)
@@ -845,17 +826,15 @@ namespace XamlCSS.Dom
 
         public void Insert(AdjacentPosition position, string html)
         {
-            throw new NotImplementedException();
         }
 
         public INode InsertBefore(INode newElement, INode referenceElement)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void InvokeEventListener(Event ev)
         {
-            throw new NotImplementedException();
         }
 
         public bool IsDefaultNamespace(string namespaceUri)
@@ -893,12 +872,11 @@ namespace XamlCSS.Dom
 
         public void Prepend(params INode[] nodes)
         {
-            throw new NotImplementedException();
         }
 
         public IPseudoElement Pseudo(string pseudoElement)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IElement QuerySelector(string selectors)
@@ -942,207 +920,193 @@ namespace XamlCSS.Dom
 
         public void Remove()
         {
-            throw new NotImplementedException();
         }
 
         public void RemoveAttribute(string name)
         {
-            throw new NotImplementedException();
         }
 
         public void RemoveAttribute(string namespaceUri, string localName)
         {
-            throw new NotImplementedException();
         }
 
         public INode RemoveChild(INode child)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void RemoveEventListener(string type, DomEventHandler callback = null, bool capture = false)
         {
-            throw new NotImplementedException();
         }
 
         public void Replace(params INode[] nodes)
         {
-            throw new NotImplementedException();
         }
 
         public INode ReplaceChild(INode newChild, INode oldChild)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void SetAttribute(string name, string value)
         {
-            throw new NotImplementedException();
         }
 
         public void SetAttribute(string namespaceUri, string name, string value)
         {
-            throw new NotImplementedException();
         }
 
         public void ToHtml(TextWriter writer, IMarkupFormatter formatter)
         {
-            throw new NotImplementedException();
         }
 
         public IDocument Open(string type = "text/html", string replace = null)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void Close()
         {
-            throw new NotImplementedException();
         }
 
         public void Write(string content)
         {
-            throw new NotImplementedException();
         }
 
         public void WriteLine(string content)
         {
-            throw new NotImplementedException();
         }
 
         public void Load(string url)
         {
-            throw new NotImplementedException();
         }
 
         public IHtmlCollection<IElement> GetElementsByName(string name)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IHtmlCollection<IElement> GetElementsByTagName(string namespaceUri, string tagName)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public Event CreateEvent(string type)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IRange CreateRange()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IComment CreateComment(string data)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IDocumentFragment CreateDocumentFragment()
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IElement CreateElement(string name)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IElement CreateElement(string namespaceUri, string name)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IAttr CreateAttribute(string name)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IAttr CreateAttribute(string namespaceUri, string name)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IProcessingInstruction CreateProcessingInstruction(string target, string data)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public IText CreateTextNode(string data)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public INodeIterator CreateNodeIterator(INode root, FilterSettings settings = FilterSettings.All, NodeFilter filter = null)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public ITreeWalker CreateTreeWalker(INode root, FilterSettings settings = FilterSettings.All, NodeFilter filter = null)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public INode Import(INode externalNode, bool deep = true)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public INode Adopt(INode externalNode)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public bool HasFocus()
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public bool ExecuteCommand(string commandId, bool showUserInterface = false, string value = "")
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public bool IsCommandEnabled(string commandId)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public bool IsCommandIndeterminate(string commandId)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public bool IsCommandExecuted(string commandId)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public bool IsCommandSupported(string commandId)
         {
-            throw new NotImplementedException();
+            return false;
         }
 
         public string GetCommandValue(string commandId)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void EnableStyleSheetsForSet(string name)
         {
-            throw new NotImplementedException();
         }
 
         public IElement GetElementById(string elementId)
         {
-            throw new NotImplementedException();
+            return null;
         }
 
         public void Dispose()
         {
-            throw new NotImplementedException();
         }
 
         public class StyleSheetList : List<IStyleSheet>, IStyleSheetList

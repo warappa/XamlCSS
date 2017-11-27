@@ -12,12 +12,12 @@ namespace XamlCSS.WPF.Dom
         {
         }
 
-        protected override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
+        protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
             return new LogicalDomElement(dependencyObject, this);
         }
 
-        protected override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
+        protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
         {
             return node is LogicalDomElement;
         }
@@ -29,10 +29,12 @@ namespace XamlCSS.WPF.Dom
                 return new List<DependencyObject>();
             }
 
-            return LogicalTreeHelper.GetChildren(element)
+            var a = LogicalTreeHelper.GetChildren(element)
                 .Cast<object>()
                 .OfType<DependencyObject>()
                 .ToList();
+
+            return a;
         }
 
         public override DependencyObject GetParent(DependencyObject element)
@@ -43,6 +45,15 @@ namespace XamlCSS.WPF.Dom
             }
 
             return LogicalTreeHelper.GetParent(element);
+        }
+
+        public override bool IsInTree(DependencyObject tUIElement)
+        {
+            var p = GetParent(tUIElement);
+            if (p == null)
+                return true;
+
+            return GetChildren(p).Contains(tUIElement);
         }
     }
 }

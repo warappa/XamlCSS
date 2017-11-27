@@ -16,9 +16,9 @@ namespace XamlCSS.Dom
             this.dependencyPropertyService = dependencyPropertyService;
         }
 
-        protected abstract IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
+        protected internal abstract IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
 
-        protected abstract bool IsCorrectTreeNode(IDomElement<TDependencyObject> node);
+        protected internal abstract bool IsCorrectTreeNode(IDomElement<TDependencyObject> node);
 
         public abstract TDependencyObject GetParent(TDependencyObject tUIElement);
 
@@ -38,6 +38,7 @@ namespace XamlCSS.Dom
 		{
             return GetDomElement(GetParent(obj));
         }
+
 		public IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj)
 		{
             if (obj == null)
@@ -58,6 +59,8 @@ namespace XamlCSS.Dom
 
             return cached;
         }
+
+        public abstract bool IsInTree(TDependencyObject tUIElement);
 
         private IDomElement<TDependencyObject> GetFromDependencyObject(TDependencyObject obj)
         {

@@ -71,7 +71,7 @@ Button
 }
 TextBlock
 {
-	Foreground: #6497b1;
+	Foreground: #ff00ff;
 }
 #thegrid
 {
@@ -82,7 +82,7 @@ TextBlock
     FontSize: 20;
     Width: 200;
     Margin: 20;
-    Foreground: #fff;
+    Foreground: #0000ff;
     Background: #FF5733;
 }
                     
@@ -108,7 +108,7 @@ TextBlock
     }
     TextBlock
     {
-	    Foreground: #b3cde0;
+	    Foreground: #00ff00;
     }
 }
 .jumbo

@@ -9,5 +9,12 @@ namespace XamlCSS.Dom
         IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node);
         IEnumerable<TDependencyObject> GetChildren(TDependencyObject element);
         TDependencyObject GetParent(TDependencyObject tUIElement);
+        bool IsInTree(TDependencyObject tUIElement);
+    }
+    public interface ISwitchableTreeNodeProvider<TDependencyObject> : ITreeNodeProvider<TDependencyObject>
+        where TDependencyObject : class
+    {
+        void Switch(SelectorType type);
+        SelectorType CurrentSelectorType { get; }
     }
 }

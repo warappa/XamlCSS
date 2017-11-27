@@ -155,6 +155,8 @@ Button
             Assert.AreEqual(".warning#some-element", styleSheet.Rules[4].Selectors[0].Value);
             Assert.AreEqual("1,1,0", styleSheet.Rules[4].Selectors[0].Specificity);
 
+            var s = new Selector { Value = ".important-button-container>Button" };
+            Assert.AreEqual("1,1", s.Specificity);
         }
 
         [Test]

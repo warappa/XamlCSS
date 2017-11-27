@@ -260,7 +260,7 @@ namespace XamlCSS.UWP
                 oldStyleSheet.PropertyChanged -= NewStyleSheet_PropertyChanged;
                 oldStyleSheet.AttachedTo = null;
 
-                instance.RemoveStyleResources(element, oldStyleSheet);
+                instance.EnqueueRemoveStyleSheet(element, oldStyleSheet);
             }
 
             var newStyleSheet = (StyleSheet)e.NewValue;
@@ -273,7 +273,7 @@ namespace XamlCSS.UWP
             newStyleSheet.PropertyChanged += NewStyleSheet_PropertyChanged;
             newStyleSheet.AttachedTo = element;
 
-            instance.EnqueueRenderStyleSheet(element, newStyleSheet, null);
+            instance.EnqueueRenderStyleSheet(element, newStyleSheet);
         }
 
         private static void NewStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -281,8 +281,8 @@ namespace XamlCSS.UWP
             var styleSheet = sender as StyleSheet;
             var attachedTo = styleSheet.AttachedTo as FrameworkElement;
 
-            instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);
-            instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, null);
+            //instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet);
+            instance.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
         }
 
         private static void StylePropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)

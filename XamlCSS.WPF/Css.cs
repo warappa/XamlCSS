@@ -36,10 +36,16 @@ namespace XamlCSS.WPF
             initialized = true;
 
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
+            var dependencyPropertyService = new DependencyPropertyService();
+            var visualTreeNodeProvider = new VisualTreeNodeProvider(dependencyPropertyService);
+            var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
 
             instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
-                new DependencyPropertyService(),
-                new LogicalTreeNodeProvider(new DependencyPropertyService()),
+                dependencyPropertyService,
+                new SwitchableTreeNodeProvider(
+                    dependencyPropertyService, 
+                    new VisualWithLogicalFallbackTreeNodeProvider(dependencyPropertyService, visualTreeNodeProvider, logicalTreeNodeProvider),
+                    logicalTreeNodeProvider),
                 new StyleResourceService(),
                 new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
                 DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(System.Windows.Controls.Button)),
@@ -148,7 +154,8 @@ namespace XamlCSS.WPF
             {
                 (e.OldValue as StyleSheet).PropertyChanged -= StyleSheet_PropertyChanged;
 
-                instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
+                instance.EnqueueRemoveStyleSheet(element, (StyleSheet)e.OldValue);
+                // instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
             }
 
             var newStyleSheet = (StyleSheet)e.NewValue;
@@ -161,7 +168,7 @@ namespace XamlCSS.WPF
             newStyleSheet.PropertyChanged += StyleSheet_PropertyChanged;
             newStyleSheet.AttachedTo = element;
 
-            instance.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet, null);
+            instance.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet);
         }
 
         private static void StyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -171,8 +178,7 @@ namespace XamlCSS.WPF
                 var styleSheet = sender as StyleSheet;
                 var attachedTo = styleSheet.AttachedTo as FrameworkElement;
 
-                instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet, null);
-                instance.EnqueueRenderStyleSheet(attachedTo, styleSheet, null);
+                instance.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
             }
         }
 
@@ -198,7 +204,6 @@ namespace XamlCSS.WPF
 
             Css.instance.UpdateElement(element);
         }
-
 
         public static readonly DependencyProperty HandledCssProperty =
             DependencyProperty.RegisterAttached(
