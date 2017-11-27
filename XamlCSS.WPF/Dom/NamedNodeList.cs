@@ -42,6 +42,16 @@ namespace XamlCSS.WPF.Dom
                 return new List<DependencyObject>((dependencyObject as Panel).Children.Cast<DependencyObject>());
             }
 
+            if (dependencyObject is ContentControl)
+            {
+                var contentControl = dependencyObject as ContentControl;
+                if (contentControl.HasContent &&
+                    contentControl.Content is DependencyObject)
+                {
+                    return new List<DependencyObject>(new[] { (DependencyObject)contentControl.Content });
+                }
+            }
+
             var res = LogicalTreeHelper.GetChildren(dependencyObject);
             if (res.Cast<object>().Any() == false)
             {
