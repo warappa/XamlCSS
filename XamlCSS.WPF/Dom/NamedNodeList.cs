@@ -2,8 +2,6 @@
 using System.Windows;
 using AngleSharp.Dom;
 using XamlCSS.Dom;
-using System.Linq;
-using System.Windows.Controls;
 
 namespace XamlCSS.WPF.Dom
 {
@@ -27,38 +25,7 @@ namespace XamlCSS.WPF.Dom
         }
         protected override IEnumerable<DependencyObject> GetChildren(DependencyObject dependencyObject)
         {
-            if (dependencyObject is Window)
-            {
-                return new List<DependencyObject>() { (dependencyObject as Window).Content as DependencyObject };
-            }
-
-            if (dependencyObject is Page)
-            {
-                return new List<DependencyObject>() { (dependencyObject as Page).Content as DependencyObject };
-            }
-
-            if (dependencyObject is Panel)
-            {
-                return new List<DependencyObject>((dependencyObject as Panel).Children.Cast<DependencyObject>());
-            }
-
-            if (dependencyObject is ContentControl)
-            {
-                var contentControl = dependencyObject as ContentControl;
-                if (contentControl.HasContent &&
-                    contentControl.Content is DependencyObject)
-                {
-                    return new List<DependencyObject>(new[] { (DependencyObject)contentControl.Content });
-                }
-            }
-
-            var res = LogicalTreeHelper.GetChildren(dependencyObject);
-            if (res.Cast<object>().Any() == false)
-            {
-                return Enumerable.Empty<DependencyObject>();
-            }
-
-            return res.Cast<DependencyObject>().ToList();
+            return treeNodeProvider.GetChildren(dependencyObject);
         }
     }
 }

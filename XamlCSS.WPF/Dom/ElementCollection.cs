@@ -27,33 +27,7 @@ namespace XamlCSS.WPF.Dom
         }
         protected override IEnumerable<DependencyObject> GetChildren(DependencyObject dependencyObject)
         {
-            if (dependencyObject is Window)
-            {
-                return new List<DependencyObject>() { (dependencyObject as Window).Content as DependencyObject };
-            }
-
-            if (dependencyObject is Page)
-            {
-                return new List<DependencyObject>() { (dependencyObject as Page).Content as DependencyObject };
-            }
-
-            if (dependencyObject is Panel)
-            {
-                return new List<DependencyObject>((dependencyObject as Panel).Children.Cast<DependencyObject>());
-            }
-
-            var list = new List<DependencyObject>();
-
-            var res = LogicalTreeHelper.GetChildren(dependencyObject);
-            foreach (var i in res)
-            {
-                if (i is DependencyObject)
-                {
-                    list.Add((DependencyObject)i);
-                }
-            }
-
-            return list;
+            return treeNodeProvider.GetChildren(dependencyObject);
         }
         protected override string GetId(DependencyObject dependencyObject)
         {
