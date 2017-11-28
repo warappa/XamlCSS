@@ -309,7 +309,7 @@ namespace XamlCSS.XamarinForms
             {
                 var oldStyleSheet = oldValue as StyleSheet;
                 oldStyleSheet.PropertyChanged -= StyleSheet_PropertyChanged;
-                oldStyleSheet.AttachedTo = null;
+                //oldStyleSheet.AttachedTo = null;
 
                 instance.EnqueueRemoveStyleSheet(element, (StyleSheet)oldValue);
             }

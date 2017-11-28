@@ -73,7 +73,8 @@ namespace XamlCSS.WPF.TestApp
 
         private void Button_Click_3(object sender, RoutedEventArgs e)
         {
-            if (styleEditor == null)
+            if (styleEditor == null ||
+                styleEditor.IsVisible == false)
             {
                 styleEditor = new StyleEditor();
 
@@ -89,6 +90,7 @@ namespace XamlCSS.WPF.TestApp
         private void Button_Click_4(object sender, RoutedEventArgs e)
         {
             this.ToggleClass("light dark");
+            //this.runCss3.ToggleClass("fa-css3");
         }
     }
 }

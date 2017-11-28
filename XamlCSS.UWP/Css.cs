@@ -258,7 +258,7 @@ namespace XamlCSS.UWP
             {
                 var oldStyleSheet = e.OldValue as StyleSheet;
                 oldStyleSheet.PropertyChanged -= NewStyleSheet_PropertyChanged;
-                oldStyleSheet.AttachedTo = null;
+                //oldStyleSheet.AttachedTo = null;
 
                 instance.EnqueueRemoveStyleSheet(element, oldStyleSheet);
             }

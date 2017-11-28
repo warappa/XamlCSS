@@ -87,6 +87,11 @@ namespace XamlCSS
                     // sets HandledCss and MatchingStyles false/null
                     UnapplyMatchingStylesInternal(removeStylesheetInfo.StyleSheetHolder, removeStylesheetInfo.StyleSheet);
 
+                    if (removeStylesheetInfo.ChangeKind == ChangeKind.Remove)
+                    {
+                        removeStylesheetInfo.StyleSheet.AttachedTo = null;
+                    }
+
                     // compares MatchingStyles and AppliedMachingStyles and 
                     // sets AppliedMatchingStyles and Style null
                     RemoveOutdatedStylesFromElementInternal(removeStylesheetInfo.StyleSheetHolder, removeStylesheetInfo.StyleSheet, true, true);
@@ -112,11 +117,15 @@ namespace XamlCSS
                     RemoveOutdatedStylesFromElementInternal(removedElementInfo.StartFrom, removedElementInfo.StyleSheet, true, true);
                 }
 
-                copy.RemoveAll(x => x.ChangeKind == ChangeKind.Remove);
+                copy.RemoveAll(x => x.ChangeKind == ChangeKind.Remove ||
+                    (
+                        x.RenderTargetKind == RenderTargetKind.Element && 
+                        handledStyleSheetHolders.Contains(x.StyleSheetHolder)
+                    ));
 
                 if (copy.Any())
                 {
-                    foreach (var item in copy)
+                    foreach (var item in copy.Where(x => x.ChangeKind == ChangeKind.Update))
                     {
                         // sets HandledCss and MatchingStyles false/null
                         UnapplyMatchingStylesInternal(item.StartFrom ?? item.StyleSheetHolder, item.StyleSheet);
@@ -125,7 +134,7 @@ namespace XamlCSS
                     foreach (var item in copy)
                     {
                         CalculateStylesInternal(item.StyleSheetHolder, item.StyleSheet, item.StartFrom ?? item.StyleSheetHolder);
-                        // RemoveOutdatedStylesFromElementInternal(item.StartFrom ?? item.StyleSheetHolder, item.StyleSheet, true, true);
+                        RemoveOutdatedStylesFromElementInternal(item.StartFrom ?? item.StyleSheetHolder, item.StyleSheet, true, true);
                         ApplyMatchingStyles(item.StartFrom ?? item.StyleSheetHolder, item.StyleSheet);
                     }
                 }
@@ -476,6 +485,7 @@ namespace XamlCSS
 
             if (AppliedStyleIdsAreMatchedStyleIds(appliedMatchingStyles, matchingStyles))
             {
+                dependencyPropertyService.SetHandledCss(visualElement, true);
                 return;
             }
 
@@ -483,7 +493,7 @@ namespace XamlCSS
 
             if (matchingStyles == null)
             {
-                RemoveOutdatedStylesFromElementInternal(visualElement, styleSheet, true, true);
+                // RemoveOutdatedStylesFromElementInternal(visualElement, styleSheet, true, true);
             }
             else if (matchingStyles?.Length == 1)
             {
@@ -550,14 +560,15 @@ namespace XamlCSS
         }
         protected void UnapplyMatchingStylesInternal(TDependencyObject bindableObject, StyleSheet styleSheet)
         {
-            if (bindableObject == null)
+            if (bindableObject == null ||
+                dependencyPropertyService.GetHandledCss(bindableObject) == false)
             {
                 return;
             }
 
             var currentStyleSheet = dependencyPropertyService.GetStyleSheet(bindableObject);
             if (currentStyleSheet != null &&
-                currentStyleSheet != styleSheet)
+                (currentStyleSheet != styleSheet && currentStyleSheet.AttachedTo != styleSheet.AttachedTo))
             {
                 return;
             }

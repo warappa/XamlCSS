@@ -3,6 +3,7 @@ using System.Linq;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 
 namespace XamlCSS.UWP
 {

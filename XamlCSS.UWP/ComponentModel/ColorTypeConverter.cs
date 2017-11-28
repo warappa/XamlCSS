@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Windows.UI;
+using XamlCSS.Utils;
 
 namespace XamlCSS.ComponentModel
 {
