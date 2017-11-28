@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using Xamarin.Forms;
 
 namespace XamlCSS.Windows.Media
@@ -21,28 +19,6 @@ namespace XamlCSS.Windows.Media
         public static Element rootElement;
         public static bool initialized;
         private static object lockObject = new object();
-
-        public static string PrintRealPath(Element e)
-        {
-            if (e == null)
-            {
-                return "";
-            }
-
-            return $".({e.GetType().Name} {e.Id}).{GetRealParent(e)}";
-        }
-
-        public static string GetRealParent(Element e)
-        {
-            var realParent = e.GetType().GetRuntimeProperties().Single(x => x.Name == "RealParent").GetValue(e) as Element;
-
-            if (realParent == null)
-            {
-                return $"(ROOT)";
-            }
-
-            return GetRealParent(realParent) + $".({realParent.GetType().Name} {realParent.Id})";
-        }
 
         public static void Initialize(Element root)
         {
@@ -83,17 +59,17 @@ namespace XamlCSS.Windows.Media
             }
         }
 
-        public static void Exclude(Element cell)
-        {
-            RemoveChildInternal(cell);
-        }
-
         public static void Include(Element cell)
         {
             if (AttachedChild(cell))
             {
                 SubTreeAdded?.Invoke(cell, new EventArgs());
             }
+        }
+
+        public static void Exclude(Element cell)
+        {
+            RemoveChildInternal(cell);
         }
 
         public static IEnumerable<Element> GetChildren(Element e)
@@ -182,61 +158,6 @@ namespace XamlCSS.Windows.Media
             return true;
         }
 
-        private static void App_ModalPushing(object sender, ModalPushingEventArgs e)
-        {
-            e.Modal.Parent = sender as Application;
-
-            AttachChildInternal(e.Modal);
-        }
-
-        private static void App_ModalPopped(object sender, ModalPoppedEventArgs e)
-        {
-            RemoveChildInternal(e.Modal);
-        }
-
-        private static void ChildRemovedHandler(object sender, ElementEventArgs e)
-        {
-            RemoveChildInternal(e.Element);
-        }
-        private static void RemoveChildInternal(Element element)
-        {
-            if (CanUnattachChild(element))
-            {
-                UnattachedChild(element);
-
-                SubTreeRemoved?.Invoke(element, new EventArgs());
-            }
-        }
-
-        private static void AttachChildInternal(Element element)
-        {
-            if (AttachedChild(element))
-            {
-                SubTreeAdded?.Invoke(element, new EventArgs());
-            }
-        }
-
-        private static void ChildAddedHandler(object sender, ElementEventArgs e)
-        {
-            AttachChildInternal(e.Element);
-        }
-
-        private static bool CanUnattachChild(Element child)
-        {
-            Element dummy = null;
-
-            if (child == null)
-            {
-                return false;
-            }
-
-            if (!childParentAssociations.TryGetValue(child, out dummy))
-            {
-                return false;
-            }
-
-            return true;
-        }
         private static bool UnattachedChild(Element child)
         {
             Element dummy = null;
@@ -315,5 +236,61 @@ namespace XamlCSS.Windows.Media
 
             return true;
         }
+
+        private static bool CanUnattachChild(Element child)
+        {
+            if (child == null)
+            {
+                return false;
+            }
+
+            if (!childParentAssociations.TryGetValue(child, out Element dummy))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private static void App_ModalPushing(object sender, ModalPushingEventArgs e)
+        {
+            e.Modal.Parent = sender as Application;
+
+            AttachChildInternal(e.Modal);
+        }
+
+        private static void App_ModalPopped(object sender, ModalPoppedEventArgs e)
+        {
+            RemoveChildInternal(e.Modal);
+        }
+
+        private static void AttachChildInternal(Element element)
+        {
+            if (AttachedChild(element))
+            {
+                SubTreeAdded?.Invoke(element, new EventArgs());
+            }
+        }
+
+        private static void RemoveChildInternal(Element element)
+        {
+            if (CanUnattachChild(element))
+            {
+                UnattachedChild(element);
+
+                SubTreeRemoved?.Invoke(element, new EventArgs());
+            }
+        }
+
+        private static void ChildAddedHandler(object sender, ElementEventArgs e)
+        {
+            AttachChildInternal(e.Element);
+        }
+
+        private static void ChildRemovedHandler(object sender, ElementEventArgs e)
+        {
+            RemoveChildInternal(e.Element);
+        }
+
     }
 }

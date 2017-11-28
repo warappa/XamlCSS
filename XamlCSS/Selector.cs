@@ -17,12 +17,14 @@ namespace XamlCSS
             {
                 val = value;
 
-                IdSpecificity = value.ToCharArray().Count(x => x == '#');
-                ClassSpecificity = value.ToCharArray().Count(x => x == '.');
-                var a = value.Split(new[] { ' ' , '>'}).Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
-                SimpleSpecificity = a;
+                var charArray = value.ToCharArray();
+
+                IdSpecificity = charArray.Count(x => x == '#');
+                ClassSpecificity = charArray.Count(x => x == '.');
+                SimpleSpecificity = value.Split(new[] { ' ', '>' }).Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
             }
         }
+
         public int SimpleSpecificity { get; set; }
         public int ClassSpecificity { get; set; }
         public int IdSpecificity { get; set; }

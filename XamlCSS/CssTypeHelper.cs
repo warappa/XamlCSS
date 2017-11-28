@@ -171,8 +171,7 @@ namespace XamlCSS
 
         private bool IsHexColorValue(string value)
         {
-            int dummy;
-            return int.TryParse(value.Substring(1), NumberStyles.HexNumber, CultureInfo.CurrentUICulture, out dummy);
+            return int.TryParse(value.Substring(1), NumberStyles.HexNumber, CultureInfo.CurrentUICulture, out int dummy);
         }
     }
 }

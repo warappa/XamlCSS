@@ -26,13 +26,8 @@ namespace XamlCSS
 
             return style;
         }
-
-        protected abstract TStyle CreateStyle(Type forType);
+        
         public abstract TDependencyObject CreateTrigger(StyleSheet styleSheet, ITrigger trigger, Type targetType, TDependencyObject styleResourceReferenceHolder);
-
-        protected abstract void AddSetter(TStyle style, TDependencyProperty property, object value);
-
-        protected abstract void AddTrigger(TStyle style, TDependencyObject trigger);
 
         public abstract IDictionary<TDependencyProperty, object> GetStyleAsDictionary(TStyle style);
 
@@ -46,5 +41,12 @@ namespace XamlCSS
         public abstract IEnumerable<TDependencyObject> GetTriggersAsList(TStyle style);
 
         public string BaseStyleResourceKey { get { return StyleSheetStyleKey; } }
+
+        protected abstract TStyle CreateStyle(Type forType);
+
+        protected abstract void AddSetter(TStyle style, TDependencyProperty property, object value);
+
+        protected abstract void AddTrigger(TStyle style, TDependencyObject trigger);
+
     }
 }

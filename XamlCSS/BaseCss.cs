@@ -157,6 +157,27 @@ namespace XamlCSS
             }
         }
 
+        public void EnqueueUpdateStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet)
+        {
+            if (styleSheetHolder == null ||
+                styleSheet == null)
+            {
+                return;
+            }
+
+            lock (items)
+            {
+                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                {
+                    RenderTargetKind = RenderTargetKind.Stylesheet,
+                    ChangeKind = ChangeKind.Update,
+                    StyleSheetHolder = styleSheetHolder,
+                    StyleSheet = styleSheet,
+                    StartFrom = null
+                });
+            }
+        }
+        
         public void EnqueueUpdateElement(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
             if (styleSheetHolder == null ||
@@ -176,6 +197,25 @@ namespace XamlCSS
                     StartFrom = startFrom
                 });
             }
+        }
+
+        public void UpdateElement(TDependencyObject sender)
+        {
+            if (sender == null)
+            {
+                return;
+            }
+
+            var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
+            if (parent == null)
+            {
+                return;
+            }
+
+            EnqueueUpdateElement(
+                parent,
+                dependencyPropertyService.GetStyleSheet(parent),
+                sender as TUIElement);
         }
 
         public void EnqueueRemoveStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet)
@@ -216,139 +256,6 @@ namespace XamlCSS
                     StyleSheetHolder = styleSheetHolder,
                     StyleSheet = styleSheet,
                     StartFrom = startFrom
-                });
-            }
-        }
-
-        private void Recursive(TDependencyObject element, int level, TDependencyObject expectedParent)
-        {
-            if (element == null)
-            {
-                return;
-            }
-
-            if (expectedParent != treeNodeProvider.GetParent(element))
-            {
-                Debug.WriteLine("!!!!!");
-                Debug.WriteLine($"Expected parent: { dependencyPropertyService.GetName(expectedParent) }");
-                Debug.WriteLine($"Actual parent:   { dependencyPropertyService.GetName(treeNodeProvider.GetParent(element)) }");
-                Debug.WriteLine("!!!!!");
-            }
-
-            Debug.WriteLine(new String(' ', level) + element.GetType().Name + "#" + dependencyPropertyService.GetName(element));
-            var children = treeNodeProvider.GetChildren(element);
-            foreach (var child in children)
-            {
-                Recursive(child, level + 1, element);
-            }
-        }
-
-        private void RecursiveDom(IDomElement<TDependencyObject> domElement, int level, IDomElement<TDependencyObject> expectedParent)
-        {
-            if (domElement == null)
-            {
-                return;
-            }
-
-            if (expectedParent != domElement.ParentElement)
-            {
-                Debug.WriteLine("!!!!!");
-                Debug.WriteLine($"Expected parent: { domElement.TagName + "#" + expectedParent.Id }");
-                Debug.WriteLine($"Actual parent:   { domElement.ParentElement.TagName + "#" + domElement.ParentElement.Id }");
-                Debug.WriteLine("!!!!!");
-            }
-
-            Debug.WriteLine(new String(' ', level) + domElement.Element.GetType().Name + "#" + domElement.Id);
-
-            var children = treeNodeProvider.GetDomElementChildren(domElement);
-            foreach (var child in children)
-            {
-                RecursiveDom(child, level + 1, domElement);
-            }
-        }
-
-        protected void CalculateStylesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
-        {
-            if (styleResourceReferenceHolder == null ||
-                styleSheet == null)
-            {
-                return;
-            }
-
-            // PrintHerarchyDebugInfo(styleResourceReferenceHolder, startFrom);
-
-            var requiredStyleInfos = UpdateMatchingStyles(styleResourceReferenceHolder, styleSheet, startFrom);
-
-            GenerateStyles(styleResourceReferenceHolder, styleSheet, startFrom, requiredStyleInfos);
-        }
-
-        private void GenerateStyles(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom, List<StyleMatchInfo> styleMatchInfos)
-        {
-            applicationResourcesService.EnsureResources();
-
-            foreach (var styleMatchInfo in styleMatchInfos)
-            {
-                var matchedElementType = styleMatchInfo.MatchedType;
-
-                var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id, matchedElementType, styleMatchInfo.Rule.SelectorString);
-
-                if (applicationResourcesService.Contains(resourceKey))
-                {
-                    continue;
-                }
-
-                CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> result = null;
-                try
-                {
-                    result = CreateStyleDictionaryFromDeclarationBlock(
-                        styleSheet.Namespaces,
-                        styleMatchInfo.Rule.DeclarationBlock,
-                        matchedElementType,
-                        startFrom ?? styleResourceReferenceHolder);
-
-                    var propertyStyleValues = result.PropertyStyleValues;
-
-                    foreach (var error in result.Errors)
-                    {
-                        styleSheet.AddError($@"ERROR in Selector ""{styleMatchInfo.Rule.SelectorString}"": {error}");
-                    }
-
-                    var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers
-                        .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
-
-                    if (propertyStyleValues.Keys.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    var style = nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType);
-
-                    applicationResourcesService.SetResource(resourceKey, style);
-                }
-                catch (Exception e)
-                {
-                    styleSheet.AddError($@"ERROR in Selector ""{styleMatchInfo.Rule.SelectorString}"": {e.Message}");
-                }
-            }
-        }
-
-        public void EnqueueUpdateStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet)
-        {
-            if (styleSheetHolder == null ||
-                styleSheet == null)
-            {
-                return;
-            }
-
-            lock (items)
-            {
-                items.Add(new RenderInfo<TDependencyObject, TUIElement>
-                {
-                    RenderTargetKind = RenderTargetKind.Stylesheet,
-                    ChangeKind = ChangeKind.Update,
-                    StyleSheetHolder = styleSheetHolder,
-                    StyleSheet = styleSheet,
-                    StartFrom = null
                 });
             }
         }
@@ -457,73 +364,21 @@ namespace XamlCSS
             return requiredStyleInfos;
         }
 
-        private object GetPath(IDomElement<TDependencyObject> matchingNode)
+        protected void CalculateStylesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
-            var sb = new List<string>();
-            var current = matchingNode;
-            while (current != null)
+            if (styleResourceReferenceHolder == null ||
+                styleSheet == null)
             {
-                sb.Add(current.Element.GetType().Name + (!string.IsNullOrWhiteSpace(current.Id) ? "#" + current.Id : ""));
-                current = (IDomElement<TDependencyObject>)current.Parent;
-            }
-            sb.Reverse();
-            return string.Join("->", sb);
-        }
-
-        private void PrintHerarchyDebugInfo(TUIElement styleResourceReferenceHolder, TUIElement startFrom)
-        {
-            Debug.WriteLine("");
-            Debug.WriteLine("------------------");
-            Debug.WriteLine("Print FrameworkElement hierarchy:");
-            Debug.WriteLine("----------------");
-            Debug.WriteLine("----------------");
-
-            var s = startFrom ?? styleResourceReferenceHolder;
-            Recursive(s, 0, treeNodeProvider.GetParent(s));
-
-            Debug.WriteLine("");
-            Debug.WriteLine("Print DomElement hierarchy:");
-            Debug.WriteLine("----------------");
-
-            var sDom = treeNodeProvider.GetDomElement(s);
-            RecursiveDom(sDom, 0, (IDomElement<TDependencyObject>)sDom.ParentElement);
-
-            Debug.WriteLine("----------------");
-            Debug.WriteLine("----------------");
-        }
-
-        private CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> CreateStyleDictionaryFromDeclarationBlock(
-            List<CssNamespace> namespaces,
-            StyleDeclarationBlock declarationBlock,
-            Type matchedType,
-            TDependencyObject dependencyObject)
-        {
-            var result = new CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty>();
-
-            foreach (var styleDeclaration in declarationBlock)
-            {
-                var property = cssTypeHelper.GetDependencyProperty(namespaces, matchedType, styleDeclaration.Property);
-
-                if (property == null)
-                {
-                    continue;
-                }
-
-                try
-                {
-                    var propertyValue = cssTypeHelper.GetPropertyValue(matchedType, dependencyObject, styleDeclaration.Value, property, namespaces);
-
-                    result.PropertyStyleValues[property] = propertyValue;
-                }
-                catch
-                {
-                    result.Errors.Add($"Cannot get property-value for '{styleDeclaration.Property}' with value '{styleDeclaration.Value}'!");
-                }
+                return;
             }
 
-            return result;
-        }
+            // PrintHerarchyDebugInfo(styleResourceReferenceHolder, startFrom);
 
+            var requiredStyleInfos = UpdateMatchingStyles(styleResourceReferenceHolder, styleSheet, startFrom);
+
+            GenerateStyles(styleResourceReferenceHolder, styleSheet, startFrom, requiredStyleInfos);
+        }
+        
         public void RemoveStyleResources(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
         {
             EnqueueRemoveStyleSheet(styleResourceReferenceHolder, styleSheet);
@@ -543,6 +398,56 @@ namespace XamlCSS
             foreach (var key in resourceKeys)
             {
                 applicationResourcesService.RemoveResource(key);
+            }
+        }
+
+        private void GenerateStyles(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom, List<StyleMatchInfo> styleMatchInfos)
+        {
+            applicationResourcesService.EnsureResources();
+
+            foreach (var styleMatchInfo in styleMatchInfos)
+            {
+                var matchedElementType = styleMatchInfo.MatchedType;
+
+                var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id, matchedElementType, styleMatchInfo.Rule.SelectorString);
+
+                if (applicationResourcesService.Contains(resourceKey))
+                {
+                    continue;
+                }
+
+                CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> result = null;
+                try
+                {
+                    result = CreateStyleDictionaryFromDeclarationBlock(
+                        styleSheet.Namespaces,
+                        styleMatchInfo.Rule.DeclarationBlock,
+                        matchedElementType,
+                        startFrom ?? styleResourceReferenceHolder);
+
+                    var propertyStyleValues = result.PropertyStyleValues;
+
+                    foreach (var error in result.Errors)
+                    {
+                        styleSheet.AddError($@"ERROR in Selector ""{styleMatchInfo.Rule.SelectorString}"": {error}");
+                    }
+
+                    var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers
+                        .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
+
+                    if (propertyStyleValues.Keys.Count == 0)
+                    {
+                        continue;
+                    }
+
+                    var style = nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType);
+
+                    applicationResourcesService.SetResource(resourceKey, style);
+                }
+                catch (Exception e)
+                {
+                    styleSheet.AddError($@"ERROR in Selector ""{styleMatchInfo.Rule.SelectorString}"": {e.Message}");
+                }
             }
         }
 
@@ -697,7 +602,8 @@ namespace XamlCSS
 
             var appliedMatchingStyles = dependencyPropertyService.GetAppliedMatchingStyles(bindableObject);
             var matchingStyles = dependencyPropertyService.GetMatchingStyles(bindableObject);
-            if (!(AppliedStyleIdsAreMatchedStyleIds(appliedMatchingStyles, matchingStyles)))
+
+            if (!AppliedStyleIdsAreMatchedStyleIds(appliedMatchingStyles, matchingStyles))
             {
                 dependencyPropertyService.SetAppliedMatchingStyles(bindableObject, null);
 
@@ -705,10 +611,6 @@ namespace XamlCSS
                 {
                     nativeStyleService.SetStyle(bindableObject, dependencyPropertyService.GetInitialStyle(bindableObject));
                 }
-            }
-            else
-            {
-
             }
         }
 
@@ -722,23 +624,36 @@ namespace XamlCSS
                             );
         }
 
-        public void UpdateElement(TDependencyObject sender)
+        private CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> CreateStyleDictionaryFromDeclarationBlock(
+            List<CssNamespace> namespaces,
+            StyleDeclarationBlock declarationBlock,
+            Type matchedType,
+            TDependencyObject dependencyObject)
         {
-            if (sender == null)
+            var result = new CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty>();
+
+            foreach (var styleDeclaration in declarationBlock)
             {
-                return;
+                var property = cssTypeHelper.GetDependencyProperty(namespaces, matchedType, styleDeclaration.Property);
+
+                if (property == null)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    var propertyValue = cssTypeHelper.GetPropertyValue(matchedType, dependencyObject, styleDeclaration.Value, property, namespaces);
+
+                    result.PropertyStyleValues[property] = propertyValue;
+                }
+                catch
+                {
+                    result.Errors.Add($"Cannot get property-value for '{styleDeclaration.Property}' with value '{styleDeclaration.Value}'!");
+                }
             }
 
-            var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
-            if (parent == null)
-            {
-                return;
-            }
-
-            EnqueueUpdateElement(
-                parent,
-                dependencyPropertyService.GetStyleSheet(parent),
-                sender as TUIElement);
+            return result;
         }
 
         private TDependencyObject GetStyleSheetParent(TDependencyObject obj)

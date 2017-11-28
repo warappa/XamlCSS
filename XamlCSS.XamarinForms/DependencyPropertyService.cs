@@ -4,6 +4,7 @@ using System.Reflection;
 using Xamarin.Forms;
 using XamlCSS.ComponentModel;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 
 namespace XamlCSS.XamarinForms
 {

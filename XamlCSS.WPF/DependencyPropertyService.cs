@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 
 namespace XamlCSS.WPF
 {

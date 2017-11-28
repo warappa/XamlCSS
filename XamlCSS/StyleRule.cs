@@ -8,21 +8,14 @@ namespace XamlCSS
     public class StyleRule
     {
         private string selectorString = null;
-        public string SelectorString
-        {
-            get
-            {
-                    return selectorString = string.Join(",", Selectors.Select(x => x.Value));
-            }
-        }
-
         private List<Selector> selectors = new List<Selector>();
+
+        public string SelectorString=>
+                    selectorString ?? (selectorString = string.Join(",", Selectors.Select(x => x.Value)));
+        
         public List<Selector> Selectors
         {
-            get
-            {
-                return selectors;
-            }
+            get => selectors;
             set
             {
                 selectors = value;

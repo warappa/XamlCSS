@@ -10,7 +10,6 @@ namespace XamlCSS
         public TUIElement StyleSheetHolder { get; set; }
         public StyleSheet StyleSheet { get; set; }
         public TUIElement StartFrom { get; set; }
-        // public bool Remove { get; set; }
         public RenderTargetKind RenderTargetKind { get; internal set; }
         public ChangeKind ChangeKind { get; internal set; }
 
@@ -25,7 +24,6 @@ namespace XamlCSS
             return StyleSheetHolder == other.StyleSheetHolder &&
                 StyleSheet == other.StyleSheet &&
                 StartFrom == other.StartFrom &&
-                // Remove == other.Remove
                 RenderTargetKind == other.RenderTargetKind &&
                 ChangeKind == other.ChangeKind;
         }
@@ -36,7 +34,6 @@ namespace XamlCSS
             result = (result * 397) ^ (StyleSheetHolder?.GetHashCode() ?? 0);
             result = (result * 397) ^ (StyleSheet?.GetHashCode() ?? 0);
             result = (result * 397) ^ (StartFrom?.GetHashCode() ?? 0);
-            // result = (result * 397) ^ (Remove.GetHashCode());
             result = (result * 397) ^ (RenderTargetKind.GetHashCode());
             result = (result * 397) ^ (ChangeKind.GetHashCode());
             return result;

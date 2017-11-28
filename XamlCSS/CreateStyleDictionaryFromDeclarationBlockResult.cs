@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using XamlCSS.CssParsing;
-using XamlCSS.Dom;
+﻿using System.Collections.Generic;
 
 namespace XamlCSS
 {

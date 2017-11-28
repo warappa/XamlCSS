@@ -102,7 +102,6 @@
     <Compile Include="Dom\DomElement.cs" />
     <Compile Include="Dom\ElementAttribute.cs" />
     <Compile Include="Dom\ElementCollection.cs" />
-    <Compile Include="Dom\ISwitchableTreeNodeProvider.cs" />
     <Compile Include="Dom\NamedNodeList.cs" />
     <Compile Include="Dom\NamedNodeMap.cs" />
     <Compile Include="Dom\LogicalDomElement.cs" />
