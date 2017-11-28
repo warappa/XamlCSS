@@ -5,8 +5,10 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.UWP.Dom
 {
-    public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
+    public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>, ISwitchableTreeNodeProvider<DependencyObject>
     {
+        public SelectorType CurrentSelectorType => SelectorType.LogicalTree;
+
         public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)
         {
@@ -73,6 +75,11 @@ namespace XamlCSS.UWP.Dom
         public override bool IsInTree(DependencyObject tUIElement)
         {
             return true;
+        }
+
+        public void Switch(SelectorType type)
+        {
+            
         }
     }
 }

@@ -189,14 +189,16 @@ StackLayout {
     BackgroundColor: Green;
 
     StackLayout & {
-        BackgroundColor: Red;
+        Button {
+            BackgroundColor: Red;
+        }
     }
 }
 ";
 
             var styleSheet = CssParser.Parse(css);
 
-            styleSheet.Rules.Count.Should().Be(2);
+            styleSheet.Rules.Count.Should().Be(3);
 
 
             styleSheet.Rules[0].SelectorString.Should().Be(".header");
@@ -204,8 +206,10 @@ StackLayout {
             styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Green");
 
             styleSheet.Rules[1].SelectorString.Should().Be("StackLayout .header");
-            styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
-            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be("Red");
+
+            styleSheet.Rules[2].SelectorString.Should().Be("StackLayout .header Button");
+            styleSheet.Rules[2].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            styleSheet.Rules[2].DeclarationBlock[0].Value.Should().Be("Red");
         }
 
         [Test]

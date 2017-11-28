@@ -2,28 +2,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using System.Text;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public enum RenderTargetKind
-    {
-        Unknown = 0,
-        Stylesheet = 1,
-        Element = 2
-    }
-
-    public enum ChangeKind
-    {
-        Unknown = 0,
-        New = 1,
-        Update = 2,
-        Remove = 3
-    }
-
-    public class BaseCss<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+    public partial class BaseCss<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
         where TDependencyObject : class
         where TUIElement : class, TDependencyObject
         where TStyle : class
@@ -86,13 +70,6 @@ namespace XamlCSS
                     items.Clear();
                 }
 
-                Debug.WriteLine($"------------------------");
-                foreach (var it in copy)
-                {
-                    Debug.WriteLine($"{it.ToString()}");
-                }
-                Debug.WriteLine($"------------------------");
-
                 var removeStylesheetInfos = copy
                     .Where(x =>
                         x.RenderTargetKind == RenderTargetKind.Stylesheet &&
@@ -134,24 +111,11 @@ namespace XamlCSS
                     // sets AppliedMatchingStyles and Style null
                     RemoveOutdatedStylesFromElementInternal(removedElementInfo.StartFrom, removedElementInfo.StyleSheet, true, true);
                 }
-                /*
-                var invalidateSpecificItems = copy
-                    .Where(x => x.Remove && x.StartFrom != null)
-                    .GroupBy(x => x.StartFrom)
-                    .Select(x => x.First())
-                    .Where(x => !handledStyleSheetHolders.Contains(x.StyleSheetHolder))
-                    .ToList();
-                
-                foreach (var invalidateSpecificItem in invalidateSpecificItems)
-                {
-                    UnapplyMatchingStylesInternal(invalidateSpecificItem.StartFrom, invalidateSpecificItem.StyleSheet);
-                }*/
 
                 copy.RemoveAll(x => x.ChangeKind == ChangeKind.Remove);
 
                 if (copy.Any())
                 {
-                    PrintHerarchyDebugInfo(copy.First().StyleSheetHolder, copy.First().StyleSheetHolder);
                     foreach (var item in copy)
                     {
                         // sets HandledCss and MatchingStyles false/null
@@ -160,8 +124,6 @@ namespace XamlCSS
 
                     foreach (var item in copy)
                     {
-                        // UnapplyMatchingStylesInternal(item.StartFrom ?? item.StyleSheetHolder, item.StyleSheet);
-
                         CalculateStylesInternal(item.StyleSheetHolder, item.StyleSheet, item.StartFrom ?? item.StyleSheetHolder);
                         // RemoveOutdatedStylesFromElementInternal(item.StartFrom ?? item.StyleSheetHolder, item.StyleSheet, true, true);
                         ApplyMatchingStyles(item.StartFrom ?? item.StyleSheetHolder, item.StyleSheet);
@@ -223,6 +185,7 @@ namespace XamlCSS
             {
                 return;
             }
+
             lock (items)
             {
                 items.Add(new RenderInfo<TDependencyObject, TUIElement>
@@ -243,6 +206,7 @@ namespace XamlCSS
             {
                 return;
             }
+
             lock (items)
             {
                 items.Add(new RenderInfo<TDependencyObject, TUIElement>
@@ -389,12 +353,6 @@ namespace XamlCSS
             }
         }
 
-        [DebuggerDisplay("{MatchedType.Name} {Rule.SelectorString}")]
-        public class StyleMatchInfo
-        {
-            public StyleRule Rule { get; set; }
-            public Type MatchedType { get; set; }
-        }
         private List<StyleMatchInfo> UpdateMatchingStyles(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
             var requiredStyleInfos = new List<StyleMatchInfo>();
@@ -405,7 +363,7 @@ namespace XamlCSS
 
             foreach (var rule in styleSheet.Rules)
             {
-                Debug.WriteLine($"--- RULE {rule.SelectorString} ----");
+                // Debug.WriteLine($"--- RULE {rule.SelectorString} ----");
                 if (rule.SelectorType == SelectorType.VisualTree)
                 {
                     treeNodeProvider.Switch(SelectorType.VisualTree);
@@ -440,10 +398,7 @@ namespace XamlCSS
                 var matchedNodes = root.QuerySelectorAllWithSelf(rule.SelectorString)
                     .Where(x => x != null)
                     .Cast<IDomElement<TDependencyObject>>()
-                    // .Where(x => treeNodeProvider.GetParent(x.Element) != null) // workaround WPF: somehow dom-tree is out of sync with UI-tree!?!
                     .ToList();
-
-                Debug.WriteLine("matchedNodes: "+matchedNodes.Count());
 
                 var otherStyleElements = matchedNodes
                     .Where(x =>
@@ -459,16 +414,11 @@ namespace XamlCSS
                     }).ToList();
 
                 matchedNodes = matchedNodes.Except(otherStyleElements).ToList();
-                Debug.WriteLine("matchedNodes (filtered): " + matchedNodes.Count());
-
-                // Debug.WriteLine($"matchedNodes: ({matchedNodes.Count}) " + string.Join(", ", matchedNodes.Select(x => x.Id)));
 
                 var matchedElementTypes = matchedNodes
                     .Select(x => x.Element.GetType())
                     .Distinct()
                     .ToList();
-
-                // Debug.WriteLine($"Matched Types: ({matchedElementTypes.Count}) " + string.Join(", ", matchedElementTypes.Select(x => x.Name)));
 
                 foreach (var matchingNode in matchedNodes)
                 {
@@ -477,7 +427,6 @@ namespace XamlCSS
                     var oldMatchingStyles = dependencyPropertyService.GetMatchingStyles(element) ?? new string[0];
 
                     var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id, element.GetType(), rule.SelectorString);
-                    // TODO: order of matching styles (specifity!)
 
                     var newMatchingStyles = oldMatchingStyles.Concat(new[] { resourceKey }).Distinct()
                         .Select(x => new
@@ -488,11 +437,10 @@ namespace XamlCSS
                         .OrderBy(x => x.selector.IdSpecificity)
                         .ThenBy(x => x.selector.ClassSpecificity)
                         .ThenBy(x => x.selector.SimpleSpecificity)
-                        
                         .ToArray();
 
                     var newMatchingStylesStrings = newMatchingStyles.Select(x => x.key).ToArray();
-                    Debug.WriteLine($"'{rule.SelectorString}' {GetPath(matchingNode)}: " + string.Join("|", newMatchingStylesStrings));
+                    // Debug.WriteLine($"'{rule.SelectorString}' {GetPath(matchingNode)}: " + string.Join("|", newMatchingStylesStrings));
                     dependencyPropertyService.SetMatchingStyles(element, newMatchingStylesStrings);
 
                     if (requiredStyleInfos.Any(x => x.Rule == rule && x.MatchedType == element.GetType()) == false)
@@ -506,15 +454,6 @@ namespace XamlCSS
                 }
             }
 
-            //requiredStyleInfos = requiredStyleInfos.OrderBy(x => x.Rule.Selectors.First().Specificity).ToList();
-
-            Debug.WriteLine("-------------------");
-            foreach (var it in requiredStyleInfos)
-            {
-                Debug.WriteLine(it.Rule.SelectorString + ": " + it.Rule.Selectors.First().Specificity);
-            }
-            Debug.WriteLine("-------------------");
-
             return requiredStyleInfos;
         }
 
@@ -522,7 +461,7 @@ namespace XamlCSS
         {
             var sb = new List<string>();
             var current = matchingNode;
-            while(current != null)
+            while (current != null)
             {
                 sb.Add(current.Element.GetType().Name + (!string.IsNullOrWhiteSpace(current.Id) ? "#" + current.Id : ""));
                 current = (IDomElement<TDependencyObject>)current.Parent;
@@ -630,13 +569,10 @@ namespace XamlCSS
             var matchingStyles = dependencyPropertyService.GetMatchingStyles(visualElement);
             var appliedMatchingStyles = dependencyPropertyService.GetAppliedMatchingStyles(visualElement);
 
-
-
-            /*if (AppliedStyleIdsAreMatchedStyleIds(appliedMatchingStyles, matchingStyles))
+            if (AppliedStyleIdsAreMatchedStyleIds(appliedMatchingStyles, matchingStyles))
             {
-                
-                //return;
-            }*/
+                return;
+            }
 
             object styleToApply = null;
 
@@ -728,8 +664,6 @@ namespace XamlCSS
 
             dependencyPropertyService.SetHandledCss(bindableObject, false);
             dependencyPropertyService.SetMatchingStyles(bindableObject, null);
-            // dependencyPropertyService.SetAppliedMatchingStyles(bindableObject, null);
-            // nativeStyleService.SetStyle(bindableObject, dependencyPropertyService.GetInitialStyle(bindableObject));
         }
 
         public void RemoveOutdatedStyles(TDependencyObject bindableObject, StyleSheet styleSheet, bool recursive, bool resetStyle)

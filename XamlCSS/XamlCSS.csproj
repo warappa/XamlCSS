@@ -94,6 +94,7 @@
     </Compile>
     <Compile Include="ActionParameter.cs" />
     <Compile Include="BaseCss.cs" />
+    <Compile Include="ChangeKind.cs" />
     <Compile Include="CreateStyleDictionaryFromDeclarationBlockResult`1.cs" />
     <Compile Include="CssParsing\AstGenerationException.cs" />
     <Compile Include="CssParsing\AstGenerator.cs" />
@@ -129,10 +130,12 @@
     <Compile Include="ITypeConverterProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RenderInfo.cs" />
+    <Compile Include="RenderTargetKind.cs" />
     <Compile Include="Selector.cs" />
     <Compile Include="SelectorType.cs" />
     <Compile Include="StyleDeclaration.cs" />
     <Compile Include="StyleDeclarationBlock.cs" />
+    <Compile Include="StyleMatchInfo.cs" />
     <Compile Include="StyleRule.cs" />
     <Compile Include="StyleRuleCollection.cs" />
     <Compile Include="StyleServiceBase.cs" />

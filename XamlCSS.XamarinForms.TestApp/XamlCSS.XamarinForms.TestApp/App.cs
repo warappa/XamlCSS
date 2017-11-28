@@ -1,5 +1,4 @@
 ﻿using Xamarin.Forms;
-using XamlCSS.Windows.Media;
 
 namespace XamlCSS.XamarinForms.TestApp
 {

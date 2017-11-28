@@ -205,9 +205,7 @@ namespace XamlCSS.CssParsing
             var ruleSelectors = new List<string>();
             foreach (var currentLayerSelector in currentLayerSelectors)
             {
-                var selector = currentLayerSelector.Contains("&") ? currentLayerSelector.Substring(1) : currentLayerSelector;
-
-                ruleSelectors.AddRange(GetAllRuleSelectorsSub(CombineSelectors(baseSelector, selector), newRemainingSelectorLayers));
+                ruleSelectors.AddRange(GetAllRuleSelectorsSub(CombineSelectors(baseSelector, currentLayerSelector), newRemainingSelectorLayers));
             }
 
             return ruleSelectors;

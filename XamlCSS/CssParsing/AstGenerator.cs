@@ -16,7 +16,7 @@ namespace XamlCSS.CssParsing
         private CssNode currentNode;
         private CssToken currentToken => tokens[currentIndex];
         private CssToken nextToken => tokens[currentIndex + 1];
-        private CssToken previousToken => currentIndex > 0 ? tokens[currentIndex - 1] : null;
+        private CssToken previousToken => currentIndex > 0 ? tokens[currentIndex - 1] : default(CssToken);
         private CssNode n;
 
         private void ReadKeyframes()
@@ -1546,7 +1546,7 @@ namespace XamlCSS.CssParsing
             {
                 if (currentIndex >= tokens.Count)
                 {
-                    return null;
+                    return default(CssToken);
                 }
 
                 return tokens[currentIndex];
@@ -1563,7 +1563,7 @@ namespace XamlCSS.CssParsing
                 currentIndex++;
             }
 
-            return null;
+            return default(CssToken);
         }
 
         private static CssTokenType FirstTokenTypeOf(List<CssToken> tokens, int index, CssTokenType[] types, bool ignoreWhitespace = true)

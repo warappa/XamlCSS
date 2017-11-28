@@ -128,21 +128,25 @@ namespace XamlCSS.CssParsing
 
         private static void FixUnicodeEscapedIdentifiers(List<CssToken> tokens)
         {
-            CssToken previousToken = null;
-            for (var j = 0; j < tokens.Count; j++)
+            CssToken previousToken = default(CssToken);
+            var count = tokens.Count;
+
+            for (var j = 0; j < count; j++)
             {
-                var currentTokenType = tokens[j].Type;
+                var token = tokens[j];
+                var currentTokenType = token.Type;
                 if (previousToken?.Type == CssTokenType.Identifier &&
                     currentTokenType == CssTokenType.Identifier)
                 {
-                    previousToken.Text += tokens[j].Text;
-                    previousToken.EscapedUnicodeCharacterCount += tokens[j].EscapedUnicodeCharacterCount;
+                    previousToken.Text += token.Text;
+                    previousToken.EscapedUnicodeCharacterCount += token.EscapedUnicodeCharacterCount;
                     tokens.RemoveAt(j);
+                    count--;
                     j--;
                 }
                 else
                 {
-                    previousToken = tokens[j];
+                    previousToken = token;
                 }
             }
         }

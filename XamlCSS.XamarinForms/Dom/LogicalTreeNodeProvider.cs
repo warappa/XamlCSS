@@ -6,8 +6,10 @@ using XamlCSS.Windows.Media;
 
 namespace XamlCSS.XamarinForms.Dom
 {
-    public class LogicalTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
+    public class LogicalTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>, ISwitchableTreeNodeProvider<BindableObject>
     {
+        public SelectorType CurrentSelectorType => SelectorType.LogicalTree;
+
         public LogicalTreeNodeProvider(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> BindablePropertyService)
             : base(BindablePropertyService)
         {
@@ -74,6 +76,11 @@ namespace XamlCSS.XamarinForms.Dom
         public override bool IsInTree(BindableObject tUIElement)
         {
             return true;
+        }
+
+        public void Switch(SelectorType type)
+        {
+            
         }
     }
 }
