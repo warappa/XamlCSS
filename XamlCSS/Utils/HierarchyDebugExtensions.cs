@@ -39,7 +39,7 @@ namespace XamlCSS.Utils
             Debug.WriteLine("----------------");
 
             var s = startFrom ?? styleResourceReferenceHolder;
-            Recursive<TDependencyObject, TUIElement, TStyle, TDependencyProperty>(treeNodeProvider, dependencyPropertyService, s, 0, treeNodeProvider.GetParent(s));
+            Recursive(treeNodeProvider, dependencyPropertyService, s, 0, treeNodeProvider.GetParent(s));
 
             Debug.WriteLine("");
             Debug.WriteLine("Print DomElement hierarchy:");
@@ -81,7 +81,7 @@ namespace XamlCSS.Utils
             var children = treeNodeProvider.GetChildren(element);
             foreach (var child in children)
             {
-                Recursive<TDependencyObject, TUIElement, TStyle, TDependencyProperty>(treeNodeProvider, dependencyPropertyService, child, level + 1, element);
+                Recursive(treeNodeProvider, dependencyPropertyService, child, level + 1, element);
             }
         }
 

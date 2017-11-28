@@ -7,7 +7,7 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public partial class BaseCss<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+    public class BaseCss<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
         where TDependencyObject : class
         where TUIElement : class, TDependencyObject
         where TStyle : class

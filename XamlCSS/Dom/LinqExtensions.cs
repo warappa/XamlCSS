@@ -35,7 +35,8 @@ namespace XamlCSS.Dom
 
         public static bool Contains(this ITokenList list, string[] tokens)
         {
-            for (int i = 0; i < tokens.Length; i++)
+            var length = tokens.Length;
+            for (int i = 0; i < length; i++)
             {
                 if (!list.Contains(tokens[i]))
                 {
@@ -47,7 +48,8 @@ namespace XamlCSS.Dom
 
         public static void GetElementsByClassName(this INodeList elements, string[] classNames, List<IElement> result)
         {
-            for (int i = 0; i < elements.Length; i++)
+            var length = elements.Length;
+            for (int i = 0; i < length; i++)
             {
                 var element = elements[i] as IElement;
                 if (element != null)
@@ -67,7 +69,9 @@ namespace XamlCSS.Dom
 
         public static void GetElementsByTagName(this INodeList elements, string tagName, List<IElement> result)
         {
-            for (int i = 0; i < elements.Length; i++)
+            var length = elements.Length;
+
+            for (int i = 0; i < length; i++)
             {
                 var element = elements[i] as IElement;
                 if (element != null)
@@ -87,7 +91,9 @@ namespace XamlCSS.Dom
 
         public static void GetElementsByTagName(this INodeList elements, string namespaceUri, string localName, List<IElement> result)
         {
-            for (int i = 0; i < elements.Length; i++)
+            var length = elements.Length;
+
+            for (int i = 0; i < length; i++)
             {
                 var element = elements[i] as IElement;
                 if (element != null)
@@ -107,7 +113,7 @@ namespace XamlCSS.Dom
 
         public static IList<IElement> QuerySelectorAll(this INodeList elements, ISelector selector)
         {
-            List<IElement> list = new List<IElement>();
+            var list = new List<IElement>();
 
             elements.QuerySelectorAll(selector, list);
 
@@ -116,7 +122,9 @@ namespace XamlCSS.Dom
 
         public static void QuerySelectorAll(this INodeList elements, ISelector selector, List<IElement> result)
         {
-            for (int i = 0; i < elements.Length; i++)
+            var length = elements.Length;
+
+            for (int i = 0; i < length; i++)
             {
                 var element = elements[i] as IElement;
                 if (element != null)
@@ -136,7 +144,9 @@ namespace XamlCSS.Dom
 
         public static IElement QuerySelector(this INodeList elements, ISelector selector)
         {
-            for (int i = 0; i < elements.Length; i++)
+            var length = elements.Length;
+
+            for (int i = 0; i < length; i++)
             {
                 var element = elements[i] as IElement;
                 if (element != null)
@@ -161,7 +171,8 @@ namespace XamlCSS.Dom
             return null;
         }
 
-        public static T QuerySelector<T>(this INodeList elements, ISelector selectors) where T : class, IElement
+        public static T QuerySelector<T>(this INodeList elements, ISelector selectors)
+            where T : class, IElement
         {
             return elements.QuerySelector(selectors) as T;
         }

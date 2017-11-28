@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
-using System.Windows.Markup;
 
 namespace XamlCSS.WPF
 {
@@ -29,7 +28,7 @@ namespace XamlCSS.WPF
 
         public override IEnumerable<DependencyObject> GetTriggersAsList(Style style)
         {
-            return style.Triggers.Select(x => (DependencyObject)XamlReader.Parse(XamlWriter.Save(x)));
+            return style.Triggers.ToList();
         }
 
         private static object GetBasicValue(DataTrigger dataTrigger)
