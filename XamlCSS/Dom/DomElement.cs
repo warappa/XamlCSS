@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 
 namespace XamlCSS.Dom
 {
@@ -716,6 +717,10 @@ namespace XamlCSS.Dom
             }
         }
 
+        public TextSource Source => throw new NotImplementedException();
+
+        public HttpStatusCode StatusCode => throw new NotImplementedException();
+
         public void AddEventListener(string type, DomEventHandler callback = null, bool capture = false)
         {
         }
@@ -1131,6 +1136,16 @@ namespace XamlCSS.Dom
             if (other == null)
                 return false;
             return this.dependencyObject == other.dependencyObject;
+        }
+
+        bool IElement.RemoveAttribute(string name)
+        {
+            return attributes.RemoveNamedItem(name) != null;
+        }
+
+        bool IElement.RemoveAttribute(string namespaceUri, string localName)
+        {
+            return attributes.RemoveNamedItem(namespaceUri, localName) != null;
         }
 
         public static bool operator ==(DomElementBase<TDependencyObject, TDependencyProperty> a, DomElementBase<TDependencyObject, TDependencyProperty> b)
