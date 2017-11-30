@@ -717,9 +717,9 @@ namespace XamlCSS.Dom
             }
         }
 
-        public TextSource Source => throw new NotImplementedException();
+        public TextSource Source => new TextSource("");
 
-        public HttpStatusCode StatusCode => throw new NotImplementedException();
+        public HttpStatusCode StatusCode => HttpStatusCode.OK;
 
         public void AddEventListener(string type, DomEventHandler callback = null, bool capture = false)
         {
