@@ -784,6 +784,11 @@ namespace XamlCSS.CssParsing
                         ReadUntil(CssTokenType.Colon, CssTokenType.BraceClose, CssTokenType.Whitespace, CssTokenType.At);
                         try
                         {
+                            if (nextToken.Type == CssTokenType.Colon)
+                            {
+                                SkipIfFound(CssTokenType.Whitespace);
+                            }
+
                             SkipExpected(styleDeclarationStartToken, CssTokenType.Colon);
 
                             TrimCurrentNode();
