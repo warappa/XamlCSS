@@ -128,7 +128,15 @@ namespace XamlCSS.WPF
                 var dataTrigger = trigger as DataTrigger;
                 var nativeTrigger = new System.Windows.DataTrigger();
 
-                var expression = "{Binding " + dataTrigger.Binding + "}";
+                string expression = null;
+                if (typeNameResolver.IsMarkupExtension(dataTrigger.Binding))
+                {
+                    expression = typeNameResolver.CreateMarkupExtensionExpression(dataTrigger.Binding);
+                }
+                else
+                {
+                    expression = "{Binding " + dataTrigger.Binding + "}";
+                }
 
                 var binding = (System.Windows.Data.BindingBase)markupExtensionParser.ProvideValue(expression, null, styleSheet.Namespaces);
                 nativeTrigger.Binding = binding;

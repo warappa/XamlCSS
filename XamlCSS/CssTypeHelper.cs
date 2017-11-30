@@ -34,6 +34,18 @@ namespace XamlCSS
             return false;
         }
 
+        public string CreateMarkupExtensionExpression(string valueExpression)
+        {
+            if (valueExpression.StartsWith("{"))
+            {
+                return valueExpression;
+            }
+            else
+            {
+                return "{" + valueExpression + "}";
+            }
+        }
+
         public object GetMarkupExtensionValue(TDependencyObject targetObject, string valueExpression, IEnumerable<CssNamespace> namespaces)
         {
             object propertyValue = null;

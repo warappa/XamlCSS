@@ -112,7 +112,15 @@ namespace XamlCSS.XamarinForms
                 var dataTrigger = trigger as DataTrigger;
                 var nativeTrigger = new Xamarin.Forms.DataTrigger(targetType);
 
-                var expression = "{Binding " + dataTrigger.Binding + "}";
+                string expression = null;
+                if (typeNameResolver.IsMarkupExtension(dataTrigger.Binding))
+                {
+                    expression = typeNameResolver.CreateMarkupExtensionExpression(dataTrigger.Binding);
+                }
+                else
+                {
+                    expression = "{Binding " + dataTrigger.Binding + "}";
+                }
 
                 var binding = (Binding)markupExtensionParser.ProvideValue(expression, null, styleSheet.Namespaces);
                 nativeTrigger.Binding = binding;

@@ -29,6 +29,25 @@ Button
         }
 
         [Test]
+        public void DataTrigger_should_be_added_to_Triggers_2()
+        {
+            var content = @"
+.field {
+    @Data ""{ Binding RelativeSource={RelativeSource Self}, Path=IsFocused}"" true
+    {
+        Background: Green;
+        Foreground: White;
+    }
+}
+";
+            var styleSheet = CssParser.Parse(content);
+            var first = styleSheet.Rules[0].DeclarationBlock.Triggers[0] as DataTrigger;
+
+            first.Binding.Should().Be(@"{ Binding RelativeSource={RelativeSource Self}, Path=IsFocused}");
+            first.Value.Should().Be("true");
+        }
+
+        [Test]
         public void EnterActions_and_ExitActions_should_be_added_to_DataTriggers()
         {
             var content = @"

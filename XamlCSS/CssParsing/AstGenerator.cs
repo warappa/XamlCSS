@@ -1066,7 +1066,14 @@ namespace XamlCSS.CssParsing
                 SkipWhitespace();
 
                 AddAndSetCurrent(CssNodeType.DataTriggerBinding);
+                if(currentToken.Type == CssTokenType.DoubleQuotes)
+                {
+                    SkipExpected(currentToken, CssTokenType.DoubleQuotes);
+                    ReadDoubleQuoteText(false, false);
+                }
+
                 ReadUntil(CssTokenType.Whitespace);
+                
                 SkipExpected(startToken, CssTokenType.Whitespace);
                 TrimCurrentNode();
 
