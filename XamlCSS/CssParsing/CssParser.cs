@@ -488,7 +488,7 @@ namespace XamlCSS.CssParsing
 
                                 return new DataTrigger
                                 {
-                                    Binding = bindingAst.Text,
+                                    Binding = GetValueFromValueAst(bindingAst, parameterValues),
                                     Value = GetValueFromValueAst(valueAst, parameterValues),
                                     StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
                                     EnterActions = enterActions,

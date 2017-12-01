@@ -14,11 +14,21 @@ namespace XamlCSS.CssParsing
         private List<CssToken> tokens;
         private int currentIndex;
         private CssNode currentNode;
-        private CssToken currentToken => tokens[currentIndex];
         private CssToken nextToken => tokens[currentIndex + 1];
         private CssToken previousToken => currentIndex > 0 ? tokens[currentIndex - 1] : default(CssToken);
-        private CssNode n;
+        private CssToken currentToken
+        {
+            get
+            {
+                if (currentIndex == tokens.Count)
+                {
+                    throw new AstGenerationException("Reached end of tokens!", tokens.Count > 0 ? previousToken : new CssToken(CssTokenType.Unknown, "", 0, 0));
+                }
 
+                return tokens[currentIndex];
+            }
+        }
+        
         private void ReadKeyframes()
         {
             throw new NotSupportedException();
@@ -1056,6 +1066,15 @@ namespace XamlCSS.CssParsing
             }
         }
 
+        private void ReadVariableReference()
+        {
+            currentNode.TextBuilder.Clear();
+            AddAndSetCurrent(CssNodeType.VariableReference);
+            ReadUntil(CssTokenType.Whitespace, CssTokenType.BraceOpen);
+
+            GoToParent();
+        }
+
         private void ReadDataTrigger()
         {
             var old = currentNode;
@@ -1066,16 +1085,30 @@ namespace XamlCSS.CssParsing
                 SkipWhitespace();
 
                 AddAndSetCurrent(CssNodeType.DataTriggerBinding);
-                if(currentToken.Type == CssTokenType.DoubleQuotes)
+
+                if (currentToken.Type == CssTokenType.DoubleQuotes)
                 {
                     SkipExpected(currentToken, CssTokenType.DoubleQuotes);
                     ReadDoubleQuoteText(false, false);
                 }
+                else if (currentToken.Type == CssTokenType.SingleQuotes)
+                {
+                    SkipExpected(currentToken, CssTokenType.SingleQuotes);
+                    ReadDoubleQuoteText(false, false);
+                }
+                else if (currentToken.Type == CssTokenType.Dollar)
+                {
+                    ReadVariableReference();
+                }
+                else
+                {
+                    ReadUntil(CssTokenType.Whitespace);
 
-                ReadUntil(CssTokenType.Whitespace);
-                
-                SkipExpected(startToken, CssTokenType.Whitespace);
-                TrimCurrentNode();
+                    SkipExpected(startToken, CssTokenType.Whitespace);
+                    TrimCurrentNode();
+                }
+
+                SkipWhitespace();
 
                 AddOnParentAndSetCurrent(CssNodeType.DataTriggerValue);
 
@@ -1083,20 +1116,22 @@ namespace XamlCSS.CssParsing
                 {
                     SkipExpected(startToken, CssTokenType.DoubleQuotes);
                     ReadDoubleQuoteText(false);
-                    ReadUntil(CssTokenType.Whitespace);
                 }
                 else if (currentToken.Type == CssTokenType.SingleQuotes)
                 {
                     SkipExpected(startToken, CssTokenType.SingleQuotes);
                     ReadSingleQuoteText(false);
-                    ReadUntil(CssTokenType.Whitespace);
+                }
+                else if (currentToken.Type == CssTokenType.Dollar)
+                {
+                    ReadVariableReference();
                 }
                 else
                 {
                     ReadUntil(CssTokenType.Whitespace);
                 }
 
-                SkipExpected(startToken, CssTokenType.Whitespace);
+                SkipIfFound(CssTokenType.Whitespace);
                 TrimCurrentNode();
 
                 AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
