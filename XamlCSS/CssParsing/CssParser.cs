@@ -436,7 +436,7 @@ namespace XamlCSS.CssParsing
 
                                 return new Trigger
                                 {
-                                    Property = propertyAst.Text,
+                                    Property = GetValueFromValueAst(propertyAst, parameterValues),
                                     Value = GetValueFromValueAst(valueAst, parameterValues),
                                     StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
                                     EnterActions = enterActions,

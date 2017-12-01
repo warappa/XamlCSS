@@ -55,6 +55,81 @@ Button
         }
 
         [Test]
+        public void PropertyTriggerProperty_should_support_variables()
+        {
+
+            var content = @"
+$variable-property: ""Text"";
+
+Button
+{
+    @Property $variable-property SomeValue{
+        BackgroundColor: Red;
+    }
+}
+";
+            var styleSheet = CssParser.Parse(content);
+
+            var first = styleSheet.Rules[0].DeclarationBlock.Triggers[0] as Trigger;
+            first.Property.Should().Be("Text");
+            first.Value.Should().Be("SomeValue");
+
+            first.StyleDeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            first.StyleDeclarationBlock[0].Value.Should().Be("Red");
+        }
+
+        [Test]
+        public void PropertyTriggerValue_should_support_variables()
+        {
+
+            var content = @"
+$variable-value: ""SomeValue"";
+
+Button
+{
+    @Property Text $variable-value
+    {
+        BackgroundColor: Red;
+    }
+}
+";
+            var styleSheet = CssParser.Parse(content);
+
+            var first = styleSheet.Rules[0].DeclarationBlock.Triggers[0] as Trigger;
+            first.Property.Should().Be("Text");
+            first.Value.Should().Be("SomeValue");
+
+            first.StyleDeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            first.StyleDeclarationBlock[0].Value.Should().Be("Red");
+        }
+
+        [Test]
+        public void PropertyTriggerProperty_with_PropertyTriggerValue_should_support_variables()
+        {
+
+            var content = @"
+$property-value: Text;
+$variable-value: ""SomeValue"";
+
+Button
+{
+    @Property $property-value $variable-value
+    {
+        BackgroundColor: Red;
+    }
+}
+";
+            var styleSheet = CssParser.Parse(content);
+
+            var first = styleSheet.Rules[0].DeclarationBlock.Triggers[0] as Trigger;
+            first.Property.Should().Be("Text");
+            first.Value.Should().Be("SomeValue");
+
+            first.StyleDeclarationBlock[0].Property.Should().Be("BackgroundColor");
+            first.StyleDeclarationBlock[0].Value.Should().Be("Red");
+        }
+
+        [Test]
         public void EnterActions_and_ExitActions_should_be_added_to_PropertyTriggers()
         {
             var content = @"
