@@ -329,10 +329,13 @@ namespace XamlCSS.XamarinForms
 
         private static void StyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var styleSheet = sender as StyleSheet;
-            var attachedTo = styleSheet.AttachedTo as Element;
+            if (e.PropertyName == nameof(StyleSheet.Content))
+            {
+                var styleSheet = sender as StyleSheet;
+                var attachedTo = styleSheet.AttachedTo as Element;
 
-            instance.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
+                instance.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
+            }
         }
 
         private static void StylePropertyAttached(BindableObject d, object oldValue, object newValue)

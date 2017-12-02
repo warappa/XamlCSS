@@ -278,11 +278,13 @@ namespace XamlCSS.UWP
 
         private static void NewStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            var styleSheet = sender as StyleSheet;
-            var attachedTo = styleSheet.AttachedTo as FrameworkElement;
+            if (e.PropertyName == nameof(StyleSheet.Content))
+            {
+                var styleSheet = sender as StyleSheet;
+                var attachedTo = styleSheet.AttachedTo as FrameworkElement;
 
-            //instance.EnqueueRemoveStyleSheet(attachedTo, styleSheet);
-            instance.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
+                instance.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
+            }
         }
 
         private static void StylePropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
