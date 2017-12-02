@@ -43,7 +43,16 @@ namespace XamlCSS.WPF
 
                 if (converter != null)
                 {
-                    propertyValue = converter.ConvertFrom(context, CultureInfo.CurrentUICulture, propertyValue as string);
+                    if ((property.PropertyType == typeof(float) ||
+                        property.PropertyType == typeof(double)) &&
+                        (propertyValue as string)?.StartsWith(".") == true)
+                    {
+                        var stringValue = propertyValue as string;
+                        propertyValue = "0" + (stringValue.Length > 1 ? stringValue : "");
+                    }
+
+                    propertyValue = converter.ConvertFrom(context, CultureInfo.InvariantCulture, propertyValue as string);
+
                 }
                 else if (propertyType == typeof(bool))
                 {

@@ -79,8 +79,17 @@ namespace XamlCSS.XamarinForms
                 if (converter == null)
                     converter = typeConverterProvider.GetConverter(propertyType);
                 if (converter != null)
-                    propertyValue = converter.ConvertFromInvariantString(propertyValue as string);
+                {
+                    if ((propertyType == typeof(float) ||
+                        propertyType == typeof(double)) &&
+                        (propertyValue as string)?.StartsWith(".") == true)
+                    {
+                        var stringValue = propertyValue as string;
+                        propertyValue = "0" + (stringValue.Length > 1 ? stringValue : "");
+                    }
 
+                    propertyValue = converter.ConvertFromInvariantString(propertyValue as string);
+                }
                 else if (propertyType == typeof(bool))
                     propertyValue = propertyValue.Equals("true");
                 else if (propertyType == typeof(Color))
