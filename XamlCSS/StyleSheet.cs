@@ -21,17 +21,17 @@ namespace XamlCSS
 
         public event PropertyChangedEventHandler PropertyChanged;
 
-        protected List<CssNamespace> combinedNamespaces;
+        protected CssNamespaceCollection combinedNamespaces;
         protected StyleRuleCollection combinedRules;
-        protected List<CssNamespace> localNamespaces = new List<CssNamespace>();
+        protected CssNamespaceCollection localNamespaces = new CssNamespaceCollection();
         protected StyleRuleCollection localRules = new StyleRuleCollection();
-        protected List<StyleSheet> addedStyleSheets = null;
+        protected StyleSheetCollection addedStyleSheets = null;
         protected bool inheritStyleSheets = true;
-        protected List<StyleSheet> inheritedStyleSheets = null;
+        protected StyleSheetCollection inheritedStyleSheets = null;
         protected string content = null;
         protected object attachedTo;
 
-        virtual public List<CssNamespace> LocalNamespaces
+        virtual public CssNamespaceCollection LocalNamespaces
         {
             get
             {
@@ -148,7 +148,7 @@ namespace XamlCSS
             }
         }
 
-        public List<CssNamespace> Namespaces
+        public CssNamespaceCollection Namespaces
         {
             get
             {
@@ -164,11 +164,11 @@ namespace XamlCSS
             }
         }
 
-        public List<StyleSheet> AddedStyleSheets
+        public StyleSheetCollection AddedStyleSheets
         {
             get
             {
-                return addedStyleSheets ?? (addedStyleSheets = new List<StyleSheet>());
+                return addedStyleSheets ?? (addedStyleSheets = new StyleSheetCollection());
             }
 
             set
@@ -179,19 +179,19 @@ namespace XamlCSS
             }
         }
 
-        public List<StyleSheet> InheritedStyleSheets
+        public StyleSheetCollection InheritedStyleSheets
         {
             get
             {
-                return inheritedStyleSheets ?? (inheritedStyleSheets = InheritStyleSheets ? GetParentStyleSheets(AttachedTo).Reverse<StyleSheet>().ToList() : new List<StyleSheet>());
+                return inheritedStyleSheets ?? (inheritedStyleSheets = InheritStyleSheets ? new StyleSheetCollection(GetParentStyleSheets(AttachedTo).Reverse<StyleSheet>()) : new StyleSheetCollection());
             }
         }
 
         public string Id { get; protected set; }
 
-        protected List<StyleSheet> GetParentStyleSheets(object from)
+        protected StyleSheetCollection GetParentStyleSheets(object from)
         {
-            List<StyleSheet> styleSheets = new List<StyleSheet>();
+            StyleSheetCollection styleSheets = new StyleSheetCollection();
 
             if (from == null)
             {
@@ -212,7 +212,7 @@ namespace XamlCSS
             return styleSheets;
         }
 
-        protected List<CssNamespace> GetCombinedNamespaces()
+        protected CssNamespaceCollection GetCombinedNamespaces()
         {
             if (AddedStyleSheets?.Count == 0 &&
                 InheritedStyleSheets?.Count == 0)
@@ -220,14 +220,14 @@ namespace XamlCSS
                 return LocalNamespaces;
             }
 
-            return InheritedStyleSheets
+            return new CssNamespaceCollection(
+                InheritedStyleSheets
                 .Select(x => x.Namespaces)
                 .Concat(AddedStyleSheets.Select(x => x.Namespaces))
-                .Aggregate((a, b) => a.Concat(b).ToList())
+                .Aggregate((a, b) => new CssNamespaceCollection(a.Concat(b)))
                 .Concat(LocalNamespaces)
                 .GroupBy(x => x.Alias)
-                .Select(x => x.Last())
-                .ToList();
+                .Select(x => x.Last()));
         }
 
         protected List<StyleRule> GetCombinedStyleRules()

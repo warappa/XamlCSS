@@ -96,6 +96,7 @@
     <Compile Include="BaseCss.cs" />
     <Compile Include="ChangeKind.cs" />
     <Compile Include="CreateStyleDictionaryFromDeclarationBlockResult.cs" />
+    <Compile Include="CssNamespaceCollection.cs" />
     <Compile Include="CssParsing\AstGenerationException.cs" />
     <Compile Include="CssParsing\AstGenerator.cs" />
     <Compile Include="CssParsing\CssFileProviderBase.cs" />
@@ -123,6 +124,7 @@
     <Compile Include="Dom\TreeNodeProviderBase.cs" />
     <Compile Include="EventTrigger.cs" />
     <Compile Include="ITrigger.cs" />
+    <Compile Include="StyleSheetCollection.cs" />
     <Compile Include="Utils\HierarchyDebugExtensions.cs" />
     <Compile Include="IMarkupExtensionParser.cs" />
     <Compile Include="IStyleResourcesService.cs" />
