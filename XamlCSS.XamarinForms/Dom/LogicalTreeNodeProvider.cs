@@ -72,7 +72,7 @@ namespace XamlCSS.XamarinForms.Dom
         {
             return (element as Element)?.Parent;
         }
-
+        
         public override bool IsInTree(BindableObject tUIElement)
         {
             return true;

@@ -62,7 +62,7 @@ namespace XamlCSS
             return propertyValue;
         }
 
-        public object GetPropertyValue(Type matchedType, TDependencyObject targetObject, string valueExpression, TDependencyProperty property, IEnumerable<CssNamespace> namespaces)
+        public object GetPropertyValue(Type matchedType, TDependencyObject targetObject, string propertyName, string valueExpression, TDependencyProperty property, IEnumerable<CssNamespace> namespaces)
         {
             object propertyValue;
             if (valueExpression != null &&
@@ -78,21 +78,27 @@ namespace XamlCSS
             }
             else
             {
-                propertyValue = dependencyPropertyService.GetBindablePropertyValue(matchedType, property, valueExpression);
+                propertyValue = dependencyPropertyService.GetBindablePropertyValue(matchedType, propertyName, property, valueExpression);
             }
 
             return propertyValue;
         }
 
-        public TDependencyProperty GetDependencyProperty(List<CssNamespace> namespaces, Type matchedType, string propertyExpression)
+        public DependencyPropertyInfo<TDependencyProperty> GetDependencyPropertyInfo(List<CssNamespace> namespaces, Type matchedType, string propertyExpression)
         {
             TDependencyProperty property;
 
             var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, matchedType);
 
-            property = dependencyPropertyService.GetBindableProperty(Type.GetType(typeAndProperyName.Item1), typeAndProperyName.Item2);
+            var declaringType = Type.GetType(typeAndProperyName.Item1);
+            property = dependencyPropertyService.GetBindableProperty(declaringType, typeAndProperyName.Item2);
 
-            return property;
+            if (property == null)
+            {
+                return null;
+            }
+
+            return new DependencyPropertyInfo<TDependencyProperty>(property, declaringType, typeAndProperyName.Item2);
         }
 
         public object GetClrPropertyValue(List<CssNamespace> namespaces, object obj, string propertyExpression)

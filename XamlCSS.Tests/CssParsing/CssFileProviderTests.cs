@@ -61,6 +61,11 @@ namespace XamlCSS.Tests.CssParsing
                     return null;
                 }
             }
+
+            protected override Stream TryLoadFromStaticApplicationResource(string source)
+            {
+                return null;
+            }
         }
     }
 }

@@ -31,12 +31,7 @@ namespace XamlCSS.XamarinForms
                 return dpField.GetValue(null) as BindableProperty;
             return null;
         }
-
-        public object GetBindablePropertyValue(BindableObject frameworkElement, BindableProperty bindableProperty, object propertyValue)
-        {
-            return GetBindablePropertyValue(frameworkElement.GetType(), bindableProperty, propertyValue);
-        }
-
+        
         public object GetClrValue(Type propertyType, string propertyValueString)
         {
             if (!(propertyType.GetTypeInfo()
@@ -66,7 +61,7 @@ namespace XamlCSS.XamarinForms
             return propertyValueString;
         }
 
-        public object GetBindablePropertyValue(Type frameworkElementType, BindableProperty bindableProperty, object propertyValue)
+        public object GetBindablePropertyValue(Type frameworkElementType, string propertyName, BindableProperty bindableProperty, object propertyValue)
         {
             if (!(bindableProperty.ReturnType.GetTypeInfo()
                 .IsAssignableFrom(propertyValue.GetType().GetTypeInfo())))

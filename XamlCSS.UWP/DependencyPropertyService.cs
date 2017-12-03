@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using XamlCSS.ComponentModel;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 
@@ -9,6 +11,8 @@ namespace XamlCSS.UWP
 {
     public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty>
     {
+        private UWPTypeConverterProvider typeConverter = new UWPTypeConverterProvider();
+
         public DependencyProperty GetBindableProperty(DependencyObject frameworkElement, string propertyName)
         {
             return GetBindableProperty(frameworkElement.GetType(), propertyName);
@@ -28,8 +32,57 @@ namespace XamlCSS.UWP
             return null;
         }
 
-        public object GetBindablePropertyValue(Type frameworkElementType, DependencyProperty property, object propertyValue)
+        public object GetBindablePropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
         {
+            Type propertyType = null;
+
+            var prop = TypeHelpers.DeclaredProperties(frameworkElementType)
+                .Where(x => x.Name == propertyName)
+                .FirstOrDefault();
+
+            if (prop == null)
+            {
+                var metadata = property.GetMetadata(frameworkElementType);
+                if (metadata.DefaultValue != null)
+                {
+                    propertyType = metadata.DefaultValue.GetType();
+                }
+                else
+                {
+                    return propertyValue;
+                }
+            }
+            else
+            {
+                propertyType = prop.PropertyType;
+            }
+
+            if (!propertyType.GetTypeInfo().IsAssignableFrom(propertyValue.GetType().GetTypeInfo()))
+            {
+                var converter = typeConverter.GetConverter(propertyType);
+
+                if (converter != null)
+                {
+                    if ((propertyType == typeof(float) ||
+                        propertyType == typeof(double)) &&
+                        (propertyValue as string)?.StartsWith(".") == true)
+                    {
+                        var stringValue = propertyValue as string;
+                        propertyValue = "0" + (stringValue.Length > 1 ? stringValue : "");
+                    }
+
+                    propertyValue = converter.ConvertFromInvariantString(propertyValue as string);
+                }
+                else if (propertyType == typeof(bool))
+                {
+                    propertyValue = propertyValue.Equals("true");
+                }
+                else if (propertyType.GetTypeInfo().IsEnum)
+                {
+                    propertyValue = Enum.Parse(propertyType, propertyValue as string);
+                }
+            }
+
             return propertyValue;
         }
 

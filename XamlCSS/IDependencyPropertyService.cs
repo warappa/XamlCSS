@@ -40,7 +40,7 @@ namespace XamlCSS
         string GetClass(TDependencyObject obj);
         void SetClass(TDependencyObject obj, string value);
 
-        object GetBindablePropertyValue(Type type, TDependencyProperty property, object value);
+        object GetBindablePropertyValue(Type type, string propertyName, TDependencyProperty property, object value);
 
         TDependencyProperty GetBindableProperty(TDependencyObject frameworkElement, string propertyName);
         TDependencyProperty GetBindableProperty(Type uiElementType, string propertyName);

@@ -36,9 +36,12 @@ namespace XamlCSS.WPF
             initialized = true;
 
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-            var dependencyPropertyService = new DependencyPropertyService();
+            IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService = 
+                new DependencyPropertyService();
             var visualTreeNodeProvider = new VisualTreeNodeProvider(dependencyPropertyService);
             var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
+            var markupExtensionParser = new MarkupExtensionParser();
+            var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
 
             instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
@@ -49,9 +52,9 @@ namespace XamlCSS.WPF
                 new StyleResourceService(),
                 new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
                 DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(System.Windows.Controls.Button)),
-                new MarkupExtensionParser(),
+                markupExtensionParser,
                 dispatcher.Invoke,
-                new CssFileProvider()
+                new CssFileProvider(cssTypeHelper)
                 );
 
             CompositionTarget.Rendering += RenderingHandler();
@@ -155,7 +158,6 @@ namespace XamlCSS.WPF
                 (e.OldValue as StyleSheet).PropertyChanged -= StyleSheet_PropertyChanged;
 
                 instance.EnqueueRemoveStyleSheet(element, (StyleSheet)e.OldValue);
-                // instance.RemoveStyleResources(element, (StyleSheet)e.OldValue);
             }
 
             var newStyleSheet = (StyleSheet)e.NewValue;

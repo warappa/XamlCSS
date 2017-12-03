@@ -7,18 +7,18 @@ namespace XamlCSS.CssParsing
 {
     public abstract class CssFileProviderBase : ICssFileProvider
     {
-        protected List<Assembly> assemblies = new List<Assembly>();
+        protected Assembly[] assemblies = null;
 
         public CssFileProviderBase(IEnumerable<Assembly> assemblies)
         {
-            this.assemblies.AddRange(assemblies);
+            this.assemblies = assemblies.ToArray();
         }
 
         public virtual string LoadFrom(string source)
         {
             Stream stream = null;
 
-            stream = TryGetFromResource(source, assemblies.ToArray());
+            stream = TryGetFromEmbeddedResource(source, assemblies);
 
             if (stream == null)
             {
@@ -27,18 +27,30 @@ namespace XamlCSS.CssParsing
 
             if (stream == null)
             {
+                stream = TryLoadFromStaticApplicationResource(source);
+            }
+
+            if (stream == null)
+            {
                 return null;
             }
 
+            return ReadStream(stream);
+        }
+
+        protected string ReadStream(Stream stream)
+        {
             using (var reader = new StreamReader(stream))
             {
                 return reader.ReadToEnd();
             }
         }
 
+        protected abstract Stream TryLoadFromStaticApplicationResource(string source);
+
         protected abstract Stream TryGetFromFile(string source);
 
-        protected virtual Stream TryGetFromResource(string source, params Assembly[] searchAssemblies)
+        protected virtual Stream TryGetFromEmbeddedResource(string source, params Assembly[] searchAssemblies)
         {
             Stream stream = null;
 

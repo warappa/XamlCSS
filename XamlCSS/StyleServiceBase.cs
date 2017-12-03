@@ -10,7 +10,7 @@ namespace XamlCSS
     {
         protected const string StyleSheetStyleKey = "StyleSheetStyle";
 
-        public TStyle CreateFrom(IDictionary<TDependencyProperty, object> dict, IEnumerable<TDependencyObject> triggers, Type forType)
+        public virtual TStyle CreateFrom(IDictionary<TDependencyProperty, object> dict, IEnumerable<TDependencyObject> triggers, Type forType)
         {
             TStyle style = CreateStyle(forType);
 

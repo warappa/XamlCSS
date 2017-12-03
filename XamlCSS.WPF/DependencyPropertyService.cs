@@ -27,7 +27,7 @@ namespace XamlCSS.WPF
             return null;
         }
 
-        public object GetBindablePropertyValue(Type frameworkElementType, DependencyProperty property, object propertyValue)
+        public object GetBindablePropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
         {
             if (property != null &&
                 !(property.PropertyType.IsInstanceOfType(propertyValue)))

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using System;
 using System.Linq;
 using XamlCSS.CssParsing;
 
@@ -278,6 +279,29 @@ Button
             styleSheet.Rules[1].Selectors[0].Value.Should().Be(@".test[Text='hallo']");
             styleSheet.Rules[2].Selectors[0].Value.Should().Be(@".test[Text=hallo]");
             Assert.AreEqual(@"#ff00ff", styleSheet.Rules[0].DeclarationBlock[0].Value);
+        }
+
+        [Test]
+        public void Issue_50_Parser_should_not_throw_if_document_only_contains_at_character()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"@");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(1);
+            styleSheet.Errors.First().Contains("Next:");
+        }
+
+        [Test]
+        public void Issue_50_Parser_should_not_hang_if_document_only_contains_at_character()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"@a");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(2);
+            styleSheet.Errors[0].Should().Contain("unexpected token");
+            styleSheet.Errors[1].Should().Contain("Reached end of tokens");
         }
     }
 }

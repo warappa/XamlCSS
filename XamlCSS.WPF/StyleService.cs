@@ -67,25 +67,25 @@ namespace XamlCSS.WPF
                 }
 
                 nativeTrigger.Property = dependencyProperty;
-                nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property, propertyTrigger.Value);
+                nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property.Name, nativeTrigger.Property, propertyTrigger.Value);
 
                 foreach (var styleDeclaration in propertyTrigger.StyleDeclarationBlock)
                 {
-                    var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
-                    if (property == null)
+                    var propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, targetType, styleDeclaration.Property);
+                    if (propertyInfo == null)
                     {
                         continue;
                     }
                     try
                     {
-                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property, styleSheet.Namespaces);
+                        var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
 
                         if (value is string valueString)
                         {
-                            value = TypeDescriptor.GetConverter(property.PropertyType)?.ConvertFromInvariantString(valueString) ?? value;
+                            value = TypeDescriptor.GetConverter(propertyInfo.Property.PropertyType)?.ConvertFromInvariantString(valueString) ?? value;
                         }
 
-                        nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
+                        nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
                     }
                     catch (Exception e)
                     {
@@ -147,20 +147,20 @@ namespace XamlCSS.WPF
                 {
                     try
                     {
-                        var property = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, targetType, styleDeclaration.Property);
-                        if (property == null)
+                        var propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, targetType, styleDeclaration.Property);
+                        if (propertyInfo == null)
                         {
                             continue;
                         }
 
-                        var value = typeNameResolver.GetPropertyValue(targetType, styleResourceReferenceHolder, styleDeclaration.Value, property, styleSheet.Namespaces);
+                        var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
 
                         if (value is string valueString)
                         {
-                            value = TypeDescriptor.GetConverter(property.PropertyType)?.ConvertFromInvariantString(valueString) ?? value;
+                            value = TypeDescriptor.GetConverter(propertyInfo.Property.PropertyType)?.ConvertFromInvariantString(valueString) ?? value;
                         }
 
-                        nativeTrigger.Setters.Add(new Setter { Property = property, Value = value });
+                        nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
                     }
                     catch (Exception e)
                     {
@@ -238,16 +238,16 @@ namespace XamlCSS.WPF
                 var parameterName = parameter.Property;
                 object value = null;
                 var parameterValueExpression = parameter.Value.Trim();
-                DependencyProperty depProp;
+                DependencyPropertyInfo<DependencyProperty> propertyInfo;
                 var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, nativeTriggerAction, parameterName);
 
                 if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                 {
                     value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces);
                 }
-                else if ((depProp = typeNameResolver.GetDependencyProperty(styleSheet.Namespaces, actionType, parameterName)) != null)
+                else if ((propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, actionType, parameterName)) != null)
                 {
-                    value = typeNameResolver.GetPropertyValue(actionType, styleResourceReferenceHolder, parameterValueExpression, depProp, styleSheet.Namespaces);
+                    value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, parameterValueExpression, propertyInfo.Property, styleSheet.Namespaces);
 
                     if (value is DynamicResourceExtension)
                     {

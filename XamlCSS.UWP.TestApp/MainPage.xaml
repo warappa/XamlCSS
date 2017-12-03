@@ -8,22 +8,24 @@
     xmlns:css="using:XamlCSS"
 	xmlns:cssUWP="using:XamlCSS.UWP"
     mc:Ignorable="d"
-    cssUWP:Css.StyleSheet="{StaticResource appStyleSheet}"
     d:DesignHeight="400" d:DesignWidth="600"
     d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}">
     <Page.Resources>
         <ResourceDictionary>
             <css:StyleSheet x:Key="InternalStyle">
                 <css:StyleSheet.Content>
+                    <x:String xml:space="preserve">
                     @import "Resources/baseStyle.scss";
-                    Button
+                    @import "appStyleSheet"; 
+                  
+Button
 {
     Width: 100;
 }
 TextBlock
 {
 	Foreground: #6497b1;
-}
+}   
 #thegrid
 {
     Background: #011f4b;
@@ -69,6 +71,7 @@ TextBlock
 }
 Grid Grid 
 {
+    Background: $base-color;
     TextBlock:nth-of-type(1)
     {
 	    Grid.Row: 1;
@@ -82,6 +85,7 @@ Grid Grid
 	    Text: #StaticResource testString;
     }
 }
+                    </x:String>
                 </css:StyleSheet.Content>
             </css:StyleSheet>
         </ResourceDictionary>

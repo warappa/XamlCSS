@@ -2,14 +2,18 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows;
 using XamlCSS.CssParsing;
 
 namespace XamlCSS.WPF.CssParsing
 {
-    public class CssFileProvider : CssFileProviderBase
+    public class CssFileProvider
+         : CssFileProviderBase
     {
-        public CssFileProvider()
+        private readonly CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style> cssTypeHelper;
+
+        public CssFileProvider(CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style> cssTypeHelper)
             : base(AppDomain.CurrentDomain.GetAssemblies()
                  .Where(x =>
                     x.IsDynamic == false &&
@@ -19,33 +23,47 @@ namespace XamlCSS.WPF.CssParsing
                  .Distinct()
                  .ToArray())
         {
-
+            this.cssTypeHelper = cssTypeHelper;
         }
 
-        protected override Stream TryGetFromResource(string source, params Assembly[] searchAssemblies)
+        public override string LoadFrom(string source)
         {
-            var stream = base.TryGetFromResource(source, searchAssemblies);
-            if (stream == null)
+            var content = base.LoadFrom(source);
+            if (content == null)
             {
-                var resource = source.Replace("\\", "/");
-                foreach (var assembly in searchAssemblies)
+                var stream = TryGetFromPackedResource(source, assemblies);
+                if (stream != null)
                 {
-                    var uri = $"pack://application:,,,/{assembly.GetName().Name};component/" + resource;
-                    try
-                    {
-                        stream = Application.GetResourceStream(new Uri(uri)).Stream;
-                    }
-                    catch { }
-                    if (stream != null)
-                    {
-                        break;
-                    }
+                    return ReadStream(stream);
                 }
             }
 
-            return stream;
+            return content;
         }
-        
+
+        protected Stream TryGetFromPackedResource(string source, params Assembly[] searchAssemblies)
+        {
+            source = source.Replace("\\", "/");
+            
+            if (!source.StartsWith("pack://"))
+            {
+                return null;
+            }
+
+            if (!Uri.IsWellFormedUriString(source, UriKind.Absolute))
+            {
+                return null;
+            }
+
+            try
+            {
+                return Application.GetResourceStream(new Uri(source, UriKind.Absolute))?.Stream;
+            }
+            catch { }
+
+            return null;
+        }
+
         protected override Stream TryGetFromFile(string source)
         {
             var absolutePath = source;
@@ -57,6 +75,37 @@ namespace XamlCSS.WPF.CssParsing
             if (File.Exists(absolutePath))
             {
                 return File.OpenRead(source);
+            }
+
+            return null;
+        }
+
+        protected override Stream TryLoadFromStaticApplicationResource(string source)
+        {
+            string stringValue = null;
+            if (Application.Current.Resources?.Contains(source) == true)
+            {
+                try
+                {
+                    var value = Application.Current.Resources[source];
+                    if (value is StyleSheet)
+                    {
+                        stringValue = (value as StyleSheet).Content;
+                    }
+                    else if (value is string)
+                    {
+                        stringValue = (string)value;
+                    }
+
+                    if (stringValue != null)
+                    {
+                        return new MemoryStream(Encoding.UTF8.GetBytes(stringValue));
+                    }
+                }
+                catch
+                {
+
+                }
             }
 
             return null;

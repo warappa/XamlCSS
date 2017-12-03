@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Windows.UI;
+using Windows.UI.Text;
 
 namespace XamlCSS.ComponentModel
 {
@@ -23,7 +24,9 @@ namespace XamlCSS.ComponentModel
 			Register<double, NumberTypeConverter<double>>();
 			
 			Register<Color, ColorTypeConverter>();
-		}
+            RegisterEnum<FontStyle>();
+            RegisterEnum<FontStretch>();
+        }
 
 		public void RegisterEnum<TEnum>()
 		{

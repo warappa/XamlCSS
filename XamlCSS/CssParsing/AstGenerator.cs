@@ -14,7 +14,17 @@ namespace XamlCSS.CssParsing
         private List<CssToken> tokens;
         private int currentIndex;
         private CssNode currentNode;
-        private CssToken nextToken => tokens[currentIndex + 1];
+        private CssToken nextToken
+        {
+            get
+            {
+                if (currentIndex >= tokens.Count - 1)
+                {
+                    throw new AstGenerationException("Next: Reached end of tokens!", tokens.Count > 0 ? currentToken : new CssToken(CssTokenType.Unknown, "", 0, 0));
+                }
+                return tokens[currentIndex + 1];
+            }
+        }
         private CssToken previousToken => currentIndex > 0 ? tokens[currentIndex - 1] : default(CssToken);
         private CssToken currentToken
         {
@@ -413,6 +423,7 @@ namespace XamlCSS.CssParsing
                             else
                             {
                                 Error($"ReadDocument: unexpected token '{identifier.Text}'", GetTokens(startToken, identifier));
+                                currentIndex++;
                             }
                             break;
                         case CssTokenType.Dollar:

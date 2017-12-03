@@ -11,6 +11,7 @@ namespace XamlCSS.XamarinForms.TestApp
             Resources = new ResourceDictionary();
             Resources.Add("testString", "Hello World from StaticResource!");
             Resources.Add("appStyleSheet", new StyleSheet { Content = "Button { FontAttributes: Italic;}" });
+            Resources.Add("appVariables", "$base-color: #00ff00;");
             // The root page of your application
             MainPage = new MainPage();
             //VisualTreeHelper.Include(MainPage);
@@ -19,10 +20,11 @@ namespace XamlCSS.XamarinForms.TestApp
 
         public string cssStyle1 = @"
 @import ""Resources/baseStyle.scss"";
+@import ""appVariables"";
 
 Button
 {
-	TextColor: Red;
+	TextColor: $base-color;
 }
 .container
 {

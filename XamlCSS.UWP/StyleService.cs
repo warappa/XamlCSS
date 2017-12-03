@@ -14,6 +14,36 @@ namespace XamlCSS.UWP
             this.dependencyService = dependencyService;
         }
 
+        public override Style CreateFrom(IDictionary<DependencyProperty, object> dict, IEnumerable<DependencyObject> triggers, Type forType)
+        {
+            var style = base.CreateFrom(dict, triggers, forType);
+
+            RemoveInvalidSetterValues(style);
+
+            return style;
+        }
+
+        private static void RemoveInvalidSetterValues(Style style)
+        {
+            var setters = style.Setters
+                .Cast<Setter>()
+                .ToList();
+
+            for (var i = 0; i < setters.Count; i++)
+            {
+                try
+                {
+                    var test = setters[i].Value;
+                }
+                catch(Exception exc)
+                {
+                    setters.RemoveAt(i);
+                    style.Setters.RemoveAt(i);
+                    i--;
+                }
+            }
+        }
+
         protected override void AddTrigger(Style style, DependencyObject trigger)
         {
             throw new Exception("Triggers are not supported on UWP!");
@@ -55,7 +85,6 @@ namespace XamlCSS.UWP
             {
                 return null;
             }
-
             return style.Setters.OfType<Setter>().ToDictionary(x => x.Property, x => x.Value);
         }
 

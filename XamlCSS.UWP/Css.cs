@@ -30,17 +30,21 @@ namespace XamlCSS.UWP
                 {
                     Interval = TimeSpan.FromMilliseconds(0)
                 };
-                localTimer.Tick += (timer, e) =>
+
+                EventHandler<object> handler = null;
+                handler = (timer, e) =>
                 {
+                    localTimer.Tick -= handler;
                     (timer as DispatcherTimer).Stop();
                     action();
                 };
+                
+                localTimer.Tick += handler;
                 localTimer.Start();
             }
         }
 
         private static bool initialized = false;
-        private static DispatcherTimer dispatcherTimer;
 
         static Css()
         {
@@ -85,15 +89,19 @@ namespace XamlCSS.UWP
                 return;
             }
 
+            var dependencyPropertyService = new DependencyPropertyService();
+            var markupExtensionParser = new MarkupExtensionParser();
+            var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
+            
             instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
-                new DependencyPropertyService(),
-                new LogicalTreeNodeProvider(new DependencyPropertyService()),
+                dependencyPropertyService,
+                new LogicalTreeNodeProvider(dependencyPropertyService),
                 new StyleResourceService(),
-                new StyleService(new DependencyPropertyService()),
+                new StyleService(dependencyPropertyService),
                 DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button)),
-                new MarkupExtensionParser(),
+                markupExtensionParser,
                 RunOnUIThread,
-                new CssFileProvider(resourceSearchAssemblies)
+                new CssFileProvider(resourceSearchAssemblies, cssTypeHelper)
                 );
 
             LoadedDetectionHelper.Initialize();

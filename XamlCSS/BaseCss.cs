@@ -645,18 +645,18 @@ namespace XamlCSS
 
             foreach (var styleDeclaration in declarationBlock)
             {
-                var property = cssTypeHelper.GetDependencyProperty(namespaces, matchedType, styleDeclaration.Property);
+                var propertyInfo = cssTypeHelper.GetDependencyPropertyInfo(namespaces, matchedType, styleDeclaration.Property);
 
-                if (property == null)
+                if (propertyInfo == null)
                 {
                     continue;
                 }
 
                 try
                 {
-                    var propertyValue = cssTypeHelper.GetPropertyValue(matchedType, dependencyObject, styleDeclaration.Value, property, namespaces);
+                    var propertyValue = cssTypeHelper.GetPropertyValue(propertyInfo.DeclaringType, dependencyObject, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, namespaces);
 
-                    result.PropertyStyleValues[property] = propertyValue;
+                    result.PropertyStyleValues[propertyInfo.Property] = propertyValue;
                 }
                 catch
                 {

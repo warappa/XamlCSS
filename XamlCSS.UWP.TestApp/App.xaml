@@ -7,13 +7,17 @@
     RequestedTheme="Light">
     <Application.Resources>
         <x:String x:Key="testString">Hello World from StaticResource!</x:String>
-        <css:StyleSheet x:Key="appStyleSheet">
-            <css:StyleSheet.Content>
+        <x:String x:Key="appVariables">
+            $base-color: #88ff00ff;
+        </x:String>
+        <x:String x:Key="appStyleSheet">
+            @import "appVariables";
                 Button
             {
-                FontStyle: Italic;
+                Background: $base-color;
+                FontStyle: Bold;
             }
-            </css:StyleSheet.Content>
-        </css:StyleSheet>
+        </x:String>
+        
     </Application.Resources>
 </Application>

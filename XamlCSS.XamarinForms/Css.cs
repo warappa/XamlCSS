@@ -73,15 +73,19 @@ namespace XamlCSS.XamarinForms
 
                 Reset();
 
+                var markupExtensionParser = new MarkupExtensionParser();
+                var dependencyPropertyService = new DependencyPropertyService();
+                var cssTypeHelper = new CssTypeHelper<BindableObject, BindableObject, BindableProperty, Style>(markupExtensionParser, dependencyPropertyService);
+                
                 instance = new BaseCss<BindableObject, BindableObject, Style, BindableProperty>(
-                    new DependencyPropertyService(),
-                    new LogicalTreeNodeProvider(new DependencyPropertyService()),
+                    dependencyPropertyService,
+                    new LogicalTreeNodeProvider(dependencyPropertyService),
                     new StyleResourceService(),
-                    new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
+                    new StyleService(dependencyPropertyService, markupExtensionParser),
                     DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
-                    new MarkupExtensionParser(),
+                    markupExtensionParser,
                     Device.BeginInvokeOnMainThread,
-                    new CssFileProvider(resourceSearchAssemblies ?? new Assembly[0])
+                    new CssFileProvider(resourceSearchAssemblies ?? new Assembly[0], cssTypeHelper)
                     );
 
                 Css.rootElement = rootElement;
