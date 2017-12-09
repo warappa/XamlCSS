@@ -23,6 +23,9 @@ You can use [markup-extensions](https://github.com/warappa/XamlCSS/wiki/Markup-E
 
 In css you **_cannot_ declare** an **instance of an object** as you can do in xaml. A `Storyboard` for example must be declared as usual in a `ResourceDictionary` but then can be referenced in css with a markup-extension.
 
+### Designer Support
+XamlCSS builds on top of the native Xaml-Style implementations, so **it works** with the **WPF and UWP designer**. For **Xamarin.Forms** there is **[LiveXAML](https://www.livexaml.com)**.
+
 # Supported platforms
 - **XamarinForms**  
 NuGet: [XamlCSS.XamarinForms](https://www.nuget.org/packages/XamlCSS.XamarinForms)
