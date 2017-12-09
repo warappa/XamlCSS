@@ -568,7 +568,8 @@ namespace XamlCSS
 
             var currentStyleSheet = dependencyPropertyService.GetStyleSheet(bindableObject);
             if (currentStyleSheet != null &&
-                (currentStyleSheet != styleSheet && currentStyleSheet.AttachedTo != styleSheet.AttachedTo))
+                (currentStyleSheet != styleSheet && 
+                (styleSheet != null && currentStyleSheet.AttachedTo != styleSheet.AttachedTo)))
             {
                 return;
             }
