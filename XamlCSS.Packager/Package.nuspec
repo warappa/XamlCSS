@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XamlCSS</id>
-    <version>2.0.1</version>
+    <version>2.1.0</version>
     <title>XamlCSS</title>
     <authors>David Rettenbacher</authors>
     <owners></owners>
@@ -10,69 +10,84 @@
       Style Xaml-apps with Css
     </description>
     <releaseNotes>
-      2.0.1
-      - #36 Fixed "XamlCSS does not support unicode escapes"
-      
-      2.0.0
-      - #29 Support comments
-      - #30 Support enter/exit trigger actions
-      - #31 Better error information
-      - Rewritten tokenizer, css-parser (performance, maintainability)
-      - Better markup-extension parsing
-      - Fixed same selector property overrides
-      - Support namespaces in markup-extensions
+        2.1.0
+        - #6 UWP Designer: Css Selectors don't always select the correct Elements
+        - #37 UWP: Loading CSS-File from Embedded Resource Embedded in EXE-File Fails
+        - #39 Ampersand Could Be Anywhere in Selector
+        - #40 Support @extend
+        - #42 WPF: Sometimes Skips Styling of Button Content
+        - #43 Wrong Selector Generated When Using Ampersand In The Middle Of Selector
+        - #44 DataTriggers: Support Custom Markup-Extension-Expressions
+        - #45 DataTriggers: Support Variables In Markup-Expressions And Values
+        - #46 PropertyTriggers: Support Variables In Value-Expressions
+        - #47 UWP, Xamarin.Forms Update Loop: Massive Performance Problems If Errors In CSS
+        - #48 Support Parsing Floating Point Numbers Without Leading Zero
+        - #49 Support Import Of Css Stored In Application.Resources
+        - #50 Css-Parser: Parser Hangs If Document Only Contains "At" Character
 
-      2.0.0-pre1
-      - #11 Nested selectors, css-variables
-      - #23 Css imports
-      - #24 Sass-like mixins
-      - #27 Support triggers (property, data, event)
-      - #28 Fixed bracket parsing
+        2.0.1
+        - #36 Fixed "XamlCSS does not support unicode escapes"
 
-      1.0.6
-      - #20 Performance: Selectors are parsed too often
+        2.0.0
+        - #29 Support comments
+        - #30 Support enter/exit trigger actions
+        - #31 Better error information
+        - Rewritten tokenizer, css-parser (performance, maintainability)
+        - Better markup-extension parsing
+        - Fixed same selector property overrides
+        - Support namespaces in markup-extensions
 
-      1.0.5
-      - #19 Decimal Number not parsed correctly
-      - #18 Class not properly parsed in grouped selectors
-      - #13 CSS-Parser: Broken String-Literal Handling
+        2.0.0-pre1
+        - #11 Nested selectors, css-variables
+        - #23 Css imports
+        - #24 Sass-like mixins
+        - #27 Support triggers (property, data, event)
+        - #28 Fixed bracket parsing
 
-      1.0.4
-      - Css namespacing support fixed
+        1.0.6
+        - #20 Performance: Selectors are parsed too often
 
-      1.0.3
-      - Fixed NullReferenceException
+        1.0.5
+        - #19 Decimal Number not parsed correctly
+        - #18 Class not properly parsed in grouped selectors
+        - #13 CSS-Parser: Broken String-Literal Handling
 
-      1.0.2
-      - CssParser Tokenizer fixed
-      - Better Logical-/Visual-Tree handling
+        1.0.4
+        - Css namespacing support fixed
 
-      1.0.1
-      - Define stylesheet in Xaml-files with css text
-      - Fixed selector specificity
+        1.0.3
+        - Fixed NullReferenceException
 
-      1.0.0
-      - Performance/memory improvements: Caching dom-elements, dom-children,...
-      - Batch-Rendering
-      - Better support for MarkupExtensions
+        1.0.2
+        - CssParser Tokenizer fixed
+        - Better Logical-/Visual-Tree handling
 
-      0.9.0-beta-1
-      - Added better css-quotes support
-      - Support modal pages
-      - fixed bool value support
-      - Fixed VisualTreeCell.Include="true"
-      - Performance improvement
-      - AngleSharp 0.9.8
+        1.0.1
+        - Define stylesheet in Xaml-files with css text
+        - Fixed selector specificity
 
-      0.9.0-alpha-5
-      - Fix partial updates: not finding all parents while executing css-parser
+        1.0.0
+        - Performance/memory improvements: Caching dom-elements, dom-children,...
+        - Batch-Rendering
+        - Better support for MarkupExtensions
 
-      0.9.0-alpha
-      - experimental support for MarkupExtensions (best supported on Xamarin.Forms and WPF)
+        0.9.0-beta-1
+        - Added better css-quotes support
+        - Support modal pages
+        - fixed bool value support
+        - Fixed VisualTreeCell.Include="true"
+        - Performance improvement
+        - AngleSharp 0.9.8
 
-      0.8.0
-      - Support for attached properties
-      - Support for CSS-namespaces
+        0.9.0-alpha-5
+        - Fix partial updates: not finding all parents while executing css-parser
+
+        0.9.0-alpha
+        - experimental support for MarkupExtensions (best supported on Xamarin.Forms and WPF)
+
+        0.8.0
+        - Support for attached properties
+        - Support for CSS-namespaces
     </releaseNotes>
     <summary>
       Style Xaml-apps with Css
@@ -85,22 +100,22 @@
     <copyright>© 2017 David Rettenbacher</copyright>
     <dependencies>
       <group>
-        <dependency id="AngleSharp" version="0.9.8" />
+        <dependency id="AngleSharp" version="0.9.9" />
       </group>
       <group targetFramework="Xamarin.iOS10">
-        <dependency id="AngleSharp" version="0.9.8" />
+        <dependency id="AngleSharp" version="0.9.9" />
       </group>
       <group targetFramework="MonoAndroid10">
-        <dependency id="AngleSharp" version="0.9.8" />
+        <dependency id="AngleSharp" version="0.9.9" />
       </group>
       <group targetFramework="wp8">
-        <dependency id="AngleSharp" version="0.9.8" />
+        <dependency id="AngleSharp" version="0.9.9" />
       </group>
       <group targetFramework="wpa81">
-        <dependency id="AngleSharp" version="0.9.8" />
+        <dependency id="AngleSharp" version="0.9.9" />
       </group>
       <group targetFramework="uap10.0">
-        <dependency id="AngleSharp" version="0.9.8" />
+        <dependency id="AngleSharp" version="0.9.9" />
       </group>
     </dependencies>
     <references></references>
@@ -109,6 +124,9 @@
   <files>
     <file src="..\XamlCSS\bin\Release\XamlCSS.dll" target="lib\dotnet" />
     <file src="..\XamlCSS\bin\Release\XamlCSS.pdb" target="lib\dotnet" />
+      
+      <file src="..\XamlCSS\bin\Release\XamlCSS.dll" target="lib\netstandard1.0" />
+    <file src="..\XamlCSS\bin\Release\XamlCSS.pdb" target="lib\netstandard1.0" />
 
     <file src="..\XamlCSS\bin\Release\XamlCSS.dll" target="lib\portable-net45+win8+wpa81+wp8" />
     <file src="..\XamlCSS\bin\Release\XamlCSS.pdb" target="lib\portable-net45+win8+wpa81+wp8" />

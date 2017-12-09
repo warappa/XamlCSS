@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>XamlCSS.XamarinForms</id>
-        <version>2.0.1</version>
+        <version>2.1.0</version>
         <title>XamlCSS.XamarinForms</title>
         <authors>David Rettenbacher</authors>
         <owners></owners>
@@ -10,6 +10,18 @@
             Style XamarinForms-apps with Css
         </description>
         <releaseNotes>
+            2.1.0
+            - #39 Ampersand Could Be Anywhere in Selector
+            - #40 Support @extend
+            - #43 Wrong Selector Generated When Using Ampersand In The Middle Of Selector
+            - #44 DataTriggers: Support Custom Markup-Extension-Expressions
+            - #45 DataTriggers: Support Variables In Markup-Expressions And Values
+            - #46 PropertyTriggers: Support Variables In Value-Expressions
+            - #47 UWP, Xamarin.Forms Update Loop: Massive Performance Problems If Errors In CSS
+            - #48 Support Parsing Floating Point Numbers Without Leading Zero
+            - #49 Support Import Of Css Stored In Application.Resources
+            - #50 Css-Parser: Parser Hangs If Document Only Contains "At" Character
+
             2.0.1
             - #36 Fixed "XamlCSS does not support unicode escapes"
 
@@ -102,32 +114,32 @@
         <copyright>© 2017 David Rettenbacher</copyright>
         <dependencies>
             <group>
-                <dependency id="XamlCSS" version="2.0.1" />
+                <dependency id="XamlCSS" version="2.1.0" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="Xamarin.iOS10">
-                <dependency id="XamlCSS" version="2.0.1" />
+                <dependency id="XamlCSS" version="2.1.0" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="MonoAndroid10">
-                <dependency id="XamlCSS" version="2.0.1" />
+                <dependency id="XamlCSS" version="2.1.0" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="wp8">
-                <dependency id="XamlCSS" version="2.0.1" />
+                <dependency id="XamlCSS" version="2.1.0" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="wpa81">
-                <dependency id="XamlCSS" version="2.0.1" />
+                <dependency id="XamlCSS" version="2.1.0" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="uap10.0">
-                <dependency id="XamlCSS" version="2.0.1" />
+                <dependency id="XamlCSS" version="2.1.0" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
@@ -138,6 +150,9 @@
     <files>
         <file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\dotnet" />
         <file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\dotnet" />
+
+        <file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\netstandard1.0" />
+        <file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\netstandard1.0" />
 
         <file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.dll" target="lib\portable-net45+win8+wpa81+wp8" />
         <file src="..\XamlCss.XamarinForms\bin\Release\XamlCss.XamarinForms.pdb" target="lib\portable-net45+win8+wpa81+wp8" />
