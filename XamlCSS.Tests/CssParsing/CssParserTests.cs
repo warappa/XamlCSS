@@ -138,23 +138,30 @@ Button
 {
 
 }
+* {
+}
 ");
 
-            Assert.AreEqual(5, styleSheet.Rules.Count);
-            Assert.AreEqual("Button", styleSheet.Rules[0].Selectors[0].Value);
-            Assert.AreEqual("1", styleSheet.Rules[0].Selectors[0].Specificity);
+            Assert.AreEqual(6, styleSheet.Rules.Count);
 
-            Assert.AreEqual(".warning", styleSheet.Rules[1].Selectors[0].Value);
-            Assert.AreEqual("1,0", styleSheet.Rules[1].Selectors[0].Specificity);
+            Assert.AreEqual("*", styleSheet.Rules[0].Selectors[0].Value);
+            Assert.AreEqual("0", styleSheet.Rules[0].Selectors[0].Specificity);
 
-            Assert.AreEqual(".important", styleSheet.Rules[2].Selectors[0].Value);
+
+            Assert.AreEqual("Button", styleSheet.Rules[1].Selectors[0].Value);
+            Assert.AreEqual("1", styleSheet.Rules[1].Selectors[0].Specificity);
+
+            Assert.AreEqual(".warning", styleSheet.Rules[2].Selectors[0].Value);
             Assert.AreEqual("1,0", styleSheet.Rules[2].Selectors[0].Specificity);
 
-            Assert.AreEqual("#an-element", styleSheet.Rules[3].Selectors[0].Value);
-            Assert.AreEqual("1,0,0", styleSheet.Rules[3].Selectors[0].Specificity);
+            Assert.AreEqual(".important", styleSheet.Rules[3].Selectors[0].Value);
+            Assert.AreEqual("1,0", styleSheet.Rules[3].Selectors[0].Specificity);
 
-            Assert.AreEqual(".warning#some-element", styleSheet.Rules[4].Selectors[0].Value);
-            Assert.AreEqual("1,1,0", styleSheet.Rules[4].Selectors[0].Specificity);
+            Assert.AreEqual("#an-element", styleSheet.Rules[4].Selectors[0].Value);
+            Assert.AreEqual("1,0,0", styleSheet.Rules[4].Selectors[0].Specificity);
+
+            Assert.AreEqual(".warning#some-element", styleSheet.Rules[5].Selectors[0].Value);
+            Assert.AreEqual("1,1,0", styleSheet.Rules[5].Selectors[0].Specificity);
 
             var s = new Selector { Value = ".important-button-container>Button" };
             Assert.AreEqual("1,1", s.Specificity);

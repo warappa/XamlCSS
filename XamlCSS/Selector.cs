@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 
 namespace XamlCSS
@@ -20,8 +21,10 @@ namespace XamlCSS
                 var charArray = value.ToCharArray();
 
                 IdSpecificity = charArray.Count(x => x == '#');
-                ClassSpecificity = charArray.Count(x => x == '.');
-                SimpleSpecificity = value.Split(new[] { ' ', '>' }).Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
+                ClassSpecificity = charArray.Count(x => x == '.' || x == ':' || x == '[');
+
+                var simpleSpecifitySplit = value.Split(new[] { ' ', '>', '*' }, StringSplitOptions.RemoveEmptyEntries);
+                SimpleSpecificity = simpleSpecifitySplit.Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
             }
         }
 
