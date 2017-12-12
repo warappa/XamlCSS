@@ -15,7 +15,7 @@ namespace XamlCSS.Dom
 			this.property = property;
 		}
 
-		public string LocalName
+		public virtual string LocalName
 		{
 			get
 			{
@@ -23,7 +23,7 @@ namespace XamlCSS.Dom
 			}
 		}
 
-		public string Name
+		public virtual string Name
 		{
 			get
 			{

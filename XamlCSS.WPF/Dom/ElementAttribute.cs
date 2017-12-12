@@ -12,7 +12,10 @@ namespace XamlCSS.WPF.Dom
 
 		}
 
-		public override string Value
+        public override string LocalName => property.Name;
+        public override string Name => property.Name;
+
+        public override string Value
 		{
 			get
 			{

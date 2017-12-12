@@ -310,5 +310,60 @@ Button
             styleSheet.Errors[0].Should().Contain("unexpected token");
             styleSheet.Errors[1].Should().Contain("Reached end of tokens");
         }
+
+        [Test]
+        public void Can_parse_doublequoted_text_in_attributes()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"
+Button[Content=""Some Content""] {
+            FontWeight: Bold;
+}");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(0);
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(@"Button[Content=""Some Content""]");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be(@"FontWeight");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be(@"Bold");
+        }
+
+        [Test]
+        public void Can_parse_doublequoted_text_in_attributes_with_ampersand()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"
+Button { &[Content=""Some Content""] {
+            FontWeight: Bold;
+}
+}");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(0);
+            styleSheet.Rules.Count.Should().Be(2);
+
+            styleSheet.Rules[1].SelectorString.Should().Be(@"Button[Content=""Some Content""]");
+            styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be(@"FontWeight");
+            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be(@"Bold");
+        }
+
+        [Test]
+        public void Can_parse_singlequoted_text_in_attributes()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"
+Button[Content='Some Content'] {
+            FontWeight: Bold;
+}");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(0);
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(@"Button[Content='Some Content']");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be(@"FontWeight");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be(@"Bold");
+        }
     }
 }

@@ -11,9 +11,10 @@ namespace XamlCSS.XamarinForms.Dom
 		{
 
 		}
-		protected override IAttr CreateAttribute(BindableObject dependencyObject, BindableProperty property)
-		{
-			return new ElementAttribute(dependencyObject, property);
-		}
+
+        protected override IAttr CreateAttribute(BindableObject dependencyObject, DependencyPropertyInfo<BindableProperty> propertyInfo)
+        {
+            return new ElementAttribute(dependencyObject, propertyInfo.Property);
+        }
 	}
 }

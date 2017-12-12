@@ -156,5 +156,60 @@ Button
             first.EnterActions.Count.Should().Be(2);
             first.ExitActions.Count.Should().Be(3);
         }
+
+        [Test]
+        public void EnterActions_and_ExitActions_should_be_added_to_DataTriggers_3()
+        {
+            var content = @"
+Button
+{
+    @Data Message ""Hello World from DataContext!""
+    {
+        @Enter:
+        {
+            animation|BeginStoryboard: 
+            {
+                Storyboard: #StaticResource storyboard;
+            }
+        }
+                    
+        Background: #ff00ff;
+        Grid.Row: 0;
+	    Grid.Column: 0;
+                    
+        @Exit:
+        {
+            animation|BeginStoryboard: 
+            {
+                Storyboard: #StaticResource storyboard2;
+            }
+        }
+    }
+}
+";
+            var styleSheet = CssParser.Parse(content);
+
+            var first = styleSheet.Rules[0].DeclarationBlock.Triggers[0] as DataTrigger;
+            first.Binding.Should().Be("Message");
+            first.Value.Should().Be("Hello World from DataContext!");
+
+            first.EnterActions.Count.Should().Be(1);
+            first.EnterActions[0].Parameters[0].Property.Should().Be("Storyboard");
+            first.EnterActions[0].Parameters[0].Value.Should().Be("#StaticResource storyboard");
+
+            first.StyleDeclarationBlock[0].Property.Should().Be("Background");
+            first.StyleDeclarationBlock[0].Value.Should().Be("#ff00ff");
+            first.StyleDeclarationBlock[1].Property.Should().Be("Grid.Row");
+            first.StyleDeclarationBlock[1].Value.Should().Be("0");
+            first.StyleDeclarationBlock[2].Property.Should().Be("Grid.Column");
+            first.StyleDeclarationBlock[2].Value.Should().Be("0");
+
+            first.ExitActions.Count.Should().Be(1);
+            first.ExitActions[0].Parameters[0].Property.Should().Be("Storyboard");
+            first.ExitActions[0].Parameters[0].Value.Should().Be("#StaticResource storyboard2");
+
+            first.EnterActions.Count.Should().Be(1);
+            first.ExitActions.Count.Should().Be(1);
+        }
     }
 }

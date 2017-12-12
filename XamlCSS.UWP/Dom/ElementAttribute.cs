@@ -6,13 +6,18 @@ namespace XamlCSS.UWP.Dom
 {
 	public class ElementAttribute : ElementAttributeBase<DependencyObject, DependencyProperty>
 	{
-		public ElementAttribute(DependencyObject dependencyObject, DependencyProperty property)
+        private string propertyName;
+
+        public ElementAttribute(DependencyObject dependencyObject, DependencyProperty property, string propertyName)
 			: base(dependencyObject, property)
 		{
+            this.propertyName = propertyName;
+        }
 
-		}
+        public override string LocalName => propertyName;
+        public override string Name => propertyName;
 
-		public override string Value
+        public override string Value
 		{
 			get
 			{

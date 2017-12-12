@@ -771,6 +771,7 @@ namespace XamlCSS.CssParsing
                             throw new AstGenerationException($"ReadStyleDeclarationBlock: '@{identifier}' not supported!", GetTokens(styleDeclarationStartToken, currentToken));
                         }
                     }
+
                     else if (
                        currentNode.Parent.Type == CssNodeType.StyleRule &&
                        (
@@ -779,8 +780,7 @@ namespace XamlCSS.CssParsing
                            CssTokenType.Semicolon,
                            CssTokenType.BraceOpen,
                            CssTokenType.BraceClose,
-                           CssTokenType.DoubleQuotes,
-                           CssTokenType.SingleQuotes,
+                           CssTokenType.Colon,
                            CssTokenType.At
                            }) == CssTokenType.BraceOpen))
                     {
@@ -1336,7 +1336,7 @@ namespace XamlCSS.CssParsing
                             AddOnParentAndSetCurrent(CssNodeType.SelectorFragment);
                         }
 
-                        ReadUntil(CssTokenType.BraceOpen, CssTokenType.Comma, CssTokenType.Whitespace);
+                        ReadUntil(true, CssTokenType.BraceOpen, CssTokenType.Whitespace, CssTokenType.Comma);
 
                         TrimCurrentNode();
 
@@ -1378,6 +1378,10 @@ namespace XamlCSS.CssParsing
 
         private void ReadUntil(params CssTokenType[] types)
         {
+            ReadUntil(false, types);
+        }
+        private void ReadUntil(bool handleQuotedText, params CssTokenType[] types)
+        {
             while (currentIndex < tokens.Count &&
                 !types.Contains(currentToken.Type))
             {
@@ -1390,6 +1394,22 @@ namespace XamlCSS.CssParsing
                     nextToken.Type == CssTokenType.Slash)
                 {
                     SkipLineCommentText();
+                }
+                else if (handleQuotedText &&
+                    currentToken.Type == CssTokenType.DoubleQuotes)
+                {
+                    currentNode.TextBuilder.Append('"');
+                    currentIndex++;
+                    ReadDoubleQuoteText(false, false);
+                    currentNode.TextBuilder.Append('"');
+                }
+                else if (handleQuotedText &&
+                    currentToken.Type == CssTokenType.SingleQuotes)
+                {
+                    currentNode.TextBuilder.Append('\'');
+                    currentIndex++;
+                    ReadSingleQuoteText(false, false);
+                    currentNode.TextBuilder.Append('\'');
                 }
                 else
                 {

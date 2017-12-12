@@ -12,7 +12,10 @@ namespace XamlCSS.XamarinForms.Dom
 
 		}
 
-		public override string Value
+        public override string LocalName => property.PropertyName;
+        public override string Name => property.PropertyName;
+
+        public override string Value
 		{
 			get
 			{

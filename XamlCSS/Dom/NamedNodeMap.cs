@@ -28,14 +28,14 @@ namespace XamlCSS.Dom
 			this.attributes = attributes.ToList();
 		}
 
-		abstract protected IAttr CreateAttribute(TDependencyObject dependencyObject, TDependencyProperty property);
+		abstract protected IAttr CreateAttribute(TDependencyObject dependencyObject, DependencyPropertyInfo<TDependencyProperty> propertyInfo);
 
-		protected IEnumerable<TDependencyProperty> GetProperties(TDependencyObject dependencyObject)
+		protected IEnumerable<DependencyPropertyInfo<TDependencyProperty>> GetProperties(TDependencyObject dependencyObject)
 		{
-			var dps = TypeHelpers.DeclaredFields(dependencyObject.GetType())
-				.Where(x => x.FieldType == typeof(TDependencyProperty))
-				.Select(x => x.GetValue(dependencyObject) as TDependencyProperty)
-				.ToList();
+            var dps = TypeHelpers.DeclaredFields(dependencyObject.GetType())
+                .Where(x => x.FieldType == typeof(TDependencyProperty))
+                .Select(x => new DependencyPropertyInfo<TDependencyProperty>(x.GetValue(dependencyObject) as TDependencyProperty, x.DeclaringType, x.Name))
+                .ToList();
 
 			return dps;
 		}

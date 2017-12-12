@@ -102,9 +102,9 @@ namespace XamlCSS.Tests.Dom
         {
 
         }
-        protected override IAttr CreateAttribute(UIElement dependencyObject, IDictionary<object, object> property)
+        protected override IAttr CreateAttribute(UIElement dependencyObject, DependencyPropertyInfo<IDictionary<object, object>> propertyInfo)
         {
-            return new TestElementAttribute(dependencyObject, property);
+            return new TestElementAttribute(dependencyObject, propertyInfo.Property);
         }
     }
 
