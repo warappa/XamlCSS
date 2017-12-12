@@ -79,12 +79,7 @@ namespace XamlCSS.WPF
                     try
                     {
                         var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
-
-                        if (value is string valueString)
-                        {
-                            value = TypeDescriptor.GetConverter(propertyInfo.Property.PropertyType)?.ConvertFromInvariantString(valueString) ?? value;
-                        }
-
+                        
                         nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
                     }
                     catch (Exception e)
@@ -154,12 +149,7 @@ namespace XamlCSS.WPF
                         }
 
                         var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
-
-                        if (value is string valueString)
-                        {
-                            value = TypeDescriptor.GetConverter(propertyInfo.Property.PropertyType)?.ConvertFromInvariantString(valueString) ?? value;
-                        }
-
+                        
                         nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
                     }
                     catch (Exception e)

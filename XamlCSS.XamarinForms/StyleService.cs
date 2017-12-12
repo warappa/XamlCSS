@@ -212,7 +212,7 @@ namespace XamlCSS.XamarinForms
                 var parameterName = parameter.Property;
 
                 object value = null;
-                var parameterValueExpression = parameter.Value.Trim(); //.Substring(parameterName.Length + 1).Trim();
+                var parameterValueExpression = parameter.Value.Trim();
                 DependencyPropertyInfo<BindableProperty> propertyInfo;
                 var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, nativeTriggerAction, parameterName);
 
@@ -228,12 +228,7 @@ namespace XamlCSS.XamarinForms
                 {
                     value = parameterValueExpression;
                 }
-
-                if (value is string valueString)
-                {
-                    value = typeConverterProvider.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? value;
-                }
-
+                
                 nativeTriggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(nativeTriggerAction, value);
             }
 
