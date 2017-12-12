@@ -67,7 +67,7 @@ namespace XamlCSS
 
                 Reset();
 
-                var sheet = CssParser.Parse(content);
+                var sheet = CssParser.Parse(string.Join(" ", AddedStyleSheets.Select(x => x.Content).Concat(new[] { content })));
 
                 foreach (var error in sheet.Errors)
                 {
@@ -248,7 +248,7 @@ namespace XamlCSS
                     {
                         Selectors = x.First().Selectors,
                         SelectorType = x.First().SelectorType,
-                        DeclarationBlock = new StyleDeclarationBlock(GetMergedStyleDeclarations(x.ToList()), x.SelectMany(y => y.DeclarationBlock.Triggers))
+                        DeclarationBlock = new StyleDeclarationBlock(GetMergedStyleDeclarations(x.ToList()), x.SelectMany(y => y.DeclarationBlock.Triggers).ToList())
                     })
                     .ToList();
         }

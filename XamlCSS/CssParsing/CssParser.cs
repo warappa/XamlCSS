@@ -87,7 +87,7 @@ namespace XamlCSS.CssParsing
                     {
                         return new StyleRule
                         {
-                            Selectors = new List<Selector>(new[] { selector }),
+                            Selectors = new SelectorCollection(new[] { selector }),
                             DeclarationBlock = new StyleDeclarationBlock(rule.DeclarationBlock, rule.DeclarationBlock.Triggers),
                             SelectorType = rule.SelectorType
                         };
@@ -384,7 +384,7 @@ namespace XamlCSS.CssParsing
 
                 rule.SelectorType = SelectorType.LogicalTree;
 
-                rule.Selectors = new List<Selector>(new[] { new Selector() { Value = ruleSelectorToUse } });
+                rule.Selectors = new SelectorCollection(new[] { new Selector() { Value = ruleSelectorToUse } });
 
                 rule.DeclarationBlock.AddRange(styleDeclarations);
                 rule.DeclarationBlock.Triggers = triggers;

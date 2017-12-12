@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 
 namespace XamlCSS
@@ -8,12 +7,12 @@ namespace XamlCSS
     public class StyleRule
     {
         private string selectorString = null;
-        private List<Selector> selectors = new List<Selector>();
+        private SelectorCollection selectors = new SelectorCollection();
 
         public string SelectorString=>
                     selectorString ?? (selectorString = string.Join(",", Selectors.Select(x => x.Value)));
         
-        public List<Selector> Selectors
+        public SelectorCollection Selectors
         {
             get => selectors;
             set

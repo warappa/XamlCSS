@@ -7,7 +7,7 @@ namespace XamlCSS
     {
         public StyleDeclarationBlock()
         {
-
+            Triggers = new List<ITrigger>();
         }
         public StyleDeclarationBlock(IEnumerable<StyleDeclaration> collection, IEnumerable<ITrigger> triggers = null)
             : base(collection)
