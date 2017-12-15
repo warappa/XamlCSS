@@ -365,5 +365,33 @@ Button[Content='Some Content'] {
             styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be(@"FontWeight");
             styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be(@"Bold");
         }
+
+        [Test]
+        public void Can_parse_pseudo_selector()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"
+Grid { 
+    TextBlock:nth-of-type(1) {
+        FontWeight: Bold;
+    }
+
+    TextBlock:first-of-type {
+        FontWeight: Normal;
+    }
+}");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(0);
+            styleSheet.Rules.Count.Should().Be(3);
+
+            styleSheet.Rules[1].SelectorString.Should().Be(@"Grid TextBlock:nth-of-type(1)");
+            styleSheet.Rules[1].DeclarationBlock[0].Property.Should().Be(@"FontWeight");
+            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be(@"Bold");
+
+            styleSheet.Rules[2].SelectorString.Should().Be(@"Grid TextBlock:first-of-type");
+            styleSheet.Rules[2].DeclarationBlock[0].Property.Should().Be(@"FontWeight");
+            styleSheet.Rules[2].DeclarationBlock[0].Value.Should().Be(@"Normal");
+        }
     }
 }

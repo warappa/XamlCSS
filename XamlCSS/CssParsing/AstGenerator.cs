@@ -780,9 +780,9 @@ namespace XamlCSS.CssParsing
                            CssTokenType.Semicolon,
                            CssTokenType.BraceOpen,
                            CssTokenType.BraceClose,
-                           CssTokenType.Colon,
+                           // CssTokenType.Colon,
                            CssTokenType.At
-                           }) == CssTokenType.BraceOpen))
+                           }, handleQuotedText: true) == CssTokenType.BraceOpen))
                     {
                         AddAndSetCurrent(CssNodeType.StyleRule);
 
@@ -1539,6 +1539,64 @@ namespace XamlCSS.CssParsing
             } while (currentIndex < tokens.Count);
         }
 
+        private static int SkipDoubleQuoteText(List<CssToken> tokens, int index, bool supportMultipleLines = false)
+        {
+            var startToken = tokens[index];
+            do
+            {
+                if (!supportMultipleLines &&
+                    tokens[index].Type == CssTokenType.Whitespace &&
+                    tokens[index].Text == "\n")
+                {
+                    throw new AstGenerationException("Quoted text doesn't support multiple lines!", startToken);
+                }
+
+                if (tokens[index].Type == CssTokenType.Backslash)
+                {
+                    index++;
+                }
+                else if (tokens[index].Type == CssTokenType.DoubleQuotes)
+                {
+                    index++;
+                    break;
+                }
+
+                index++;
+            } while (index < tokens.Count);
+
+            return index;
+        }
+
+
+
+        private static int SkipSingleQuoteText(List<CssToken> tokens, int index, bool supportMultipleLines = false)
+        {
+            var startToken = tokens[index];
+            do
+            {
+                if (!supportMultipleLines &&
+                    tokens[index].Type == CssTokenType.Whitespace &&
+                    tokens[index].Text == "\n")
+                {
+                    throw new AstGenerationException("Quoted text doesn't support multiple lines!", startToken);
+                }
+
+                if (tokens[index].Type == CssTokenType.Backslash)
+                {
+                    index++;
+                }
+                else if (tokens[index].Type == CssTokenType.SingleQuotes)
+                {
+                    index++;
+                    break;
+                }
+
+                index++;
+            } while (index < tokens.Count);
+
+            return index;
+        }
+
         private static string ResolveEscapedUnicodeCharacters(CssToken token)
         {
             if (token.EscapedUnicodeCharacterCount == 0)
@@ -1667,7 +1725,7 @@ namespace XamlCSS.CssParsing
             return default(CssToken);
         }
 
-        private static CssTokenType FirstTokenTypeOf(List<CssToken> tokens, int index, CssTokenType[] types, bool ignoreWhitespace = true)
+        private static CssTokenType FirstTokenTypeOf(List<CssToken> tokens, int index, CssTokenType[] types, bool ignoreWhitespace = true, bool handleQuotedText = false)
         {
             index++;
 
@@ -1678,6 +1736,20 @@ namespace XamlCSS.CssParsing
                 {
                     index++;
                     continue;
+                }
+
+
+                if (handleQuotedText &&
+                    tokens[index].Type == CssTokenType.DoubleQuotes)
+                {
+                    index++;
+                    index = SkipDoubleQuoteText(tokens, index, false);
+                }
+                else if (handleQuotedText &&
+                    tokens[index].Type == CssTokenType.SingleQuotes)
+                {
+                    index++;
+                    index = SkipSingleQuoteText(tokens, index, false);
                 }
 
                 foreach (var type in types)
