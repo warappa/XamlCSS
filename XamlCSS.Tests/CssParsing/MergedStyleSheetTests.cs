@@ -38,7 +38,7 @@ namespace XamlCSS.Tests.CssParsing
             mergedStyleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("Padding");
             mergedStyleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("15, 15, 15, 15");
 
-            mergedStyleSheet.AddedStyleSheets = new StyleSheetCollection(new[] { styleSheetA, styleSheetB });
+            mergedStyleSheet.BaseStyleSheets = new StyleSheetCollection(new[] { styleSheetA, styleSheetB });
 
             mergedStyleSheet.Rules.Count.Should().Be(1);
             mergedStyleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("BackgroundColor");
@@ -68,7 +68,7 @@ namespace XamlCSS.Tests.CssParsing
             mergedStyleSheet.Namespaces[0].Alias.Should().Be("thirdAlias");
             mergedStyleSheet.Namespaces[0].Namespace.Should().Be("mergedStyleSheet");
 
-            mergedStyleSheet.AddedStyleSheets = new StyleSheetCollection(new[] { styleSheetA, styleSheetB });
+            mergedStyleSheet.BaseStyleSheets = new StyleSheetCollection(new[] { styleSheetA, styleSheetB });
 
             mergedStyleSheet.Rules.Count.Should().Be(0);
             mergedStyleSheet.Namespaces[0].Alias.Should().Be("alias");

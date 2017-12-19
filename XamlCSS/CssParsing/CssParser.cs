@@ -15,28 +15,30 @@ namespace XamlCSS.CssParsing
             CssParser.cssFileProvider = cssFileProvider;
         }
 
-        public static StyleSheet Parse(string document, string defaultCssNamespace = null)
+        public static StyleSheet Parse(string document, string defaultCssNamespace = null, IDictionary<string, string> variables = null)
         {
             var result = new AstGenerator().GetAst(document);
 
-            return Parse(result, defaultCssNamespace);
+            return Parse(result, defaultCssNamespace, variables);
         }
 
-        public static StyleSheet Parse(CssNode document, string defaultCssNamespace = null)
+        public static StyleSheet Parse(CssNode document, string defaultCssNamespace = null, IDictionary<string, string> variables = null)
         {
             return Parse(new GeneratorResult
             {
                 Errors = new List<LineInfo>(),
                 Warnings = new List<LineInfo>(),
                 Root = document
-            }, defaultCssNamespace);
+            }, defaultCssNamespace, variables);
         }
 
-        public static StyleSheet Parse(GeneratorResult result, string defaultCssNamespace = null)
+        public static StyleSheet Parse(GeneratorResult result, string defaultCssNamespace = null, IDictionary<string, string> variables = null)
         {
             var ast = result.Root;
 
             var styleSheet = new StyleSheet();
+
+            variables = GetVariablesOfBlock(result.Root, variables);
 
             if (result.Errors.Any() ||
                 result.Warnings.Any())
@@ -77,7 +79,7 @@ namespace XamlCSS.CssParsing
 
             foreach (var astRule in styleRules)
             {
-                GetStyleRules(styleSheet, astRule);
+                GetStyleRules(styleSheet, astRule, variables);
             }
 
             var splitAndOrderedRules = styleSheet.LocalRules
@@ -119,7 +121,7 @@ namespace XamlCSS.CssParsing
                             {
                                 var existing = combinedStyleDeclaration.DeclarationBlock.Triggers
                                     .OfType<Trigger>()
-                                    .FirstOrDefault(y => 
+                                    .FirstOrDefault(y =>
                                         y.Property == propertyTrigger.Property &&
                                         y.Value == propertyTrigger.Value);
 
@@ -153,10 +155,10 @@ namespace XamlCSS.CssParsing
                             {
                                 var existing = combinedStyleDeclaration.DeclarationBlock.Triggers
                                     .OfType<DataTrigger>()
-                                    .FirstOrDefault(y => 
+                                    .FirstOrDefault(y =>
                                         y.Binding == dataTrigger.Binding &&
                                         y.Value == dataTrigger.Value);
-                                
+
                                 if (existing != null)
                                 {
                                     existing.EnterActions = dataTrigger.EnterActions;
@@ -181,7 +183,41 @@ namespace XamlCSS.CssParsing
             styleSheet.LocalRules.Clear();
             styleSheet.LocalRules.AddRange(splitAndOrderedRules);
 
+            styleSheet.Variables.Clear();
+            foreach (var variable in GetVariables(result.Root))
+            {
+                styleSheet.Variables.Add(variable);
+            }
+
             return styleSheet;
+        }
+
+        private static IDictionary<string, string> GetVariablesOfBlock(CssNode astNode, IDictionary<string, string> variables)
+        {
+            variables = new Dictionary<string, string>(variables ?? new Dictionary<string,string>());
+            foreach (var variable in GetVariables(astNode))
+            {
+                variables[variable.Key] = variable.Value;
+            }
+
+            return variables;
+        }
+
+        private static IReadOnlyDictionary<string, string> GetVariables(CssNode root)
+        {
+            var dict = new Dictionary<string, string>();
+
+            foreach (var node in root.Children)
+            {
+                if (node.Type == CssNodeType.VariableDeclaration)
+                {
+                    var name = node.Children.First(x => x.Type == CssNodeType.VariableName).Text;
+                    var value = node.Children.First(x => x.Type == CssNodeType.VariableValue).Text;
+                    dict[name] = value;
+                }
+            }
+
+            return dict;
         }
 
         private static List<string> GetAllRuleSelectors(List<List<string>> allSelectorLayers)
@@ -221,10 +257,10 @@ namespace XamlCSS.CssParsing
                 return currentSelector.Replace("&", baseSelector);
             }
 
-            return (hasBaseSelector ? baseSelector + " " : "" ) + currentSelector;
+            return (hasBaseSelector ? baseSelector + " " : "") + currentSelector;
         }
 
-        private static string GetVariableValue(CssNode variableReferenceAst, Dictionary<string, string> parameterValues)
+        private static string GetVariableValue(CssNode variableReferenceAst, IDictionary<string, string> parameterValues)
         {
             var variableName = variableReferenceAst.Text;
 
@@ -242,7 +278,7 @@ namespace XamlCSS.CssParsing
                     current.Type == CssNodeType.Document)
                 {
                     foundDeclaration = current.GetVariableDeclaration(variableName);
-                    
+
                     if (foundDeclaration != null)
                     {
                         return foundDeclaration.Children.First(y => y.Type == CssNodeType.VariableValue).Text;
@@ -252,10 +288,12 @@ namespace XamlCSS.CssParsing
                 current = current.Parent;
             }
 
-            throw new InvalidOperationException($"Variable {variableName} not found!");
+            //throw new InvalidOperationException($"Variable {variableName} not found!");
+
+            return null;
         }
 
-        private static List<TriggerAction> GetActionDeclarationsFromBlock(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
+        private static List<TriggerAction> GetActionDeclarationsFromBlock(CssNode astStyleDeclarationBlock, IDictionary<string, string> parameterValues)
         {
             return astStyleDeclarationBlock.Children
                 .Where(x => x.Type == CssNodeType.ActionDeclaration)
@@ -287,7 +325,7 @@ namespace XamlCSS.CssParsing
                 .ToList();
         }
 
-        private static string GetValueFromValueAst(CssNode valueAst, Dictionary<string, string> parameterValues)
+        private static string GetValueFromValueAst(CssNode valueAst, IDictionary<string, string> parameterValues)
         {
             if (valueAst.Text != "")
             {
@@ -303,7 +341,7 @@ namespace XamlCSS.CssParsing
             return GetVariableValue(variable, parameterValues);
         }
 
-        private static List<StyleDeclaration> GetStyleDeclarationsFromBlock(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
+        private static List<StyleDeclaration> GetStyleDeclarationsFromBlock(CssNode astStyleDeclarationBlock, IDictionary<string, string> parameterValues)
         {
             var mixinIncludes = GetMixinIncludes(astStyleDeclarationBlock);
 
@@ -351,17 +389,19 @@ namespace XamlCSS.CssParsing
                 .ToList();
         }
 
-        private static void GetStyleRules(StyleSheet styleSheet, CssNode astRule)
+        private static void GetStyleRules(StyleSheet styleSheet, CssNode astRule, IDictionary<string, string> variables)
         {
             var astStyleDeclarationBlock = astRule.Children
                    .Single(x => x.Type == CssNodeType.StyleDeclarationBlock);
 
-            var styleDeclarations = GetStyleDeclarationsFromBlock(astStyleDeclarationBlock, null);
+            variables = GetVariablesOfBlock(astStyleDeclarationBlock, variables);
+
+            var styleDeclarations = GetStyleDeclarationsFromBlock(astStyleDeclarationBlock, variables);
             HandleExtends(styleSheet, astStyleDeclarationBlock);
 
-            var propertyTriggers = GetPropertyTriggers(astStyleDeclarationBlock, null);
-            var dataTriggers = GetDataTriggers(astStyleDeclarationBlock, null);
-            var eventTriggers = GetEventTriggers(astStyleDeclarationBlock, null);
+            var propertyTriggers = GetPropertyTriggers(astStyleDeclarationBlock, variables);
+            var dataTriggers = GetDataTriggers(astStyleDeclarationBlock, variables);
+            var eventTriggers = GetEventTriggers(astStyleDeclarationBlock, variables);
 
             var triggers = propertyTriggers.Concat(dataTriggers).Concat(eventTriggers).ToList();
 
@@ -392,7 +432,7 @@ namespace XamlCSS.CssParsing
                 styleSheet.LocalRules.Add(rule);
             }
 
-            ResolveSubRules(styleSheet, astStyleDeclarationBlock);
+            ResolveSubRules(styleSheet, astStyleDeclarationBlock, variables);
         }
 
         private static void HandleExtends(StyleSheet styleSheet, CssNode astStyleDeclarationBlock)
@@ -416,7 +456,7 @@ namespace XamlCSS.CssParsing
             }
         }
 
-        private static List<ITrigger> GetPropertyTriggers(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
+        private static List<ITrigger> GetPropertyTriggers(CssNode astStyleDeclarationBlock, IDictionary<string, string> parameterValues)
         {
             return astStyleDeclarationBlock.Children
                             .Where(x => x.Type == CssNodeType.PropertyTrigger)
@@ -446,7 +486,7 @@ namespace XamlCSS.CssParsing
                             .ToList<ITrigger>();
         }
 
-        private static List<TriggerAction> GetTriggerActions(CssNode astTriggerStyleDeclarationBlock, CssNodeType type, Dictionary<string, string> parameterValues)
+        private static List<TriggerAction> GetTriggerActions(CssNode astTriggerStyleDeclarationBlock, CssNodeType type, IDictionary<string, string> parameterValues)
         {
             if (type != CssNodeType.EnterAction &&
                 type != CssNodeType.ExitAction)
@@ -468,7 +508,7 @@ namespace XamlCSS.CssParsing
             return GetActionDeclarationsFromBlock(actionDeclarationBlockAst, parameterValues);
         }
 
-        private static List<ITrigger> GetDataTriggers(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
+        private static List<ITrigger> GetDataTriggers(CssNode astStyleDeclarationBlock, IDictionary<string, string> parameterValues)
         {
             return astStyleDeclarationBlock.Children
                             .Where(x => x.Type == CssNodeType.DataTrigger)
@@ -498,7 +538,7 @@ namespace XamlCSS.CssParsing
                             .ToList<ITrigger>();
         }
 
-        private static List<ITrigger> GetEventTriggers(CssNode astStyleDeclarationBlock, Dictionary<string, string> parameterValues)
+        private static List<ITrigger> GetEventTriggers(CssNode astStyleDeclarationBlock, IDictionary<string, string> parameterValues)
         {
             return astStyleDeclarationBlock.Children
                             .Where(x => x.Type == CssNodeType.EventTrigger)
@@ -611,7 +651,7 @@ namespace XamlCSS.CssParsing
                             .ToList();
         }
 
-        private static void ResolveSubRules(StyleSheet styleSheet, CssNode astStyleDeclarationBlock)
+        private static void ResolveSubRules(StyleSheet styleSheet, CssNode astStyleDeclarationBlock, IDictionary<string, string> variables)
         {
             var subRuleAsts = astStyleDeclarationBlock.Children
                 .Where(x => x.Type == CssNodeType.StyleRule)
@@ -619,7 +659,7 @@ namespace XamlCSS.CssParsing
 
             foreach (var subRuleAst in subRuleAsts)
             {
-                GetStyleRules(styleSheet, subRuleAst);
+                GetStyleRules(styleSheet, subRuleAst, variables);
             }
         }
 

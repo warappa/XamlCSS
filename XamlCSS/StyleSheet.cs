@@ -25,7 +25,7 @@ namespace XamlCSS
         protected StyleRuleCollection combinedRules;
         protected CssNamespaceCollection localNamespaces = new CssNamespaceCollection();
         protected StyleRuleCollection localRules = new StyleRuleCollection();
-        protected StyleSheetCollection addedStyleSheets = null;
+        protected StyleSheetCollection baseStyleSheets = null;
         protected bool inheritStyleSheets = true;
         protected StyleSheetCollection inheritedStyleSheets = null;
         protected string content = null;
@@ -40,6 +40,8 @@ namespace XamlCSS
             set
             {
                 localNamespaces = value;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalNamespaces"));
             }
         }
 
@@ -52,6 +54,24 @@ namespace XamlCSS
             set
             {
                 localRules = value;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalRules"));
+            }
+        }
+
+        virtual public IDictionary<string, string> Variables
+        {
+            get
+            {
+                return variables ?? (variables = new Dictionary<string, string>());
+            }
+            set
+            {
+                variables = value;
+
+                //Invalidate();
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Variables"));
             }
         }
 
@@ -65,28 +85,32 @@ namespace XamlCSS
             {
                 content = value;
 
-                Reset();
-
-                var sheet = CssParser.Parse(string.Join(" ", AddedStyleSheets.Select(x => x.Content).Concat(new[] { content })));
-
-                foreach (var error in sheet.Errors)
-                {
-                    this.Errors.Add(error);
-                }
-                foreach (var warning in sheet.Warnings)
-                {
-                    this.Warnings.Add(warning);
-                }
-
-                this.LocalNamespaces = sheet.LocalNamespaces;
-                this.LocalRules = sheet.LocalRules;
-
-                inheritedStyleSheets = null;
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Warnings"));
+                Invalidate();
             }
+        }
+
+        private void Invalidate()
+        {
+            Reset();
+
+            var sheet = CssParser.Parse(content, null, GetCombinedVariables());
+
+            foreach (var error in sheet.Errors)
+            {
+                this.Errors.Add(error);
+            }
+            foreach (var warning in sheet.Warnings)
+            {
+                this.Warnings.Add(warning);
+            }
+
+            this.localNamespaces = sheet.LocalNamespaces;
+            this.localRules = sheet.LocalRules;
+            this.variables = sheet.Variables;
+
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Warnings"));
         }
 
         private ObservableCollection<string> errors = new ObservableCollection<string>();
@@ -105,6 +129,8 @@ namespace XamlCSS
         }
 
         private ObservableCollection<string> warnings = new ObservableCollection<string>();
+        private IDictionary<string, string> variables;
+
         virtual public ObservableCollection<string> Warnings
         {
             get
@@ -132,6 +158,8 @@ namespace XamlCSS
                 inheritedStyleSheets = null;
 
                 Reset();
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("AttachedTo"));
             }
         }
 
@@ -145,6 +173,8 @@ namespace XamlCSS
                 inheritedStyleSheets = null;
 
                 Reset();
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InheritStyleSheets"));
             }
         }
 
@@ -164,19 +194,36 @@ namespace XamlCSS
             }
         }
 
-        public StyleSheetCollection AddedStyleSheets
+        public StyleSheetCollection BaseStyleSheets
         {
             get
             {
-                return addedStyleSheets ?? (addedStyleSheets = new StyleSheetCollection());
+                return baseStyleSheets ?? (baseStyleSheets = new StyleSheetCollection());
             }
 
             set
             {
-                addedStyleSheets = value;
+                foreach (var added in BaseStyleSheets)
+                {
+                    added.PropertyChanged -= BaseStyleSheet_PropertyChanged;
+                }
+
+                baseStyleSheets = value;
 
                 Reset();
+
+                foreach (var added in baseStyleSheets)
+                {
+                    added.PropertyChanged += BaseStyleSheet_PropertyChanged;
+                }
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("BaseStyleSheets"));
             }
+        }
+
+        private void BaseStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            Invalidate();
         }
 
         public StyleSheetCollection InheritedStyleSheets
@@ -214,7 +261,7 @@ namespace XamlCSS
 
         protected CssNamespaceCollection GetCombinedNamespaces()
         {
-            if (AddedStyleSheets?.Count == 0 &&
+            if (BaseStyleSheets?.Count == 0 &&
                 InheritedStyleSheets?.Count == 0)
             {
                 return LocalNamespaces;
@@ -223,25 +270,41 @@ namespace XamlCSS
             return new CssNamespaceCollection(
                 InheritedStyleSheets
                 .Select(x => x.Namespaces)
-                .Concat(AddedStyleSheets.Select(x => x.Namespaces))
+                .Concat(BaseStyleSheets.Select(x => x.Namespaces))
                 .Aggregate((a, b) => new CssNamespaceCollection(a.Concat(b)))
                 .Concat(LocalNamespaces)
                 .GroupBy(x => x.Alias)
                 .Select(x => x.Last()));
         }
 
+        protected IDictionary<string, string> GetCombinedVariables()
+        {
+            if (BaseStyleSheets?.Count == 0 &&
+                InheritedStyleSheets?.Count == 0)
+            {
+                return Variables;
+            }
+
+            return InheritedStyleSheets
+                .SelectMany(x => x.Variables.ToList())
+                .Concat(BaseStyleSheets.SelectMany(x => x.Variables.ToList()))
+                .Concat(Variables)
+                .GroupBy(x => x.Key)
+                .Select(x => x.Last())
+                .ToDictionary(x => x.Key, x => x.Value);
+        }
+
         protected List<StyleRule> GetCombinedStyleRules()
         {
-            if (AddedStyleSheets?.Count == 0 &&
+            if (BaseStyleSheets?.Count == 0 &&
                 InheritedStyleSheets?.Count == 0)
             {
                 return LocalRules;
             }
 
             return InheritedStyleSheets
-                    .Select(x => x.Rules.ToList())
-                    .Concat(AddedStyleSheets.Select(x => x.Rules.ToList()))
-                    .Aggregate((a, b) => a.Concat(b).ToList())
+                    .SelectMany(x => x.Rules.ToList())
+                    .Concat(BaseStyleSheets.SelectMany(x => x.Rules.ToList()))
                     .Concat(LocalRules)
                     .GroupBy(x => x.SelectorString)
                     .Select(x => new StyleRule
@@ -266,6 +329,7 @@ namespace XamlCSS
         {
             combinedRules = null;
             combinedNamespaces = null;
+            variables = null;
 
             this.Errors.Clear();
             this.Warnings.Clear();

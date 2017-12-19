@@ -393,5 +393,54 @@ Grid {
             styleSheet.Rules[2].DeclarationBlock[0].Property.Should().Be(@"FontWeight");
             styleSheet.Rules[2].DeclarationBlock[0].Value.Should().Be(@"Normal");
         }
+
+        [Test]
+        public void StyleSheet_should_update_if_AddedStyleSheet_changes()
+        {
+            var parent = CssParser.Parse(@"
+$background: Red;
+Button {
+    Background: $background;
+}");
+
+            var dependent = new StyleSheet()
+            {
+                BaseStyleSheets = new StyleSheetCollection { parent },
+                Content = @"
+Button {
+    Foreground: $background;
+}"
+            };
+
+            parent.Errors.Count.Should().Be(0);
+            parent.Rules.Count.Should().Be(1);
+
+            parent.Rules[0].SelectorString.Should().Be(@"Button");
+            parent.Rules[0].DeclarationBlock[0].Property.Should().Be(@"Background");
+            parent.Rules[0].DeclarationBlock[0].Value.Should().Be(@"Red");
+
+            dependent.Rules[0].SelectorString.Should().Be(@"Button");
+            dependent.Rules[0].DeclarationBlock[0].Property.Should().Be(@"Background");
+            dependent.Rules[0].DeclarationBlock[0].Value.Should().Be(@"Red");
+            dependent.Rules[0].DeclarationBlock[1].Property.Should().Be(@"Foreground");
+            dependent.Rules[0].DeclarationBlock[1].Value.Should().Be(@"Red");
+
+            parent.Content = @"
+$background: Green;
+Button {
+    Background: $background;
+}
+";
+
+            parent.Rules[0].SelectorString.Should().Be(@"Button");
+            parent.Rules[0].DeclarationBlock[0].Property.Should().Be(@"Background");
+            parent.Rules[0].DeclarationBlock[0].Value.Should().Be(@"Green");
+
+            dependent.Rules[0].SelectorString.Should().Be(@"Button");
+            dependent.Rules[0].DeclarationBlock[0].Property.Should().Be(@"Background");
+            dependent.Rules[0].DeclarationBlock[0].Value.Should().Be(@"Green");
+            dependent.Rules[0].DeclarationBlock[1].Property.Should().Be(@"Foreground");
+            dependent.Rules[0].DeclarationBlock[1].Value.Should().Be(@"Green");
+        }
     }
 }
