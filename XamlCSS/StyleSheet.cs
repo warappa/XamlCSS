@@ -230,7 +230,11 @@ namespace XamlCSS
 
         private void BaseStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            Invalidate();
+            if (e.PropertyName == nameof(Content) ||
+                e.PropertyName == nameof(LocalRules))
+            {
+                Invalidate();
+            }
         }
 
         public StyleSheetCollection InheritedStyleSheets
