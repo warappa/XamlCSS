@@ -17,7 +17,7 @@ namespace XamlCSS.WPF
         {
             return (sender, e) =>
             {
-                instance.ExecuteApplyStyles();
+                instance?.ExecuteApplyStyles();
             };
         }
 
@@ -130,7 +130,7 @@ namespace XamlCSS.WPF
                 new PropertyMetadata(null, Css.StylePropertyAttached));
         private static void StylePropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            instance.UpdateElement(d);
+            instance?.UpdateElement(d);
         }
         public static StyleDeclarationBlock GetStyle(DependencyObject obj)
         {
@@ -157,7 +157,7 @@ namespace XamlCSS.WPF
             {
                 (e.OldValue as StyleSheet).PropertyChanged -= StyleSheet_PropertyChanged;
 
-                instance.EnqueueRemoveStyleSheet(element, (StyleSheet)e.OldValue);
+                instance?.EnqueueRemoveStyleSheet(element, (StyleSheet)e.OldValue);
             }
 
             var newStyleSheet = (StyleSheet)e.NewValue;
@@ -170,7 +170,7 @@ namespace XamlCSS.WPF
             newStyleSheet.PropertyChanged += StyleSheet_PropertyChanged;
             newStyleSheet.AttachedTo = element;
 
-            instance.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet);
+            instance?.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet);
         }
 
         private static void StyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -180,7 +180,7 @@ namespace XamlCSS.WPF
                 var styleSheet = sender as StyleSheet;
                 var attachedTo = styleSheet.AttachedTo as FrameworkElement;
 
-                instance.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
+                instance?.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
             }
         }
 
@@ -204,7 +204,7 @@ namespace XamlCSS.WPF
             var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
             domElement?.ResetClassList();
 
-            Css.instance.UpdateElement(element);
+            Css.instance?.UpdateElement(element);
         }
 
         public static readonly DependencyProperty HandledCssProperty =

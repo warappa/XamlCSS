@@ -33,11 +33,11 @@ namespace XamlCSS.WPF
                 ((sender as FrameworkElement)?.TemplatedParent == null) &&
                 ((sender as FrameworkContentElement)?.TemplatedParent == null))
             {
-                Css.instance.UpdateElement(sender);
+                Css.instance?.UpdateElement(sender);
             }
             else
             {
-                Css.instance.UpdateElement(sender);
+                Css.instance?.UpdateElement(sender);
             }
         }
 
@@ -95,7 +95,7 @@ namespace XamlCSS.WPF
                     (dpo as FrameworkContentElement).Loaded -= LoadedEventHandler;
                 }
 
-                Css.instance.UnapplyMatchingStyles(dpo, null);
+                Css.instance?.UnapplyMatchingStyles(dpo, null);
             }
         }
 

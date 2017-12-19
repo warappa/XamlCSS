@@ -56,11 +56,11 @@ namespace XamlCSS.UWP
 
         private static void LoadedDetectionHelper_SubTreeAdded(object sender, EventArgs e)
         {
-            instance.UpdateElement(sender as DependencyObject);
+            instance?.UpdateElement(sender as DependencyObject);
         }
         private static void LoadedDetectionHelper_SubTreeRemoved(object sender, EventArgs e)
         {
-            instance.UnapplyMatchingStyles(sender as DependencyObject, null);
+            instance?.UnapplyMatchingStyles(sender as DependencyObject, null);
         }
 
         public static void Reset()
@@ -116,7 +116,7 @@ namespace XamlCSS.UWP
 
         private static void RenderingHandler(object sender, object e)
         {
-            instance.ExecuteApplyStyles();
+            instance?.ExecuteApplyStyles();
         }
 
         #region dependency properties
@@ -210,7 +210,7 @@ namespace XamlCSS.UWP
             var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
             domElement?.ResetClassList();
 
-            Css.instance.UpdateElement(element);
+            Css.instance?.UpdateElement(element);
         }
 
         public static string GetClass(DependencyObject obj)
@@ -268,7 +268,7 @@ namespace XamlCSS.UWP
                 oldStyleSheet.PropertyChanged -= NewStyleSheet_PropertyChanged;
                 //oldStyleSheet.AttachedTo = null;
 
-                instance.EnqueueRemoveStyleSheet(element, oldStyleSheet);
+                instance?.EnqueueRemoveStyleSheet(element, oldStyleSheet);
             }
 
             var newStyleSheet = (StyleSheet)e.NewValue;
@@ -281,7 +281,7 @@ namespace XamlCSS.UWP
             newStyleSheet.PropertyChanged += NewStyleSheet_PropertyChanged;
             newStyleSheet.AttachedTo = element;
 
-            instance.EnqueueRenderStyleSheet(element, newStyleSheet);
+            instance?.EnqueueRenderStyleSheet(element, newStyleSheet);
         }
 
         private static void NewStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -291,13 +291,13 @@ namespace XamlCSS.UWP
                 var styleSheet = sender as StyleSheet;
                 var attachedTo = styleSheet.AttachedTo as FrameworkElement;
 
-                instance.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
+                instance?.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
             }
         }
 
         private static void StylePropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            instance.UpdateElement(d as FrameworkElement);
+            instance?.UpdateElement(d as FrameworkElement);
         }
 
         #endregion

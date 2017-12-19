@@ -116,7 +116,7 @@ namespace XamlCSS.UWP
                 element.Unloaded += LoadedDetectionHelper_Unloaded;
                 SubTreeAdded?.Invoke(dpo, new EventArgs());
 
-                Css.instance.UpdateElement(dpo);
+                Css.instance?.UpdateElement(dpo);
             }
 
             // Load detection is only relyable for the first time
@@ -133,7 +133,7 @@ namespace XamlCSS.UWP
             {
                 CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
                 {
-                    Css.instance.UpdateElement(obj);
+                    Css.instance?.UpdateElement(obj);
                 });
             }
             else
@@ -143,7 +143,7 @@ namespace XamlCSS.UWP
                 dispatcherTimer.Tick += (s, e) =>
                   {
                       (s as DispatcherTimer).Stop();
-                      Css.instance.UpdateElement(obj);
+                      Css.instance?.UpdateElement(obj);
                   };
                 dispatcherTimer.Start();
             }
@@ -163,7 +163,7 @@ namespace XamlCSS.UWP
 
             // (sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
 
-            Css.instance.UnapplyMatchingStyles(sender as FrameworkElement, null);
+            Css.instance?.UnapplyMatchingStyles(sender as FrameworkElement, null);
 
             SubTreeRemoved?.Invoke(sender, new EventArgs());
         }
