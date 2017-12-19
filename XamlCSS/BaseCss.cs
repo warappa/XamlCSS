@@ -637,7 +637,7 @@ namespace XamlCSS
         }
 
         private CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> CreateStyleDictionaryFromDeclarationBlock(
-            List<CssNamespace> namespaces,
+            CssNamespaceCollection namespaces,
             StyleDeclarationBlock declarationBlock,
             Type matchedType,
             TDependencyObject dependencyObject)

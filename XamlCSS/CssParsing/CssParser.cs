@@ -60,7 +60,10 @@ namespace XamlCSS.CssParsing
                         x.Children.First(y => y.Type == CssNodeType.NamespaceValue).Text.Trim('"')))
                     .ToList();
 
-            styleSheet.LocalNamespaces.AddRange(localNamespaces);
+            foreach (var localNamespace in localNamespaces)
+            {
+                styleSheet.LocalNamespaces.Add(localNamespace);
+            }
 
             if (string.IsNullOrEmpty(defaultCssNamespace))
             {

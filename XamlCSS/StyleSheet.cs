@@ -207,18 +207,25 @@ namespace XamlCSS
                 {
                     added.PropertyChanged -= BaseStyleSheet_PropertyChanged;
                 }
+                BaseStyleSheets.CollectionChanged -= BaseStyleSheets_CollectionChanged;
 
                 baseStyleSheets = value;
 
                 Reset();
 
-                foreach (var added in baseStyleSheets)
+                foreach (var added in BaseStyleSheets)
                 {
                     added.PropertyChanged += BaseStyleSheet_PropertyChanged;
                 }
 
+                BaseStyleSheets.CollectionChanged += BaseStyleSheets_CollectionChanged;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("BaseStyleSheets"));
             }
+        }
+
+        private void BaseStyleSheets_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            Invalidate();
         }
 
         private void BaseStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)

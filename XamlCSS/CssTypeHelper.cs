@@ -84,7 +84,7 @@ namespace XamlCSS
             return propertyValue;
         }
 
-        public DependencyPropertyInfo<TDependencyProperty> GetDependencyPropertyInfo(List<CssNamespace> namespaces, Type matchedType, string propertyExpression)
+        public DependencyPropertyInfo<TDependencyProperty> GetDependencyPropertyInfo(IList<CssNamespace> namespaces, Type matchedType, string propertyExpression)
         {
             TDependencyProperty property;
 
@@ -109,7 +109,7 @@ namespace XamlCSS
             return type.GetRuntimeProperty(typeAndProperyName.Item2).GetValue(obj);
         }
 
-        public Type GetClrPropertyType(List<CssNamespace> namespaces, object obj, string propertyExpression)
+        public Type GetClrPropertyType(IList<CssNamespace> namespaces, object obj, string propertyExpression)
         {
             var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, obj.GetType());
 
@@ -117,7 +117,7 @@ namespace XamlCSS
             return type.GetRuntimeProperty(typeAndProperyName.Item2).PropertyType;
         }
 
-        public Tuple<string, string> ResolveFullTypeNameAndPropertyName(List<CssNamespace> namespaces, string cssPropertyExpression, Type matchedType)
+        public Tuple<string, string> ResolveFullTypeNameAndPropertyName(IList<CssNamespace> namespaces, string cssPropertyExpression, Type matchedType)
         {
             string typename, propertyName;
 
@@ -153,7 +153,7 @@ namespace XamlCSS
             return new Tuple<string, string>(typename, propertyName);
         }
 
-        public string ResolveFullTypeName(List<CssNamespace> namespaces, string cssTypeExpression)
+        public string ResolveFullTypeName(IList<CssNamespace> namespaces, string cssTypeExpression)
         {
             string typename;
 
