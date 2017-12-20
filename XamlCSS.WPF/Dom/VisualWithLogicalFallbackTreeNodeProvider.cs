@@ -43,10 +43,12 @@ namespace XamlCSS.WPF.Dom
 
             try
             {
+                var children = new List<DependencyObject>();
+
                 if (element is Visual ||
                     element is Visual3D)
                 {
-                    var children = VisualTreeNodeProvider.GetChildren(element).ToList();
+                    children = VisualTreeNodeProvider.GetChildren(element).ToList();
                     for (int i = 0; i < children.Count; i++)
                     {
                         var child = children[i];
@@ -57,19 +59,18 @@ namespace XamlCSS.WPF.Dom
                         }
                     }
                 }
-                else
+
+                children = LogicalTreeNodeProvider.GetChildren(element).ToList();
+                for (int i = 0; i < children.Count; i++)
                 {
-                    var children = LogicalTreeNodeProvider.GetChildren(element).ToList();
-                    for (int i = 0; i < children.Count; i++)
-                    {
-                        var child = children[i];
+                    var child = children[i];
 
-                        if (child != null)
-                        {
-                            list.Add(child);
-                        }
+                    if (child != null)
+                    {
+                        list.Add(child);
                     }
                 }
+
             }
             catch { }
             return list;
