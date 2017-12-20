@@ -38,6 +38,22 @@ namespace XamlCSS.Dom
             this.nodes = nodes.ToList();
 		}
 
+        public INode Add(TDependencyObject dependencyObject)
+        {
+            var node = treeNodeProvider.GetDomElement(dependencyObject);
+            nodes.Add(node);
+
+            return node;
+        }
+
+        public INode Remove(TDependencyObject dependencyObject)
+        {
+            var node = nodes.First(x => ((IDomElement<TDependencyObject>)x).Element == dependencyObject);
+            nodes.Remove(node);
+
+            return node;
+        }
+
 		abstract protected INode CreateNode(TDependencyObject dependencyObject, IDomElement<TDependencyObject> parentNode);
 
 		abstract protected IEnumerable<TDependencyObject> GetChildren(TDependencyObject dependencyObject);

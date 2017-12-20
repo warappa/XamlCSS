@@ -18,8 +18,8 @@ namespace XamlCSS.WPF.Dom
 
         private void RegisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded += ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved += ElementRemoved;
+            LoadedDetectionHelper.SubTreeAdded += DomElementAdded;
+            LoadedDetectionHelper.SubTreeRemoved += DomElementRemoved;
         }
 
         public new void Dispose()
@@ -31,28 +31,10 @@ namespace XamlCSS.WPF.Dom
 
         private void UnregisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded -= ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved -= ElementRemoved;
+            LoadedDetectionHelper.SubTreeAdded -= DomElementAdded;
+            LoadedDetectionHelper.SubTreeRemoved -= DomElementRemoved;
         }
-
-        private void ElementAdded(object sender, EventArgs e)
-        {
-            var parentElement = treeNodeProvider.GetParent(sender as FrameworkElement);
-
-            if (parentElement == dependencyObject)
-            {
-                this.ResetChildren();
-            }
-        }
-
-        private void ElementRemoved(object sender, EventArgs e)
-        {
-            if (Children.Any(x => ((DomElement)x).Element == sender))
-            {
-                this.ResetChildren();
-            }
-        }
-
+        
         protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
         {
             return new ElementCollection(list, treeNodeProvider);

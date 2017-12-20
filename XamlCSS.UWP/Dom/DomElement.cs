@@ -34,22 +34,6 @@ namespace XamlCSS.UWP.Dom
             LoadedDetectionHelper.SubTreeRemoved -= DomElementRemoved;
         }
 
-        private void DomElementAdded(object sender, EventArgs e)
-        {
-            if (treeNodeProvider.GetParent(sender as DependencyObject) == dependencyObject)
-            { 
-                this.ResetChildren();
-            }
-        }
-
-        private void DomElementRemoved(object sender, EventArgs e)
-        {
-            if (Children.Any(x => ((DomElement)x).Element == sender))
-            {
-                this.ResetChildren();
-            }
-        }
-
         protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
         {
             return new ElementCollection(list, treeNodeProvider);

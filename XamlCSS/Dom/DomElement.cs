@@ -121,6 +121,31 @@ namespace XamlCSS.Dom
             this.TagName = dependencyObject.GetType().Name;
         }
 
+
+        protected void DomElementAdded(object sender, EventArgs e)
+        {
+            if (treeNodeProvider.GetParent(sender as TDependencyObject) == dependencyObject)
+            {
+                if (childNodes != null)
+                {
+                    var node = ((NamedNodeListBase<TDependencyObject, TDependencyProperty>)childNodes).Add(sender as TDependencyObject);
+                    ((ElementCollectionBase<TDependencyObject>)children)?.Add((IElement)node);
+                }
+            }
+        }
+
+        protected void DomElementRemoved(object sender, EventArgs e)
+        {
+            if (Children.Any(x => ((IDomElement<TDependencyObject>)x).Element == sender))
+            {
+                if (childNodes != null)
+                {
+                    var node = ((NamedNodeListBase<TDependencyObject, TDependencyProperty>)childNodes).Remove(sender as TDependencyObject);
+                    ((ElementCollectionBase<TDependencyObject>)children)?.Remove((IElement)node);
+                }
+            }
+        }
+
         protected void ResetChildren()
         {
             this.childNodes = null;
@@ -163,7 +188,7 @@ namespace XamlCSS.Dom
 
         public int ChildElementCount { get { return Children.Count(); } }
 
-        public INodeList ChildNodes => childNodes ?? (GetChildNodes(dependencyObject));
+        public INodeList ChildNodes => childNodes ?? (childNodes = GetChildNodes(dependencyObject));
 
         public IHtmlCollection<IElement> Children
         {

@@ -4,7 +4,6 @@ using XamlCSS.Dom;
 using Xamarin.Forms;
 using System;
 using XamlCSS.Windows.Media;
-using System.Linq;
 
 namespace XamlCSS.XamarinForms.Dom
 {
@@ -18,8 +17,8 @@ namespace XamlCSS.XamarinForms.Dom
 
         private void RegisterChildrenChangeHandler()
         {
-            VisualTreeHelper.SubTreeAdded += ElementAdded;
-            VisualTreeHelper.SubTreeRemoved += ElementRemoved;
+            VisualTreeHelper.SubTreeAdded += DomElementAdded;
+            VisualTreeHelper.SubTreeRemoved += DomElementRemoved;
         }
 
         public new void Dispose()
@@ -31,27 +30,10 @@ namespace XamlCSS.XamarinForms.Dom
 
         private void UnregisterChildrenChangeHandler()
         {
-            VisualTreeHelper.SubTreeAdded -= ElementAdded;
-            VisualTreeHelper.SubTreeRemoved -= ElementRemoved;
+            VisualTreeHelper.SubTreeAdded -= DomElementAdded;
+            VisualTreeHelper.SubTreeRemoved -= DomElementRemoved;
         }
-
-        private void ElementAdded(object sender, EventArgs e)
-        {
-            var parentElement = (sender as Element)?.Parent;
-
-            if (parentElement == dependencyObject)
-            {
-                this.ResetChildren();
-            }
-        }
-
-        private void ElementRemoved(object sender, EventArgs e)
-        {
-            if (Children.Any(x => ((DomElement)x).Element == sender))
-            {
-                this.ResetChildren();
-            }
-        }
+        
 
         protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
         {

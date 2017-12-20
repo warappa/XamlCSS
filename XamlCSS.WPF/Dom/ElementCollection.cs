@@ -2,8 +2,6 @@
 using System.Windows;
 using AngleSharp.Dom;
 using XamlCSS.Dom;
-using System.Linq;
-using System.Windows.Controls;
 
 namespace XamlCSS.WPF.Dom
 {
