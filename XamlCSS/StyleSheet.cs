@@ -225,6 +225,14 @@ namespace XamlCSS
 
         private void BaseStyleSheets_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
+            foreach (StyleSheet item in e.OldItems)
+            {
+                item.PropertyChanged -= BaseStyleSheet_PropertyChanged;
+            }
+            foreach (StyleSheet item in e.NewItems)
+            {
+                item.PropertyChanged += BaseStyleSheet_PropertyChanged;
+            }
             Invalidate();
         }
 
