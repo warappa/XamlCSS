@@ -34,7 +34,6 @@ namespace XamlCSS.XamarinForms.Dom
             VisualTreeHelper.SubTreeRemoved -= DomElementRemoved;
         }
         
-
         protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
         {
             return new ElementCollection(list, treeNodeProvider);
@@ -71,6 +70,39 @@ namespace XamlCSS.XamarinForms.Dom
         protected override string GetId(BindableObject dependencyObject)
         {
             return Css.GetId(dependencyObject);
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as DomElement;
+            if (other == null)
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.dependencyObject == other.dependencyObject;
+        }
+
+        public static bool operator ==(DomElement a, DomElement b)
+        {
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+            return a?.Equals(b) == true;
+        }
+        public static bool operator !=(DomElement a, DomElement b)
+        {
+            return !(a == b);
+        }
+
+        public override int GetHashCode()
+        {
+            return dependencyObject?.GetHashCode() ?? 0;
         }
     }
 }

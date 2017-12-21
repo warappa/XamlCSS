@@ -71,5 +71,38 @@ namespace XamlCSS.UWP.Dom
         {
             return dependencyObject.ReadLocalValue(FrameworkElement.NameProperty) as string;
         }
+        
+        public override bool Equals(object obj)
+        {
+            var other = obj as DomElement;
+            if (other == null)
+            {
+                return false;
+            }
+            if (ReferenceEquals(this, other))
+            {
+                return true;
+            }
+
+            return this.dependencyObject == other.dependencyObject;
+        }
+
+        public static bool operator ==(DomElement a, DomElement b)
+        {
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+            return a?.Equals(b) == true;
+        }
+        public static bool operator !=(DomElement a, DomElement b)
+        {
+            return !(a == b);
+        }
+
+        public override int GetHashCode()
+        {
+            return dependencyObject?.GetHashCode() ?? 0;
+        }
     }
 }

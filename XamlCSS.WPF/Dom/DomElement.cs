@@ -34,7 +34,7 @@ namespace XamlCSS.WPF.Dom
             LoadedDetectionHelper.SubTreeAdded -= DomElementAdded;
             LoadedDetectionHelper.SubTreeRemoved -= DomElementRemoved;
         }
-        
+
         protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
         {
             return new ElementCollection(list, treeNodeProvider);
@@ -49,7 +49,7 @@ namespace XamlCSS.WPF.Dom
             return new ElementCollection(this, treeNodeProvider);
         }
         protected override INodeList GetChildNodes(DependencyObject dependencyObject)
-        {            
+        {
             return new NamedNodeList(this, treeNodeProvider);
         }
         protected override INodeList CreateNodeList(IEnumerable<INode> nodes)
@@ -77,6 +77,7 @@ namespace XamlCSS.WPF.Dom
 
             return dependencyObject.ReadLocalValue(FrameworkContentElement.NameProperty) as string;
         }
+
         public override bool Equals(object obj)
         {
             var other = obj as DomElement;
@@ -103,6 +104,11 @@ namespace XamlCSS.WPF.Dom
         public static bool operator !=(DomElement a, DomElement b)
         {
             return !(a == b);
+        }
+
+        public override int GetHashCode()
+        {
+            return dependencyObject?.GetHashCode() ?? 0;
         }
     }
 }

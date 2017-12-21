@@ -13,6 +13,7 @@ namespace XamlCSS.UWP.Dom
 		{
 
 		}
+
 		public override bool Equals(object obj)
 		{
 			var otherNode = obj as VisualDomElement;

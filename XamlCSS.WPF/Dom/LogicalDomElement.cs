@@ -22,10 +22,10 @@ namespace XamlCSS.WPF.Dom
 				otherNode.dependencyObject.Equals(dependencyObject) : 
 				false;
 		}
-
-		public override int GetHashCode()
-		{
-			return dependencyObject.GetHashCode();
-		}
-	}
+        
+        public override int GetHashCode()
+        {
+            return dependencyObject.GetHashCode();
+        }
+    }
 }

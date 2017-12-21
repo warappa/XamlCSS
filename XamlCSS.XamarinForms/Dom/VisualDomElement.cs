@@ -1,5 +1,4 @@
-﻿using System;
-using Xamarin.Forms;
+﻿using Xamarin.Forms;
 using XamlCSS.Dom;
 
 namespace XamlCSS.XamarinForms.Dom
