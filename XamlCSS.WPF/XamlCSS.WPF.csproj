@@ -69,9 +69,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="AngleSharp, Version=0.9.9.0, Culture=neutral, PublicKeyToken=e83494dcdc6d31ea, processorArchitecture=MSIL">
-      <HintPath>..\packages\AngleSharp.0.9.9\lib\net45\AngleSharp.dll</HintPath>
-    </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
@@ -91,10 +88,6 @@
     <Compile Include="CssParsing\CssFileProvider.cs" />
     <Compile Include="Dom\DomElement.cs" />
     <Compile Include="Css.cs" />
-    <Compile Include="Dom\ElementAttribute.cs" />
-    <Compile Include="Dom\ElementCollection.cs" />
-    <Compile Include="Dom\NamedNodeList.cs" />
-    <Compile Include="Dom\NamedNodeMap.cs" />
     <Compile Include="Dom\SwitchableTreeNodeProvider.cs" />
     <Compile Include="Dom\VisualWithLogicalFallbackTreeNodeProvider.cs" />
     <Compile Include="LoadedDetectionHelper.cs" />
@@ -114,9 +107,6 @@
       <Project>{a11ea228-bcdc-46ec-8f8b-57fc9227c1ac}</Project>
       <Name>XamlCSS</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

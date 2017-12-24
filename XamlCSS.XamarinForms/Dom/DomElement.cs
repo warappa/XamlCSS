@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
-using AngleSharp.Dom;
 using XamlCSS.Dom;
 using Xamarin.Forms;
 using System;
 using XamlCSS.Windows.Media;
+using XamlCSS.Utils;
+using System.Linq;
 
 namespace XamlCSS.XamarinForms.Dom
 {
@@ -34,30 +35,9 @@ namespace XamlCSS.XamarinForms.Dom
             VisualTreeHelper.SubTreeRemoved -= DomElementRemoved;
         }
         
-        protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
+        protected override IList<string> GetClassList(BindableObject dependencyObject)
         {
-            return new ElementCollection(list, treeNodeProvider);
-        }
-        protected override INamedNodeMap CreateNamedNodeMap(BindableObject dependencyObject)
-        {
-            return new NamedNodeMap(dependencyObject);
-        }
-
-        protected override IHtmlCollection<IElement> GetChildElements(BindableObject dependencyObject)
-        {
-            return new ElementCollection(this, treeNodeProvider);
-        }
-        protected override INodeList GetChildNodes(BindableObject dependencyObject)
-        {
-            return new NamedNodeList(this, treeNodeProvider);
-        }
-        protected override INodeList CreateNodeList(IEnumerable<INode> nodes)
-        {
-            return new NamedNodeList(nodes, treeNodeProvider);
-        }
-        protected override ITokenList GetClassList(BindableObject dependencyObject)
-        {
-            var list = new TokenList();
+            var list = new List<string>();
 
             var classNames = Css.GetClass(dependencyObject)?.Split(classSplitter, StringSplitOptions.RemoveEmptyEntries);
             if (classNames?.Length > 0)
@@ -67,6 +47,13 @@ namespace XamlCSS.XamarinForms.Dom
 
             return list;
         }
+
+        protected override IDictionary<string, BindableProperty> CreateNamedNodeMap(BindableObject dependencyObject)
+        {
+            return TypeHelpers.DeclaredDependencyProperties<BindableProperty>(dependencyObject.GetType())
+                .ToDictionary(x => x.Name, x => x.Property);
+        }
+
         protected override string GetId(BindableObject dependencyObject)
         {
             return Css.GetId(dependencyObject);

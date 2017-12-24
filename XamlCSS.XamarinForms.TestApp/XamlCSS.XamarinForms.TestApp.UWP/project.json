@@ -1,6 +1,5 @@
 ﻿{
   "dependencies": {
-    "AngleSharp": "0.9.9",
     "Microsoft.NETCore.UniversalWindowsPlatform": "5.2.2",
     "PCLStorage": "1.0.2",
     "Xamarin.Forms": "2.3.3.180"

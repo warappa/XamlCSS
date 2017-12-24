@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using AngleSharp.Dom;
-using AngleSharp.Dom.Css;
 
 namespace XamlCSS.Dom
 {
@@ -34,7 +32,7 @@ namespace XamlCSS.Dom
             return string.Equals(current, other, StringComparison.Ordinal);
         }
 
-        public static bool Contains(this ITokenList list, string[] tokens)
+        public static bool Contains(this IList<string> list, string[] tokens)
         {
             var length = tokens.Length;
             for (int i = 0; i < length; i++)

@@ -99,24 +99,6 @@
     <licenseUrl>http://opensource.org/licenses/MIT</licenseUrl>
     <copyright>© 2017 David Rettenbacher</copyright>
     <dependencies>
-      <group>
-        <dependency id="AngleSharp" version="0.9.9" />
-      </group>
-      <group targetFramework="Xamarin.iOS10">
-        <dependency id="AngleSharp" version="0.9.9" />
-      </group>
-      <group targetFramework="MonoAndroid10">
-        <dependency id="AngleSharp" version="0.9.9" />
-      </group>
-      <group targetFramework="wp8">
-        <dependency id="AngleSharp" version="0.9.9" />
-      </group>
-      <group targetFramework="wpa81">
-        <dependency id="AngleSharp" version="0.9.9" />
-      </group>
-      <group targetFramework="uap10.0">
-        <dependency id="AngleSharp" version="0.9.9" />
-      </group>
     </dependencies>
     <references></references>
     <tags>xaml css style</tags>

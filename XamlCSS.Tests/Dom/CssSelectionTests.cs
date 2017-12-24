@@ -1,11 +1,6 @@
-﻿using AngleSharp.Dom;
-using FakeItEasy;
-using NUnit.Framework;
-using System;
-using System.Collections.Generic;
+﻿using NUnit.Framework;
 using System.Linq;
 using XamlCSS.CssParsing;
-using XamlCSS.Dom;
 
 namespace XamlCSS.Tests.Dom
 {

@@ -1,5 +1,4 @@
-﻿using AngleSharp.Dom;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;

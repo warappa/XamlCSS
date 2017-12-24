@@ -36,7 +36,7 @@ namespace XamlCSS.WPF.Dom
 
         protected override IList<string> GetClassList(DependencyObject dependencyObject)
         {
-            var list = new TokenList();
+            var list = new List<string>();
 
             var classNames = Css.GetClass(dependencyObject)?.Split(classSplitter, StringSplitOptions.RemoveEmptyEntries);
             if (classNames?.Length > 0)

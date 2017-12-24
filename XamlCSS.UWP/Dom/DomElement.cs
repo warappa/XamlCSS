@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using AngleSharp.Dom;
 using XamlCSS.Dom;
 using Windows.UI.Xaml;
 using System;
+using XamlCSS.Utils;
 using System.Linq;
 
 namespace XamlCSS.UWP.Dom
@@ -34,30 +34,9 @@ namespace XamlCSS.UWP.Dom
             LoadedDetectionHelper.SubTreeRemoved -= DomElementRemoved;
         }
 
-        protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
+        protected override IList<string> GetClassList(DependencyObject dependencyObject)
         {
-            return new ElementCollection(list, treeNodeProvider);
-        }
-        protected override INamedNodeMap CreateNamedNodeMap(DependencyObject dependencyObject)
-        {
-            return new NamedNodeMap(dependencyObject);
-        }
-
-        protected override IHtmlCollection<IElement> GetChildElements(DependencyObject dependencyObject)
-        {
-            return new ElementCollection(this, treeNodeProvider);
-        }
-        protected override INodeList GetChildNodes(DependencyObject dependencyObject)
-        {
-            return new NamedNodeList(this, treeNodeProvider);
-        }
-        protected override INodeList CreateNodeList(IEnumerable<INode> nodes)
-        {
-            return new NamedNodeList(nodes, treeNodeProvider);
-        }
-        protected override ITokenList GetClassList(DependencyObject dependencyObject)
-        {
-            var list = new TokenList();
+            var list = new List<string>();
             var classNames = Css.GetClass(dependencyObject)?.Split(' ');
 
             if (classNames != null)
@@ -71,7 +50,13 @@ namespace XamlCSS.UWP.Dom
         {
             return dependencyObject.ReadLocalValue(FrameworkElement.NameProperty) as string;
         }
-        
+
+        protected override IDictionary<string, DependencyProperty> CreateNamedNodeMap(DependencyObject dependencyObject)
+        {
+            return TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(dependencyObject.GetType())
+                .ToDictionary(x => x.Name, x => x.Property);
+        }
+
         public override bool Equals(object obj)
         {
             var other = obj as DomElement;
