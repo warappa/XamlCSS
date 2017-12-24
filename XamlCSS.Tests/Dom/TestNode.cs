@@ -111,20 +111,26 @@ namespace XamlCSS.Tests.Dom
     [DebuggerDisplay("{TagName} #{Id} .{ClassName}")]
     public class TestNode : DomElementBase<UIElement, IDictionary<object, object>>
     {
-        public TestNode(UIElement dependencyObject, string tagname, IEnumerable<IElement> children = null,
-            IDictionary<string, string> attributes = null, string id = null, string @class = null)
-            : base(dependencyObject ?? new UIElement(), (ITreeNodeProvider<UIElement>)null)
+        public TestNode(UIElement dependencyObject, string tagname, IEnumerable<IDomElement<UIElement>> children = null,
+            IDictionary<string, IDictionary<object, object>> attributes = null, string id = null, string @class = null)
+            : base(dependencyObject ?? new UIElement(), null)
         {
-            this.childNodes = CreateNodeList(children ?? new List<IElement>());
+            this.childNodes = children?.ToList() ?? new List<IDomElement<UIElement>>();
             foreach (TestNode c in ChildNodes)
             {
-                c.parent = c.parentElement = this;
+                c.parent = this;
             }
-            this.ClassList.Add((@class ?? "").Split(classSplitter, StringSplitOptions.RemoveEmptyEntries));
+
+            this.classList = new List<string>();
+            foreach (var item in (@class ?? "").Split(classSplitter, StringSplitOptions.RemoveEmptyEntries))
+            {
+                this.ClassList.Add(item);
+            }
+
             this.Id = id;
             this.LocalName = this.NodeName = this.TagName = tagname;
             this.prefix = "ui";
-            this.attributes = new TestNamedNodeMap(attributes ?? new Dictionary<string, string>());
+            this.attributes = attributes ?? new Dictionary<string, IDictionary<object, object>>();
         }
 
         public string namespaceUri;
@@ -141,8 +147,19 @@ namespace XamlCSS.Tests.Dom
             }
         }
 
-        INode parent;
-        public override INode Parent
+        protected override IDictionary<string, IDictionary<object, object>> CreateNamedNodeMap(UIElement dependencyObject)
+        {
+            return (IDictionary<string, IDictionary<object, object>>)new Dictionary<string, Dictionary<object, object>>();
+        }
+        protected override IList<string> GetClassList(UIElement dependencyObject)
+        {
+            return dependencyObject.Class.Split(new[] { ' '}, StringSplitOptions.RemoveEmptyEntries).ToList();
+        }
+
+        IDomElement<UIElement> parent;
+        public string ClassName => string.Join(" ", ClassList);
+
+        public override IDomElement<UIElement> Parent
         {
             get
             {
@@ -150,45 +167,6 @@ namespace XamlCSS.Tests.Dom
             }
         }
 
-        IElement parentElement;
-        public override IElement ParentElement
-        {
-            get
-            {
-                return parentElement;
-            }
-        }
-        protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
-        {
-            return new TestElementCollection(list);
-        }
-        protected override INamedNodeMap CreateNamedNodeMap(UIElement dependencyObject)
-        {
-            return new TestNamedNodeMap(dependencyObject);
-        }
-
-        protected override IHtmlCollection<IElement> GetChildElements(UIElement dependencyObject)
-        {
-            return new TestElementCollection(this);
-        }
-        protected override INodeList GetChildNodes(UIElement dependencyObject)
-        {
-            return new TestNamedNodeList(this);
-        }
-        protected override INodeList CreateNodeList(IEnumerable<INode> nodes)
-        {
-            return new TestNamedNodeList(nodes);
-        }
-        protected override ITokenList GetClassList(UIElement dependencyObject)
-        {
-            var list = new TokenList();
-            var classNames = (dependencyObject.Class ?? "").Split(classSplitter, StringSplitOptions.RemoveEmptyEntries);
-            if (classNames?.Length > 0)
-            {
-                list.AddRange(classNames);
-            }
-            return list;
-        }
         protected override string GetId(UIElement dependencyObject)
         {
             return dependencyObject.Id;

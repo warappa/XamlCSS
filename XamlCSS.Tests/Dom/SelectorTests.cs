@@ -3,6 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using XamlCSS.Dom;
 
 namespace XamlCSS.Tests.Dom
 {
@@ -150,7 +151,7 @@ namespace XamlCSS.Tests.Dom
             var tag = GetDomElement("button", "bbb", "some important stuff");
 
             var parent = GetDomElement("a", null, "", new[] { tag });
-            var parentRoot = GetDomElement("a", null, "", new[] { parent });
+            var parentRoot = GetDomElement("b", null, "", new[] { parent });
 
             selector.Match(tag).Should().Be(true);
         }
@@ -207,7 +208,34 @@ namespace XamlCSS.Tests.Dom
             selector.Match(tag).Should().Be(true);
         }
 
-        public TestNode GetDomElement(string tagname, string id, string classes = "", IEnumerable<IElement> children = null)
+        [Test]
+        public void Can_match_nth_child()
+        {
+            var selector = new Selector("button:nth-child(2)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, tag });
+
+            selector.Match(tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_of_type()
+        {
+            var selector = new Selector("button:nth-of-type(2)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(tag).Should().Be(true);
+        }
+
+        public TestNode GetDomElement(string tagname, string id, string classes = "", IEnumerable<IDomElement<UIElement>> children = null)
         {
             return new TestNode(GetUiElement(), tagname, children, null, id, classes);
         }

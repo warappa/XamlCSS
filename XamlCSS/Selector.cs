@@ -172,14 +172,14 @@ namespace XamlCSS
 
             else if (Type == CssNodeType.DirectSiblingCombinator)
             {
-                var thisIndex = domElement.Parent.ChildNodes.IndexOf(domElement);
+                var thisIndex = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
 
                 if (thisIndex == 0)
                 {
                     return false;
                 }
 
-                var sibling = (IDomElement<TDependencyObject>)domElement.Parent.ChildNodes[thisIndex - 1];
+                var sibling = domElement.Parent?.ChildNodes[thisIndex - 1];
                 currentIndex--;
 
                 var result = fragments[currentIndex].Match(ref sibling, fragments, ref currentIndex);
@@ -190,7 +190,7 @@ namespace XamlCSS
 
             else if (Type == CssNodeType.GeneralSiblingCombinator)
             {
-                var thisIndex = domElement.Parent.ChildNodes.IndexOf(domElement);
+                var thisIndex = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
 
                 if (thisIndex == 0)
                 {
@@ -199,24 +199,27 @@ namespace XamlCSS
 
                 currentIndex--;
 
-                foreach (IDomElement<TDependencyObject> sibling in domElement.Parent.ChildNodes.Take(thisIndex))
+                if (domElement.Parent?.ChildNodes.Any() == true)
                 {
-                    var refSibling = sibling;
-                    if (fragments[currentIndex].Match(ref refSibling, fragments, ref currentIndex))
+                    foreach (IDomElement<TDependencyObject> sibling in domElement.Parent?.ChildNodes.Take(thisIndex))
                     {
-                        domElement = sibling;
-                        return true;
+                        var refSibling = sibling;
+                        if (fragments[currentIndex].Match(ref refSibling, fragments, ref currentIndex))
+                        {
+                            domElement = sibling;
+                            return true;
+                        }
                     }
                 }
-                return false;
 
+                return false;
             }
 
             else if (Type == CssNodeType.DirectDescendantCombinator)
             {
-                currentIndex--;
-                var result = domElement.Parent.ChildNodes.Contains(domElement) == true;
-                domElement = (IDomElement<TDependencyObject>)domElement.Parent;
+                //currentIndex--;
+                var result = domElement.Parent?.ChildNodes.Contains(domElement) == true;
+                domElement = domElement.Parent;
                 return result;
             }
 
@@ -225,7 +228,7 @@ namespace XamlCSS
                 currentIndex--;
                 var fragment = fragments[currentIndex];
 
-                var current = (IDomElement<TDependencyObject>)domElement.Parent;
+                var current = domElement.Parent;
                 while (current != null)
                 {
                     if (fragment.Match(ref current, fragments, ref currentIndex))
@@ -233,7 +236,7 @@ namespace XamlCSS
                         domElement = current;
                         return true;
                     }
-                    current = (IDomElement<TDependencyObject>)current.Parent;
+                    current = current.Parent;
                 }
                 return false;
             }
@@ -248,8 +251,32 @@ namespace XamlCSS
                 {
                     return domElement.Parent?.ChildNodes.IndexOf(domElement) == (domElement.Parent?.ChildNodes.Count()) - 1;
                 }
+                else if (Text.StartsWith(":nth-child"))
+                {
+                    var expression = Text.Substring(11).Replace(")", "");
+                    if (int.TryParse(expression, out int i))
+                    {
+                        var tagname = domElement.TagName;
+                        var thisIndex = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
+
+                        return i == thisIndex + 1;
+                    }
+                }
+                else if (Text.StartsWith(":nth-of-type"))
+                {
+                    var expression = Text.Substring(13).Replace(")", "");
+                    if(int.TryParse(expression, out int i))
+                    {
+                        var tagname = domElement.TagName;
+                        var thisIndex = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).IndexOf(domElement) ?? -1;
+
+                        return i == thisIndex + 1;
+                    }
+                }
                 return false;
+            
             }
+            
             return false;
         }
     }
