@@ -17,7 +17,7 @@
         StyleRule = 12,
         StyleDeclarationBlock = 13,
         StyleDeclaration = 14,
-        SelectorFragment = 15,
+        SimpleSelectorSequence = 15,
         DoubleQuoteText = 16,
         SingleQuoteText = 17,
         VariableDeclaration = 18,
@@ -47,6 +47,18 @@
         ActionDeclaration = 42,
         ActionParameterBlock = 43,
         ActionParameter = 44,
-        Extend = 45
+        Extend = 45,
+        ChildCombinator = 46,
+        GeneralDescendantCombinator = 47,
+        DirectSiblingCombinator = 48,
+        DirectDescendantCombinator = 49,
+        GeneralSiblingCombinator = 50,
+        IdSelector = 51,
+        TypeSelector = 52,
+        ClassSelector = 53,
+        UniversalSelector = 54,
+        AttributeSelector = 55,
+        PseudoSelector = 56,
+        ParentSelector = 57
     }
 }

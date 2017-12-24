@@ -1,12 +1,26 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
+using XamlCSS.CssParsing;
+using XamlCSS.Dom;
 
 namespace XamlCSS
 {
     [DebuggerDisplay("{Value}")]
     public class Selector
     {
+        public Selector()
+        {
+
+        }
+
+        public Selector(string selectorString)
+        {
+            this.Value = selectorString;
+        }
+
         protected string val;
         public string Value
         {
@@ -25,12 +39,42 @@ namespace XamlCSS
 
                 var simpleSpecifitySplit = value.Split(new[] { ' ', '>', '*' }, StringSplitOptions.RemoveEmptyEntries);
                 SimpleSpecificity = simpleSpecifitySplit.Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
+
+
+                GetFragments(val);
             }
         }
 
-        public int SimpleSpecificity { get; set; }
-        public int ClassSpecificity { get; set; }
-        public int IdSpecificity { get; set; }
+        private void GetFragments(string val)
+        {
+            bool isInString = false;
+
+
+            var tokenizer = new Tokenizer();
+            var selectorTokens = Tokenizer.Tokenize(val);
+            var a = new AstGenerator();
+            var ast = a.GetAst(selectorTokens);
+            var selectorAst = ast.Root.Children.First().Children.First().Children.First();
+
+            Fragments = selectorAst.Children.Select(x =>
+            {
+                if (x.Type == CssNodeType.DirectDescendantCombinator ||
+                x.Type == CssNodeType.GeneralDescendantCombinator ||
+                x.Type == CssNodeType.DirectSiblingCombinator ||
+                x.Type == CssNodeType.GeneralSiblingCombinator)
+                {
+                    return new SelectorFragment(x.Type, x.Text);
+                }
+                x = x.Children.First();
+                return new SelectorFragment(x.Type, x.Text);
+            })
+            .ToList();
+        }
+
+        public int SimpleSpecificity { get; private set; }
+        public int ClassSpecificity { get; private set; }
+        public int IdSpecificity { get; private set; }
+        public List<SelectorFragment> Fragments { get; private set; }
 
         public string Specificity
         {
@@ -72,6 +116,50 @@ namespace XamlCSS
             if (e1.SimpleSpecificity > e2.SimpleSpecificity)
                 return true;
 
+            return false;
+        }
+
+        public bool Match<TDependencyObject>(IDomElement<TDependencyObject> domElement)
+        {
+            for (var i = Fragments.Count - 1; i >= 0; i--)
+            {
+                var fragment = Fragments[i];
+
+                if (!fragment.Match(domElement, Fragments, i))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+    }
+
+    public class SelectorFragment
+    {
+        public SelectorFragment(CssNodeType type, string text)
+        {
+            Type = type;
+            Text = text;
+        }
+
+        public CssNodeType Type { get; }
+        public string Text { get; }
+
+        public bool Match<TDependencyObject>(IDomElement<TDependencyObject> domElement, List<SelectorFragment> fragments, int currentIndex)
+        {
+            if (Type == CssNodeType.TypeSelector)
+            {
+                return domElement.TagName == Text;
+            }
+            else if (Type == CssNodeType.IdSelector)
+            {
+                return domElement.Id == Text.Substring(1);
+            }
+            else if (Type == CssNodeType.ClassSelector)
+            {
+                return domElement.ClassList.Contains(Text.Substring(1));
+            }
             return false;
         }
     }

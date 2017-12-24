@@ -32,7 +32,8 @@ namespace XamlCSS.Tests.CssParsing
             var node = doc.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleRule)
                 ?.Children.FirstOrDefault(x => x.Type == CssNodeType.Selectors)
                 ?.Children.FirstOrDefault(x => x.Type == CssNodeType.Selector)
-                ?.Children.FirstOrDefault(x => x.Type == CssNodeType.SelectorFragment)
+                ?.Children.FirstOrDefault(x => x.Type == CssNodeType.SimpleSelectorSequence)
+                ?.Children.FirstOrDefault(x => x.Type == CssNodeType.ClassSelector)
                 ?.Text.Should().Be(".class");
 
             Assert.NotNull(node);
@@ -103,8 +104,6 @@ background: red;
             doc.GetStyleRule(1).GetSelector(".class2")
                 .Should().NotBeNull();
         }
-
-
     }
 
     public static class AstTestExtensions
@@ -143,10 +142,10 @@ background: red;
             return styleRule
                 .Children.FirstOrDefault(x => x.Type == CssNodeType.Selectors)
                 .Children.FirstOrDefault(x => x.Type == CssNodeType.Selector &&
-                    x.Children.Any(y => y.Type == CssNodeType.SelectorFragment &&
-                    y.Text == selectorFragment))
-                .Children.FirstOrDefault(y => y.Type == CssNodeType.SelectorFragment &&
-                    y.Text == selectorFragment);
+                    x.Children.Any(y => y.Type == CssNodeType.SimpleSelectorSequence &&
+                    y.Children.Any(z => z.Text == selectorFragment)))
+                .Children.FirstOrDefault(y => y.Type == CssNodeType.SimpleSelectorSequence &&
+                    y.Children.Any(z => z.Text == selectorFragment));
         }
 
         public static CssNode GetStyleDeclaration(this CssNode styleRule, string key)

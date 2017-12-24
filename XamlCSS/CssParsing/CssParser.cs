@@ -197,7 +197,7 @@ namespace XamlCSS.CssParsing
 
         private static IDictionary<string, string> GetVariablesOfBlock(CssNode astNode, IDictionary<string, string> variables)
         {
-            variables = new Dictionary<string, string>(variables ?? new Dictionary<string,string>());
+            variables = new Dictionary<string, string>(variables ?? new Dictionary<string, string>());
             foreach (var variable in GetVariables(astNode))
             {
                 variables[variable.Key] = variable.Value;
@@ -257,7 +257,10 @@ namespace XamlCSS.CssParsing
 
             if (isConcatSelector)
             {
-                return currentSelector.Replace("&", baseSelector);
+                if (hasBaseSelector)
+                {
+                    return currentSelector.Replace("&", baseSelector);
+                }
             }
 
             return (hasBaseSelector ? baseSelector + " " : "") + currentSelector;
@@ -378,7 +381,8 @@ namespace XamlCSS.CssParsing
                 .First(x => x.Type == CssNodeType.Selectors)
                 .Children
                 .Where(x => x.Type == CssNodeType.Selector)
-                .SelectMany(x => x.Children.Where(y => y.Type == CssNodeType.SelectorFragment))
+                .SelectMany(x => x.Children.Where(y => y.Type == CssNodeType.SimpleSelectorSequence))
+                .SelectMany(x => x.Children)
                 .Select(x => x.Text);
 
             var selectorsToExtend = astStyleDeclarationBlock
@@ -637,7 +641,27 @@ namespace XamlCSS.CssParsing
         private static List<string> GetSelectorStringsFromSelectorsCssNode(CssNode selectors)
         {
             return selectors.Children
-                            .Select(x => string.Join(" ", x.Children /* selector-fragment */.Select(y => y.Text)))
+                            .Select(x =>
+                            {
+                                var list = new List<string>();
+
+                                foreach (var child in x.Children)
+                                {
+                                    if (child.Type == CssNodeType.SimpleSelectorSequence)
+                                    {
+                                        list.Add(string.Join("", child.Children.Select(y => y.Text)));
+                                    }
+                                    else if (child.Type == CssNodeType.GeneralDescendantCombinator ||
+                                        child.Type == CssNodeType.DirectDescendantCombinator ||
+                                        child.Type == CssNodeType.GeneralSiblingCombinator ||
+                                        child.Type == CssNodeType.DirectSiblingCombinator ||
+                                        child.Type == CssNodeType.ParentSelector)
+                                    {
+                                        list.Add(child.Text);
+                                    }
+                                }
+                                return string.Join("", list);
+                            })
                             .ToList();
         }
 

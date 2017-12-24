@@ -1,6 +1,12 @@
-﻿using NUnit.Framework;
+﻿using AngleSharp.Dom;
+using FakeItEasy;
+using FluentAssertions;
+using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using XamlCSS.CssParsing;
+using XamlCSS.Dom;
 
 namespace XamlCSS.Tests.Dom
 {
@@ -136,7 +142,7 @@ ui|Grid
         public void Parser_loads_namespaces()
         {
             var styleSheet = CssParser.Parse(test1);
-            
+
             Assert.AreEqual(3, styleSheet.Namespaces.Count());
 
             Assert.AreEqual("", styleSheet.Namespaces[0].Alias);
@@ -153,7 +159,7 @@ ui|Grid
         public void Select_without_namespace()
         {
             var nodes = dom.QuerySelectorAllWithSelf("Grid");
-            
+
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(grid, nodes.First());
         }
@@ -165,6 +171,118 @@ ui|Grid
 
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(grid, nodes.First());
+        }
+    }
+
+    [TestFixture]
+    public class SelectorTests
+    {
+        [Test]
+        public void Test()
+        {
+            var selector = new Selector(".button a> #bbb");
+
+            selector.Fragments.Select(x => x.Text).ShouldBeEquivalentTo(new[] { ".button", " ", "a", ">", "#bbb" }.ToList());
+        }
+
+        [Test]
+        public void Can_match_id()
+        {
+            var selector = new Selector("#bbb");
+
+            var tag = GetDomElement("button", "bbb");
+            selector.Match(tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_tagname()
+        {
+            var selector = new Selector("button");
+
+            var tag = GetDomElement("button", "bbb");
+            selector.Match(tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_class()
+        {
+            var selector = new Selector(".important");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            selector.Match(tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_tagname_with_class()
+        {
+            var selector = new Selector("button.important");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            selector.Match(tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_id_with_class()
+        {
+            var selector = new Selector("#bbb.important");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            selector.Match(tag).Should().Be(true);
+        }
+
+        public IDomElement<object> GetDomElement(string tagname, string id, string classes = "")
+        {
+            return new TestDomElement(tagname, id, classes);
+        }
+    }
+
+    public class TestDomElement : DomElementBase<object, object>
+    {
+        public TestDomElement(string tagname, string id, string classes = "")
+            : base(new object(), A.Fake<ITreeNodeProvider<object>>())
+        {
+            this.TagName = tagname;
+            Id = id;
+
+
+            var c = new TokenList();
+            c.AddRange(classes.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
+            classList = c;
+        }
+
+        protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override INamedNodeMap CreateNamedNodeMap(object dependencyObject)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override INodeList CreateNodeList(IEnumerable<INode> nodes)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override IHtmlCollection<IElement> GetChildElements(object dependencyObject)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override INodeList GetChildNodes(object dependencyObject)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        protected override ITokenList GetClassList(object dependencyObject)
+        {
+            return new TokenList();
+        }
+
+        protected override string GetId(object dependencyObject)
+        {
+            return id;
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using System.Linq;
 using XamlCSS.CssParsing;
 
 namespace XamlCSS.Tests.CssParsing
@@ -18,7 +19,7 @@ namespace XamlCSS.Tests.CssParsing
 
             var ast = new AstGenerator().GetAst(css).Root;
 
-            ast.GetSelectorNode(0, 0, 0).Text.Should().Be(".header");
+            ast.GetSelectorNode(0, 0, 0).Children.First().Text.Should().Be(".header");
         }
 
         [Test]
@@ -39,7 +40,7 @@ namespace XamlCSS.Tests.CssParsing
             var labelRuleNode = headerRuleNode
                 .GetSubStyleRuleNode(0);
             labelRuleNode
-                .GetSelectorNode(0, 0, 0).Text.Should().Be("Label");
+                .GetSelectorNode(0, 0, 0).Children.First().Text.Should().Be("Label");
 
 
         }
