@@ -1399,7 +1399,11 @@ namespace XamlCSS.CssParsing
         {
             ReadToken();
             ReadUntil(CssTokenType.Whitespace, CssTokenType.Colon);
-            ReadToken();
+
+            if (!ReachedEnd)
+            {
+                ReadToken();
+            }
             TrimCurrentNode();
         }
 
@@ -1461,7 +1465,7 @@ namespace XamlCSS.CssParsing
                     }
                     else if (currentToken.Type == CssTokenType.BraceOpen ||
                         currentToken.Type == CssTokenType.Comma ||
-                        first == CssTokenType.BraceOpen || 
+                        first == CssTokenType.BraceOpen ||
                         first == CssTokenType.Comma)
                     {
                         break;
@@ -1543,7 +1547,7 @@ namespace XamlCSS.CssParsing
             // AddOnParentAndSetCurrent(new CssNode(CssNodeType.IdSelector));
 
             ReadToken();
-            
+
             ReadIdentifier();
 
             // GoToParent();
@@ -1573,7 +1577,8 @@ namespace XamlCSS.CssParsing
             // AddOnParentAndSetCurrent(new CssNode(CssNodeType.TypeSelector));
             ReadToken();
 
-            if(currentToken.Type == CssTokenType.Pipe)
+            if (!ReachedEnd &&
+                currentToken.Type == CssTokenType.Pipe)
             {
                 ReadToken();
                 ReadToken();

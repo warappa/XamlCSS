@@ -38,10 +38,10 @@ namespace XamlCSS.Dom
             this.nodes = nodes.ToList();
 		}
 
-        public INode Add(TDependencyObject dependencyObject)
+        public IDomElement<TDependencyObject> Add(TDependencyObject dependencyObject)
         {
             var node = treeNodeProvider.GetDomElement(dependencyObject);
-            nodes.Add(node);
+            node.ChildNodes.Add(node);
 
             return node;
         }
@@ -49,7 +49,11 @@ namespace XamlCSS.Dom
         public INode Remove(TDependencyObject dependencyObject)
         {
             var node = nodes.First(x => ((IDomElement<TDependencyObject>)x).Element == dependencyObject);
-            nodes.Remove(node);
+            var removed = nodes.Remove(node);
+            if (!removed)
+            {
+                throw new Exception("remove failed!");
+            }
 
             return node;
         }

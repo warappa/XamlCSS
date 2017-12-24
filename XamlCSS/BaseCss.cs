@@ -268,7 +268,7 @@ namespace XamlCSS
                 });
             }
         }
-
+        
         private List<StyleMatchInfo> UpdateMatchingStyles(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom)
         {
             var requiredStyleInfos = new List<StyleMatchInfo>();
@@ -348,7 +348,7 @@ namespace XamlCSS
                         .Select(x => new
                         {
                             key = x,
-                            selector = new Selector { Value = x.Split('{')[1] }
+                            selector = CachedSelectorProvider.Instance.GetOrAdd(x.Split('{')[1])
                         })
                         .OrderBy(x => x.selector.IdSpecificity)
                         .ThenBy(x => x.selector.ClassSpecificity)

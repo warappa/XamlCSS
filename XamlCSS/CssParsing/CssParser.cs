@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XamlCSS.Dom;
 
 namespace XamlCSS.CssParsing
 {
@@ -431,7 +432,7 @@ namespace XamlCSS.CssParsing
 
                 rule.SelectorType = SelectorType.LogicalTree;
 
-                rule.Selectors = new SelectorCollection(new[] { new Selector() { Value = ruleSelectorToUse } });
+                rule.Selectors = new SelectorCollection(new[] { CachedSelectorProvider.Instance.GetOrAdd(ruleSelectorToUse) });
 
                 rule.DeclarationBlock.AddRange(styleDeclarations);
                 rule.DeclarationBlock.Triggers = triggers;

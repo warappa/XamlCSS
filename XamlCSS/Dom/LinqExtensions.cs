@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using AngleSharp.Dom;
 using AngleSharp.Dom.Css;
 
@@ -46,20 +47,26 @@ namespace XamlCSS.Dom
             return true;
         }
 
-        public static void GetElementsByClassName(this INodeList elements, string[] classNames, List<IElement> result)
+        public static bool ContainsAll<T>(this IEnumerable<T> target, IEnumerable<T> other)
         {
-            var length = elements.Length;
+            return target.Intersect(other).Count() == other.Count();
+        }
+
+        public static void GetElementsByClassName<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, string[] classNames, IList<IDomElement<TDependencyObject>> result)
+            where TDependencyObject : class
+        {
+            var length = elements.Count;
             for (int i = 0; i < length; i++)
             {
-                var element = elements[i] as IElement;
+                var element = elements[i];
                 if (element != null)
                 {
-                    if (element.ClassList.Contains(classNames))
+                    if (element.ClassList.ContainsAll(classNames))
                     {
                         result.Add(element);
                     }
 
-                    if (element.ChildElementCount != 0)
+                    if (element.ChildNodes.Any())
                     {
                         element.ChildNodes.GetElementsByClassName(classNames, result);
                     }
@@ -67,21 +74,22 @@ namespace XamlCSS.Dom
             }
         }
 
-        public static void GetElementsByTagName(this INodeList elements, string tagName, List<IElement> result)
+        public static void GetElementsByTagName<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, string tagName, IList<IDomElement<TDependencyObject>> result)
+            where TDependencyObject : class
         {
-            var length = elements.Length;
+            var length = elements.Count;
 
             for (int i = 0; i < length; i++)
             {
-                var element = elements[i] as IElement;
+                var element = elements[i];
                 if (element != null)
                 {
-                    if (tagName == null || tagName.Isi(element.LocalName))
+                    if (tagName == null || tagName.Isi(element.TagName))
                     {
                         result.Add(element);
                     }
 
-                    if (element.ChildElementCount != 0)
+                    if (element.ChildNodes.Any())
                     {
                         element.ChildNodes.GetElementsByTagName(tagName, result);
                     }
@@ -89,13 +97,14 @@ namespace XamlCSS.Dom
             }
         }
 
-        public static void GetElementsByTagName(this INodeList elements, string namespaceUri, string localName, List<IElement> result)
+        public static void GetElementsByTagName<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, string namespaceUri, string localName, IList<IDomElement<TDependencyObject>> result)
+            where TDependencyObject : class
         {
-            var length = elements.Length;
+            var length = elements.Count;
 
             for (int i = 0; i < length; i++)
             {
-                var element = elements[i] as IElement;
+                var element = elements[i];
                 if (element != null)
                 {
                     if (element.NamespaceUri.Is(namespaceUri) && (localName == null || localName.Isi(element.LocalName)))
@@ -103,7 +112,7 @@ namespace XamlCSS.Dom
                         result.Add(element);
                     }
 
-                    if (element.ChildElementCount != 0)
+                    if (element.ChildNodes.Any())
                     {
                         element.ChildNodes.GetElementsByTagName(namespaceUri, localName, result);
                     }
@@ -111,22 +120,24 @@ namespace XamlCSS.Dom
             }
         }
 
-        public static IList<IElement> QuerySelectorAll(this INodeList elements, ISelector selector)
+        public static IList<IDomElement<TDependencyObject>> QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, ISelector selector)
+            where TDependencyObject : class
         {
-            var list = new List<IElement>();
+            var list = new List<IDomElement<TDependencyObject>>();
 
             elements.QuerySelectorAll(selector, list);
 
             return list;
         }
 
-        public static void QuerySelectorAll(this INodeList elements, ISelector selector, List<IElement> result)
+        public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, ISelector selector, IList<IDomElement<TDependencyObject>> result)
+            where TDependencyObject : class
         {
-            var length = elements.Length;
+            var length = elements.Count;
 
             for (int i = 0; i < length; i++)
             {
-                var element = elements[i] as IElement;
+                var element = elements[i];
                 if (element != null)
                 {
                     if (selector.Match(element))
@@ -134,7 +145,7 @@ namespace XamlCSS.Dom
                         result.Add(element);
                     }
 
-                    if (element.HasChildNodes)
+                    if (element.ChildNodes.Any())
                     {
                         element.ChildNodes.QuerySelectorAll(selector, result);
                     }
@@ -142,13 +153,14 @@ namespace XamlCSS.Dom
             }
         }
 
-        public static IElement QuerySelector(this INodeList elements, ISelector selector)
+        public static IDomElement<TDependencyObject> QuerySelector<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, ISelector selector)
+            where TDependencyObject : class
         {
-            var length = elements.Length;
+            var length = elements.Count;
 
             for (int i = 0; i < length; i++)
             {
-                var element = elements[i] as IElement;
+                var element = elements[i];
                 if (element != null)
                 {
                     if (selector.Match(element))
@@ -156,7 +168,7 @@ namespace XamlCSS.Dom
                         return element;
                     }
 
-                    if (element.HasChildNodes)
+                    if (element.ChildNodes.Any())
                     {
                         element = element.ChildNodes.QuerySelector(selector);
 
@@ -171,8 +183,9 @@ namespace XamlCSS.Dom
             return null;
         }
 
-        public static T QuerySelector<T>(this INodeList elements, ISelector selectors)
-            where T : class, IElement
+        public static T QuerySelector<T, TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, ISelector selectors)
+            where TDependencyObject : class
+            where T : class, IDomElement<TDependencyObject>
         {
             return elements.QuerySelector(selectors) as T;
         }

@@ -182,13 +182,27 @@ namespace XamlCSS.Tests.Dom
         }
 
         [Test]
-        public void Can_match_pseudo_selector()
+        public void Can_match_first_child()
         {
             var selector = new Selector("button:first-child");
 
             var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
 
-            var parent = GetDomElement("a", null, "", new[] { tag });
+            var parent = GetDomElement("a", null, "", new[] { tag, sibling });
+
+            selector.Match(tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_last_child()
+        {
+            var selector = new Selector("button:last-child");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, tag });
 
             selector.Match(tag).Should().Be(true);
         }

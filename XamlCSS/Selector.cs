@@ -8,8 +8,20 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
+    public interface ISelector
+    {
+        string Value { get; }
+        string Specificity { get; }
+        int IdSpecificity { get; }
+        int ClassSpecificity { get; }
+        int SimpleSpecificity { get; }
+
+        bool Match<TDependencyObject>(IDomElement<TDependencyObject> domElement)
+            where TDependencyObject : class;
+    }
+
     [DebuggerDisplay("{Value}")]
-    public class Selector
+    public class Selector : ISelector
     {
         public Selector()
         {
@@ -47,9 +59,6 @@ namespace XamlCSS
 
         private void GetFragments(string val)
         {
-            bool isInString = false;
-
-
             var tokenizer = new Tokenizer();
             var selectorTokens = Tokenizer.Tokenize(val);
             var a = new AstGenerator();
@@ -119,6 +128,7 @@ namespace XamlCSS
         }
 
         public bool Match<TDependencyObject>(IDomElement<TDependencyObject> domElement)
+            where TDependencyObject : class
         {
             for (var i = Fragments.Count - 1; i >= 0; i--)
             {
@@ -162,14 +172,14 @@ namespace XamlCSS
 
             else if (Type == CssNodeType.DirectSiblingCombinator)
             {
-                var thisIndex = domElement.ParentElement.Children.IndexOf(domElement);
+                var thisIndex = domElement.Parent.ChildNodes.IndexOf(domElement);
 
                 if (thisIndex == 0)
                 {
                     return false;
                 }
 
-                var sibling = (IDomElement<TDependencyObject>)domElement.ParentElement.ChildNodes[thisIndex - 1];
+                var sibling = (IDomElement<TDependencyObject>)domElement.Parent.ChildNodes[thisIndex - 1];
                 currentIndex--;
 
                 var result = fragments[currentIndex].Match(ref sibling, fragments, ref currentIndex);
@@ -180,7 +190,7 @@ namespace XamlCSS
 
             else if (Type == CssNodeType.GeneralSiblingCombinator)
             {
-                var thisIndex = domElement.ParentElement.Children.IndexOf(domElement);
+                var thisIndex = domElement.Parent.ChildNodes.IndexOf(domElement);
 
                 if (thisIndex == 0)
                 {
@@ -189,7 +199,7 @@ namespace XamlCSS
 
                 currentIndex--;
 
-                foreach (IDomElement<TDependencyObject> sibling in domElement.ParentElement.ChildNodes.Take(thisIndex))
+                foreach (IDomElement<TDependencyObject> sibling in domElement.Parent.ChildNodes.Take(thisIndex))
                 {
                     var refSibling = sibling;
                     if (fragments[currentIndex].Match(ref refSibling, fragments, ref currentIndex))
@@ -205,8 +215,8 @@ namespace XamlCSS
             else if (Type == CssNodeType.DirectDescendantCombinator)
             {
                 currentIndex--;
-                var result = domElement.ParentElement.Children.Contains(domElement) == true;
-                domElement = (IDomElement<TDependencyObject>)domElement.ParentElement;
+                var result = domElement.Parent.ChildNodes.Contains(domElement) == true;
+                domElement = (IDomElement<TDependencyObject>)domElement.Parent;
                 return result;
             }
 
@@ -215,7 +225,7 @@ namespace XamlCSS
                 currentIndex--;
                 var fragment = fragments[currentIndex];
 
-                var current = (IDomElement<TDependencyObject>)domElement.ParentElement;
+                var current = (IDomElement<TDependencyObject>)domElement.Parent;
                 while (current != null)
                 {
                     if (fragment.Match(ref current, fragments, ref currentIndex))
@@ -223,7 +233,7 @@ namespace XamlCSS
                         domElement = current;
                         return true;
                     }
-                    current = (IDomElement<TDependencyObject>)current.ParentElement;
+                    current = (IDomElement<TDependencyObject>)current.Parent;
                 }
                 return false;
             }
@@ -232,11 +242,11 @@ namespace XamlCSS
             {
                 if (Text == ":first-child")
                 {
-                    return (domElement.ParentElement?.Children.IndexOf(domElement) ?? -1) == 0;
+                    return (domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1) == 0;
                 }
                 else if (Text == ":last-child")
                 {
-                    return domElement.ParentElement?.Children.IndexOf(domElement) == (domElement.ParentElement?.Children.Count()) - 1;
+                    return domElement.Parent?.ChildNodes.IndexOf(domElement) == (domElement.Parent?.ChildNodes.Count()) - 1;
                 }
                 return false;
             }

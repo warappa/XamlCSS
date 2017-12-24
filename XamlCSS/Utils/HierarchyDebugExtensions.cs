@@ -46,7 +46,7 @@ namespace XamlCSS.Utils
             Debug.WriteLine("----------------");
 
             var sDom = treeNodeProvider.GetDomElement(s);
-            RecursiveDom(treeNodeProvider, sDom, 0, (IDomElement<TDependencyObject>)sDom.ParentElement);
+            RecursiveDom(treeNodeProvider, sDom, 0, (IDomElement<TDependencyObject>)sDom.Parent);
 
             Debug.WriteLine("----------------");
             Debug.WriteLine("----------------");
@@ -95,11 +95,11 @@ namespace XamlCSS.Utils
                 return;
             }
 
-            if (expectedParent != domElement.ParentElement)
+            if (expectedParent != domElement.Parent)
             {
                 Debug.WriteLine("!!!!!");
                 Debug.WriteLine($"Expected parent: { domElement.TagName + "#" + expectedParent.Id }");
-                Debug.WriteLine($"Actual parent:   { domElement.ParentElement.TagName + "#" + domElement.ParentElement.Id }");
+                Debug.WriteLine($"Actual parent:   { domElement.Parent.TagName + "#" + domElement.Parent.Id }");
                 Debug.WriteLine("!!!!!");
             }
 

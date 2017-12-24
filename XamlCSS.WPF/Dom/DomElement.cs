@@ -1,10 +1,9 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Windows;
-using AngleSharp.Dom;
 using XamlCSS.Dom;
-using System.Windows.Media;
-using System.Linq;
+using XamlCSS.Utils;
 
 namespace XamlCSS.WPF.Dom
 {
@@ -35,28 +34,7 @@ namespace XamlCSS.WPF.Dom
             LoadedDetectionHelper.SubTreeRemoved -= DomElementRemoved;
         }
 
-        protected override IHtmlCollection<IElement> CreateCollection(IEnumerable<IElement> list)
-        {
-            return new ElementCollection(list, treeNodeProvider);
-        }
-        protected override INamedNodeMap CreateNamedNodeMap(DependencyObject dependencyObject)
-        {
-            return new NamedNodeMap(dependencyObject);
-        }
-
-        protected override IHtmlCollection<IElement> GetChildElements(DependencyObject dependencyObject)
-        {
-            return new ElementCollection(this, treeNodeProvider);
-        }
-        protected override INodeList GetChildNodes(DependencyObject dependencyObject)
-        {
-            return new NamedNodeList(this, treeNodeProvider);
-        }
-        protected override INodeList CreateNodeList(IEnumerable<INode> nodes)
-        {
-            return new NamedNodeList(nodes, treeNodeProvider);
-        }
-        protected override ITokenList GetClassList(DependencyObject dependencyObject)
+        protected override IList<string> GetClassList(DependencyObject dependencyObject)
         {
             var list = new TokenList();
 
@@ -109,6 +87,12 @@ namespace XamlCSS.WPF.Dom
         public override int GetHashCode()
         {
             return dependencyObject?.GetHashCode() ?? 0;
+        }
+
+        protected override IDictionary<string, DependencyProperty> CreateNamedNodeMap(DependencyObject dependencyObject)
+        {
+            return TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(dependencyObject.GetType())
+                .ToDictionary(x => x.Name, x => x.Property);
         }
     }
 }
