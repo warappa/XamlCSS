@@ -54,19 +54,18 @@ namespace XamlCSS
             var selectorTokens = Tokenizer.Tokenize(val);
             var a = new AstGenerator();
             var ast = a.GetAst(selectorTokens);
-            var selectorAst = ast.Root.Children.First().Children.First().Children.First();
+            var selectorAst = ast.Root.Children.First().Children.First();
 
-            Fragments = selectorAst.Children.Select(x =>
+            Fragments = selectorAst.Children.SelectMany(x =>
             {
                 if (x.Type == CssNodeType.DirectDescendantCombinator ||
-                x.Type == CssNodeType.GeneralDescendantCombinator ||
-                x.Type == CssNodeType.DirectSiblingCombinator ||
-                x.Type == CssNodeType.GeneralSiblingCombinator)
+                    x.Type == CssNodeType.GeneralDescendantCombinator ||
+                    x.Type == CssNodeType.DirectSiblingCombinator ||
+                    x.Type == CssNodeType.GeneralSiblingCombinator)
                 {
-                    return new SelectorFragment(x.Type, x.Text);
+                    return new[] { new SelectorFragment(x.Type, x.Text) };
                 }
-                x = x.Children.First();
-                return new SelectorFragment(x.Type, x.Text);
+                return x.Children.Select(y => new SelectorFragment(y.Type, y.Text));
             })
             .ToList();
         }
@@ -125,7 +124,7 @@ namespace XamlCSS
             {
                 var fragment = Fragments[i];
 
-                if (!fragment.Match(domElement, Fragments, i))
+                if (!fragment.Match(ref domElement, Fragments, ref i))
                 {
                     return false;
                 }
@@ -146,7 +145,7 @@ namespace XamlCSS
         public CssNodeType Type { get; }
         public string Text { get; }
 
-        public bool Match<TDependencyObject>(IDomElement<TDependencyObject> domElement, List<SelectorFragment> fragments, int currentIndex)
+        public bool Match<TDependencyObject>(ref IDomElement<TDependencyObject> domElement, List<SelectorFragment> fragments, ref int currentIndex)
         {
             if (Type == CssNodeType.TypeSelector)
             {
@@ -159,6 +158,87 @@ namespace XamlCSS
             else if (Type == CssNodeType.ClassSelector)
             {
                 return domElement.ClassList.Contains(Text.Substring(1));
+            }
+
+            else if (Type == CssNodeType.DirectSiblingCombinator)
+            {
+                var thisIndex = domElement.ParentElement.Children.IndexOf(domElement);
+
+                if (thisIndex == 0)
+                {
+                    return false;
+                }
+
+                var sibling = (IDomElement<TDependencyObject>)domElement.ParentElement.ChildNodes[thisIndex - 1];
+                currentIndex--;
+
+                var result = fragments[currentIndex].Match(ref sibling, fragments, ref currentIndex);
+                domElement = sibling;
+
+                return result;
+            }
+
+            else if (Type == CssNodeType.GeneralSiblingCombinator)
+            {
+                var thisIndex = domElement.ParentElement.Children.IndexOf(domElement);
+
+                if (thisIndex == 0)
+                {
+                    return false;
+                }
+
+                currentIndex--;
+
+                foreach (IDomElement<TDependencyObject> sibling in domElement.ParentElement.ChildNodes.Take(thisIndex))
+                {
+                    var refSibling = sibling;
+                    if (fragments[currentIndex].Match(ref refSibling, fragments, ref currentIndex))
+                    {
+                        domElement = sibling;
+                        return true;
+                    }
+                }
+                return false;
+
+            }
+
+            else if (Type == CssNodeType.DirectDescendantCombinator)
+            {
+                currentIndex--;
+                var result = domElement.ParentElement.Children.Contains(domElement) == true;
+                domElement = (IDomElement<TDependencyObject>)domElement.ParentElement;
+                return result;
+            }
+
+            else if (Type == CssNodeType.GeneralDescendantCombinator)
+            {
+                currentIndex--;
+                var fragment = fragments[currentIndex];
+
+                var current = (IDomElement<TDependencyObject>)domElement.ParentElement;
+                while (current != null)
+                {
+                    if (fragment.Match(ref current, fragments, ref currentIndex))
+                    {
+                        domElement = current;
+                        return true;
+                    }
+                    current = (IDomElement<TDependencyObject>)current.ParentElement;
+                }
+                return false;
+            }
+
+            else if (Type == CssNodeType.PseudoSelector)
+            {
+                if (Text == ":first-child")
+                {
+                    return (domElement.ParentElement?.Children.IndexOf(domElement) ?? -1) == 0;
+                }
+                else if (Text == ":last-child")
+                {
+                    return domElement.ParentElement?.Children.IndexOf(domElement) == (domElement.ParentElement?.Children.Count()) - 1;
+                }
+                return false;
             }
             return false;
         }

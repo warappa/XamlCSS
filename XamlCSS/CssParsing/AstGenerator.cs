@@ -1435,6 +1435,7 @@ namespace XamlCSS.CssParsing
                     else if (currentToken.Type == CssTokenType.Plus ||
                         first == CssTokenType.Plus)
                     {
+                        SkipWhitespace();
                         AddAndSetCurrent(CssNodeType.DirectSiblingCombinator);
                         ReadDirectSiblingCombinator();
                         SkipWhitespace();
@@ -1443,6 +1444,7 @@ namespace XamlCSS.CssParsing
                     else if (currentToken.Type == CssTokenType.AngleBraketClose ||
                         first == CssTokenType.AngleBraketClose)
                     {
+                        SkipWhitespace();
                         AddAndSetCurrent(CssNodeType.DirectDescendantCombinator);
                         ReadDirectDescendantCombinator();
                         SkipWhitespace();
@@ -1451,6 +1453,7 @@ namespace XamlCSS.CssParsing
                     else if (currentToken.Type == CssTokenType.Tilde ||
                         first == CssTokenType.Tilde)
                     {
+                        SkipWhitespace();
                         AddAndSetCurrent(CssNodeType.GeneralSiblingCombinator);
                         ReadGeneralSiblingCombinator();
                         SkipWhitespace();
