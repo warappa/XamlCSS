@@ -20,7 +20,44 @@ namespace XamlCSS
         {
             if (Type == CssNodeType.TypeSelector)
             {
-                return domElement.TagName == Text;
+                var namespaceSeparatorIndex = Text.IndexOf('|');
+                string @namespace = null;
+                string localName = null;
+                if (namespaceSeparatorIndex > -1)
+                {
+                    @namespace = Text.Substring(0, namespaceSeparatorIndex);
+                    if (@namespace != "*")
+                    {
+                        @namespace = domElement.LookupNamespaceUri(@namespace);
+                    }
+                    localName = Text.Substring(namespaceSeparatorIndex + 1);
+                }
+                else
+                {
+                    @namespace = domElement.LookupNamespaceUri("");
+                    localName = Text;
+                }
+
+                return domElement.NamespaceUri == @namespace && domElement.LocalName == localName;
+            }
+            else if (Type == CssNodeType.UniversalSelector)
+            {
+                var namespaceSeparatorIndex = Text.IndexOf('|');
+                string @namespace = null;
+                if (namespaceSeparatorIndex > -1)
+                {
+                    @namespace = Text.Substring(0, namespaceSeparatorIndex);
+                    if (@namespace != "*")
+                    {
+                        @namespace = domElement.LookupNamespaceUri(@namespace);
+                    }
+                }
+                else
+                {
+                    @namespace = domElement.LookupNamespaceUri("");
+                }
+
+                return domElement.NamespaceUri == @namespace || @namespace=="*";
             }
             else if (Type == CssNodeType.IdSelector)
             {
@@ -78,7 +115,6 @@ namespace XamlCSS
 
             else if (Type == CssNodeType.DirectDescendantCombinator)
             {
-                //currentIndex--;
                 var result = domElement.Parent?.ChildNodes.Contains(domElement) == true;
                 domElement = domElement.Parent;
                 return result;
@@ -126,7 +162,7 @@ namespace XamlCSS
                 else if (Text.StartsWith(":nth-of-type"))
                 {
                     var expression = Text.Substring(13).Replace(")", "");
-                    if(int.TryParse(expression, out int i))
+                    if (int.TryParse(expression, out int i))
                     {
                         var tagname = domElement.TagName;
                         var thisIndex = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).IndexOf(domElement) ?? -1;
@@ -135,9 +171,11 @@ namespace XamlCSS
                     }
                 }
                 return false;
-            
+
             }
-            
+
+
+
             return false;
         }
     }

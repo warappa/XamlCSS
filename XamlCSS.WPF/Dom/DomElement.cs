@@ -9,8 +9,8 @@ namespace XamlCSS.WPF.Dom
 {
     public abstract class DomElement : DomElementBase<DependencyObject, DependencyProperty>
     {
-        public DomElement(DependencyObject dependencyObject, ITreeNodeProvider<DependencyObject> treeNodeProvider)
-            : base(dependencyObject, treeNodeProvider)
+        public DomElement(DependencyObject dependencyObject, ITreeNodeProvider<DependencyObject> treeNodeProvider, INamespaceProvider<DependencyObject> namespaceProvider)
+            : base(dependencyObject, treeNodeProvider, namespaceProvider)
         {
             RegisterChildrenChangeHandler();
         }

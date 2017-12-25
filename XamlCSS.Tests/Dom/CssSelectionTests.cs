@@ -30,6 +30,7 @@ ui|Grid
         private TestNode label3;
         private TestNode grid;
         private TestNode section;
+        private TestNode gridSpecial;
 
         [TestFixtureSetUp]
         public void Setup()
@@ -40,6 +41,10 @@ ui|Grid
         [SetUp]
         public void TestSetup()
         {
+            TestNamespaceProvider.Instance.prefixToNamespaceUri["special"] = "A.Namespace";
+            //TestNamespaceProvider.Instance.prefixToNamespaceUri["ui"] = typeof(TestNode).Namespace;
+            TestNamespaceProvider.Instance.prefixToNamespaceUri[""] = typeof(TestNode).Namespace;
+
             dom = (body = new TestNode(null, "body",
                 new[] {(section = new TestNode(null, "section", new[]
                 {
@@ -48,7 +53,8 @@ ui|Grid
                     (label1 = new TestNode(null, "label")),
                     (label2 = new TestNode(null, "label", null,null, "label2")),
                     (label3 = new TestNode(null, "label", null,null, null, "required")),
-                    (grid = new TestNode(null, "Grid", null,null, null))
+                    (grid = new TestNode(null, "Grid", null,null, null)),
+                    (gridSpecial = new TestNode(null, "special|Grid", null,null, null))
                 }))
                 }))
             }));
@@ -161,10 +167,10 @@ ui|Grid
         [Test]
         public void Select_with_namespace()
         {
-            var nodes = dom.QuerySelectorAllWithSelf("ui|Grid");
+            var nodes = dom.QuerySelectorAllWithSelf("special|Grid");
 
             Assert.AreEqual(1, nodes.Count());
-            Assert.AreEqual(grid, nodes.First());
+            Assert.AreEqual(gridSpecial, nodes.First());
         }
     }
 }

@@ -10,11 +10,12 @@ namespace XamlCSS.WPF.Dom
         public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)
         {
+            
         }
 
         protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            return new LogicalDomElement(dependencyObject, this);
+            return new LogicalDomElement(dependencyObject, this, namespaceProvider);
         }
 
         protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)

@@ -9,6 +9,10 @@ namespace XamlCSS.Tests.Dom
     [TestFixture]
     public class SelectorTests
     {
+        public SelectorTests()
+        {
+            TestNamespaceProvider.Instance["ui"] = "XamlCSS.Dom.Tests";
+        }
         [Test]
         public void Test()
         {
@@ -232,6 +236,40 @@ namespace XamlCSS.Tests.Dom
             var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
 
             selector.Match(tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_universal()
+        {
+            var selector = new Selector("*");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(tag).Should().Be(true);
+            selector.Match(parent).Should().Be(true);
+            selector.Match(sibling).Should().Be(true);
+            selector.Match(sibling2).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_universal_namespaced()
+        {
+            var selector = new Selector("ui|*");
+
+            var tag = GetDomElement("ui|button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(tag).Should().Be(true);
+            selector.Match(parent).Should().Be(false);
+            selector.Match(sibling).Should().Be(false);
+            selector.Match(sibling2).Should().Be(false);
         }
 
         public TestNode GetDomElement(string tagname, string id, string classes = "", IEnumerable<IDomElement<UIElement>> children = null)

@@ -8,8 +8,8 @@ namespace XamlCSS.WPF.Dom
 	[DebuggerDisplay("Id={Id} Name={Name} Class={Class}")]
 	public class VisualDomElement : DomElement
 	{
-		public VisualDomElement(DependencyObject dependencyObject, ITreeNodeProvider<DependencyObject> treeNodeProvider)
-			: base(dependencyObject, treeNodeProvider)
+		public VisualDomElement(DependencyObject dependencyObject, ITreeNodeProvider<DependencyObject> treeNodeProvider, INamespaceProvider<DependencyObject> namespaceProvider)
+			: base(dependencyObject, treeNodeProvider, namespaceProvider)
 		{
 
 		}

@@ -4,6 +4,12 @@ using System.Linq;
 
 namespace XamlCSS.Dom
 {
+    public interface INamespaceProvider<TDependencyObject>
+        where TDependencyObject : class
+    {
+        string LookupNamespaceUri(IDomElement<TDependencyObject> domElement, string prefix);
+        string LookupPrefix(IDomElement<TDependencyObject> domElement, string namespaceUri);
+    }
     public abstract class DomElementBase<TDependencyObject, TDependencyProperty> : IDomElement<TDependencyObject>
         where TDependencyObject : class
         where TDependencyProperty : class
@@ -15,28 +21,31 @@ namespace XamlCSS.Dom
         public IList<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
 
         protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
+        private readonly INamespaceProvider<TDependencyObject> namespaceProvider;
         protected readonly static char[] classSplitter = { ' ' };
         protected readonly TDependencyObject dependencyObject;
         protected string id;
+        protected string namespaceUri = Undefined;
         protected IList<IDomElement<TDependencyObject>> childNodes = null;
         protected string prefix = "UNDEFINED";
         protected IDictionary<string, TDependencyProperty> attributes = null;
         protected IList<string> classList = null;
-        
+
         public DomElementBase(
             TDependencyObject dependencyObject,
-            ITreeNodeProvider<TDependencyObject> treeNodeProvider
+            ITreeNodeProvider<TDependencyObject> treeNodeProvider,
+            INamespaceProvider<TDependencyObject> namespaceProvider
             )
         {
-            this.treeNodeProvider = treeNodeProvider;
             this.dependencyObject = dependencyObject;
-            this.id = GetId(dependencyObject);
-            this.LocalName = dependencyObject.GetType().Name;
-            this.NamespaceUri = dependencyObject.GetType().Namespace;
-            this.NodeName = dependencyObject.GetType().Name;
-            this.TagName = dependencyObject.GetType().Name;
-        }
+            this.treeNodeProvider = treeNodeProvider;
+            this.namespaceProvider = namespaceProvider;
 
+            this.id = GetId(dependencyObject);
+            this.NodeName = dependencyObject.GetType().Name;
+            this.LocalName = dependencyObject.GetType().Name;
+
+        }
 
         protected void DomElementAdded(object sender, EventArgs e)
         {
@@ -98,7 +107,7 @@ namespace XamlCSS.Dom
         public IDictionary<string, TDependencyProperty> Attributes => attributes ?? (attributes = CreateNamedNodeMap(dependencyObject));
 
         public IList<IDomElement<TDependencyObject>> ChildNodes => childNodes ?? (childNodes = GetChildNodes(dependencyObject));
-        
+
         public IList<string> ClassList => classList ?? (classList = GetClassList(dependencyObject));
 
         public bool HasChildNodes { get { return ChildNodes.Any(); } }
@@ -108,8 +117,6 @@ namespace XamlCSS.Dom
         public bool IsFocused { get { return false; } }
 
         public string LocalName { get; protected set; }
-
-        public virtual string NamespaceUri { get; protected set; }
 
         public string NodeName { get; protected set; }
 
@@ -129,13 +136,18 @@ namespace XamlCSS.Dom
                 return currentNode;
             }
         }
-        
+
+        IDomElement<TDependencyObject> parent = null;
         public virtual IDomElement<TDependencyObject> Parent
         {
             get
             {
-                var parent = treeNodeProvider.GetParent(dependencyObject);
-                return parent == null ? null : treeNodeProvider.GetDomElement(parent);
+                if (parent != null)
+                {
+                    return parent;
+                }
+                var parentElement = treeNodeProvider.GetParent(dependencyObject);
+                return parentElement == null ? null :(parent = treeNodeProvider.GetDomElement(parentElement));
             }
         }
 
@@ -151,14 +163,45 @@ namespace XamlCSS.Dom
                 return prefix;
             }
         }
+
         
-        public string TagName { get; protected set; }
-        
+        public string NamespaceUri
+        {
+            get
+            {
+                
+                if (namespaceUri == Undefined)
+                {
+                    namespaceUri = Owner.LookupNamespaceUri(Prefix);
+                }
+
+                return namespaceUri;
+            }
+        }
+
+        private string tagName = null;
+        public string TagName
+        {
+            get
+            {
+                if (tagName != null)
+                {
+                    return tagName;
+                }
+                tagName = LookupPrefix(dependencyObject.GetType().Namespace) + "|" + dependencyObject.GetType().Name;
+                return tagName;
+            }
+            protected set
+            {
+                tagName = value;
+            }
+        }
+
         public bool Contains(IDomElement<TDependencyObject> otherNode)
         {
             return ChildNodes.Contains(otherNode);
         }
-        
+
         public bool Equals(IDomElement<TDependencyObject> otherNode)
         {
             if (otherNode == null)
@@ -173,12 +216,12 @@ namespace XamlCSS.Dom
 
             return dependencyObject == otherNode.Element;
         }
-        
+
         public bool HasAttribute(string name)
         {
             return Attributes.ContainsKey(name);
         }
-        
+
         public bool IsDefaultNamespace(string namespaceUri)
         {
             return LookupPrefix(namespaceUri) == "";
@@ -186,20 +229,12 @@ namespace XamlCSS.Dom
 
         public string LookupNamespaceUri(string prefix)
         {
-            return XamlCssStyleSheets
-                .SelectMany(x => x.Namespaces)
-                .Where(x => x.Alias == prefix)
-                .Select(x => x.Namespace)
-                .FirstOrDefault();
+            return namespaceProvider.LookupNamespaceUri(this, prefix);
         }
 
         public string LookupPrefix(string namespaceUri)
         {
-            return XamlCssStyleSheets
-                .SelectMany(x => x.Namespaces)
-                .Where(x => x.Namespace == namespaceUri)
-                .Select(x => x.Alias)
-                .FirstOrDefault();
+            return namespaceProvider.LookupPrefix(this, namespaceUri);
         }
 
         public bool Matches(string selectors)
@@ -250,7 +285,7 @@ namespace XamlCSS.Dom
         {
             return false;
         }
-        
+
 
         public override int GetHashCode()
         {
@@ -264,7 +299,7 @@ namespace XamlCSS.Dom
                 return false;
             return this.dependencyObject == other.dependencyObject;
         }
-        
+
         public static bool operator ==(DomElementBase<TDependencyObject, TDependencyProperty> a, DomElementBase<TDependencyObject, TDependencyProperty> b)
         {
             if (ReferenceEquals(a, b))
@@ -312,5 +347,49 @@ namespace XamlCSS.Dom
             // GC.SuppressFinalize(this);
         }
         #endregion
+    }
+
+    public class NamespaceProvider<TDependencyObject, TUIElement, TStyle, TDependencyProperty> : INamespaceProvider<TDependencyObject>
+        where TDependencyObject : class
+        where TUIElement : class, TDependencyObject
+        where TStyle : class
+        where TDependencyProperty : class
+    {
+        private readonly IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService;
+
+        public NamespaceProvider(IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService)
+        {
+            this.dependencyPropertyService = dependencyPropertyService;
+        }
+
+        public string LookupNamespaceUri(IDomElement<TDependencyObject> domElement, string prefix)
+        {
+            var styleSheet = dependencyPropertyService.GetStyleSheet(GetStyleSheetHolder(domElement)?.Element);
+            return styleSheet?.Namespaces
+                .Where(x => x.Alias == prefix)
+                .Select(x => x.Namespace)
+                .FirstOrDefault();
+        }
+
+        public string LookupPrefix(IDomElement<TDependencyObject> domElement, string namespaceUri)
+        {
+            var styleSheet = dependencyPropertyService.GetStyleSheet(GetStyleSheetHolder(domElement)?.Element);
+            return styleSheet?.Namespaces
+                .Where(x => x.Namespace == namespaceUri)
+                .Select(x => x.Alias)
+                .FirstOrDefault();
+        }
+
+        private IDomElement<TDependencyObject> GetStyleSheetHolder(IDomElement<TDependencyObject> domElement)
+        {
+            var current = domElement;
+            while (current != null &&
+                dependencyPropertyService.GetStyleSheet(current.Element) == null)
+            {
+                current = current.Parent;
+            }
+
+            return current;
+        }
     }
 }

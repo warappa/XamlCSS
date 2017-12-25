@@ -891,6 +891,7 @@ namespace XamlCSS.CssParsing
         }
 
         private bool ReachedEnd => currentIndex >= tokens.Count;
+        private bool AtLastToken => currentIndex == tokens.Count - 1;
 
         private void ReadEnterOrExitAction()
         {
@@ -1305,13 +1306,15 @@ namespace XamlCSS.CssParsing
             var startToken = currentToken;
             try
             {
-                if (currentToken.Type == CssTokenType.Identifier)
+                var tokenToCheckForNamespacedSelectors = GetTokenToCheckForNamespacedSelectors();
+
+                if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Identifier)
                 {
                     AddAndSetCurrent(CssNodeType.TypeSelector);
                     ReadTypeSelector();
                     GoToParent();
                 }
-                else if (currentToken.Type == CssTokenType.Asterisk)
+                else if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Asterisk)
                 {
                     AddAndSetCurrent(CssNodeType.UniversalSelector);
                     ReadUniversalSelector();
@@ -1369,7 +1372,7 @@ namespace XamlCSS.CssParsing
                         ReadParentSelector();
                         GoToParent();
                     }
-                    else if (currentToken.Type == CssTokenType.Identifier)
+                    else if (GetTokenToCheckForNamespacedSelectors().Type == CssTokenType.Identifier)
                     {
                         AddAndSetCurrent(CssNodeType.TypeSelector);
                         ReadTypeSelector();
@@ -1393,6 +1396,20 @@ namespace XamlCSS.CssParsing
 
                 currentNode = old;
             }
+        }
+
+        private CssToken GetTokenToCheckForNamespacedSelectors()
+        {
+            var tokenToCheckForNamespacedSelectors = currentToken;
+
+            if (!AtLastToken &&
+                nextToken.Type == CssTokenType.Pipe &&
+                currentIndex + 2 < tokens.Count)
+            {
+                tokenToCheckForNamespacedSelectors = tokens[currentIndex + 2];
+            }
+
+            return tokenToCheckForNamespacedSelectors;
         }
 
         private void ReadPseudoSelector()
@@ -1581,7 +1598,10 @@ namespace XamlCSS.CssParsing
                 currentToken.Type == CssTokenType.Pipe)
             {
                 ReadToken();
-                ReadToken();
+                if (!ReachedEnd)
+                {
+                    ReadToken();
+                }
             }
 
             // GoToParent();
@@ -1589,22 +1609,22 @@ namespace XamlCSS.CssParsing
 
         private void ReadUniversalSelector()
         {
-            //AddOnParentAndSetCurrent(new CssNode(CssNodeType.UniversalSelector));
-            currentNode.TextBuilder.Append(currentToken.Text);
+            ReadToken();
 
-            currentIndex++;
-
-            //GoToParent();
+            if (!ReachedEnd &&
+                currentToken.Type == CssTokenType.Pipe)
+            {
+                ReadToken();
+                if (!ReachedEnd)
+                {
+                    ReadToken();
+                }
+            }
         }
 
         private void ReadParentSelector()
         {
-            //AddOnParentAndSetCurrent(new CssNode(CssNodeType.UniversalSelector));
-            currentNode.TextBuilder.Append(currentToken.Text);
-
-            currentIndex++;
-
-            //GoToParent();
+            ReadToken();
         }
 
         public void ReadSelectors()

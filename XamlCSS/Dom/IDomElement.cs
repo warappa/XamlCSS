@@ -18,5 +18,6 @@ namespace XamlCSS.Dom
         string LocalName { get; }
 
         string LookupPrefix(string v);
+        string LookupNamespaceUri(string v);
     }
 }
