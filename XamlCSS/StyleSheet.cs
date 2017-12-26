@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using XamlCSS.CssParsing;
 
@@ -42,6 +43,19 @@ namespace XamlCSS
                 localNamespaces = value;
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalNamespaces"));
+            }
+        }
+
+        public StyleSheet SingleBaseStyleSheet
+        {
+            get
+            {
+                return BaseStyleSheets.FirstOrDefault();
+            }
+            set
+            {
+                BaseStyleSheets.Clear();
+                BaseStyleSheets.Add(value);
             }
         }
 
@@ -93,15 +107,15 @@ namespace XamlCSS
         {
             Reset();
 
-            var sheet = CssParser.Parse(content, null, GetCombinedVariables());
+            var sheet = CssParser.Parse(content ?? "", null, GetCombinedVariables());
 
             foreach (var error in sheet.Errors)
             {
-                this.Errors.Add(error);
+                this.LocalErrors.Add(error);
             }
             foreach (var warning in sheet.Warnings)
             {
-                this.Warnings.Add(warning);
+                this.LocalWarnings.Add(warning);
             }
 
             this.localNamespaces = sheet.LocalNamespaces;
@@ -109,6 +123,7 @@ namespace XamlCSS
             this.variables = sheet.Variables;
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalRules"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Warnings"));
         }
@@ -118,13 +133,37 @@ namespace XamlCSS
         {
             get
             {
-                return errors;
+                return errors ?? (errors = GetCombinedErrors());
+            }
+        }
+
+        private ObservableCollection<string> localErrors = new ObservableCollection<string>();
+        virtual public ObservableCollection<string> LocalErrors
+        {
+            get
+            {
+                return localErrors;
             }
             set
             {
-                errors = value;
+                localErrors = value;
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalErrors"));
+            }
+        }
+
+        private ObservableCollection<string> localWarnings = new ObservableCollection<string>();
+        virtual public ObservableCollection<string> LocalWarnings
+        {
+            get
+            {
+                return localWarnings;
+            }
+            set
+            {
+                localWarnings = value;
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalWarnings"));
             }
         }
 
@@ -135,13 +174,7 @@ namespace XamlCSS
         {
             get
             {
-                return warnings;
-            }
-            set
-            {
-                warnings = value;
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Warnings"));
+                return warnings ?? (warnings = GetCombinedWarnings());
             }
         }
 
@@ -194,44 +227,76 @@ namespace XamlCSS
             }
         }
 
+        private StyleSheetCollection InitializeBaseStyleSheet(StyleSheetCollection styleSheetCollection)
+        {
+            if (styleSheetCollection == null)
+            {
+                return null;
+            }
+
+            foreach (var added in styleSheetCollection)
+            {
+                added.PropertyChanged += BaseStyleSheet_PropertyChanged;
+            }
+
+            styleSheetCollection.CollectionChanged += BaseStyleSheets_CollectionChanged;
+
+            return styleSheetCollection;
+        }
+
+        private StyleSheetCollection UninitializeBaseStyleSheet(StyleSheetCollection styleSheetCollection)
+        {
+            if (styleSheetCollection == null)
+            {
+                return null;
+            }
+
+            foreach (var added in styleSheetCollection)
+            {
+                added.PropertyChanged -= BaseStyleSheet_PropertyChanged;
+            }
+
+            styleSheetCollection.CollectionChanged -= BaseStyleSheets_CollectionChanged;
+
+            return styleSheetCollection;
+        }
+
         public StyleSheetCollection BaseStyleSheets
         {
             get
             {
-                return baseStyleSheets ?? (baseStyleSheets = new StyleSheetCollection());
+                return baseStyleSheets ?? (baseStyleSheets = InitializeBaseStyleSheet(new StyleSheetCollection()));
             }
 
             set
             {
-                foreach (var added in BaseStyleSheets)
-                {
-                    added.PropertyChanged -= BaseStyleSheet_PropertyChanged;
-                }
-                BaseStyleSheets.CollectionChanged -= BaseStyleSheets_CollectionChanged;
+                UninitializeBaseStyleSheet(baseStyleSheets);
 
                 baseStyleSheets = value;
 
                 Reset();
 
-                foreach (var added in BaseStyleSheets)
-                {
-                    added.PropertyChanged += BaseStyleSheet_PropertyChanged;
-                }
+                InitializeBaseStyleSheet(baseStyleSheets);
 
-                BaseStyleSheets.CollectionChanged += BaseStyleSheets_CollectionChanged;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("BaseStyleSheets"));
             }
         }
 
         private void BaseStyleSheets_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
-            foreach (StyleSheet item in e.OldItems)
+            if (e.OldItems != null)
             {
-                item.PropertyChanged -= BaseStyleSheet_PropertyChanged;
+                foreach (StyleSheet item in e.OldItems)
+                {
+                    item.PropertyChanged -= BaseStyleSheet_PropertyChanged;
+                }
             }
-            foreach (StyleSheet item in e.NewItems)
+            if (e.NewItems != null)
             {
-                item.PropertyChanged += BaseStyleSheet_PropertyChanged;
+                foreach (StyleSheet item in e.NewItems)
+                {
+                    item.PropertyChanged += BaseStyleSheet_PropertyChanged;
+                }
             }
             Invalidate();
         }
@@ -280,8 +345,8 @@ namespace XamlCSS
 
         protected CssNamespaceCollection GetCombinedNamespaces()
         {
-            if (BaseStyleSheets?.Count == 0 &&
-                InheritedStyleSheets?.Count == 0)
+            if (BaseStyleSheets.Count == 0 &&
+                InheritedStyleSheets.Count == 0)
             {
                 return LocalNamespaces;
             }
@@ -296,10 +361,46 @@ namespace XamlCSS
                 .Select(x => x.Last()));
         }
 
+        protected ObservableCollection<string> GetCombinedErrors()
+        {
+            if (BaseStyleSheets.Count == 0 &&
+                InheritedStyleSheets.Count == 0)
+            {
+                return LocalErrors;
+            }
+
+            return new ObservableCollection<string>(
+                InheritedStyleSheets
+                .Select(x => x.Errors)
+                .Concat(BaseStyleSheets.Select(x => x.Errors))
+                .Aggregate((a, b) => new ObservableCollection<string>(a.Concat(b)))
+                .Concat(LocalErrors)
+                .GroupBy(x => x)
+                .Select(x => x.First()));
+        }
+
+        protected ObservableCollection<string> GetCombinedWarnings()
+        {
+            if (BaseStyleSheets.Count == 0 &&
+                InheritedStyleSheets.Count == 0)
+            {
+                return LocalWarnings;
+            }
+
+            return new ObservableCollection<string>(
+                InheritedStyleSheets
+                .Select(x => x.Warnings)
+                .Concat(BaseStyleSheets.Select(x => x.Warnings))
+                .Aggregate((a, b) => new ObservableCollection<string>(a.Concat(b)))
+                .Concat(LocalWarnings)
+                .GroupBy(x => x)
+                .Select(x => x.First()));
+        }
+
         protected IDictionary<string, string> GetCombinedVariables()
         {
-            if (BaseStyleSheets?.Count == 0 &&
-                InheritedStyleSheets?.Count == 0)
+            if (BaseStyleSheets.Count == 0 &&
+                InheritedStyleSheets.Count == 0)
             {
                 return Variables;
             }
@@ -315,8 +416,8 @@ namespace XamlCSS
 
         protected List<StyleRule> GetCombinedStyleRules()
         {
-            if (BaseStyleSheets?.Count == 0 &&
-                InheritedStyleSheets?.Count == 0)
+            if (BaseStyleSheets.Count == 0 &&
+                InheritedStyleSheets.Count == 0)
             {
                 return LocalRules;
             }
@@ -337,6 +438,11 @@ namespace XamlCSS
 
         protected List<StyleDeclaration> GetMergedStyleDeclarations(List<StyleRule> styleRules)
         {
+            if (styleRules == null)
+            {
+                return new List<StyleDeclaration>();
+            }
+
             return styleRules
                 .SelectMany(x => x.DeclarationBlock.ToList())
                 .GroupBy(x => x.Property)
@@ -350,8 +456,10 @@ namespace XamlCSS
             combinedNamespaces = null;
             variables = null;
 
-            this.Errors.Clear();
-            this.Warnings.Clear();
+            this.localErrors.Clear();
+            this.localWarnings.Clear();
+            this.errors = null;
+            this.warnings = null;
         }
 
         internal void AddError(string error)

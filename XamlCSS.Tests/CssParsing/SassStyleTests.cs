@@ -382,5 +382,19 @@ $foreground: #00ff00;
             styleSheet.Rules[1].DeclarationBlock[1].Property.Should().Be("TextColor");
             styleSheet.Rules[1].DeclarationBlock[1].Value.Should().Be("#00ff00");
         }
+
+        [Test]
+        public void Ampersand_at_root_should_add_error()
+        {
+            var css = @"
+& .header {
+    BackgroundColor: Green;
+}
+";
+
+            var result = new AstGenerator().GetAst(css);
+
+            result.Errors.Count.Should().Be(1);
+        }
     }
 }

@@ -50,11 +50,25 @@ namespace XamlCSS.WPF
                 expression = expression.Replace("StaticResource", "DynamicResource");
             }
 
+            var xmlnamespaces = string.Join(" ", namespaces.Where(x => x.Alias != "")
+                .Select(x =>
+                {
+                    var strs = x.Namespace.Split(',');
+                    if (strs.Length >= 2)
+                    {
+                        return "xmlns:" + x.Alias + "=\"clr-namespace:" + strs[0] + ";assembly=" + strs[1] + "\"";
+                    }
+                    else
+                    {
+                        return "xmlns:" + x.Alias + "=\"" + x.Namespace + "\"";
+                    }
+                }));
+
             var test = $@"
 <DataTemplate 
 xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
 xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
-{string.Join(" ", namespaces.Where(x => x.Alias != "").Select(x => "xmlns:" + x.Alias + "=\"clr-namespace:" + x.Namespace.Split(',')[0] + ";assembly=" + x.Namespace.Split(',')[1] + "\""))}
+{xmlnamespaces}
 DataType=""{{x:Type x:String}}"">
 	<TextBlock x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />
 </DataTemplate>";

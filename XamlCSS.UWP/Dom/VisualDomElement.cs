@@ -5,7 +5,7 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.UWP.Dom
 {
-	[DebuggerDisplay("Id={Id} Name={Name} Class={Class}")]
+    [DebuggerDisplay("Id={Id} Name={Name} Class={Class}")]
 	public class VisualDomElement : DomElement
 	{
 		public VisualDomElement(DependencyObject dependencyObject, ITreeNodeProvider<DependencyObject> treeNodeProvider, INamespaceProvider<DependencyObject> namespaceProvider)
@@ -28,3 +28,4 @@ namespace XamlCSS.UWP.Dom
 		}
 	}
 }
+

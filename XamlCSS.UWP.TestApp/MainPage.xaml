@@ -12,12 +12,19 @@
     d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}">
     <Page.Resources>
         <ResourceDictionary>
+            <local:ListToStringConverter x:Key="errorToTextConverter"></local:ListToStringConverter>
             <css:StyleSheet x:Key="InternalStyle">
+                <css:StyleSheet.BaseStyleSheets>
+                    <css:StyleSheetCollection>
+                        <StaticResource ResourceKey="appVariables"/>
+                        <StaticResource ResourceKey="appStyleSheet"/>
+                    </css:StyleSheetCollection>
+                </css:StyleSheet.BaseStyleSheets>
                 <css:StyleSheet.Content>
                     <x:String xml:space="preserve">
-                    @import "Resources/baseStyle.scss";
-                    @import "appStyleSheet"; 
-                  
+                    //@import "Resources/baseStyle.scss";
+                    //@import "appStyleSheet"; 
+
 Button
 {
     Width: 100;
@@ -102,6 +109,7 @@ Grid Grid
                 <Grid.RowDefinitions>
                     <RowDefinition Height="1*" />
                     <RowDefinition Height="1*" />
+                    <RowDefinition Height="1*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
@@ -112,6 +120,8 @@ Grid Grid
                 <TextBlock></TextBlock>
             </Grid>
             <Button Name="thebutton" Click="Button_Click">Change Style</Button>
+            <Button></Button>
+            <TextBlock Text="{Binding Errors, Source={StaticResource InternalStyle}, Converter={StaticResource errorToTextConverter}}"></TextBlock>
         </StackPanel>
     </Grid>
 </Page>

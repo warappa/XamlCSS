@@ -157,25 +157,23 @@ namespace XamlCSS.Dom
             {
                 if (prefix == Undefined)
                 {
-                    prefix = Owner.LookupPrefix(GetPrefix(dependencyObject.GetType()));
+                    prefix = namespaceProvider.LookupPrefix(this, GetPrefix(dependencyObject.GetType())) ?? Undefined;
                 }
 
-                return prefix;
+                return prefix != Undefined ? prefix : null;
             }
         }
-
 
         public string NamespaceUri
         {
             get
             {
-
                 if (namespaceUri == Undefined)
                 {
-                    namespaceUri = Owner.LookupNamespaceUri(Prefix);
+                    namespaceUri = namespaceProvider.LookupNamespaceUri(this, Prefix) ?? Undefined;
                 }
 
-                return namespaceUri;
+                return namespaceUri != Undefined ? namespaceUri: null;
             }
         }
 

@@ -57,7 +57,7 @@ namespace XamlCSS.UWP
                 propertyType = prop.PropertyType;
             }
 
-            if (!propertyType.GetTypeInfo().IsAssignableFrom(propertyValue.GetType().GetTypeInfo()))
+            if (!propertyType.GetTypeInfo().IsAssignableFrom(propertyValue?.GetType().GetTypeInfo()))
             {
                 var converter = typeConverter.GetConverter(propertyType);
 
