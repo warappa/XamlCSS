@@ -5,8 +5,8 @@ namespace XamlCSS.XamarinForms.Dom
 {
 	public class VisualDomElement : DomElement
 	{
-		public VisualDomElement(BindableObject dependencyObject, ITreeNodeProvider<BindableObject> treeNodeProvider)
-			: base(dependencyObject, treeNodeProvider)
+		public VisualDomElement(BindableObject dependencyObject, ITreeNodeProvider<BindableObject> treeNodeProvider, INamespaceProvider<BindableObject> namespaceProvider)
+			: base(dependencyObject, treeNodeProvider, namespaceProvider)
 		{
         }
 

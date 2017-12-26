@@ -88,5 +88,74 @@ SomeElement
             styleSheet.Rules[1].DeclarationBlock[1].Property.Should().Be("BackgroundColor");
             styleSheet.Rules[1].DeclarationBlock[1].Value.Should().Be("White");
         }
+
+        [Test]
+        public void Dont_hang_on_first_char_of_comment()
+        {
+            CssParser.Initialize(null, new TestCssFileProvider());
+            var css = @"
+.fa {
+    FontFamily: ""test"";
+/
+                    
+    &.fa-css3 {
+        Text: ""\f13c"";
+    }
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+            styleSheet.Errors.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".fa");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("FontFamily");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("test");
+
+        }
+
+        [Test]
+        public void Dont_hang_on_first_char_of_comment_2()
+        {
+            CssParser.Initialize(null, new TestCssFileProvider());
+            var css = @"
+/
+.fa {
+    FontFamily: ""test"";
+                    
+    &.fa-css3 {
+        Text: ""\f13c"";
+    }
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(2);
+            styleSheet.Errors.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".fa");
+            styleSheet.Rules[0].DeclarationBlock[0].Property.Should().Be("FontFamily");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("test");
+
+        }
+
+        [Test]
+        public void Can_parse_slash_in_comment()
+        {
+            CssParser.Initialize(null, new TestCssFileProvider());
+            var css = @"
+.fa {
+    /*/asdfasdfsd*/
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+            styleSheet.Errors.Count.Should().Be(0);
+
+        }
     }
 }

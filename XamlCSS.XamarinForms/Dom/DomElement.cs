@@ -10,8 +10,8 @@ namespace XamlCSS.XamarinForms.Dom
 {
     public abstract class DomElement : DomElementBase<BindableObject, BindableProperty>, IDisposable
     {
-        public DomElement(BindableObject dependencyObject, ITreeNodeProvider<BindableObject> treeNodeProvider)
-            : base(dependencyObject, treeNodeProvider)
+        public DomElement(BindableObject dependencyObject, ITreeNodeProvider<BindableObject> treeNodeProvider, INamespaceProvider<BindableObject> namespaceProvider)
+            : base(dependencyObject, treeNodeProvider, namespaceProvider)
         {
             RegisterChildrenChangeHandler();
         }
@@ -34,7 +34,7 @@ namespace XamlCSS.XamarinForms.Dom
             VisualTreeHelper.SubTreeAdded -= DomElementAdded;
             VisualTreeHelper.SubTreeRemoved -= DomElementRemoved;
         }
-        
+
         protected override IList<string> GetClassList(BindableObject dependencyObject)
         {
             var list = new List<string>();

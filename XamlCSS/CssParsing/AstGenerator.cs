@@ -348,6 +348,41 @@ namespace XamlCSS.CssParsing
             {
                 currentIndex++;
             }
+
+            if (!ReachedEnd &&
+                currentToken.Text[0] == '\n')
+            {
+                currentIndex++;
+            }
+        }
+
+        private void SkipUntil(bool handleQuotedText, params CssTokenType[] types)
+        {
+            if (types.Length == 0)
+            {
+                throw new ArgumentException(nameof(types));
+            }
+
+            while (currentIndex < tokens.Count &&
+                !types.Contains(currentToken.Type))
+            {
+                if (handleQuotedText &&
+                    tokens[currentIndex].Type == CssTokenType.DoubleQuotes)
+                {
+                    currentIndex++;
+                    currentIndex = SkipDoubleQuoteText(tokens, currentIndex, false);
+                }
+                else if (handleQuotedText &&
+                    tokens[currentIndex].Type == CssTokenType.SingleQuotes)
+                {
+                    currentIndex++;
+                    currentIndex = SkipSingleQuoteText(tokens, currentIndex, false);
+                }
+                else
+                {
+                    currentIndex++;
+                }
+            }
         }
 
         private void ReadDocument()
@@ -376,6 +411,7 @@ namespace XamlCSS.CssParsing
                             else
                             {
                                 SkipUntilLineEnd();
+                                Error("Unexpected token found!", GetTokens(startToken, currentToken));
                             }
                             break;
                         case CssTokenType.At:
@@ -441,11 +477,19 @@ namespace XamlCSS.CssParsing
                         case CssTokenType.Circumflex:
                         case CssTokenType.Colon:
                         case CssTokenType.Underscore:
+
                             AddAndSetCurrent(CssNodeType.StyleRule);
+                            var styleRule = currentNode;
+                            try
+                            {
+                                ReadStyleRule();
 
-                            ReadStyleRule();
-
-                            GoToParent();
+                                GoToParent();
+                            }
+                            catch
+                            {
+                                styleRule.Parent.RemoveChild(styleRule);
+                            }
                             break;
                         default:
                             throw new AstGenerationException(currentToken.Type.ToString(), currentToken);
@@ -625,13 +669,44 @@ namespace XamlCSS.CssParsing
         private void ReadStyleRule()
         {
             var old = currentNode;
-
+            CssNode selectorsNode = null;
             try
             {
                 AddAndSetCurrent(CssNodeType.Selectors);
-
+                selectorsNode = currentNode;
                 ReadSelectors();
 
+            }
+            catch (AstGenerationException e)
+            {
+                if (selectorsNode != null)
+                {
+                    old.RemoveChild(selectorsNode);
+                }
+
+                var nestedBlock = PeekFirstTokenTypeOf(tokens, currentIndex, new[] { CssTokenType.BraceOpen, CssTokenType.BraceClose }, true, true);
+                if (nestedBlock == CssTokenType.BraceOpen)
+                {
+                    SkipUntil(true, CssTokenType.BraceOpen);
+                    if (!AtLastToken)
+                    {
+                        currentIndex++;
+                    }
+                    // skip local block
+                    SkipToEndOfBlock();
+                }
+                else
+                {
+                    SkipToEndOfBlock();
+                }
+
+                currentNode = old;
+
+                throw;
+            }
+
+            try
+            {
                 if (!ReachedEnd)
                 {
                     AddOnParentAndSetCurrent(CssNodeType.StyleDeclarationBlock);
@@ -654,12 +729,12 @@ namespace XamlCSS.CssParsing
         private void ReadStyleDeclarationBlock()
         {
             var old = currentNode;
-            var startToken = currentToken;
 
             try
             {
-
                 SkipWhitespace();
+
+                var startToken = currentToken;
 
                 SkipExpected(startToken, CssTokenType.BraceOpen);
 
@@ -787,11 +862,26 @@ namespace XamlCSS.CssParsing
                            CssTokenType.At
                            }, handleQuotedText: true) == CssTokenType.BraceOpen))
                     {
-                        AddAndSetCurrent(CssNodeType.StyleRule);
+                        CssNode styleRule = null;
+                        try
+                        {
+                            AddAndSetCurrent(CssNodeType.StyleRule);
+                            styleRule = currentNode;
+                            ReadStyleRule();
 
-                        ReadStyleRule();
+                            GoToParent();
+                        }
+                        catch (AstGenerationException e)
+                        {
+                            if (styleRule != null)
+                            {
+                                styleRule.Parent.RemoveChild(styleRule);
+                            }
 
-                        GoToParent();
+                            Error(e.Message, e.Tokens);
+
+                            currentNode = old;
+                        }
                     }
                     else
                     {
@@ -876,7 +966,10 @@ namespace XamlCSS.CssParsing
                     SkipWhitespace();
                 }
 
-                SkipExpected(startToken, CssTokenType.BraceClose);
+                if (!ReachedEnd)
+                {
+                    SkipExpected(startToken, CssTokenType.BraceClose);
+                }
 
                 SkipWhitespace();
             }
@@ -1304,20 +1397,68 @@ namespace XamlCSS.CssParsing
         {
             var old = currentNode;
             var startToken = currentToken;
-            try
-            {
-                var tokenToCheckForNamespacedSelectors = GetTokenToCheckForNamespacedSelectors();
 
-                if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Identifier)
+            var tokenToCheckForNamespacedSelectors = GetTokenToCheckForNamespacedSelectors();
+
+            if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Identifier)
+            {
+                AddAndSetCurrent(CssNodeType.TypeSelector);
+                ReadTypeSelector();
+                GoToParent();
+            }
+            else if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Asterisk)
+            {
+                AddAndSetCurrent(CssNodeType.UniversalSelector);
+                ReadUniversalSelector();
+                GoToParent();
+            }
+            else if (currentToken.Type == CssTokenType.Ampersand)
+            {
+                if (currentNode.Parent?.Parent?.Parent?.Parent?.Type == CssNodeType.Document)
                 {
-                    AddAndSetCurrent(CssNodeType.TypeSelector);
-                    ReadTypeSelector();
+                    Error($"Ampersand found but no parent rule!", GetTokens(startToken, currentToken));
+                }
+
+                AddAndSetCurrent(CssNodeType.ParentSelector);
+                ReadParentSelector();
+                GoToParent();
+            }
+            else if (currentToken.Type != CssTokenType.Hash &&
+                currentToken.Type != CssTokenType.Dot &&
+                currentToken.Type != CssTokenType.SquareBracketOpen &&
+                currentToken.Type != CssTokenType.Colon &&
+                currentToken.Type != CssTokenType.Ampersand)
+            {
+                throw new AstGenerationException($"Unexpected Token {currentToken.Type}", GetTokens(startToken, currentToken));
+            }
+
+            while (currentIndex < tokens.Count &&
+                currentToken.Type != CssTokenType.BraceOpen &&
+                currentToken.Type != CssTokenType.Comma &&
+                currentToken.Type != CssTokenType.Whitespace)
+            {
+                if (currentToken.Type == CssTokenType.Hash)
+                {
+                    AddAndSetCurrent(CssNodeType.IdSelector);
+                    ReadIdSelector();
                     GoToParent();
                 }
-                else if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Asterisk)
+                else if (currentToken.Type == CssTokenType.Dot)
                 {
-                    AddAndSetCurrent(CssNodeType.UniversalSelector);
-                    ReadUniversalSelector();
+                    AddAndSetCurrent(CssNodeType.ClassSelector);
+                    ReadClassSelector();
+                    GoToParent();
+                }
+                else if (currentToken.Type == CssTokenType.SquareBracketOpen)
+                {
+                    AddAndSetCurrent(CssNodeType.AttributeSelector);
+                    ReadAttributeSelector();
+                    GoToParent();
+                }
+                else if (currentToken.Type == CssTokenType.Colon)
+                {
+                    AddAndSetCurrent(CssNodeType.PseudoSelector);
+                    ReadPseudoSelector();
                     GoToParent();
                 }
                 else if (currentToken.Type == CssTokenType.Ampersand)
@@ -1331,70 +1472,16 @@ namespace XamlCSS.CssParsing
                     ReadParentSelector();
                     GoToParent();
                 }
-
-                while (currentIndex < tokens.Count &&
-                    currentToken.Type != CssTokenType.BraceOpen &&
-                    currentToken.Type != CssTokenType.Comma &&
-                    currentToken.Type != CssTokenType.Whitespace)
+                else if (GetTokenToCheckForNamespacedSelectors().Type == CssTokenType.Identifier)
                 {
-                    if (currentToken.Type == CssTokenType.Hash)
-                    {
-                        AddAndSetCurrent(CssNodeType.IdSelector);
-                        ReadIdSelector();
-                        GoToParent();
-                    }
-                    else if (currentToken.Type == CssTokenType.Dot)
-                    {
-                        AddAndSetCurrent(CssNodeType.ClassSelector);
-                        ReadClassSelector();
-                        GoToParent();
-                    }
-                    else if (currentToken.Type == CssTokenType.SquareBracketOpen)
-                    {
-                        AddAndSetCurrent(CssNodeType.AttributeSelector);
-                        ReadAttributeSelector();
-                        GoToParent();
-                    }
-                    else if (currentToken.Type == CssTokenType.Colon)
-                    {
-                        AddAndSetCurrent(CssNodeType.PseudoSelector);
-                        ReadPseudoSelector();
-                        GoToParent();
-                    }
-                    else if (currentToken.Type == CssTokenType.Ampersand)
-                    {
-                        if (currentNode.Parent?.Parent?.Parent?.Parent?.Type == CssNodeType.Document)
-                        {
-                            Error($"Ampersand found but no parent rule!", GetTokens(startToken, currentToken));
-                        }
-
-                        AddAndSetCurrent(CssNodeType.ParentSelector);
-                        ReadParentSelector();
-                        GoToParent();
-                    }
-                    else if (GetTokenToCheckForNamespacedSelectors().Type == CssTokenType.Identifier)
-                    {
-                        AddAndSetCurrent(CssNodeType.TypeSelector);
-                        ReadTypeSelector();
-                        GoToParent();
-                    }
-                    else
-                    {
-                        break;
-                    }
+                    AddAndSetCurrent(CssNodeType.TypeSelector);
+                    ReadTypeSelector();
+                    GoToParent();
                 }
-
-                // SkipWhitespace();
-
-                //GoToParent();
-            }
-            catch (AstGenerationException e)
-            {
-                Error(e.Message, e.Tokens);
-
-                SkipToEndOfBlock();
-
-                currentNode = old;
+                else
+                {
+                    break;
+                }
             }
         }
 
@@ -1428,158 +1515,119 @@ namespace XamlCSS.CssParsing
         {
             var old = currentNode;
             var startToken = currentToken;
+            CssNode simpleSelectorSequence = null;
+
             try
             {
-                // SkipWhitespace();
+                AddAndSetCurrent(CssNodeType.SimpleSelectorSequence);
+                simpleSelectorSequence = currentNode;
+                ReadSimpleSelectorSequence();
+                GoToParent();
+            }
+            catch (AstGenerationException)
+            {
+                old.RemoveChild(simpleSelectorSequence);
+                throw;
+            }
+
+            while (currentIndex < tokens.Count &&
+                currentToken.Type != CssTokenType.BraceOpen &&
+                currentToken.Type != CssTokenType.Comma)
+            {
+                var first = PeekFirstTokenTypeOf(tokens, currentIndex, new[] { CssTokenType.Plus, CssTokenType.AngleBraketClose, CssTokenType.Tilde,
+                        CssTokenType.Dot, CssTokenType.Ampersand, CssTokenType.Comma,
+                        CssTokenType.Identifier, CssTokenType.Hash, CssTokenType.BraceOpen, CssTokenType.BraceClose, CssTokenType.SquareBracketOpen});
+
+                if (currentToken.Type == CssTokenType.Whitespace &&
+                    !new[] { CssTokenType.Plus, CssTokenType.AngleBraketClose, CssTokenType.Tilde, CssTokenType.BraceOpen, CssTokenType.Comma }.Contains(first))
+                {
+                    AddAndSetCurrent(CssNodeType.GeneralDescendantCombinator);
+                    ReadGeneralDescendantCombinator();
+
+                    SkipWhitespace();
+                    GoToParent();
+                }
+                else if (currentToken.Type == CssTokenType.Plus ||
+                    first == CssTokenType.Plus)
+                {
+                    SkipWhitespace();
+                    AddAndSetCurrent(CssNodeType.DirectSiblingCombinator);
+                    ReadDirectSiblingCombinator();
+                    SkipWhitespace();
+                    GoToParent();
+                }
+                else if (currentToken.Type == CssTokenType.AngleBraketClose ||
+                    first == CssTokenType.AngleBraketClose)
+                {
+                    SkipWhitespace();
+                    AddAndSetCurrent(CssNodeType.DirectDescendantCombinator);
+                    ReadDirectDescendantCombinator();
+                    SkipWhitespace();
+                    GoToParent();
+                }
+                else if (currentToken.Type == CssTokenType.Tilde ||
+                    first == CssTokenType.Tilde)
+                {
+                    SkipWhitespace();
+                    AddAndSetCurrent(CssNodeType.GeneralSiblingCombinator);
+                    ReadGeneralSiblingCombinator();
+                    SkipWhitespace();
+                    GoToParent();
+                }
+                else if (currentToken.Type == CssTokenType.BraceOpen ||
+                    currentToken.Type == CssTokenType.Comma ||
+                    first == CssTokenType.BraceOpen ||
+                    first == CssTokenType.Comma)
+                {
+                    break;
+                }
 
                 AddAndSetCurrent(CssNodeType.SimpleSelectorSequence);
                 ReadSimpleSelectorSequence();
                 GoToParent();
-
-                while (currentIndex < tokens.Count &&
-                    currentToken.Type != CssTokenType.BraceOpen &&
-                    currentToken.Type != CssTokenType.Comma)
-                {
-                    var first = PeekFirstTokenTypeOf(tokens, currentIndex, new[] { CssTokenType.Plus, CssTokenType.AngleBraketClose, CssTokenType.Tilde,
-                        CssTokenType.Dot, CssTokenType.Ampersand,
-                        CssTokenType.Identifier, CssTokenType.Hash, CssTokenType.BraceOpen, CssTokenType.BraceClose, CssTokenType.SquareBracketOpen});
-
-                    if (currentToken.Type == CssTokenType.Whitespace &&
-                        !new[] { CssTokenType.Plus, CssTokenType.AngleBraketClose, CssTokenType.Tilde, CssTokenType.BraceOpen }.Contains(first))
-                    {
-                        AddAndSetCurrent(CssNodeType.GeneralDescendantCombinator);
-                        ReadGeneralDescendantCombinator();
-
-                        SkipWhitespace();
-                        GoToParent();
-                    }
-                    else if (currentToken.Type == CssTokenType.Plus ||
-                        first == CssTokenType.Plus)
-                    {
-                        SkipWhitespace();
-                        AddAndSetCurrent(CssNodeType.DirectSiblingCombinator);
-                        ReadDirectSiblingCombinator();
-                        SkipWhitespace();
-                        GoToParent();
-                    }
-                    else if (currentToken.Type == CssTokenType.AngleBraketClose ||
-                        first == CssTokenType.AngleBraketClose)
-                    {
-                        SkipWhitespace();
-                        AddAndSetCurrent(CssNodeType.DirectDescendantCombinator);
-                        ReadDirectDescendantCombinator();
-                        SkipWhitespace();
-                        GoToParent();
-                    }
-                    else if (currentToken.Type == CssTokenType.Tilde ||
-                        first == CssTokenType.Tilde)
-                    {
-                        SkipWhitespace();
-                        AddAndSetCurrent(CssNodeType.GeneralSiblingCombinator);
-                        ReadGeneralSiblingCombinator();
-                        SkipWhitespace();
-                        GoToParent();
-                    }
-                    else if (currentToken.Type == CssTokenType.BraceOpen ||
-                        currentToken.Type == CssTokenType.Comma ||
-                        first == CssTokenType.BraceOpen ||
-                        first == CssTokenType.Comma)
-                    {
-                        break;
-                    }
-
-                    AddAndSetCurrent(CssNodeType.SimpleSelectorSequence);
-                    ReadSimpleSelectorSequence();
-                    GoToParent();
-                }
-
-                SkipWhitespace();
-
-                //GoToParent();
             }
-            catch (AstGenerationException e)
-            {
-                Error(e.Message, e.Tokens);
 
-                SkipToEndOfBlock();
-
-                currentNode = old;
-            }
+            SkipWhitespace();
         }
-
-
 
         private void ReadAttributeSelector()
         {
-            // AddOnParentAndSetCurrent(new CssNode(CssNodeType.AttributeSelector));
             ReadUntil(CssTokenType.SquareBracketClose);
-            currentNode.TextBuilder.Append(currentToken.Text);
-            currentIndex++;
-
-            // GoToParent();
+            ReadToken();
         }
 
         private void ReadDirectDescendantCombinator()
         {
-            // AddOnParentAndSetCurrent(new CssNode(CssNodeType.DirectDescendantCombinator));
-            currentNode.TextBuilder.Append(currentToken.Text);
-
-            currentIndex++;
-
-            // GoToParent();
+            ReadToken();
         }
 
         private void ReadDirectSiblingCombinator()
         {
-            // AddOnParentAndSetCurrent(new CssNode(CssNodeType.DirectSiblingCombinator));
-            currentNode.TextBuilder.Append(currentToken.Text);
-
-            currentIndex++;
-
-            // GoToParent();
+            ReadToken();
         }
 
         private void ReadGeneralSiblingCombinator()
         {
-            // AddOnParentAndSetCurrent(new CssNode(CssNodeType.GeneralSiblingCombinator));
-            currentNode.TextBuilder.Append(currentToken.Text);
-
-            currentIndex++;
-
-            // GoToParent();
+            ReadToken();
         }
 
         private void ReadGeneralDescendantCombinator()
         {
-            //AddOnParentAndSetCurrent(new CssNode(CssNodeType.GeneralDescendantCombinator));
-            currentNode.TextBuilder.Append(currentToken.Text);
-
-            currentIndex++;
-
-            //GoToParent();
+            ReadToken();
         }
 
         private void ReadIdSelector()
         {
-            // AddOnParentAndSetCurrent(new CssNode(CssNodeType.IdSelector));
-
             ReadToken();
 
             ReadIdentifier();
-
-            // GoToParent();
         }
 
         private void ReadClassSelector()
         {
-            //AddOnParentAndSetCurrent(new CssNode(CssNodeType.ClassSelector));
-            currentNode.TextBuilder.Append(currentToken.Text);
-
-            currentIndex++;
+            ReadToken();
 
             ReadIdentifier();
-
-            //GoToParent();
         }
 
         private void ReadToken()
@@ -1591,7 +1639,6 @@ namespace XamlCSS.CssParsing
 
         private void ReadTypeSelector()
         {
-            // AddOnParentAndSetCurrent(new CssNode(CssNodeType.TypeSelector));
             ReadToken();
 
             if (!ReachedEnd &&
@@ -1603,8 +1650,6 @@ namespace XamlCSS.CssParsing
                     ReadToken();
                 }
             }
-
-            // GoToParent();
         }
 
         private void ReadUniversalSelector()
@@ -1631,127 +1676,29 @@ namespace XamlCSS.CssParsing
         {
             var old = currentNode;
             var startToken = currentToken;
-            try
+            CssNode selectorNode = null;
+
+            while (currentIndex < tokens.Count &&
+                   currentToken.Type != CssTokenType.BraceOpen)
             {
-                while (currentIndex < tokens.Count &&
-                    currentToken.Type != CssTokenType.BraceOpen)
-                {
-                    SkipWhitespace();
+                SkipWhitespace();
 
-                    AddAndSetCurrent(CssNodeType.Selector);
+                AddAndSetCurrent(CssNodeType.Selector);
 
-                    ReadSelector();
+                selectorNode = currentNode;
+                ReadSelector();
 
-                    GoToParent();
+                GoToParent();
 
-                    SkipIfFound(CssTokenType.Comma);
-                }
+                SkipIfFound(CssTokenType.Comma);
 
                 SkipWhitespace();
             }
-            catch (AstGenerationException e)
-            {
-                Error(e.Message, e.Tokens);
 
-                SkipToEndOfBlock();
+            SkipWhitespace();
 
-                currentNode = old;
-            }
         }
-        /*
-        public void ReadSelectorsOLD()
-        {
-            var old = currentNode;
-            var startToken = currentToken;
-            try
-            {
 
-                while (currentIndex < tokens.Count &&
-                    currentToken.Type != CssTokenType.BraceOpen)
-                {
-                    SkipWhitespace();
-
-                    if (currentNode.Type == CssNodeType.Selectors)
-                    {
-                        AddAndSetCurrent(CssNodeType.Selector);
-                    }
-                    else
-                    {
-                        AddOnParentAndSetCurrent(CssNodeType.Selector);
-                    }
-
-                    while (currentIndex < tokens.Count &&
-                        currentToken.Type != CssTokenType.BraceOpen &&
-                        currentToken.Type != CssTokenType.Comma)
-                    {
-                        if (currentToken.Type == CssTokenType.Ampersand &&
-                            currentNode.Parent?.Parent?.Parent?.Type == CssNodeType.Document)
-                        {
-                            Error($"Ampersand found but no parent rule!", GetTokens(startToken, currentToken));
-                        }
-
-                        if (currentNode.Type == CssNodeType.Selector)
-                        {
-                            AddAndSetCurrent(CssNodeType.SelectorFragment);
-                        }
-                        else
-                        {
-                            AddOnParentAndSetCurrent(CssNodeType.SelectorFragment);
-                        }
-
-                        if (currentToken.Type == CssTokenType.AngleBraketClose)
-                        {
-                            ReadChildCombinator();
-                        }
-                        else if (currentToken.Type == CssTokenType.Plus)
-                        {
-                            ReadSiblingCombinator();
-                        }
-                        else if (currentToken.Type == CssTokenType.Tilde)
-                        {
-                            ReadGeneralSiblingCombinator();
-                        }
-                        else if (currentToken.Type == CssTokenType.SquareBracketOpen)
-                        {
-                            ReadAttributeSelector();
-                        }
-                        else if (currentToken.Type == CssTokenType.Hash)
-                        {
-                            ReadIdSelector();
-                        }
-                        else if (currentToken.Type == CssTokenType.Hash)
-                        {
-                            ReadIdSelector();
-                        }
-                        else
-                        {
-                            ReadUntil(true, CssTokenType.BraceOpen, CssTokenType.Whitespace, CssTokenType.Comma);
-                        }
-                        TrimCurrentNode();
-
-                        SkipWhitespace();
-
-                        GoToParent();
-                    }
-
-                    SkipIfFound(CssTokenType.Comma);
-                }
-
-                SkipWhitespace();
-
-                GoToParent();
-                GoToParent();
-            }
-            catch (AstGenerationException e)
-            {
-                Error(e.Message, e.Tokens);
-
-                SkipToEndOfBlock();
-
-                currentNode = old;
-            }
-        }
-        */
         private void SkipIfFound(CssTokenType type)
         {
             if (currentIndex >= tokens.Count)
@@ -2117,6 +2064,15 @@ namespace XamlCSS.CssParsing
 
         private void SkipInlineCommentText()
         {
+            if (!AtLastToken)
+            {
+                currentIndex++;
+            }
+            if (!AtLastToken)
+            {
+                currentIndex++;
+            }
+
             do
             {
                 if (currentToken.Type == CssTokenType.Asterisk && nextToken.Type == CssTokenType.Slash)

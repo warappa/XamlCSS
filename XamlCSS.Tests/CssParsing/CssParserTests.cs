@@ -442,5 +442,39 @@ Button {
             dependent.Rules[0].DeclarationBlock[1].Property.Should().Be(@"Foreground");
             dependent.Rules[0].DeclarationBlock[1].Value.Should().Be(@"Green");
         }
+
+        [Test]
+        public void Can_handle_trailing_comma_in_selector()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test,
+{
+	Opacity: 0.5;
+    Width: 0;
+}");
+
+            Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual(@"0.5", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual("0", styleSheet.Rules[0].DeclarationBlock[1].Value);
+        }
+
+        [Test]
+        public void Can_handle_space_before_comma_in_selector()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test , .test2
+{
+	Opacity: 0.5;
+    Width: 0;
+}");
+
+            Assert.AreEqual(2, styleSheet.Rules[0].DeclarationBlock.Count);
+            Assert.AreEqual(@"0.5", styleSheet.Rules[0].DeclarationBlock[0].Value);
+            Assert.AreEqual("0", styleSheet.Rules[0].DeclarationBlock[1].Value);
+
+            Assert.AreEqual(2, styleSheet.Rules[1].DeclarationBlock.Count);
+            Assert.AreEqual(@"0.5", styleSheet.Rules[1].DeclarationBlock[0].Value);
+            Assert.AreEqual("0", styleSheet.Rules[1].DeclarationBlock[1].Value);
+        }
     }
 }

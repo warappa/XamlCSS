@@ -16,7 +16,7 @@ namespace XamlCSS.UWP.Dom
 
         protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            return new LogicalDomElement(dependencyObject, this);
+            return new LogicalDomElement(dependencyObject, this, namespaceProvider);
         }
 
         protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
@@ -39,7 +39,7 @@ namespace XamlCSS.UWP.Dom
                 {
                     listFound.Add(child);
                 }
-                else if(childsParent != null)
+                else if (childsParent != null)
                 {
                     listToCheckFurther.Add(child);
                 }
@@ -79,7 +79,7 @@ namespace XamlCSS.UWP.Dom
 
         public void Switch(SelectorType type)
         {
-            
+
         }
     }
 }

@@ -147,7 +147,7 @@ namespace XamlCSS.Dom
                     return parent;
                 }
                 var parentElement = treeNodeProvider.GetParent(dependencyObject);
-                return parentElement == null ? null :(parent = treeNodeProvider.GetDomElement(parentElement));
+                return parentElement == null ? null : (parent = treeNodeProvider.GetDomElement(parentElement));
             }
         }
 
@@ -164,12 +164,12 @@ namespace XamlCSS.Dom
             }
         }
 
-        
+
         public string NamespaceUri
         {
             get
             {
-                
+
                 if (namespaceUri == Undefined)
                 {
                     namespaceUri = Owner.LookupNamespaceUri(Prefix);
@@ -364,8 +364,7 @@ namespace XamlCSS.Dom
 
         public string LookupNamespaceUri(IDomElement<TDependencyObject> domElement, string prefix)
         {
-            var styleSheet = dependencyPropertyService.GetStyleSheet(GetStyleSheetHolder(domElement)?.Element);
-            return styleSheet?.Namespaces
+            return GetStyleSheet(domElement)?.Namespaces
                 .Where(x => x.Alias == prefix)
                 .Select(x => x.Namespace)
                 .FirstOrDefault();
@@ -373,11 +372,21 @@ namespace XamlCSS.Dom
 
         public string LookupPrefix(IDomElement<TDependencyObject> domElement, string namespaceUri)
         {
-            var styleSheet = dependencyPropertyService.GetStyleSheet(GetStyleSheetHolder(domElement)?.Element);
-            return styleSheet?.Namespaces
+            return GetStyleSheet(domElement)?.Namespaces
                 .Where(x => x.Namespace == namespaceUri)
                 .Select(x => x.Alias)
                 .FirstOrDefault();
+        }
+
+        private StyleSheet GetStyleSheet(IDomElement<TDependencyObject> domElement)
+        {
+            var element = GetStyleSheetHolder(domElement)?.Element;
+            if (element == null)
+            {
+                return null;
+            }
+
+            return dependencyPropertyService.GetStyleSheet(element);
         }
 
         private IDomElement<TDependencyObject> GetStyleSheetHolder(IDomElement<TDependencyObject> domElement)
