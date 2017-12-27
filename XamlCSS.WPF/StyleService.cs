@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Windows;
+using System.Windows.Markup;
+using System.Xml;
 
 namespace XamlCSS.WPF
 {
@@ -26,9 +30,32 @@ namespace XamlCSS.WPF
             style.Triggers.Add((TriggerBase)trigger);
         }
 
+        private T Clone<T>(T obj)
+        {
+            var sb = new StringBuilder();
+            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings
+                {
+                    Indent = false,
+                    ConformanceLevel = ConformanceLevel.Fragment,
+                    OmitXmlDeclaration = true,
+                    NamespaceHandling = NamespaceHandling.OmitDuplicates,
+                }))
+            {
+                var mgr = new XamlDesignerSerializationManager(writer);
+                mgr.XamlWriterMode = XamlWriterMode.Expression;
+
+                XamlWriter.Save(obj, mgr);
+                using (var stringReader = new StringReader(sb.ToString()))
+                using (var xmlReader = XmlReader.Create(stringReader))
+                {
+                    return (T)XamlReader.Load(xmlReader);
+                }
+            }
+        }
+
         public override IEnumerable<DependencyObject> GetTriggersAsList(Style style)
         {
-            return style.Triggers.ToList();
+            return style.Triggers.Select(x => (DependencyObject)XamlReader.Parse(XamlWriter.Save(x)));
         }
 
         private static object GetBasicValue(DataTrigger dataTrigger)
@@ -79,7 +106,10 @@ namespace XamlCSS.WPF
                     try
                     {
                         var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
-                        
+                        if (value == null)
+                        {
+
+                        }
                         nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
                     }
                     catch (Exception e)
@@ -149,7 +179,10 @@ namespace XamlCSS.WPF
                         }
 
                         var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
-                        
+                        if (value == null)
+                        {
+
+                        }
                         nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
                     }
                     catch (Exception e)
@@ -262,6 +295,10 @@ namespace XamlCSS.WPF
                     value = TypeDescriptor.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? value;
                 }
 
+                if (value == null)
+                {
+
+                }
                 nativeTriggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(nativeTriggerAction, value);
             }
 
@@ -270,6 +307,10 @@ namespace XamlCSS.WPF
 
         protected override void AddSetter(Style style, DependencyProperty property, object value)
         {
+            if (value == null)
+            {
+
+            }
             style.Setters.Add(new Setter(property, value));
         }
 
