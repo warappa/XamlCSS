@@ -476,5 +476,23 @@ Button {
             Assert.AreEqual(@"0.5", styleSheet.Rules[1].DeclarationBlock[0].Value);
             Assert.AreEqual("0", styleSheet.Rules[1].DeclarationBlock[1].Value);
         }
+
+        [Test]
+        public void Can_parse_nested_combinator()
+        {
+            var styleSheet = CssParser.Parse(@"
+.test
+{
+	> div {
+        Opacity: 0.5;
+        Width: 0;
+    }
+}");
+
+            styleSheet.Rules.Count.Should().Be(2);
+            styleSheet.Rules[1].SelectorString.Should().Be(@".test>div");
+            styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be(@"0.5");
+            styleSheet.Rules[1].DeclarationBlock[1].Value.Should().Be("0");
+        }
     }
 }

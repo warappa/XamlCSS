@@ -1393,13 +1393,20 @@ namespace XamlCSS.CssParsing
             }
         }
 
+        private bool IsCombinator(CssToken token)
+        {
+            return token.Type == CssTokenType.AngleBraketClose ||
+                token.Type == CssTokenType.Tilde ||
+                token.Type == CssTokenType.Plus;
+        }
+
         public void ReadSimpleSelectorSequence()
         {
             var old = currentNode;
             var startToken = currentToken;
 
             var tokenToCheckForNamespacedSelectors = GetTokenToCheckForNamespacedSelectors();
-
+            
             if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Identifier)
             {
                 AddAndSetCurrent(CssNodeType.TypeSelector);
@@ -1421,6 +1428,12 @@ namespace XamlCSS.CssParsing
 
                 AddAndSetCurrent(CssNodeType.ParentSelector);
                 ReadParentSelector();
+                GoToParent();
+            }
+            else if (IsCombinator(currentToken))
+            {
+                AddAndSetCurrent(CssNodeType.ParentSelector);
+                currentNode.TextBuilder.Append("&");
                 GoToParent();
             }
             else if (currentToken.Type != CssTokenType.Hash &&

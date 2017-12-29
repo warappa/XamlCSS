@@ -18,8 +18,8 @@ namespace XamlCSS.XamarinForms.Dom
 
         private void RegisterChildrenChangeHandler()
         {
-            VisualTreeHelper.SubTreeAdded += DomElementAdded;
-            VisualTreeHelper.SubTreeRemoved += DomElementRemoved;
+            VisualTreeHelper.SubTreeAdded += ElementAdded;
+            VisualTreeHelper.SubTreeRemoved += ElementRemoved;
         }
 
         public new void Dispose()
@@ -31,8 +31,8 @@ namespace XamlCSS.XamarinForms.Dom
 
         private void UnregisterChildrenChangeHandler()
         {
-            VisualTreeHelper.SubTreeAdded -= DomElementAdded;
-            VisualTreeHelper.SubTreeRemoved -= DomElementRemoved;
+            VisualTreeHelper.SubTreeAdded -= ElementAdded;
+            VisualTreeHelper.SubTreeRemoved -= ElementRemoved;
         }
 
         protected override IList<string> GetClassList(BindableObject dependencyObject)

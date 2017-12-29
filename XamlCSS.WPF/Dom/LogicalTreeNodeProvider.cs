@@ -8,14 +8,13 @@ namespace XamlCSS.WPF.Dom
     public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
         public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
-            : base(dependencyPropertyService)
+            : base(dependencyPropertyService, SelectorType.LogicalTree)
         {
-            
         }
 
         protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            return new LogicalDomElement(dependencyObject, this, namespaceProvider);
+            return new LogicalDomElement(dependencyObject, this,namespaceProvider);
         }
 
         protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)

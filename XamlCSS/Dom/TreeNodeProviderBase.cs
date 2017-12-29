@@ -11,11 +11,14 @@ namespace XamlCSS.Dom
     {
         protected readonly IDependencyPropertyService<TDependencyObject, TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
         protected readonly INamespaceProvider<TDependencyObject> namespaceProvider;
+        protected SelectorType selectorType;
 
-        public TreeNodeProviderBase(IDependencyPropertyService<TDependencyObject, TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService)
+        public TreeNodeProviderBase(IDependencyPropertyService<TDependencyObject, TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
+            SelectorType selectorType)
         {
             this.dependencyPropertyService = dependencyPropertyService;
             this.namespaceProvider = new NamespaceProvider<TDependencyObject, TDependencyObject, TStyle, TDependencyProperty>(dependencyPropertyService);
+            this.selectorType = selectorType;
         }
 
         protected internal abstract IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
@@ -25,24 +28,24 @@ namespace XamlCSS.Dom
         public abstract TDependencyObject GetParent(TDependencyObject tUIElement);
 
         public abstract IEnumerable<TDependencyObject> GetChildren(TDependencyObject element);
-        
-		public IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node)
-		{
+
+        public IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node)
+        {
             if (node == null) throw new ArgumentNullException(nameof(node));
             if (node.Element == null) throw new ArgumentNullException(nameof(node.Element));
 
             return this.GetChildren(node.Element as TDependencyObject)
-				.Select(x => this.GetDomElement(x))
-				.ToList();
-		}
-        
-		public IDomElement<TDependencyObject> GetTreeParentNode(TDependencyObject obj)
-		{
+                .Select(x => this.GetDomElement(x))
+                .ToList();
+        }
+
+        public IDomElement<TDependencyObject> GetTreeParentNode(TDependencyObject obj)
+        {
             return GetDomElement(GetParent(obj));
         }
 
-		public IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj)
-		{
+        public IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj)
+        {
             if (obj == null)
             {
                 return null;
@@ -57,7 +60,7 @@ namespace XamlCSS.Dom
             }
 
             cached = CreateTreeNode(obj);
-            dependencyPropertyService.SetDomElement(obj, cached);
+            dependencyPropertyService.SetDomElement(obj, cached, selectorType);
 
             return cached;
         }
@@ -66,7 +69,7 @@ namespace XamlCSS.Dom
 
         private IDomElement<TDependencyObject> GetFromDependencyObject(TDependencyObject obj)
         {
-            return dependencyPropertyService.GetDomElement(obj);
+            return dependencyPropertyService.GetDomElement(obj, selectorType);
         }
     }
 }

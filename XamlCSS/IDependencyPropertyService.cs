@@ -45,7 +45,7 @@ namespace XamlCSS
         TDependencyProperty GetBindableProperty(TDependencyObject frameworkElement, string propertyName);
         TDependencyProperty GetBindableProperty(Type uiElementType, string propertyName);
 
-        IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj);
-        void SetDomElement(TDependencyObject obj, IDomElement<TDependencyObject> value);
+        IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj, SelectorType selectorType);
+        void SetDomElement(TDependencyObject obj, IDomElement<TDependencyObject> value, SelectorType selectorType);
     }
 }

@@ -8,7 +8,7 @@ namespace XamlCSS.XamarinForms.Dom
     public class VisualTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
     {
         public VisualTreeNodeProvider(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> dependencyPropertyService)
-            : base(dependencyPropertyService)
+            : base(dependencyPropertyService, SelectorType.LogicalTree)
         {
         }
 

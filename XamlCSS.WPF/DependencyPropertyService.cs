@@ -187,9 +187,16 @@ namespace XamlCSS.WPF
             return ((bool?)ReadSafe(obj, Css.HandledCssProperty) ?? false);
         }
 
-        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
+        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj, SelectorType selectorType)
         {
-            return ReadSafe(obj, Css.DomElementProperty) as IDomElement<DependencyObject>;
+            if (selectorType == SelectorType.LogicalTree)
+            {
+                return ReadSafe(obj, Css.DomElementProperty) as IDomElement<DependencyObject>;
+            }
+            else
+            {
+                return ReadSafe(obj, Css.VisualDomElementProperty) as IDomElement<DependencyObject>;
+            }
         }
 
         public void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
@@ -237,9 +244,16 @@ namespace XamlCSS.WPF
             obj.SetValue(Css.HandledCssProperty, value);
         }
 
-        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value, SelectorType selectorType)
         {
-            obj.SetValue(Css.DomElementProperty, value);
+            if (selectorType == SelectorType.LogicalTree)
+            {
+                Css.SetDomElement(obj, value);
+            }
+            else
+            {
+                Css.SetVisualDomElement(obj, value);
+            }
         }
 
         public bool IsLoaded(DependencyObject obj)

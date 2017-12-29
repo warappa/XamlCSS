@@ -24,7 +24,7 @@ namespace XamlCSS.WPF
 
         private static void OnLoaded(object sender, RoutedEventArgs e)
         {
-            SetLoadDetection(sender as UIElement, true);
+            SetLoadDetection((DependencyObject)sender, true);
         }
 
         private static void UpdateStyle(DependencyObject sender)
@@ -47,11 +47,11 @@ namespace XamlCSS.WPF
             DependencyProperty.RegisterAttached("LoadDetection", typeof(bool), typeof(LoadedDetectionHelper),
                                                 new FrameworkPropertyMetadata(false, FrameworkPropertyMetadataOptions.Inherits, OnLoadDetectionChanged));
 
-        public static bool GetLoadDetection(UIElement element)
+        public static bool GetLoadDetection(DependencyObject element)
         {
             return (bool)element.GetValue(LoadDetectionProperty);
         }
-        public static void SetLoadDetection(UIElement element, bool value)
+        public static void SetLoadDetection(DependencyObject element, bool value)
         {
             if (element == null)
             {
@@ -73,30 +73,48 @@ namespace XamlCSS.WPF
             {
                 SubTreeAdded?.Invoke(dpo, new EventArgs());
 
-                if (dpo is FrameworkElement)
+                if (dpo is FrameworkElement frameworkElement)
                 {
-                    (dpo as FrameworkElement).Loaded += LoadedEventHandler;
+                    frameworkElement.Loaded += LoadedEventHandler;
+                    frameworkElement.Initialized += FrameworkElement_Initialized;
+                    if (frameworkElement.IsLoaded)
+                    {
+                        LoadedEventHandler.Invoke(frameworkElement, new RoutedEventArgs());
+                    }
                 }
-                else if (dpo is FrameworkContentElement)
+                else if (dpo is FrameworkContentElement frameworkContentElement)
                 {
-                    (dpo as FrameworkContentElement).Loaded += LoadedEventHandler;
+                    frameworkContentElement.Loaded += LoadedEventHandler;
+                    frameworkContentElement.Initialized += FrameworkElement_Initialized;
+                    if (frameworkContentElement.IsLoaded)
+                    {
+                        LoadedEventHandler.Invoke(frameworkContentElement, new RoutedEventArgs());
+                    }
                 }
             }
             else
             {
                 SubTreeRemoved?.Invoke(dpo, new EventArgs());
 
-                if (dpo is FrameworkElement)
+                if (dpo is FrameworkElement frameworkElement)
                 {
-                    (dpo as FrameworkElement).Loaded -= LoadedEventHandler;
+                    frameworkElement.Loaded -= LoadedEventHandler;
+                    frameworkElement.Initialized -= FrameworkElement_Initialized;
                 }
-                else if (dpo is FrameworkContentElement)
+                else if (dpo is FrameworkContentElement frameworkContentElement)
                 {
-                    (dpo as FrameworkContentElement).Loaded -= LoadedEventHandler;
+                    frameworkContentElement.Loaded -= LoadedEventHandler;
+                    frameworkContentElement.Initialized -= FrameworkElement_Initialized;
                 }
 
                 Css.instance?.UnapplyMatchingStyles(dpo, null);
             }
+        }
+
+        private static void FrameworkElement_Initialized(object sender, EventArgs e)
+        {
+            SubTreeRemoved.Invoke(sender, e);
+            SubTreeAdded.Invoke(sender, e);
         }
 
         private static readonly RoutedEventHandler LoadedEventHandler = delegate (object sender, RoutedEventArgs e)

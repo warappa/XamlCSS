@@ -6,16 +6,15 @@ namespace XamlCSS.WPF.Dom
 {
     public class SwitchableTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>, ISwitchableTreeNodeProvider<DependencyObject>
     {
-        private SelectorType currentSelectorType = SelectorType.LogicalTree;
         private ITreeNodeProvider<DependencyObject> currentTreeNodeProvider = null;
-        private VisualWithLogicalFallbackTreeNodeProvider visualTreeNodeProvider;
+        private VisualTreeNodeProvider visualTreeNodeProvider;
         private LogicalTreeNodeProvider logicalTreeNodeProvider;
 
         public SwitchableTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService,
-            VisualWithLogicalFallbackTreeNodeProvider visualTreeNodeProvider,
+            VisualTreeNodeProvider visualTreeNodeProvider,
             LogicalTreeNodeProvider logicalTreeNodeProvider
             )
-            : base(dependencyPropertyService)
+            : base(dependencyPropertyService, SelectorType.LogicalTree)
         {
             this.visualTreeNodeProvider = visualTreeNodeProvider;
             this.logicalTreeNodeProvider = logicalTreeNodeProvider;
@@ -23,11 +22,11 @@ namespace XamlCSS.WPF.Dom
             currentTreeNodeProvider = logicalTreeNodeProvider;
         }
 
-        public SelectorType CurrentSelectorType => currentSelectorType;
+        public SelectorType CurrentSelectorType => selectorType;
 
         public void Switch(SelectorType type)
         {
-            currentSelectorType = type;
+            selectorType = type;
 
             if (type == SelectorType.LogicalTree)
             {
@@ -41,7 +40,7 @@ namespace XamlCSS.WPF.Dom
 
         protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            if (currentSelectorType == SelectorType.LogicalTree)
+            if (selectorType == SelectorType.LogicalTree)
             {
                 return logicalTreeNodeProvider.CreateTreeNode(dependencyObject);
             }
@@ -53,7 +52,7 @@ namespace XamlCSS.WPF.Dom
 
         protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
         {
-            if (currentSelectorType == SelectorType.LogicalTree)
+            if (selectorType == SelectorType.LogicalTree)
             {
                 return logicalTreeNodeProvider.IsCorrectTreeNode(node);
             }

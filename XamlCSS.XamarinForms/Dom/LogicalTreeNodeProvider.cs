@@ -11,7 +11,7 @@ namespace XamlCSS.XamarinForms.Dom
         public SelectorType CurrentSelectorType => SelectorType.LogicalTree;
 
         public LogicalTreeNodeProvider(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> BindablePropertyService)
-            : base(BindablePropertyService)
+            : base(BindablePropertyService, SelectorType.LogicalTree)
         {
         }
 

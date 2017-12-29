@@ -16,6 +16,7 @@ namespace XamlCSS.Dom
         IList<IDomElement<TDependencyObject>> ChildNodes { get; }
         string NamespaceUri { get; }
         string LocalName { get; }
+        string Prefix { get; }
 
         string LookupPrefix(string v);
         string LookupNamespaceUri(string v);

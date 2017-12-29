@@ -17,8 +17,8 @@ namespace XamlCSS.WPF.Dom
 
         private void RegisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded += DomElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved += DomElementRemoved;
+            LoadedDetectionHelper.SubTreeAdded += ElementAdded;
+            LoadedDetectionHelper.SubTreeRemoved += ElementRemoved;
         }
 
         public new void Dispose()
@@ -30,8 +30,8 @@ namespace XamlCSS.WPF.Dom
 
         private void UnregisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded -= DomElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved -= DomElementRemoved;
+            LoadedDetectionHelper.SubTreeAdded -= ElementAdded;
+            LoadedDetectionHelper.SubTreeRemoved -= ElementRemoved;
         }
 
         protected override IList<string> GetClassList(DependencyObject dependencyObject)

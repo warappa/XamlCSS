@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
@@ -9,7 +10,7 @@ namespace XamlCSS.WPF.Dom
     public class VisualTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
         public VisualTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
-            : base(dependencyPropertyService)
+            : base(dependencyPropertyService, SelectorType.VisualTree)
         {
         }
 
@@ -47,6 +48,16 @@ namespace XamlCSS.WPF.Dom
                         }
                     }
                 }
+                else
+                {
+                    foreach (var child in LogicalTreeHelper.GetChildren(element))
+                    {
+                        if (child is DependencyObject c)
+                        {
+                            list.Add(c);
+                        }
+                    }
+                }
             }
             catch { }
             return list;
@@ -59,12 +70,25 @@ namespace XamlCSS.WPF.Dom
                 return null;
             }
 
-            return VisualTreeHelper.GetParent(element);
+            DependencyObject parent = null;
+            if (element is Visual ||
+                element is Visual3D)
+            {
+                parent= VisualTreeHelper.GetParent(element);
+            }
+
+            // LoadedDetection: would insert into Logical Dom Tree
+            //return null;// LogicalTreeHelper.GetParent(element);
+            return parent ??LogicalTreeHelper.GetParent(element);
         }
 
-        public override bool IsInTree(DependencyObject tUIElement)
+        public override bool IsInTree(DependencyObject element)
         {
-            return true;
+            var p = GetParent(element);
+            if (p == null)
+                return true;
+
+            return GetChildren(p).Contains(element);
         }
     }
 }

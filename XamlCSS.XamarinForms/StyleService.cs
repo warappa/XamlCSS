@@ -228,11 +228,45 @@ namespace XamlCSS.XamarinForms
                 {
                     value = parameterValueExpression;
                 }
-                
+
+                if (value is string str)
+                {
+                    value = GetClrValue(type, str);
+                }
+
                 nativeTriggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(nativeTriggerAction, value);
             }
 
             return nativeTriggerAction;
+        }
+
+        public object GetClrValue(Type propertyType, string propertyValueString)
+        {
+            if (!(propertyType.GetTypeInfo()
+                .IsAssignableFrom(propertyValueString.GetType().GetTypeInfo())))
+            {
+                TypeConverter converter = null;
+
+                converter = typeConverterProvider.GetConverterFromProperty(propertyValueString, propertyType);
+
+                if (converter == null)
+                    converter = typeConverterProvider.GetConverter(propertyType);
+                if (converter != null)
+                    return converter.ConvertFromInvariantString(propertyValueString);
+
+                else if (propertyType == typeof(bool))
+                    return propertyValueString.Equals("true");
+                else if (propertyType == typeof(Color))
+                    return Color.FromHex(propertyValueString as string);
+                else if (propertyType == typeof(LayoutOptions))
+                    return propertyType.GetRuntimeFields().First(x => x.Name == propertyValueString as string).GetValue(null);
+                else if (propertyType.GetTypeInfo().IsEnum)
+                    return Enum.Parse(propertyType, propertyValueString as string);
+                else
+                    return Convert.ChangeType(propertyValueString, propertyType);
+            }
+
+            return propertyValueString;
         }
 
         private static object GetBasicValue(DataTrigger dataTrigger)

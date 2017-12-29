@@ -42,16 +42,14 @@ namespace XamlCSS.WPF
             var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
+            SwitchableTreeNodeProvider switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeProvider, logicalTreeNodeProvider);
 
             instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
-                new SwitchableTreeNodeProvider(
-                    dependencyPropertyService, 
-                    new VisualWithLogicalFallbackTreeNodeProvider(dependencyPropertyService, visualTreeNodeProvider, logicalTreeNodeProvider),
-                    logicalTreeNodeProvider),
+                switchableTreeNodeProvider,
                 new StyleResourceService(),
                 new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
-                DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(System.Windows.Controls.Button)),
+                DomElementBase<DependencyObject, DependencyProperty>.GetNamespaceUri(typeof(System.Windows.Controls.Button)),
                 markupExtensionParser,
                 dispatcher.Invoke,
                 new CssFileProvider(cssTypeHelper)
@@ -237,6 +235,22 @@ namespace XamlCSS.WPF
         public static void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
         {
             obj.SetValue(DomElementProperty, value);
+        }
+
+        public static readonly DependencyProperty VisualDomElementProperty =
+            DependencyProperty.RegisterAttached(
+                "VisualDomElement",
+                typeof(IDomElement<DependencyObject>),
+                typeof(Css),
+                new PropertyMetadata(null));
+
+        public static IDomElement<DependencyObject> GetVisualDomElement(DependencyObject obj)
+        {
+            return obj.GetValue(VisualDomElementProperty) as IDomElement<DependencyObject>;
+        }
+        public static void SetVisualDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        {
+            obj.SetValue(VisualDomElementProperty, value);
         }
     }
 }

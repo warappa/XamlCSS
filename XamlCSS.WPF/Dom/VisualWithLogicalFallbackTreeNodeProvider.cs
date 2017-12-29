@@ -16,7 +16,7 @@ namespace XamlCSS.WPF.Dom
             ITreeNodeProvider<DependencyObject> visualTreeNodeProvider,
             ITreeNodeProvider<DependencyObject> logicalTreeNodeProvider
             )
-            : base(dependencyPropertyService)
+            : base(dependencyPropertyService, SelectorType.VisualTree)
         {
             this.VisualTreeNodeProvider = visualTreeNodeProvider;
             this.LogicalTreeNodeProvider = logicalTreeNodeProvider;

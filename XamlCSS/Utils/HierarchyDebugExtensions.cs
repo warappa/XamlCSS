@@ -98,8 +98,8 @@ namespace XamlCSS.Utils
             if (expectedParent != domElement.Parent)
             {
                 Debug.WriteLine("!!!!!");
-                Debug.WriteLine($"Expected parent: { domElement.TagName + "#" + expectedParent.Id }");
-                Debug.WriteLine($"Actual parent:   { domElement.Parent.TagName + "#" + domElement.Parent.Id }");
+                Debug.WriteLine($"Expected parent: { expectedParent.TagName + "#" + expectedParent.Id }");
+                Debug.WriteLine($"Actual parent:   { domElement.Parent?.TagName + "#" + domElement.Parent?.Id }");
                 Debug.WriteLine("!!!!!");
             }
 

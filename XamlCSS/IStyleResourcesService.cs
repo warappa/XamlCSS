@@ -10,5 +10,7 @@ namespace XamlCSS
         IEnumerable<object> GetKeys();
         object GetResource(object key);
         void EnsureResources();
+        void BeginUpdate();
+        void EndUpdate();
     }
 }

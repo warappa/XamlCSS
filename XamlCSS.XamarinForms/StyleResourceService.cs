@@ -7,12 +7,22 @@ namespace XamlCSS.XamarinForms
 {
 	public class StyleResourceService : IStyleResourcesService
 	{
-		public bool Contains(object key)
+        public void BeginUpdate()
+        {
+            
+        }
+
+        public bool Contains(object key)
 		{
 			return Application.Current.Resources.Keys.Contains(key);
 		}
 
-		public void EnsureResources()
+        public void EndUpdate()
+        {
+            
+        }
+
+        public void EnsureResources()
 		{
             if (Application.Current.Resources == null)
             {

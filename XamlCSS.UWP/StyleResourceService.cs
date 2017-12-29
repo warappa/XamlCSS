@@ -6,9 +6,19 @@ namespace XamlCSS.UWP
 {
     public class StyleResourceService : IStyleResourcesService
     {
+        public void BeginUpdate()
+        {
+
+        }
+
         public bool Contains(object key)
         {
             return Application.Current.Resources.ContainsKey(key);
+        }
+
+        public void EndUpdate()
+        {
+            
         }
 
         public void EnsureResources()

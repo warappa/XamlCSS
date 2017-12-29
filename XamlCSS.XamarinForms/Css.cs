@@ -82,7 +82,7 @@ namespace XamlCSS.XamarinForms
                     new LogicalTreeNodeProvider(dependencyPropertyService),
                     new StyleResourceService(),
                     new StyleService(dependencyPropertyService, markupExtensionParser),
-                    DomElementBase<BindableObject, Element>.GetPrefix(typeof(Button)),
+                    DomElementBase<BindableObject, Element>.GetNamespaceUri(typeof(Button)),
                     markupExtensionParser,
                     Device.BeginInvokeOnMainThread,
                     new CssFileProvider(resourceSearchAssemblies ?? new Assembly[0], cssTypeHelper)

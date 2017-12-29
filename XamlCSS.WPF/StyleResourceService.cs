@@ -6,9 +6,19 @@ namespace XamlCSS.WPF
 {
     public class StyleResourceService : IStyleResourcesService
     {
+        public void BeginUpdate()
+        {
+            Application.Current.Resources.BeginInit();
+        }
+
         public bool Contains(object key)
         {
             return Application.Current.Resources.Contains(key);
+        }
+
+        public void EndUpdate()
+        {
+            Application.Current.Resources.EndInit();
         }
 
         public void EnsureResources()

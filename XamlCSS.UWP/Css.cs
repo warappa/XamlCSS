@@ -38,7 +38,7 @@ namespace XamlCSS.UWP
                     (timer as DispatcherTimer).Stop();
                     action();
                 };
-                
+
                 localTimer.Tick += handler;
                 localTimer.Start();
             }
@@ -92,13 +92,13 @@ namespace XamlCSS.UWP
             var dependencyPropertyService = new DependencyPropertyService();
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
-            
+
             instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
                 new LogicalTreeNodeProvider(dependencyPropertyService),
                 new StyleResourceService(),
                 new StyleService(dependencyPropertyService),
-                DomElementBase<DependencyObject, DependencyProperty>.GetPrefix(typeof(Button)),
+                DomElementBase<DependencyObject, DependencyProperty>.GetNamespaceUri(typeof(Button)),
                 markupExtensionParser,
                 RunOnUIThread,
                 new CssFileProvider(resourceSearchAssemblies, cssTypeHelper)
@@ -253,6 +253,24 @@ namespace XamlCSS.UWP
         {
             obj.SetValue(DomElementProperty, value ?? DependencyProperty.UnsetValue);
         }
+
+        public static readonly DependencyProperty VisualDomElementProperty =
+            DependencyProperty.RegisterAttached("VisualDomElement", typeof(bool),
+            typeof(Css), new PropertyMetadata(null, null));
+
+        public static IDomElement<DependencyObject> GetVisualDomElement(DependencyObject obj)
+        {
+            var res = obj.ReadLocalValue(VisualDomElementProperty);
+            if (res == DependencyProperty.UnsetValue)
+                return null;
+            return res as IDomElement<DependencyObject>;
+        }
+        public static void SetVisualDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        {
+            obj.SetValue(VisualDomElementProperty, value ?? DependencyProperty.UnsetValue);
+        }
+
+
 
         #endregion
 

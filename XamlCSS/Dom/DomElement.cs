@@ -27,7 +27,7 @@ namespace XamlCSS.Dom
         protected string id;
         protected string namespaceUri = Undefined;
         protected IList<IDomElement<TDependencyObject>> childNodes = null;
-        protected string prefix = "UNDEFINED";
+        protected string prefix = Undefined;
         protected IDictionary<string, TDependencyProperty> attributes = null;
         protected IList<string> classList = null;
 
@@ -44,11 +44,17 @@ namespace XamlCSS.Dom
             this.id = GetId(dependencyObject);
             this.NodeName = dependencyObject.GetType().Name;
             this.LocalName = dependencyObject.GetType().Name;
-
+            this.namespaceUri = GetNamespaceUri(dependencyObject.GetType());
         }
 
-        protected void DomElementAdded(object sender, EventArgs e)
+        protected void ElementAdded(object sender, EventArgs e)
         {
+            if (sender == Element)
+            {
+                // force reevaluation
+                parent = null;
+            }
+
             if (treeNodeProvider.GetParent(sender as TDependencyObject) == dependencyObject)
             {
                 if (childNodes != null)
@@ -59,7 +65,7 @@ namespace XamlCSS.Dom
             }
         }
 
-        protected void DomElementRemoved(object sender, EventArgs e)
+        protected void ElementRemoved(object sender, EventArgs e)
         {
             if (ChildNodes.Any(x => x.Element == sender))
             {
@@ -68,6 +74,12 @@ namespace XamlCSS.Dom
                     var node = childNodes.First(x => x.Element == sender as TDependencyObject);
                     childNodes.Remove(node);
                 }
+            }
+
+            if (sender == Element)
+            {
+                // force reevaluation
+                parent = null;
             }
         }
 
@@ -81,7 +93,7 @@ namespace XamlCSS.Dom
             classList = null;
         }
 
-        public static string GetPrefix(Type type)
+        public static string GetNamespaceUri(Type type)
         {
             return type.AssemblyQualifiedName.Replace($".{type.Name},", ",");
         }
@@ -157,7 +169,7 @@ namespace XamlCSS.Dom
             {
                 if (prefix == Undefined)
                 {
-                    prefix = namespaceProvider.LookupPrefix(this, GetPrefix(dependencyObject.GetType())) ?? Undefined;
+                    prefix = namespaceProvider.LookupPrefix(this, GetNamespaceUri(dependencyObject.GetType())) ?? Undefined;
                 }
 
                 return prefix != Undefined ? prefix : null;
@@ -173,7 +185,7 @@ namespace XamlCSS.Dom
                     namespaceUri = namespaceProvider.LookupNamespaceUri(this, Prefix) ?? Undefined;
                 }
 
-                return namespaceUri != Undefined ? namespaceUri: null;
+                return namespaceUri != Undefined ? namespaceUri : null;
             }
         }
 
@@ -354,6 +366,7 @@ namespace XamlCSS.Dom
         where TDependencyProperty : class
     {
         private readonly IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService;
+        private readonly IDictionary<string, string> prefix2Namespace = new Dictionary<string, string>();
 
         public NamespaceProvider(IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService)
         {
@@ -362,18 +375,56 @@ namespace XamlCSS.Dom
 
         public string LookupNamespaceUri(IDomElement<TDependencyObject> domElement, string prefix)
         {
-            return GetStyleSheet(domElement)?.Namespaces
+            if (prefix == null)
+            {
+                return null;
+            }
+
+            if (prefix2Namespace.ContainsKey(prefix))
+            {
+                return prefix2Namespace[prefix];
+            }
+
+            var namespaceUri = GetStyleSheet(domElement)?.Namespaces
                 .Where(x => x.Alias == prefix)
                 .Select(x => x.Namespace)
                 .FirstOrDefault();
+
+            if (namespaceUri != null)
+            {
+                prefix2Namespace[prefix] = namespaceUri;
+            }
+
+            return namespaceUri;
         }
 
         public string LookupPrefix(IDomElement<TDependencyObject> domElement, string namespaceUri)
         {
-            return GetStyleSheet(domElement)?.Namespaces
+            if (namespaceUri == null)
+            {
+                return null;
+            }
+
+            var prefix = prefix2Namespace.Where(x => x.Value == namespaceUri)
+                .Select(x => x.Key)
+                .FirstOrDefault();
+
+            if (prefix != null)
+            {
+                return prefix;
+            }
+
+            prefix = GetStyleSheet(domElement)?.Namespaces
                 .Where(x => x.Namespace == namespaceUri)
                 .Select(x => x.Alias)
                 .FirstOrDefault();
+
+            if (prefix != null)
+            {
+                prefix2Namespace[prefix] = namespaceUri;
+            }
+
+            return prefix;
         }
 
         private StyleSheet GetStyleSheet(IDomElement<TDependencyObject> domElement)

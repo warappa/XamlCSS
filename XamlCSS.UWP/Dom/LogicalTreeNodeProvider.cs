@@ -10,7 +10,7 @@ namespace XamlCSS.UWP.Dom
         public SelectorType CurrentSelectorType => SelectorType.LogicalTree;
 
         public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
-            : base(dependencyPropertyService)
+            : base(dependencyPropertyService, SelectorType.LogicalTree)
         {
         }
 
