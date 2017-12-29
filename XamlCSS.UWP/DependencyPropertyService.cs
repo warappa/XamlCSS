@@ -221,5 +221,15 @@ namespace XamlCSS.UWP
             return frameworkElement.Parent != null ||
                 frameworkElement is Frame;
         }
+
+        public StyleSheet GetStyledByStyleSheet(DependencyObject obj)
+        {
+            return (StyleSheet)Css.GetStyledByStyleSheet(obj);
+        }
+
+        public void SetStyledByStyleSheet(DependencyObject obj, StyleSheet value)
+        {
+            Css.SetStyledByStyleSheet(obj, value);
+        }
     }
 }

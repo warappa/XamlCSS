@@ -107,7 +107,7 @@ namespace XamlCSS.WPF
                     frameworkContentElement.Initialized -= FrameworkElement_Initialized;
                 }
 
-                Css.instance?.UnapplyMatchingStyles(dpo, null);
+                Css.instance?.UnapplyMatchingStyles(dpo, Css.instance.dependencyPropertyService.GetStyledByStyleSheet(dpo));
             }
         }
 

@@ -301,5 +301,15 @@ namespace XamlCSS.WPF
                 }
             }
         }
+
+        public StyleSheet GetStyledByStyleSheet(DependencyObject obj)
+        {
+            return (StyleSheet)ReadSafe(obj, Css.StyledByStyleSheetProperty);
+        }
+
+        public void SetStyledByStyleSheet(DependencyObject obj, StyleSheet value)
+        {
+            obj.SetValue(Css.StyledByStyleSheetProperty, value);
+        }
     }
 }

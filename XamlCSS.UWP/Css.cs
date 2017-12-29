@@ -60,7 +60,7 @@ namespace XamlCSS.UWP
         }
         private static void LoadedDetectionHelper_SubTreeRemoved(object sender, EventArgs e)
         {
-            instance?.UnapplyMatchingStyles(sender as DependencyObject, null);
+            instance?.UnapplyMatchingStyles(sender as DependencyObject, instance.dependencyPropertyService.GetStyledByStyleSheet(sender as DependencyObject));
         }
 
         public static void Reset()
@@ -270,7 +270,17 @@ namespace XamlCSS.UWP
             obj.SetValue(VisualDomElementProperty, value ?? DependencyProperty.UnsetValue);
         }
 
-
+        public static readonly DependencyProperty StyledByStyleSheetProperty =
+            DependencyProperty.RegisterAttached("StyledByStyleSheet", typeof(StyleSheet),
+            typeof(Css), new PropertyMetadata(null));
+        public static StyleSheet GetStyledByStyleSheet(DependencyObject obj)
+        {
+            return obj.ReadLocalValue(StyledByStyleSheetProperty) as StyleSheet;
+        }
+        public static void SetStyledByStyleSheet(DependencyObject obj, StyleSheet value)
+        {
+            obj.SetValue(StyledByStyleSheetProperty, value ?? DependencyProperty.UnsetValue);
+        }
 
         #endregion
 
@@ -297,7 +307,7 @@ namespace XamlCSS.UWP
             }
 
             newStyleSheet.PropertyChanged += NewStyleSheet_PropertyChanged;
-            newStyleSheet.AttachedTo = element;
+            // newStyleSheet.AttachedTo = element;
 
             instance?.EnqueueRenderStyleSheet(element, newStyleSheet);
         }

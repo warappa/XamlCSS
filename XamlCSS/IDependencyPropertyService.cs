@@ -22,6 +22,9 @@ namespace XamlCSS
         bool GetHandledCss(TDependencyObject obj);
         void SetHandledCss(TDependencyObject obj, bool value);
 
+        StyleSheet GetStyledByStyleSheet(TDependencyObject obj);
+        void SetStyledByStyleSheet(TDependencyObject obj, StyleSheet value);
+
         string GetName(TDependencyObject obj);
         void SetName(TDependencyObject obj, string value);
 

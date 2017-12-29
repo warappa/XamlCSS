@@ -40,9 +40,10 @@ namespace XamlCSS.WPF
                 new DependencyPropertyService();
             var visualTreeNodeProvider = new VisualTreeNodeProvider(dependencyPropertyService);
             var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
+            var visualTreeNodeWithLogicalFallbackProvider = new VisualWithLogicalFallbackTreeNodeProvider(dependencyPropertyService,visualTreeNodeProvider, logicalTreeNodeProvider);
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
-            SwitchableTreeNodeProvider switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeProvider, logicalTreeNodeProvider);
+            var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);
 
             instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
@@ -120,6 +121,21 @@ namespace XamlCSS.WPF
             obj.SetValue(HadStyleProperty, value);
         }
 
+        public static readonly DependencyProperty StyledByStyleSheetProperty =
+            DependencyProperty.RegisterAttached(
+                "StyledByStyleSheet",
+                typeof(StyleSheet),
+                typeof(Css),
+                new PropertyMetadata(null));
+        public static StyleSheet GetStyledByStyleSheet(DependencyObject obj)
+        {
+            return obj.GetValue(StyledByStyleSheetProperty) as StyleSheet;
+        }
+        public static void SetStyledByStyleSheet(DependencyObject obj, StyleSheet value)
+        {
+            obj.SetValue(StyledByStyleSheetProperty, value);
+        }
+
         public static readonly DependencyProperty StyleProperty =
             DependencyProperty.RegisterAttached(
                 "Style",
@@ -166,7 +182,7 @@ namespace XamlCSS.WPF
             }
 
             newStyleSheet.PropertyChanged += StyleSheet_PropertyChanged;
-            newStyleSheet.AttachedTo = element;
+            // newStyleSheet.AttachedTo = element;
 
             instance?.EnqueueRenderStyleSheet(element, e.NewValue as StyleSheet);
         }

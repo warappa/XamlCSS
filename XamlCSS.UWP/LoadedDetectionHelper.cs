@@ -163,7 +163,7 @@ namespace XamlCSS.UWP
 
             // (sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
 
-            Css.instance?.UnapplyMatchingStyles(sender as FrameworkElement, null);
+            Css.instance?.UnapplyMatchingStyles(sender as DependencyObject, Css.instance?.dependencyPropertyService.GetStyledByStyleSheet(sender as DependencyObject));
 
             SubTreeRemoved?.Invoke(sender, new EventArgs());
         }

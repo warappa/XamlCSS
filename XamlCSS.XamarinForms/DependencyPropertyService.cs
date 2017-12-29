@@ -145,6 +145,11 @@ namespace XamlCSS.XamarinForms
             return Css.GetHandledCss(obj);
         }
 
+        public StyleSheet GetStyledByStyleSheet(BindableObject obj)
+        {
+            return Css.GetStyledByStyleSheet(obj);
+        }
+
         public void SetAppliedMatchingStyles(BindableObject obj, string[] value)
         {
             Css.SetAppliedMatchingStyles(obj, value);
@@ -188,6 +193,11 @@ namespace XamlCSS.XamarinForms
         public void SetHandledCss(BindableObject obj, bool value)
         {
             Css.SetHandledCss(obj, value);
+        }
+
+        public void SetStyledByStyleSheet(BindableObject obj, StyleSheet value)
+        {
+            Css.SetStyledByStyleSheet(obj, value);
         }
 
         public bool IsLoaded(BindableObject obj)

@@ -279,6 +279,22 @@ namespace XamlCSS.XamarinForms
             obj.SetValue(HandledCssProperty, value);
         }
 
+        public static readonly BindableProperty StyledByStyleSheetProperty =
+            BindableProperty.CreateAttached(
+                "StyledByStyleSheet",
+                typeof(StyleSheet),
+                typeof(Css),
+                null,
+                BindingMode.TwoWay);
+        public static StyleSheet GetStyledByStyleSheet(BindableObject obj)
+        {
+            return (StyleSheet)obj.GetValue(StyledByStyleSheetProperty);
+        }
+        public static void SetStyledByStyleSheet(BindableObject obj, StyleSheet value)
+        {
+            obj.SetValue(StyledByStyleSheetProperty, value);
+        }
+
         public static readonly BindableProperty DomElementProperty =
             BindableProperty.CreateAttached(
                 "DomElement",
@@ -302,7 +318,7 @@ namespace XamlCSS.XamarinForms
         }
         private static void VisualTreeHelper_ChildRemoved(object sender, EventArgs e)
         {
-            instance?.UnapplyMatchingStyles(sender as Element, null);
+            instance?.UnapplyMatchingStyles(sender as Element, instance.dependencyPropertyService.GetStyledByStyleSheet(sender as Element));
         }
 
         private static void StyleSheetPropertyChanged(BindableObject bindableObject, object oldValue, object newValue)
@@ -326,7 +342,7 @@ namespace XamlCSS.XamarinForms
             }
 
             newStyleSheet.PropertyChanged += StyleSheet_PropertyChanged;
-            newStyleSheet.AttachedTo = element;
+            // newStyleSheet.AttachedTo = element;
 
             instance?.EnqueueRenderStyleSheet(element, newStyleSheet);
         }
