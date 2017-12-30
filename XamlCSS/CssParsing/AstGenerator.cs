@@ -1632,15 +1632,19 @@ namespace XamlCSS.CssParsing
         private void ReadIdSelector()
         {
             ReadToken();
-
-            ReadIdentifier();
+            if (!ReachedEnd)
+            {
+                ReadIdentifier();
+            }
         }
 
         private void ReadClassSelector()
         {
             ReadToken();
-
-            ReadIdentifier();
+            if (!ReachedEnd)
+            {
+                ReadIdentifier();
+            }
         }
 
         private void ReadToken()

@@ -17,11 +17,28 @@ namespace XamlCSS
         }
 
         public Selector(string selectorString)
+            : this(selectorString, null)
         {
-            this.Value = selectorString;
+
+        }
+
+        internal Selector(string selectorString, CssNode selectorAst)
+        {
+            if (selectorAst != null)
+            {
+                this.selectorAst = selectorAst;
+                this.val = selectorString;
+                CalculateSpecificity(selectorString);
+            }
+            else
+            {
+                this.Value = selectorString;
+            }
         }
 
         protected string val;
+        private CssNode selectorAst;
+
         public string Value
         {
             get
@@ -32,17 +49,21 @@ namespace XamlCSS
             {
                 val = value;
 
-                var charArray = value.ToCharArray();
-
-                IdSpecificity = charArray.Count(x => x == '#');
-                ClassSpecificity = charArray.Count(x => x == '.' || x == ':' || x == '[');
-
-                var simpleSpecifitySplit = value.Split(new[] { ' ', '>', '*' }, StringSplitOptions.RemoveEmptyEntries);
-                SimpleSpecificity = simpleSpecifitySplit.Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
-
+                CalculateSpecificity(value);
 
                 GetFragments(val);
             }
+        }
+
+        private void CalculateSpecificity(string value)
+        {
+            var charArray = value.ToCharArray();
+
+            IdSpecificity = charArray.Count(x => x == '#');
+            ClassSpecificity = charArray.Count(x => x == '.' || x == ':' || x == '[');
+
+            var simpleSpecifitySplit = value.Split(new[] { ' ', '>', '*' }, StringSplitOptions.RemoveEmptyEntries);
+            SimpleSpecificity = simpleSpecifitySplit.Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
         }
 
         private void GetFragments(string val)
@@ -51,8 +72,14 @@ namespace XamlCSS
             var selectorTokens = Tokenizer.Tokenize(val);
             var a = new AstGenerator();
             var ast = a.GetAst(selectorTokens);
-            var selectorAst = ast.Root.Children.First().Children.First();
 
+            selectorAst = ast.Root.Children.First().Children.First();
+
+            SetFragmentsFromAst();
+        }
+
+        private void SetFragmentsFromAst()
+        {
             Fragments = selectorAst.Children.SelectMany(x =>
             {
                 if (x.Type == CssNodeType.DirectDescendantCombinator ||
@@ -66,13 +93,13 @@ namespace XamlCSS
                 //return x.Children.Select(y => new SelectorFragment(y.Type, y.Text));
                 return x.Children.Select(y => new SelectorFragmentFactory().Create(y.Type, y.Text));
             })
-            .ToList();
+            .ToArray();
         }
 
         public int SimpleSpecificity { get; private set; }
         public int ClassSpecificity { get; private set; }
         public int IdSpecificity { get; private set; }
-        public List<SelectorFragment> Fragments { get; private set; }
+        public SelectorFragment[] Fragments { get; private set; }
 
         public string Specificity
         {
@@ -120,7 +147,7 @@ namespace XamlCSS
         public bool Match<TDependencyObject>(StyleSheet styleSheet, IDomElement<TDependencyObject> domElement)
             where TDependencyObject : class
         {
-            for (var i = Fragments.Count - 1; i >= 0; i--)
+            for (var i = Fragments.Length - 1; i >= 0; i--)
             {
                 var fragment = Fragments[i];
 

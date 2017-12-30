@@ -671,10 +671,7 @@ namespace XamlCSS.CssParsing
             return selectors.Children
                             .Select(x =>
                             {
-                                return new Selector
-                                {
-                                    Value = string.Join(" ", x.Children /* selector-fragment */.Select(y => y.Text))
-                                };
+                                return new Selector(string.Join(" ", x.Children /* selector-fragment */.Select(y => y.Text)), x);
                             })
                             .ToList();
         }

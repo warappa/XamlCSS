@@ -5,125 +5,6 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public class UnivseralSelector : SelectorFragment
-    {
-        public UnivseralSelector(CssNodeType type, string text) : base(type, text)
-        {
-            
-        }
-
-        private void Initialize(StyleSheet styleSheet)
-        {
-            var namespaceSeparatorIndex = Text.IndexOf('|');
-            string alias = "";
-            string @namespace = null;
-            if (namespaceSeparatorIndex > -1)
-            {
-                alias = Text.Substring(0, namespaceSeparatorIndex);
-                if (alias != "*")
-                {
-                    @namespace = styleSheet.GetNamespaceUri(alias); //domElement.LookupNamespaceUri(@namespace);
-                }
-            }
-            else
-            {
-                @namespace = styleSheet.GetNamespaceUri(""); //domElement.LookupNamespaceUri("");
-            }
-
-            this.Alias = alias;
-            this.NamespaceUri = @namespace;
-            this.initializedWith = styleSheet;
-        }
-
-        public override bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, List<SelectorFragment> fragments, ref int currentIndex)
-        {
-            if (initializedWith != styleSheet)
-            {
-                Initialize(styleSheet);
-            }
-
-            return domElement.NamespaceUri == NamespaceUri || NamespaceUri == "*";
-        }
-
-        public string Alias { get; private set; }
-        public string NamespaceUri { get; private set; }
-
-        private StyleSheet initializedWith;
-    }
-
-    public class TypeSelector : SelectorFragment
-    {
-        private StyleSheet initializedWith;
-
-        public TypeSelector(CssNodeType type, string text) : base(type, text)
-        {
-            
-        }
-
-        private void Initialize(StyleSheet styleSheet)
-        {
-            var namespaceSeparatorIndex = Text.IndexOf('|');
-            string @namespace = null;
-            //string prefix = null;
-            string alias = "";
-            string localName = null;
-            if (namespaceSeparatorIndex > -1)
-            {
-                alias = Text.Substring(0, namespaceSeparatorIndex);
-                if (alias != "*")
-                {
-                    @namespace = styleSheet.GetNamespaceUri(alias);
-                }
-                else
-                {
-
-                }
-
-                localName = Text.Substring(namespaceSeparatorIndex + 1);
-            }
-            else
-            {
-                @namespace = styleSheet.GetNamespaceUri("");
-                localName = Text;
-            }
-
-            this.Alias = alias;
-            this.LocalName = localName;
-            this.NamespaceUri = @namespace;
-            this.initializedWith = styleSheet;
-        }
-
-        public override bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, List<SelectorFragment> fragments, ref int currentIndex)
-        {
-            if (initializedWith != styleSheet)
-            {
-                Initialize(styleSheet);
-            }
-
-            return domElement.LocalName == LocalName && (Alias == "*" || domElement.NamespaceUri == NamespaceUri);
-        }
-
-        public string Alias { get; private set; }
-        public string LocalName { get; private set; }
-        public string NamespaceUri { get; private set; }
-    }
-
-    public class SelectorFragmentFactory
-    {
-        public SelectorFragment Create(CssNodeType type, string text)
-        {
-            if (type == CssNodeType.TypeSelector)
-            {
-                return new TypeSelector(type, text);
-            }
-            if (type == CssNodeType.UniversalSelector)
-            {
-                return new UnivseralSelector(type, text);
-            }
-
-            return new SelectorFragment(type, text);
-        }
-    }
     public class SelectorFragment
     {
         public SelectorFragment(CssNodeType type, string text)
@@ -132,55 +13,12 @@ namespace XamlCSS
             Text = text;
         }
 
-        public CssNodeType Type { get; }
-        public string Text { get; }
+        public CssNodeType Type { get; protected set; }
+        public string Text { get; protected set; }
 
-        virtual public bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, List<SelectorFragment> fragments, ref int currentIndex)
+        virtual public bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
         {
-            /*if (Type == CssNodeType.TypeSelector)
-            {
-                var namespaceSeparatorIndex = Text.IndexOf('|');
-                string @namespace = null;
-                //string prefix = null;
-                string localName = null;
-                if (namespaceSeparatorIndex > -1)
-                {
-                    @namespace = Text.Substring(0, namespaceSeparatorIndex);
-                    if (@namespace != "*")
-                    {
-                        @namespace = styleSheet.GetNamespaceUri(@namespace);
-                    }
-
-                    localName = Text.Substring(namespaceSeparatorIndex + 1);
-                }
-                else
-                {
-                    @namespace = styleSheet.GetNamespaceUri("");
-                    localName = Text;
-                }
-
-                return domElement.NamespaceUri == @namespace && domElement.LocalName == localName;
-            }
-            else if (Type == CssNodeType.UniversalSelector)
-            {
-                var namespaceSeparatorIndex = Text.IndexOf('|');
-                string @namespace = null;
-                if (namespaceSeparatorIndex > -1)
-                {
-                    @namespace = Text.Substring(0, namespaceSeparatorIndex);
-                    if (@namespace != "*")
-                    {
-                        @namespace = styleSheet.GetNamespaceUri(@namespace);
-                    }
-                }
-                else
-                {
-                    @namespace = styleSheet.GetNamespaceUri("");
-                }
-
-                return domElement.NamespaceUri == @namespace || @namespace=="*";
-            }
-            else*/ if (Type == CssNodeType.IdSelector)
+            /*if (Type == CssNodeType.IdSelector)
             {
                 return domElement.Id == Text.Substring(1);
             }
@@ -188,8 +26,7 @@ namespace XamlCSS
             {
                 return domElement.ClassList.Contains(Text.Substring(1));
             }
-
-            else if (Type == CssNodeType.DirectSiblingCombinator)
+            else*/ if (Type == CssNodeType.DirectSiblingCombinator)
             {
                 var thisIndex = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
 
@@ -294,8 +131,6 @@ namespace XamlCSS
                 return false;
 
             }
-
-
 
             return false;
         }

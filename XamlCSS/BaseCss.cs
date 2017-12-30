@@ -84,7 +84,7 @@ namespace XamlCSS
                     .Select(x => x.Key)
                     .Select(x => x.ChangeKind + " " + x.RenderTargetKind + " " + x.StyleSheet.Id + " " + treeNodeProvider.GetDomElement(x.StartFrom)?.GetPath()).Distinct()));
                     */
-                treeNodeProvider.PrintHerarchyDebugInfo(dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder);
+                //treeNodeProvider.PrintHerarchyDebugInfo(dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder);
 
                 var removeOrUpdateStylesheetInfos = copy
                     .Where(x =>

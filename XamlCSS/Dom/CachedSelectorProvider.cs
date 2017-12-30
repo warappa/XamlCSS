@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using XamlCSS.CssParsing;
 
 namespace XamlCSS.Dom
 {
@@ -11,14 +12,14 @@ namespace XamlCSS.Dom
 
         private Dictionary<string, ISelector> selectors = new Dictionary<string, ISelector>();
 
-        public ISelector GetOrAdd(string selectorString)
+        public ISelector GetOrAdd(string selectorString, CssNode selectorAst = null)
         {
             if (selectors.ContainsKey(selectorString))
             {
                 return selectors[selectorString];
             }
 
-            var selector = new Selector(selectorString);
+            var selector = new Selector(selectorString, selectorAst);
 
             selectors[selectorString] = selector;
 
