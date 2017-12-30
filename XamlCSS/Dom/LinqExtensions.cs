@@ -64,7 +64,7 @@ namespace XamlCSS.Dom
                         result.Add(element);
                     }
 
-                    if (element.ChildNodes.Any())
+                    if (element.ChildNodes.Count != 0)
                     {
                         element.ChildNodes.GetElementsByClassName(classNames, result);
                     }
@@ -87,7 +87,7 @@ namespace XamlCSS.Dom
                         result.Add(element);
                     }
 
-                    if (element.ChildNodes.Any())
+                    if (element.ChildNodes.Count != 0)
                     {
                         element.ChildNodes.GetElementsByTagName(tagName, result);
                     }
@@ -110,7 +110,7 @@ namespace XamlCSS.Dom
                         result.Add(element);
                     }
 
-                    if (element.ChildNodes.Any())
+                    if (element.ChildNodes.Count != 0)
                     {
                         element.ChildNodes.GetElementsByTagName(namespaceUri, localName, result);
                     }
@@ -143,7 +143,7 @@ namespace XamlCSS.Dom
                         result.Add(element);
                     }
 
-                    if (element.ChildNodes.Any())
+                    if (element.ChildNodes.Count != 0)
                     {
                         element.ChildNodes.QuerySelectorAll(styleSheet, selector, result);
                     }
@@ -166,7 +166,7 @@ namespace XamlCSS.Dom
                         return element;
                     }
 
-                    if (element.ChildNodes.Any())
+                    if (element.ChildNodes.Count != 0)
                     {
                         element = element.ChildNodes.QuerySelector(styleSheet, selector);
 

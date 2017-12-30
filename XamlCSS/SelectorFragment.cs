@@ -55,9 +55,9 @@ namespace XamlCSS
 
                 currentIndex--;
 
-                if (domElement.Parent?.ChildNodes.Any() == true)
+                if ((domElement.Parent?.ChildNodes.Count > 0) == true)
                 {
-                    foreach (IDomElement<TDependencyObject> sibling in domElement.Parent?.ChildNodes.Take(thisIndex))
+                    foreach (var sibling in domElement.Parent.ChildNodes.Take(thisIndex))
                     {
                         var refSibling = sibling;
                         if (fragments[currentIndex].Match(styleSheet, ref refSibling, fragments, ref currentIndex))
