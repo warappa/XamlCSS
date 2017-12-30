@@ -8,16 +8,16 @@ namespace XamlCSS.XamarinForms.Dom
     public class VisualTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
     {
         public VisualTreeNodeProvider(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> dependencyPropertyService)
-            : base(dependencyPropertyService, SelectorType.LogicalTree)
+            : base(dependencyPropertyService, SelectorType.VisualTree)
         {
         }
 
-        protected internal override IDomElement<BindableObject> CreateTreeNode(BindableObject dependencyObject)
+        public override IDomElement<BindableObject> CreateTreeNode(BindableObject dependencyObject)
         {
             return new VisualDomElement(dependencyObject, this, namespaceProvider);
         }
 
-        protected internal override bool IsCorrectTreeNode(IDomElement<BindableObject> node)
+        public override bool IsCorrectTreeNode(IDomElement<BindableObject> node)
         {
             return node is VisualDomElement;
         }

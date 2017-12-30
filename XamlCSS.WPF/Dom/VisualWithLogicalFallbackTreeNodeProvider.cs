@@ -22,12 +22,12 @@ namespace XamlCSS.WPF.Dom
             this.LogicalTreeNodeProvider = logicalTreeNodeProvider;
         }
 
-        protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
+        public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
             return new VisualDomElement(dependencyObject, this, namespaceProvider);
         }
 
-        protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
+        public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
         {
             return node is VisualDomElement;
         }
@@ -60,16 +60,32 @@ namespace XamlCSS.WPF.Dom
                     }
                 }
 
-                children = LogicalTreeNodeProvider.GetChildren(element).ToList();
-                for (int i = 0; i < children.Count; i++)
+                if (element is IContentHost)
                 {
-                    var child = children[i];
-
-                    if (child != null)
+                    children = LogicalTreeNodeProvider.GetChildren(element).ToList();
+                    for (int i = 0; i < children.Count; i++)
                     {
-                        list.Add(child);
+                        var child = children[i];
+
+                        if (child != null)
+                        {
+                            list.Add(child);
+                        }
                     }
                 }
+                /*else
+                {
+                    children = LogicalTreeNodeProvider.GetChildren(element).Where(x => !(element is Visual || element is Visual3D)).ToList();
+                    for (int i = 0; i < children.Count; i++)
+                    {
+                        var child = children[i];
+
+                        if (child != null)
+                        {
+                            list.Add(child);
+                        }
+                    }
+                }*/
 
             }
             catch { }
@@ -84,15 +100,17 @@ namespace XamlCSS.WPF.Dom
             }
 
             if (element is Visual ||
-                       element is Visual3D)
+                element is Visual3D)
             {
 
                 return VisualTreeNodeProvider.GetParent(element);
             }
-            else
+            else if (element is FrameworkContentElement)
             {
-                return LogicalTreeNodeProvider.GetParent(element);
+                return LogicalTreeHelper.GetParent(element);
             }
+
+            return null;
         }
 
         public override bool IsInTree(DependencyObject element)

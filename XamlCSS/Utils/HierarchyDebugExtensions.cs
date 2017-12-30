@@ -7,7 +7,7 @@ namespace XamlCSS.Utils
 {
     public static class HierarchyDebugExtensions
     {
-        public static string GetPath<TDependencyObject>(IDomElement<TDependencyObject> matchingNode)
+        public static string GetPath<TDependencyObject>(this IDomElement<TDependencyObject> matchingNode)
             where TDependencyObject : class
         {
             var sb = new List<string>();
@@ -15,7 +15,7 @@ namespace XamlCSS.Utils
             while (current != null)
             {
                 sb.Add(current.Element.GetType().Name + (!string.IsNullOrWhiteSpace(current.Id) ? "#" + current.Id : ""));
-                current = (IDomElement<TDependencyObject>)current.Parent;
+                current = current.Parent;
             }
             sb.Reverse();
             return string.Join("->", sb);

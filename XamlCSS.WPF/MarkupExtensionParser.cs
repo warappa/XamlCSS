@@ -65,23 +65,23 @@ namespace XamlCSS.WPF
                 }));
 
             var test = $@"
-<DataTemplate 
+<TextBlock 
 xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
 xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
 {xmlnamespaces}
-DataType=""{{x:Type x:String}}"">
-	<TextBlock x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />
-</DataTemplate>";
+	 x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"">
+</TextBlock>";
             /*
             var pc = new ParserContext();
             pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
             pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");*/
-            var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
+            //var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
 
             TextBlock textBlock;
             try
             {
-                textBlock = (TextBlock)dataTemplate.LoadContent();
+                //textBlock = (TextBlock)dataTemplate.LoadContent();
+                textBlock = (TextBlock)XamlReader.Parse(test);
             }
             catch (Exception e)
             {

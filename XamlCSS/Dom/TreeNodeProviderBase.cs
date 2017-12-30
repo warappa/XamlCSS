@@ -21,9 +21,9 @@ namespace XamlCSS.Dom
             this.selectorType = selectorType;
         }
 
-        protected internal abstract IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
+        public abstract IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
 
-        protected internal abstract bool IsCorrectTreeNode(IDomElement<TDependencyObject> node);
+        public abstract bool IsCorrectTreeNode(IDomElement<TDependencyObject> node);
 
         public abstract TDependencyObject GetParent(TDependencyObject tUIElement);
 

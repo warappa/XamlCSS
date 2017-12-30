@@ -7,12 +7,12 @@ namespace XamlCSS.WPF.Dom
     public class SwitchableTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>, ISwitchableTreeNodeProvider<DependencyObject>
     {
         private ITreeNodeProvider<DependencyObject> currentTreeNodeProvider = null;
-        private VisualTreeNodeProvider visualTreeNodeProvider;
-        private LogicalTreeNodeProvider logicalTreeNodeProvider;
-
+        private ITreeNodeProvider<DependencyObject> visualTreeNodeProvider;
+        private ITreeNodeProvider<DependencyObject> logicalTreeNodeProvider;
+        
         public SwitchableTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService,
-            VisualTreeNodeProvider visualTreeNodeProvider,
-            LogicalTreeNodeProvider logicalTreeNodeProvider
+            ITreeNodeProvider<DependencyObject> visualTreeNodeProvider,
+            ITreeNodeProvider<DependencyObject> logicalTreeNodeProvider
             )
             : base(dependencyPropertyService, SelectorType.LogicalTree)
         {
@@ -38,7 +38,7 @@ namespace XamlCSS.WPF.Dom
             }
         }
 
-        protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
+        public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
             if (selectorType == SelectorType.LogicalTree)
             {
@@ -50,7 +50,7 @@ namespace XamlCSS.WPF.Dom
             }
         }
 
-        protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
+        public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
         {
             if (selectorType == SelectorType.LogicalTree)
             {

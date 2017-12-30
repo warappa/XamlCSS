@@ -14,12 +14,12 @@ namespace XamlCSS.UWP.Dom
         {
         }
 
-        protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
+        public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
             return new LogicalDomElement(dependencyObject, this, namespaceProvider);
         }
 
-        protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
+        public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
         {
             return node is LogicalDomElement;
         }

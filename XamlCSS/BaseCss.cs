@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 
 namespace XamlCSS
 {
@@ -72,57 +73,85 @@ namespace XamlCSS
 
                 applicationResourcesService.BeginUpdate();
 
-                var removeStylesheetInfos = copy
+                treeNodeProvider.Switch(SelectorType.VisualTree);
+
+                Debug.WriteLine("-------------------------------------------------");
+                Debug.WriteLine("-------------- NEW FRAME RENDERING --------------");
+
+                Debug.WriteLine("" + copy.Count);
+                Debug.WriteLine("" + string.Join("\n", copy
+                    .GroupBy(x => new { x.ChangeKind, x.RenderTargetKind, x.StyleSheet, x.StartFrom })
+                    .Select(x => x.Key)
+                    .Select(x => x.ChangeKind + " " + x.RenderTargetKind + " " + x.StyleSheet.Id + " " + treeNodeProvider.GetDomElement(x.StartFrom)?.GetPath()).Distinct()));
+
+                treeNodeProvider.PrintHerarchyDebugInfo(dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder);
+
+                var removeOrUpdateStylesheetInfos = copy
                     .Where(x =>
                         x.RenderTargetKind == RenderTargetKind.Stylesheet &&
                         (x.ChangeKind == ChangeKind.Remove || x.ChangeKind == ChangeKind.Update))
-                    .GroupBy(x => x.StyleSheetHolder)
-                    .Select(x => x.First())
+                    //.GroupBy(x => x.StyleSheetHolder)
+                    //.Select(x => x.First())
                     .ToList();
 
-                var handledStyleSheetHolders = removeStylesheetInfos
+                var handledStyleSheetHolders = removeOrUpdateStylesheetInfos
                     .Select(x => x.StyleSheetHolder)
                     .ToList();
 
-                foreach (var removeStylesheetInfo in removeStylesheetInfos)
+                Debug.WriteLine("removeOrUpdateStylesheetInfos: " + removeOrUpdateStylesheetInfos.Count);
+                foreach (var removeOrUpdateStylesheetInfo in removeOrUpdateStylesheetInfos)
                 {
                     treeNodeProvider.Switch(SelectorType.VisualTree);
 
+                    Debug.WriteLine("removeOrUpdateStylesheetInfo UnapplyMatchingStylesInternal:" + treeNodeProvider.GetDomElement(removeOrUpdateStylesheetInfo.StyleSheetHolder).GetPath());
                     // sets HandledCss and MatchingStyles false/null
-                    UnapplyMatchingStylesInternal(removeStylesheetInfo.StyleSheetHolder, removeStylesheetInfo.StyleSheet);
+                    UnapplyMatchingStylesInternal(removeOrUpdateStylesheetInfo.StyleSheetHolder, removeOrUpdateStylesheetInfo.StyleSheet);
 
                     // compares MatchingStyles and AppliedMachingStyles and 
                     // sets AppliedMatchingStyles and Style null
-                    RemoveOutdatedStylesFromElementInternal(removeStylesheetInfo.StyleSheetHolder, removeStylesheetInfo.StyleSheet, true, true);
-                    if (removeStylesheetInfo.ChangeKind == ChangeKind.Remove)
-                    {
-                        removeStylesheetInfo.StyleSheet.AttachedTo = null;
-                    }
+                    Debug.WriteLine("removeOrUpdateStylesheetInfo RemoveOutdatedStylesFromElementInternal:" + treeNodeProvider.GetDomElement(removeOrUpdateStylesheetInfo.StyleSheetHolder).GetPath());
+                    ResetElementsBecauseStyleSheetChangedInternal(removeOrUpdateStylesheetInfo.StyleSheetHolder, removeOrUpdateStylesheetInfo.StyleSheet, true);
+
+                    Debug.WriteLine("removeOrUpdateStylesheetInfo RemoveStyleResourcesInternal:" + treeNodeProvider.GetDomElement(removeOrUpdateStylesheetInfo.StyleSheetHolder).GetPath());
                     // remove Style resources of Stylesheet
-                    RemoveStyleResourcesInternal(removeStylesheetInfo.StyleSheetHolder, removeStylesheetInfo.StyleSheet);
+                    RemoveStyleResourcesInternal(removeOrUpdateStylesheetInfo.StyleSheetHolder, removeOrUpdateStylesheetInfo.StyleSheet);
+
+                    if (removeOrUpdateStylesheetInfo.ChangeKind == ChangeKind.Remove)
+                    {
+                        removeOrUpdateStylesheetInfo.StyleSheet.AttachedTo = null;
+                    }
                 }
 
-                var removedElementInfos = copy
+                Debug.WriteLine("-------------------------------------------------");
+
+                var removeOrUpdateElementInfos = copy
                     .Where(x =>
                         x.RenderTargetKind == RenderTargetKind.Element &&
                         (x.ChangeKind == ChangeKind.Remove || x.ChangeKind == ChangeKind.Update))
-                    .GroupBy(x => x.StyleSheetHolder)
-                    .Select(x => x.First())
+                    //.GroupBy(x => x.StyleSheetHolder)
+                    //.Select(x => x.First())
                     .ToList();
 
-                foreach (var removedElementInfo in removedElementInfos)
+                foreach (var removedOrUpdateElementInfo in removeOrUpdateElementInfos)
                 {
+                    Debug.WriteLine("removeOrUpdateElementInfos UnapplyMatchingStylesInternal:" + treeNodeProvider.GetDomElement(removedOrUpdateElementInfo.StartFrom).GetPath());
                     // sets HandledCss and MatchingStyles false/null
-                    UnapplyMatchingStylesInternal(removedElementInfo.StartFrom, removedElementInfo.StyleSheet);
+                    UnapplyMatchingStylesInternal(removedOrUpdateElementInfo.StartFrom, removedOrUpdateElementInfo.StyleSheet);
                     // compares MatchingStyles and AppliedMachingStyles and 
                     // sets AppliedMatchingStyles and Style null
-                    RemoveOutdatedStylesFromElementInternal(removedElementInfo.StartFrom, removedElementInfo.StyleSheet, true, true);
+                    //Debug.WriteLine("removeOrUpdateElementInfos RemoveOutdatedStylesFromElementInternal:" + treeNodeProvider.GetDomElement(removedOrUpdateElementInfo.StartFrom).GetPath());
+                    //RemoveOutdatedStylesFromElementInternal(removedOrUpdateElementInfo.StartFrom, removedOrUpdateElementInfo.StyleSheet, true, true);
+                    ResetElementsBecauseRemovedInternal(removedOrUpdateElementInfo.StartFrom, removedOrUpdateElementInfo.StyleSheet, removedOrUpdateElementInfo.ChangeKind == ChangeKind.Remove);
+                    // ResetElementsBecauseStyleSheetChangedInternal(removedOrUpdateElementInfo.StartFrom, removedOrUpdateElementInfo.StyleSheet, removedOrUpdateElementInfo.ChangeKind == ChangeKind.Remove);
+                    RemoveStyleResourcesInternal(removedOrUpdateElementInfo.StartFrom, removedOrUpdateElementInfo.StyleSheet);
                 }
 
                 // remove all removed stylesheets & elements
                 copy.RemoveAll(x => x.ChangeKind == ChangeKind.Remove);
                 // remove all Elements which StyleSheet-Holder is already handled
                 copy.RemoveAll(x => x.RenderTargetKind == RenderTargetKind.Element && handledStyleSheetHolders.Contains(x.StyleSheetHolder));
+
+                Debug.WriteLine("-------------------------------------------------");
 
                 // add/update
                 if (copy.Any())
@@ -131,6 +160,7 @@ namespace XamlCSS
                          x.RenderTargetKind == RenderTargetKind.Stylesheet &&
                          x.ChangeKind == ChangeKind.New))
                     {
+                        Debug.WriteLine("Stylesheet New:" + treeNodeProvider.GetDomElement(item.StyleSheetHolder).GetPath());
                         item.StyleSheet.AttachedTo = item.StyleSheetHolder;
                         dependencyPropertyService.SetStyledByStyleSheet(item.StyleSheetHolder, item.StyleSheet);
                     }
@@ -148,25 +178,42 @@ namespace XamlCSS
                     //    UnapplyMatchingStylesInternal(item.StartFrom ?? item.StyleSheetHolder, item.StyleSheet);
                     //}
 
+                    Debug.WriteLine("");
+                    Debug.WriteLine("-------------------------------------------------");
+
+                    Debug.WriteLine("All Starts:");
+                    treeNodeProvider.Switch(SelectorType.VisualTree);
+                    Debug.WriteLine(string.Join("\n", starts.Select(x => treeNodeProvider.GetDomElement(x).GetPath() + " - " + x.GetHashCode()).Distinct()));
+                    Debug.WriteLine("");
+
                     foreach (var item in copy)
                     {
+                        Debug.WriteLine("-------------------- START");
                         var start = item.StartFrom ?? item.StyleSheetHolder;
-
-                        if (!starts.Contains(start))
+                        treeNodeProvider.Switch(SelectorType.VisualTree);
+                        Debug.WriteLine("START:" + treeNodeProvider.GetDomElement(start).GetPath() + " - " + start.GetHashCode());
+                        if (false &&!starts.Contains(start))
                         {
+                            Debug.WriteLine("    skipped!");
+                            Debug.WriteLine(string.Join("\n", starts.Select(x => treeNodeProvider.GetDomElement(x).GetPath() + " " + (x == start) + " - " + x.GetHashCode()).Distinct()));
                             continue;
                         }
-                        //if (dependencyPropertyService.GetHandledCss(start) != true)
+                        if (true || dependencyPropertyService.GetHandledCss(start) != true)
                         {
+                            Debug.WriteLine("START CalculateStylesInternal:" + treeNodeProvider.GetDomElement(start).GetPath());
                             CalculateStylesInternal(item.StyleSheetHolder, item.StyleSheet, start, starts);
-                            //treeNodeProvider.Switch(SelectorType.VisualTree);
+                            treeNodeProvider.Switch(SelectorType.VisualTree);
+                            // crash when removed!!!
+                            //Debug.WriteLine("START RemoveOutdatedStylesFromElementInternal:" + treeNodeProvider.GetDomElement(start).GetPath());
                             //RemoveOutdatedStylesFromElementInternal(start, item.StyleSheet, true, true);
                             treeNodeProvider.Switch(SelectorType.VisualTree);
+                            Debug.WriteLine("START ApplyMatchingStyles:" + treeNodeProvider.GetDomElement(start).GetPath());
                             ApplyMatchingStyles(start, item.StyleSheet);
                         }
                     }
                 }
-
+                Debug.WriteLine("---------------- NEW FRAME DONE -----------------");
+                Debug.WriteLine("-------------------------------------------------");
                 applicationResourcesService.EndUpdate();
             }
             finally
@@ -238,6 +285,86 @@ namespace XamlCSS
             }
         }
 
+        public void EnqueueNewElement(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
+        {
+            if (styleSheetHolder == null ||
+                styleSheet == null)
+            {
+                return;
+            }
+
+            lock (items)
+            {
+                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                {
+                    RenderTargetKind = RenderTargetKind.Element,
+                    ChangeKind = ChangeKind.New,
+                    StyleSheetHolder = styleSheetHolder,
+                    StyleSheet = styleSheet,
+                    StartFrom = startFrom
+                });
+            }
+        }
+
+        public void NewElement(TDependencyObject sender)
+        {
+            if (sender == null)
+            {
+                return;
+            }
+
+            var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
+            if (parent == null)
+            {
+                return;
+            }
+
+            EnqueueNewElement(
+                parent,
+                dependencyPropertyService.GetStyleSheet(parent),
+                sender as TUIElement);
+        }
+
+        public void EnqueueRemoveElement(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
+        {
+            if (styleSheetHolder == null ||
+                styleSheet == null)
+            {
+                return;
+            }
+
+            lock (items)
+            {
+                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                {
+                    RenderTargetKind = RenderTargetKind.Element,
+                    ChangeKind = ChangeKind.Remove,
+                    StyleSheetHolder = styleSheetHolder,
+                    StyleSheet = styleSheet,
+                    StartFrom = startFrom
+                });
+            }
+        }
+
+        public void RemoveElement(TDependencyObject sender)
+        {
+            if (sender == null)
+            {
+                return;
+            }
+
+            var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
+            if (parent == null)
+            {
+                return;
+            }
+
+            EnqueueRemoveElement(
+                parent,
+                dependencyPropertyService.GetStyleSheet(parent),
+                sender as TUIElement);
+        }
+
         public void UpdateElement(TDependencyObject sender)
         {
             if (sender == null)
@@ -278,27 +405,6 @@ namespace XamlCSS
             }
         }
 
-        public void EnqueueRemoveElement(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
-        {
-            if (styleSheetHolder == null ||
-                styleSheet == null)
-            {
-                return;
-            }
-
-            lock (items)
-            {
-                items.Add(new RenderInfo<TDependencyObject, TUIElement>
-                {
-                    RenderTargetKind = RenderTargetKind.Element,
-                    ChangeKind = ChangeKind.Remove,
-                    StyleSheetHolder = styleSheetHolder,
-                    StyleSheet = styleSheet,
-                    StartFrom = startFrom
-                });
-            }
-        }
-
         private List<StyleMatchInfo> UpdateMatchingStyles(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet, TUIElement startFrom, IList<TUIElement> starts)
         {
             var requiredStyleInfos = new List<StyleMatchInfo>();
@@ -311,7 +417,7 @@ namespace XamlCSS
 
             foreach (var rule in styleSheet.Rules)
             {
-                // // Debug.WriteLine($"--- RULE {rule.SelectorString} ----");
+                // Debug.WriteLine($"--- RULE {rule.SelectorString} ----");
                 if (rule.SelectorType == SelectorType.VisualTree)
                 {
                     treeNodeProvider.Switch(SelectorType.VisualTree);
@@ -348,7 +454,7 @@ namespace XamlCSS
                 }
 
                 // apply our selector
-                var matchedNodes = root.QuerySelectorAllWithSelf(rule.SelectorString)
+                var matchedNodes = root.QuerySelectorAllWithSelf(styleSheet, rule.Selectors[0])
                     .Where(x => x != null)
                     .Cast<IDomElement<TDependencyObject>>()
                     .ToList();
@@ -395,7 +501,7 @@ namespace XamlCSS
                         .Select(x => new
                         {
                             key = x,
-                            selector = CachedSelectorProvider.Instance.GetOrAdd(x.Split('{')[1])
+                            selector = CachedSelectorProvider.Instance.GetOrAdd(styleSheet, x.Split('{')[1])
                         })
                         .OrderBy(x => x.selector.IdSpecificity)
                         .ThenBy(x => x.selector.ClassSpecificity)
@@ -403,7 +509,7 @@ namespace XamlCSS
                         .ToArray();
 
                     var newMatchingStylesStrings = newMatchingStyles.Select(x => x.key).ToArray();
-                    // // Debug.WriteLine($"'{rule.SelectorString}' {GetPath(matchingNode)}: " + string.Join("|", newMatchingStylesStrings));
+                    // Debug.WriteLine($"'{rule.SelectorString}' {GetPath(matchingNode)}: " + string.Join("|", newMatchingStylesStrings));
                     dependencyPropertyService.SetMatchingStyles(element, newMatchingStylesStrings);
 
                     if (requiredStyleInfos.Any(x => x.Rule == rule && x.MatchedType == element.GetType()) == false)
@@ -418,11 +524,14 @@ namespace XamlCSS
             }
 
             found = found.Distinct().ToList();
+
+            treeNodeProvider.Switch(SelectorType.VisualTree);
+            Debug.WriteLine("FOUND:\n" + string.Join("\n", found.Select(x => "    " + treeNodeProvider.GetDomElement(x).GetPath() + " - " + x.GetHashCode())));
             foreach (var f in found)
             {
                 if (starts.Contains(f))
                 {
-                    //// Debug.WriteLine($"Found -> Ignore: " + Utils.HierarchyDebugExtensions.GetPath(matchingNode));
+                    //Debug.WriteLine($"Found -> Ignore: " + Utils.HierarchyDebugExtensions.GetPath(matchingNode));
                     starts.Remove(f);
                 }
             }
@@ -452,15 +561,15 @@ namespace XamlCSS
         }
         protected void RemoveStyleResourcesInternal(TUIElement styleResourceReferenceHolder, StyleSheet styleSheet)
         {
-            // // Debug.WriteLine("----------------");
-            // // Debug.WriteLine("RemoveStyleResourcesInternal");
+            // Debug.WriteLine("----------------");
+            // Debug.WriteLine("RemoveStyleResourcesInternal");
 
             var resourceKeys = applicationResourcesService.GetKeys()
                 .OfType<string>()
                 .Where(x => x.StartsWith(nativeStyleService.BaseStyleResourceKey + "_" + styleSheet.Id, StringComparison.Ordinal))
                 .ToList();
 
-            // // Debug.WriteLine(" - remove resourceKeys: " + string.Join(", ", resourceKeys));
+            // Debug.WriteLine(" - remove resourceKeys: " + string.Join(", ", resourceKeys));
 
             foreach (var key in resourceKeys)
             {
@@ -483,6 +592,8 @@ namespace XamlCSS
                     continue;
                 }
 
+                // Debug.WriteLine("Generate Style " + resourceKey);
+
                 CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> result = null;
                 try
                 {
@@ -502,14 +613,18 @@ namespace XamlCSS
                     var nativeTriggers = styleMatchInfo.Rule.DeclarationBlock.Triggers
                         .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, styleResourceReferenceHolder));
 
-                    if (propertyStyleValues.Keys.Count == 0)
+                    if (!propertyStyleValues.Any() &&
+                        !nativeTriggers.Any())
                     {
+                        // Debug.WriteLine("no values found -> continue");
                         continue;
                     }
 
                     var style = nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType);
 
                     applicationResourcesService.SetResource(resourceKey, style);
+
+                    // Debug.WriteLine("Finished generate Style " + resourceKey);
                 }
                 catch (Exception e)
                 {
@@ -533,12 +648,12 @@ namespace XamlCSS
 
         private void ApplyMatchingStyles(TUIElement visualElement, StyleSheet styleSheet)
         {
-            // Debug.WriteLine("ApplyMatchingStyles " + Utils.HierarchyDebugExtensions.GetPath(treeNodeProvider.GetDomElement(visualElement)));
+            Debug.WriteLine("ApplyMatchingStyles " + Utils.HierarchyDebugExtensions.GetPath(treeNodeProvider.GetDomElement(visualElement)));
 
             if (visualElement == null ||
                 dependencyPropertyService.GetHandledCss(visualElement))
             {
-                // Debug.WriteLine("Already handled");
+                Debug.WriteLine("Already handled");
                 return;
             }
 
@@ -547,7 +662,7 @@ namespace XamlCSS
             if (styledBy != null &&
                 styledBy != styleSheet)
             {
-                // Debug.WriteLine("Another Stylesheet");
+                Debug.WriteLine("Another Stylesheet");
                 return;
             }
 
@@ -577,7 +692,7 @@ namespace XamlCSS
                     }
                     else
                     {
-                        // Debug.WriteLine("Style not found! " + matchingStyles[0]);
+                        Debug.WriteLine("Style not found! " + matchingStyles[0]);
                     }
                 }
                 else if (matchingStyles?.Length > 1)
@@ -587,20 +702,20 @@ namespace XamlCSS
 
                     foreach (var matchingStyle in matchingStyles)
                     {
-                        object s = null;
+                        TStyle s = null;
                         if (applicationResourcesService.Contains(matchingStyle) == true)
                         {
-                            s = applicationResourcesService.GetResource(matchingStyle);
+                            s = (TStyle)applicationResourcesService.GetResource(matchingStyle);
                         }
                         else
                         {
-                            // Debug.WriteLine("Style not found! " + matchingStyle);
+                            Debug.WriteLine("Style not found! " + matchingStyle);
                         }
 
-                        var subDict = nativeStyleService.GetStyleAsDictionary(s as TStyle);
-
-                        if (subDict != null)
+                        if (s != null)
                         {
+                            var subDict = nativeStyleService.GetStyleAsDictionary(s as TStyle);
+
                             foreach (var i in subDict)
                             {
                                 dict[i.Key] = i.Value;
@@ -611,7 +726,8 @@ namespace XamlCSS
                         }
                     }
 
-                    if (dict.Keys.Count > 0)
+                    if (dict.Keys.Count > 0 ||
+                        listTriggers.Count > 0)
                     {
                         styleToApply = nativeStyleService.CreateFrom(dict, listTriggers, visualElement.GetType());
                     }
@@ -631,7 +747,7 @@ namespace XamlCSS
             {
                 ApplyMatchingStyles(child as TUIElement, styleSheet);
             }
-            // // Debug.WriteLine($"Applying: {string.Join(", ", dependencyPropertyService.GetMatchingStyles(visualElement) ?? new string[0])}");
+            // Debug.WriteLine($"Applying: {string.Join(", ", dependencyPropertyService.GetMatchingStyles(visualElement) ?? new string[0])}");
         }
 
         public void UnapplyMatchingStyles(TDependencyObject bindableObject, StyleSheet styleSheet)
@@ -643,25 +759,31 @@ namespace XamlCSS
         }
         protected void UnapplyMatchingStylesInternal(TDependencyObject bindableObject, StyleSheet styleSheet)
         {
-            // Debug.WriteLine("UnapplyMatchingStylesInternal: " + Utils.HierarchyDebugExtensions.GetPath(treeNodeProvider.GetDomElement(bindableObject)));
+            Debug.WriteLine("UnapplyMatchingStylesInternal: " + Utils.HierarchyDebugExtensions.GetPath(treeNodeProvider.GetDomElement(bindableObject)));
 
-            if (bindableObject == null ||
-                dependencyPropertyService.GetHandledCss(bindableObject) == false)
+            if (bindableObject == null/* ||
+                dependencyPropertyService.GetHandledCss(bindableObject) == false*/)
             {
-                // Debug.WriteLine("already handled -> return");
+                Debug.WriteLine("already handled -> return");
                 return;
+            }
+
+            if(bindableObject.GetType().Name == "Run")
+            {
+
             }
 
             var styledBy = dependencyPropertyService.GetStyledByStyleSheet(bindableObject);
-            if (styledBy == null)
+            /*if (styledBy == null)
             {
-                // Debug.WriteLine("Not yet styled -> return");
+                Debug.WriteLine("Not yet styled -> return");
                 return;
-            }
+            }*/
 
-            if (styledBy != styleSheet)
+            if (styledBy != null &&
+                styledBy != styleSheet)
             {
-                // Debug.WriteLine("Another Stylesheet");
+                Debug.WriteLine("Another Stylesheet");
                 return;
             }
 
@@ -681,9 +803,91 @@ namespace XamlCSS
                 RemoveOutdatedStylesFromElementInternal(bindableObject, styleSheet, recursive, resetStyle);
             });
         }
+
+        protected void ResetElementsBecauseRemovedInternal(TDependencyObject bindableObject, StyleSheet styleSheet, bool removed)
+        {
+            Debug.WriteLine("ResetElementsBecauseStyleSheetChangedInternal: " + Utils.HierarchyDebugExtensions.GetPath(treeNodeProvider.GetDomElement(bindableObject)));
+
+            if (bindableObject == null)
+            {
+                return;
+            }
+
+            if (bindableObject.GetType().Name == "TextBlock")
+            {
+
+            }
+
+            var styledBy = dependencyPropertyService.GetStyledByStyleSheet(bindableObject);
+            if (styledBy != null &&
+                styledBy != styleSheet)
+            {
+                Debug.WriteLine("    Another Stylesheet -> return");
+
+                nativeStyleService.SetStyle(bindableObject, null);
+
+                return;
+            }
+
+            //dependencyPropertyService.SetMatchingStyles(bindableObject, null);
+            dependencyPropertyService.SetAppliedMatchingStyles(bindableObject, null);
+            nativeStyleService.SetStyle(bindableObject, dependencyPropertyService.GetInitialStyle(bindableObject));
+
+            if (removed)
+            {
+                //dependencyPropertyService.SetStyledByStyleSheet(bindableObject, null);
+            }
+
+            foreach (var child in treeNodeProvider.GetChildren(bindableObject).ToList())
+            {
+                ResetElementsBecauseRemovedInternal(child, styleSheet, removed);
+            }
+        }
+
+        protected void ResetElementsBecauseStyleSheetChangedInternal(TDependencyObject bindableObject, StyleSheet styleSheet, bool removed)
+        {
+            Debug.WriteLine("ResetElementsBecauseStyleSheetChangedInternal: " + Utils.HierarchyDebugExtensions.GetPath(treeNodeProvider.GetDomElement(bindableObject)));
+
+            if (bindableObject == null)
+            {
+                return;
+            }
+
+            if(bindableObject.GetType().Name == "TextBlock")
+            {
+
+            }
+
+            var styledBy = dependencyPropertyService.GetStyledByStyleSheet(bindableObject);
+            if (styledBy != null &&
+                styledBy != styleSheet)
+            {
+                Debug.WriteLine("    Another Stylesheet -> return");
+
+                nativeStyleService.SetStyle(bindableObject, null);
+
+                return;
+            }
+
+            //dependencyPropertyService.SetMatchingStyles(bindableObject, null);
+            dependencyPropertyService.SetAppliedMatchingStyles(bindableObject, null);
+
+            nativeStyleService.SetStyle(bindableObject, null);// dependencyPropertyService.GetInitialStyle(bindableObject));
+
+            if (removed)
+            {
+                dependencyPropertyService.SetStyledByStyleSheet(bindableObject, null);
+            }
+
+            foreach (var child in treeNodeProvider.GetChildren(bindableObject).ToList())
+            {
+                ResetElementsBecauseStyleSheetChangedInternal(child, styleSheet, removed);
+            }
+        }
+
         protected void RemoveOutdatedStylesFromElementInternal(TDependencyObject bindableObject, StyleSheet styleSheet, bool recursive, bool resetStyle)
         {
-            // Debug.WriteLine("RemoveOutdatedStylesFromElementInternal: " + Utils.HierarchyDebugExtensions.GetPath(treeNodeProvider.GetDomElement(bindableObject)));
+            Debug.WriteLine("RemoveOutdatedStylesFromElementInternal: " + Utils.HierarchyDebugExtensions.GetPath(treeNodeProvider.GetDomElement(bindableObject)));
 
             if (bindableObject == null)
             {
@@ -694,20 +898,28 @@ namespace XamlCSS
             if (styledBy != null &&
                 styledBy != styleSheet)
             {
-                // Debug.WriteLine("Another Stylesheet");
+                Debug.WriteLine("    Another Stylesheet -> return");
+
+                nativeStyleService.SetStyle(bindableObject, null);
+
                 return;
             }
 
             var appliedMatchingStyles = dependencyPropertyService.GetAppliedMatchingStyles(bindableObject);
             var matchingStyles = dependencyPropertyService.GetMatchingStyles(bindableObject);
 
-            if (!AppliedStyleIdsAreMatchedStyleIds(appliedMatchingStyles, matchingStyles))
+            //if (true || !AppliedStyleIdsAreMatchedStyleIds(appliedMatchingStyles, matchingStyles))
             {
+                dependencyPropertyService.SetMatchingStyles(bindableObject, null);
                 dependencyPropertyService.SetAppliedMatchingStyles(bindableObject, null);
 
                 if (resetStyle)
                 {
-                    nativeStyleService.SetStyle(bindableObject, dependencyPropertyService.GetInitialStyle(bindableObject));
+                    nativeStyleService.SetStyle(bindableObject, null);// dependencyPropertyService.GetInitialStyle(bindableObject));
+                }
+                else
+                {
+                    Debug.WriteLine("    Style not resetted!");
                 }
             }
 
@@ -719,6 +931,10 @@ namespace XamlCSS
                 {
                     RemoveOutdatedStylesFromElementInternal(child, styleSheet, recursive, resetStyle);
                 }
+            }
+            else
+            {
+                Debug.WriteLine("Not recursive!");
             }
         }
 

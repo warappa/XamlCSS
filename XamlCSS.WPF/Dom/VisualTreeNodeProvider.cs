@@ -14,12 +14,12 @@ namespace XamlCSS.WPF.Dom
         {
         }
 
-        protected internal override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
+        public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
             return new VisualDomElement(dependencyObject, this, namespaceProvider);
         }
 
-        protected internal override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
+        public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
         {
             return node is VisualDomElement;
         }
@@ -48,7 +48,7 @@ namespace XamlCSS.WPF.Dom
                         }
                     }
                 }
-                else
+                /*else
                 {
                     foreach (var child in LogicalTreeHelper.GetChildren(element))
                     {
@@ -57,7 +57,7 @@ namespace XamlCSS.WPF.Dom
                             list.Add(c);
                         }
                     }
-                }
+                }*/
             }
             catch { }
             return list;
@@ -74,12 +74,12 @@ namespace XamlCSS.WPF.Dom
             if (element is Visual ||
                 element is Visual3D)
             {
-                parent= VisualTreeHelper.GetParent(element);
+                return VisualTreeHelper.GetParent(element);
             }
 
             // LoadedDetection: would insert into Logical Dom Tree
-            //return null;// LogicalTreeHelper.GetParent(element);
-            return parent ??LogicalTreeHelper.GetParent(element);
+            return null;// LogicalTreeHelper.GetParent(element);
+            //return parent ?? LogicalTreeHelper.GetParent(element);
         }
 
         public override bool IsInTree(DependencyObject element)

@@ -10,6 +10,8 @@ namespace XamlCSS.Dom
         IEnumerable<TDependencyObject> GetChildren(TDependencyObject element);
         TDependencyObject GetParent(TDependencyObject tUIElement);
         bool IsInTree(TDependencyObject tUIElement);
+        IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
+        bool IsCorrectTreeNode(IDomElement<TDependencyObject> node);
     }
     public interface ISwitchableTreeNodeProvider<TDependencyObject> : ITreeNodeProvider<TDependencyObject>
         where TDependencyObject : class
