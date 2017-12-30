@@ -322,5 +322,15 @@ namespace XamlCSS.XamarinForms
                 (visualElement as VisualElement).Style = style;
             }
         }
+
+        public override Style GetStyle(BindableObject visualElement)
+        {
+            if (visualElement is VisualElement)
+            {
+                return (visualElement as VisualElement).Style;
+            }
+
+            return null;
+        }
     }
 }

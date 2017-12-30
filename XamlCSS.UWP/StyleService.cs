@@ -95,5 +95,15 @@ namespace XamlCSS.UWP
                 (visualElement as FrameworkElement).Style = style;
             }
         }
+
+        public override Style GetStyle(DependencyObject visualElement)
+        {
+            if (visualElement is FrameworkElement)
+            {
+                return (visualElement as FrameworkElement).Style;
+            }
+
+            return null;
+        }
     }
 }
