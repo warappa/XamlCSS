@@ -351,5 +351,19 @@ namespace XamlCSS.WPF
                 (visualElement as FrameworkContentElement).Style = style;
             }
         }
+
+        public override Style GetStyle(DependencyObject visualElement)
+        {
+            if (visualElement is FrameworkElement)
+            {
+                return (visualElement as FrameworkElement).Style;
+            }
+            else if (visualElement is FrameworkContentElement)
+            {
+                return (visualElement as FrameworkContentElement).Style;
+            }
+
+            return null;
+        }
     }
 }

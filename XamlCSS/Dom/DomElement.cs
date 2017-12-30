@@ -247,43 +247,43 @@ namespace XamlCSS.Dom
             return namespaceProvider.LookupPrefix(this, namespaceUri);
         }
 
-        public bool Matches(string selectors)
+        public bool Matches(StyleSheet styleSheet, ISelector selector)
         {
-            return cachedSelectorProvider.GetOrAdd(selectors).Match(this);
+            return selector.Match(styleSheet, this);
         }
 
-        public IDomElement<TDependencyObject> QuerySelector(string selectors)
+        public IDomElement<TDependencyObject> QuerySelector(StyleSheet styleSheet, ISelector selector)
         {
-            var selector = cachedSelectorProvider.GetOrAdd(selectors);
+            // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            return ChildNodes.QuerySelector(selector);
+            return ChildNodes.QuerySelector(styleSheet, selector);
         }
 
-        public IDomElement<TDependencyObject> QuerySelectorWithSelf(string selectors)
+        public IDomElement<TDependencyObject> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector)
         {
-            if (this.Matches(selectors))
+            if (this.Matches(styleSheet, selector))
             {
                 return this;
             }
 
-            var selector = cachedSelectorProvider.GetOrAdd(selectors);
+            //var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            return ChildNodes.QuerySelector(selector);
+            return ChildNodes.QuerySelector(styleSheet, selector);
         }
 
-        public IList<IDomElement<TDependencyObject>> QuerySelectorAll(string selectors)
+        public IList<IDomElement<TDependencyObject>> QuerySelectorAll(StyleSheet styleSheet, ISelector selector)
         {
-            var selector = cachedSelectorProvider.GetOrAdd(selectors);
+            // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            return ChildNodes.QuerySelectorAll(selector);
+            return ChildNodes.QuerySelectorAll(styleSheet, selector);
         }
 
-        public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(string selectors)
+        public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector)
         {
-            var selector = cachedSelectorProvider.GetOrAdd(selectors);
+            // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            var res = ChildNodes.QuerySelectorAll(selector);
-            if (this.Matches(selectors))
+            var res = ChildNodes.QuerySelectorAll(styleSheet, selector);
+            if (this.Matches(styleSheet, selector))
             {
                 res.Add(this);
             }

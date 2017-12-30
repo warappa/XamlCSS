@@ -24,6 +24,10 @@ namespace XamlCSS.WPF
 
         private static void OnLoaded(object sender, RoutedEventArgs e)
         {
+            //if (Css.instance?.dependencyPropertyService.GetInitialStyle((DependencyObject)sender) == null)
+            //{
+            //    Css.instance?.dependencyPropertyService.SetInitialStyle((DependencyObject)sender, Css.instance?.nativeStyleService.GetStyle((DependencyObject)sender));
+            //}
             SetLoadDetection((DependencyObject)sender, true);
         }
         /*
@@ -72,13 +76,13 @@ namespace XamlCSS.WPF
             if ((bool)ev.NewValue == true)
             {
                 //SubTreeAdded?.Invoke(dpo, new EventArgs());
-
+                
                 if (dpo is FrameworkElement frameworkElement)
                 {
                     
                     frameworkElement.Loaded += LoadedEventHandler;
                     frameworkElement.Unloaded += UnloadedEventHandler;
-                    //frameworkElement.Initialized += FrameworkElement_Initialized;
+                    frameworkElement.Initialized += FrameworkElement_Initialized;
                     if (frameworkElement.IsLoaded)
                     {
                         LoadedEventHandler.Invoke(frameworkElement, new RoutedEventArgs());
@@ -88,7 +92,7 @@ namespace XamlCSS.WPF
                 {
                     frameworkContentElement.Loaded += LoadedEventHandler;
                     frameworkContentElement.Unloaded += UnloadedEventHandler;
-                    //frameworkContentElement.Initialized += FrameworkElement_Initialized;
+                    frameworkContentElement.Initialized += FrameworkElement_Initialized;
                     if (frameworkContentElement.IsLoaded)
                     {
                         LoadedEventHandler.Invoke(frameworkContentElement, new RoutedEventArgs());
@@ -103,13 +107,13 @@ namespace XamlCSS.WPF
                 {
                     frameworkElement.Unloaded -= UnloadedEventHandler;
                     frameworkElement.Loaded -= LoadedEventHandler;
-                    //frameworkElement.Initialized -= FrameworkElement_Initialized;
+                    frameworkElement.Initialized -= FrameworkElement_Initialized;
                 }
                 else if (dpo is FrameworkContentElement frameworkContentElement)
                 {
                     frameworkContentElement.Unloaded -= UnloadedEventHandler;
                     frameworkContentElement.Loaded -= LoadedEventHandler;
-                    //frameworkContentElement.Initialized -= FrameworkElement_Initialized;
+                    frameworkContentElement.Initialized -= FrameworkElement_Initialized;
                 }
 
                 //Css.instance?.UnapplyMatchingStyles(dpo, Css.instance.dependencyPropertyService.GetStyledByStyleSheet(dpo));

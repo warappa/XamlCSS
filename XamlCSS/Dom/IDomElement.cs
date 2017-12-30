@@ -7,8 +7,8 @@ namespace XamlCSS.Dom
     {
         TDependencyObject Element { get; }
         IList<StyleSheet> XamlCssStyleSheets { get; }
-        IDomElement<TDependencyObject> QuerySelectorWithSelf(string selectors);
-        IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(string selectors);
+        IDomElement<TDependencyObject> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector);
+        IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector);
         IDomElement<TDependencyObject> Parent { get; }
         string TagName { get; }
         string Id { get; }

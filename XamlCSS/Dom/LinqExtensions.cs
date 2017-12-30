@@ -118,17 +118,17 @@ namespace XamlCSS.Dom
             }
         }
 
-        public static IList<IDomElement<TDependencyObject>> QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, ISelector selector)
+        public static IList<IDomElement<TDependencyObject>> QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector)
             where TDependencyObject : class
         {
             var list = new List<IDomElement<TDependencyObject>>();
 
-            elements.QuerySelectorAll(selector, list);
+            elements.QuerySelectorAll(styleSheet, selector, list);
 
             return list;
         }
 
-        public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, ISelector selector, IList<IDomElement<TDependencyObject>> result)
+        public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, IList<IDomElement<TDependencyObject>> result)
             where TDependencyObject : class
         {
             var length = elements.Count;
@@ -138,20 +138,20 @@ namespace XamlCSS.Dom
                 var element = elements[i];
                 if (element != null)
                 {
-                    if (selector.Match(element))
+                    if (selector.Match(styleSheet, element))
                     {
                         result.Add(element);
                     }
 
                     if (element.ChildNodes.Any())
                     {
-                        element.ChildNodes.QuerySelectorAll(selector, result);
+                        element.ChildNodes.QuerySelectorAll(styleSheet, selector, result);
                     }
                 }
             }
         }
 
-        public static IDomElement<TDependencyObject> QuerySelector<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, ISelector selector)
+        public static IDomElement<TDependencyObject> QuerySelector<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector)
             where TDependencyObject : class
         {
             var length = elements.Count;
@@ -161,14 +161,14 @@ namespace XamlCSS.Dom
                 var element = elements[i];
                 if (element != null)
                 {
-                    if (selector.Match(element))
+                    if (selector.Match(styleSheet, element))
                     {
                         return element;
                     }
 
                     if (element.ChildNodes.Any())
                     {
-                        element = element.ChildNodes.QuerySelector(selector);
+                        element = element.ChildNodes.QuerySelector(styleSheet, selector);
 
                         if (element != null)
                         {
@@ -181,11 +181,11 @@ namespace XamlCSS.Dom
             return null;
         }
 
-        public static T QuerySelector<T, TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, ISelector selectors)
+        public static T QuerySelector<T, TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selectors)
             where TDependencyObject : class
             where T : class, IDomElement<TDependencyObject>
         {
-            return elements.QuerySelector(selectors) as T;
+            return elements.QuerySelector(styleSheet, selectors) as T;
         }
     }
 }

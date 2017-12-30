@@ -318,6 +318,36 @@ namespace XamlCSS
             }
         }
 
+        private Dictionary<string, string> prefix2NamespaceUri = new Dictionary<string, string>();
+        private Dictionary<string, string> namespaceUri2Alias = new Dictionary<string, string>();
+        public string GetNamespaceUri(string alias)
+        {
+            if (!prefix2NamespaceUri.TryGetValue(alias, out string value))
+            {
+                value = Namespaces.Where(x => x.Alias == alias)
+                    .Select(x => x.Namespace)
+                    .FirstOrDefault();
+
+                prefix2NamespaceUri[alias] = value;
+            }
+
+            return value;
+        }
+
+        public string GetAlias(string namespaceUri)
+        {
+            if (!namespaceUri2Alias.TryGetValue(namespaceUri, out string value))
+            {
+                value = Namespaces.Where(x => x.Namespace == namespaceUri)
+                    .Select(x => x.Alias)
+                    .FirstOrDefault();
+
+                namespaceUri2Alias[namespaceUri] = value;
+            }
+
+            return value;
+        }
+
         public string Id { get; protected set; }
 
         protected StyleSheetCollection GetParentStyleSheets(object from)
@@ -454,6 +484,8 @@ namespace XamlCSS
         {
             combinedRules = null;
             combinedNamespaces = null;
+            namespaceUri2Alias.Clear();
+            prefix2NamespaceUri.Clear();
             variables = null;
 
             this.localErrors.Clear();

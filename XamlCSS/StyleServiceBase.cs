@@ -48,5 +48,6 @@ namespace XamlCSS
 
         protected abstract void AddTrigger(TStyle style, TDependencyObject trigger);
 
+        public abstract TStyle GetStyle(TDependencyObject visualElement);
     }
 }

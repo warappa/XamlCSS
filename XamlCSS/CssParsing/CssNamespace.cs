@@ -1,7 +1,8 @@
-﻿namespace XamlCSS.CssParsing
+﻿namespace XamlCSS
 {
     public class CssNamespace
     {
+        public CssNamespace() { }
         public CssNamespace(string alias, string @namespace)
         {
             this.Alias = alias;

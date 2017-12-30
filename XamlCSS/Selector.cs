@@ -60,9 +60,11 @@ namespace XamlCSS
                     x.Type == CssNodeType.DirectSiblingCombinator ||
                     x.Type == CssNodeType.GeneralSiblingCombinator)
                 {
-                    return new[] { new SelectorFragment(x.Type, x.Text) };
+                    //return new[] { new SelectorFragment(x.Type, x.Text) };
+                    return new[] { new SelectorFragmentFactory().Create(x.Type, x.Text) };
                 }
-                return x.Children.Select(y => new SelectorFragment(y.Type, y.Text));
+                //return x.Children.Select(y => new SelectorFragment(y.Type, y.Text));
+                return x.Children.Select(y => new SelectorFragmentFactory().Create(y.Type, y.Text));
             })
             .ToList();
         }
@@ -115,14 +117,14 @@ namespace XamlCSS
             return false;
         }
 
-        public bool Match<TDependencyObject>(IDomElement<TDependencyObject> domElement)
+        public bool Match<TDependencyObject>(StyleSheet styleSheet, IDomElement<TDependencyObject> domElement)
             where TDependencyObject : class
         {
             for (var i = Fragments.Count - 1; i >= 0; i--)
             {
                 var fragment = Fragments[i];
 
-                if (!fragment.Match(ref domElement, Fragments, ref i))
+                if (!fragment.Match(styleSheet, ref domElement, Fragments, ref i))
                 {
                     return false;
                 }
