@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using XamlCSS.CssParsing;
+using XamlCSS.Utils;
 
 namespace XamlCSS
 {
@@ -65,6 +66,12 @@ namespace XamlCSS
         public object GetPropertyValue(Type matchedType, TDependencyObject targetObject, string propertyName, string valueExpression, TDependencyProperty property, IEnumerable<CssNamespace> namespaces)
         {
             object propertyValue;
+
+            if (valueExpression == "inherit")
+            {
+                valueExpression = $"{{Binding RelativeSource={{RelativeSource AncestorType={{x:Type FrameworkElement}}}}, Path=({matchedType.Name}.{propertyName})}}"; // DependencyProperty.UnsetValue;
+            }
+
             if (valueExpression != null &&
                 ((valueExpression.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(valueExpression)) ||
                 valueExpression.StartsWith("{", StringComparison.Ordinal))) // color
@@ -86,19 +93,12 @@ namespace XamlCSS
 
         public DependencyPropertyInfo<TDependencyProperty> GetDependencyPropertyInfo(IList<CssNamespace> namespaces, Type matchedType, string propertyExpression)
         {
-            TDependencyProperty property;
-
             var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, matchedType);
 
             var declaringType = Type.GetType(typeAndProperyName.Item1);
-            property = dependencyPropertyService.GetBindableProperty(declaringType, typeAndProperyName.Item2);
 
-            if (property == null)
-            {
-                return null;
-            }
-
-            return new DependencyPropertyInfo<TDependencyProperty>(property, declaringType, typeAndProperyName.Item2);
+            return TypeHelpers.DeclaredDependencyProperties<TDependencyProperty>(declaringType)
+                .FirstOrDefault(x => x.ShortName == typeAndProperyName.Item2);
         }
 
         public object GetClrPropertyValue(List<CssNamespace> namespaces, object obj, string propertyExpression)
