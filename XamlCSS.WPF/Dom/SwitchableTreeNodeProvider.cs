@@ -81,10 +81,5 @@ namespace XamlCSS.WPF.Dom
         {
             return currentTreeNodeProvider.IsInTree(tUIElement);
         }
-
-        public ISwitchableTreeNodeProvider<DependencyObject> Clone()
-        {
-            return new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeProvider, logicalTreeNodeProvider);
-        }
     }
 }
