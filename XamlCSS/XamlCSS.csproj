@@ -94,6 +94,7 @@
     </Compile>
     <Compile Include="ActionParameter.cs" />
     <Compile Include="BaseCss.cs" />
+    <Compile Include="BaseCSS2.cs" />
     <Compile Include="ChangeKind.cs" />
     <Compile Include="ClasssSelector.cs" />
     <Compile Include="CreateStyleDictionaryFromDeclarationBlockResult.cs" />

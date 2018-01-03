@@ -14,7 +14,7 @@ namespace XamlCSS.WPF.Dom
 
         public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            return new LogicalDomElement(dependencyObject, this,namespaceProvider);
+            return new LogicalDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
         }
 
         public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
@@ -51,7 +51,7 @@ namespace XamlCSS.WPF.Dom
         {
             var p = GetParent(tUIElement);
             if (p == null)
-                return true;
+                return tUIElement is Window;
 
             return GetChildren(p).Contains(tUIElement);
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XamlCSS.Utils;
 
 namespace XamlCSS.Dom
 {
@@ -138,8 +139,14 @@ namespace XamlCSS.Dom
                 var element = elements[i];
                 if (element != null)
                 {
+                    if (element.StyleInfo?.CurrentStyleSheet != styleSheet)
+                    {
+                        continue;
+                    }
+
                     if (selector.Match(styleSheet, element))
                     {
+                        var path = element.GetPath();
                         result.Add(element);
                     }
 

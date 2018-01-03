@@ -71,8 +71,11 @@ namespace XamlCSS
                     items.Clear();
                 }
 
-                applicationResourcesService.BeginUpdate();
+                //applicationResourcesService.BeginUpdate();
 
+                BaseCSS2<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+                    .Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
+                return;
                 treeNodeProvider.Switch(SelectorType.VisualTree);
 
                 // Debug.WriteLine("-------------------------------------------------");

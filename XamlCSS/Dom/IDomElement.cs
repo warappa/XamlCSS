@@ -21,5 +21,7 @@ namespace XamlCSS.Dom
         string LookupPrefix(string v);
         string LookupNamespaceUri(string v);
         bool HasAttribute(string v);
+
+        StyleUpdateInfo StyleInfo { get; set; }
     }
 }

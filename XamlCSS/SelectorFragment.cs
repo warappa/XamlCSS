@@ -26,7 +26,8 @@ namespace XamlCSS
             {
                 return domElement.ClassList.Contains(Text.Substring(1));
             }
-            else*/ if (Type == CssNodeType.DirectSiblingCombinator)
+            else*/
+            if (Type == CssNodeType.DirectSiblingCombinator)
             {
                 var thisIndex = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
 
@@ -36,6 +37,10 @@ namespace XamlCSS
                 }
 
                 var sibling = domElement.Parent?.ChildNodes[thisIndex - 1];
+                if (sibling == null)
+                {
+                    return false;
+                }
                 currentIndex--;
 
                 var result = fragments[currentIndex].Match(styleSheet, ref sibling, fragments, ref currentIndex);

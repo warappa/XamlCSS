@@ -18,5 +18,7 @@ namespace XamlCSS.Dom
     {
         void Switch(SelectorType type);
         SelectorType CurrentSelectorType { get; }
+
+        ISwitchableTreeNodeProvider<TDependencyObject> Clone();
     }
 }

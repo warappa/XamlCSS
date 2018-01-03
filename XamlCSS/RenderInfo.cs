@@ -2,7 +2,7 @@
 
 namespace XamlCSS
 {
-    [DebuggerDisplay("{ChangeKind} {StartFrom.GetType().Name} {GetHashCode()}")]
+    [DebuggerDisplay("{ChangeKind} {RenderTargetKind} {(StartFrom ?? StyleSheetHolder).GetType().Name} {GetHashCode()}")]
     public class RenderInfo<TDependencyObject, TUIElement>
         where TDependencyObject : class
         where TUIElement : class, TDependencyObject

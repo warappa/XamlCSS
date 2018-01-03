@@ -5,11 +5,11 @@ using System;
 
 namespace XamlCSS.WPF.Dom
 {
-	[DebuggerDisplay("({Element.GetType().Name}) Id={Id} Name={Name} Class={Class}")]
+	[DebuggerDisplay("LOGICAL ({Element.GetType().Name}) Parent={Parent.Element}  Id={Id} Name={Name} Class={Class}")]
 	public class LogicalDomElement : DomElement
 	{
-		public LogicalDomElement(DependencyObject dependencyObject, ITreeNodeProvider<DependencyObject> treeNodeProvider, INamespaceProvider<DependencyObject> namespaceProvider)
-			: base(dependencyObject, treeNodeProvider, namespaceProvider)
+		public LogicalDomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent, ITreeNodeProvider<DependencyObject> treeNodeProvider, INamespaceProvider<DependencyObject> namespaceProvider)
+			: base(dependencyObject, parent, treeNodeProvider, namespaceProvider)
 		{
 
 		}

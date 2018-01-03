@@ -33,11 +33,13 @@ namespace XamlCSS.Dom
 
         public DomElementBase(
             TDependencyObject dependencyObject,
+            IDomElement<TDependencyObject> parent,
             ITreeNodeProvider<TDependencyObject> treeNodeProvider,
             INamespaceProvider<TDependencyObject> namespaceProvider
             )
         {
             this.dependencyObject = dependencyObject;
+            this.parent = parent;
             this.treeNodeProvider = treeNodeProvider;
             this.namespaceProvider = namespaceProvider;
 
@@ -52,7 +54,7 @@ namespace XamlCSS.Dom
             if (sender == Element)
             {
                 // force reevaluation
-                parent = null;
+                parent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element));
             }
 
             if (treeNodeProvider.GetParent(sender as TDependencyObject) == dependencyObject)
@@ -60,7 +62,14 @@ namespace XamlCSS.Dom
                 if (childNodes != null)
                 {
                     var node = treeNodeProvider.GetDomElement(sender as TDependencyObject);
-                    childNodes.Add(node);
+                    if (childNodes.Any(x => x.Element == sender))
+                    {
+
+                    }
+                    else
+                    {
+                        childNodes.Add(node);
+                    }
                 }
             }
         }
@@ -78,7 +87,6 @@ namespace XamlCSS.Dom
 
             if (sender == Element)
             {
-                // force reevaluation
                 parent = null;
             }
         }
@@ -158,8 +166,9 @@ namespace XamlCSS.Dom
                 {
                     return parent;
                 }
-                var parentElement = treeNodeProvider.GetParent(dependencyObject);
-                return parentElement == null ? null : (parent = treeNodeProvider.GetDomElement(parentElement));
+                return null;
+                //var parentElement = treeNodeProvider.GetParent(dependencyObject);
+                //return parentElement == null ? null : (parent = treeNodeProvider.GetDomElement(parentElement));
             }
         }
 
@@ -169,7 +178,7 @@ namespace XamlCSS.Dom
             {
                 if (prefix == Undefined)
                 {
-                    prefix = namespaceProvider.LookupPrefix(this, GetNamespaceUri(dependencyObject.GetType())) ?? Undefined;
+                    prefix = namespaceProvider.LookupPrefix(this, NamespaceUri) ?? Undefined;
                 }
 
                 return prefix != Undefined ? prefix : null;
@@ -180,12 +189,7 @@ namespace XamlCSS.Dom
         {
             get
             {
-                if (namespaceUri == Undefined)
-                {
-                    namespaceUri = namespaceProvider.LookupNamespaceUri(this, Prefix) ?? Undefined;
-                }
-
-                return namespaceUri != Undefined ? namespaceUri : null;
+                return namespaceUri;
             }
         }
 
@@ -206,6 +210,8 @@ namespace XamlCSS.Dom
                 tagName = value;
             }
         }
+
+        public StyleUpdateInfo StyleInfo { get; set; }
 
         public bool Contains(IDomElement<TDependencyObject> otherNode)
         {
@@ -281,6 +287,11 @@ namespace XamlCSS.Dom
         public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
+
+            if (StyleInfo.CurrentStyleSheet != styleSheet)
+            {
+                return new List<IDomElement<TDependencyObject>>();
+            }
 
             var res = ChildNodes.QuerySelectorAll(styleSheet, selector);
             if (this.Matches(styleSheet, selector))

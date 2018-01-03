@@ -24,7 +24,7 @@ namespace XamlCSS.WPF.Dom
 
         public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            return new VisualDomElement(dependencyObject, this, namespaceProvider);
+            return new VisualDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
         }
 
         public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
