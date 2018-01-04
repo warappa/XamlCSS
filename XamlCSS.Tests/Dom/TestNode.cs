@@ -45,9 +45,9 @@ namespace XamlCSS.Tests.Dom
     [DebuggerDisplay("{TagName} #{Id} .{ClassName}")]
     public class TestNode : DomElementBase<UIElement, IDictionary<object, object>>
     {
-        public TestNode(UIElement dependencyObject, string tagname, IEnumerable<IDomElement<UIElement>> children = null,
+        public TestNode(UIElement dependencyObject, IDomElement<UIElement> parent, string tagname, IEnumerable<IDomElement<UIElement>> children = null,
             IDictionary<string, IDictionary<object, object>> attributes = null, string id = null, string @class = null, INamespaceProvider<UIElement> namespaceProvider = null)
-            : base(dependencyObject ?? new UIElement(), null, namespaceProvider ?? TestNamespaceProvider.Instance)
+            : base(dependencyObject ?? new UIElement(), parent, null, namespaceProvider ?? TestNamespaceProvider.Instance)
         {
             this.childNodes = children?.ToList() ?? new List<IDomElement<UIElement>>();
             foreach (TestNode c in ChildNodes)
@@ -77,6 +77,11 @@ namespace XamlCSS.Tests.Dom
             }
 
             this.attributes = attributes ?? new Dictionary<string, IDictionary<object, object>>();
+
+            this.StyleInfo = new StyleUpdateInfo
+            {
+                MatchedType = dependencyObject.GetType()
+            };
         }
 
         protected override IDictionary<string, IDictionary<object, object>> CreateNamedNodeMap(UIElement dependencyObject)
@@ -102,6 +107,21 @@ namespace XamlCSS.Tests.Dom
         protected override string GetId(UIElement dependencyObject)
         {
             return dependencyObject.Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as TestNode;
+            if (ReferenceEquals(null, other))
+            {
+                return false;
+            }
+
+            return ReferenceEquals(other.Element, Element);
+        }
+        public override int GetHashCode()
+        {
+            return Element.GetHashCode();
         }
     }
 }

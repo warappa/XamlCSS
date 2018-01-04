@@ -2,6 +2,7 @@
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Linq;
+using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 
 namespace XamlCSS.Tests.Dom
@@ -9,16 +10,32 @@ namespace XamlCSS.Tests.Dom
     [TestFixture]
     public class SelectorTests
     {
+        private StyleSheet defaultStyleSheet;
+
         public SelectorTests()
         {
             TestNamespaceProvider.Instance["ui"] = "XamlCSS.Dom.Tests";
         }
+
+        [SetUp]
+        public void Setup()
+        {
+            defaultStyleSheet = CssParser.Parse(@"@namespace ui ""XamlCSS.Dom.Tests"";");
+        }
+
         [Test]
         public void Test()
         {
             var selector = new Selector(".button a> #bbb");
 
-            selector.Fragments.Select(x => x.Text).ShouldBeEquivalentTo(new[] { ".button", " ", "a", ">", "#bbb" }.ToList());
+            selector.Fragments.Select(x => x.Text).ShouldBeEquivalentTo(new[] { "button", " ", "a", ">", "bbb" }.ToList());
+            selector.Fragments.Select(x => x.Type).ShouldBeEquivalentTo(new[] {
+                CssNodeType.ClassSelector,
+                CssNodeType.GeneralDescendantCombinator,
+                CssNodeType.TypeSelector,
+                CssNodeType.DirectDescendantCombinator,
+                CssNodeType.IdSelector
+            }.ToList());
         }
 
         [Test]
@@ -27,7 +44,7 @@ namespace XamlCSS.Tests.Dom
             var selector = new Selector("#bbb");
 
             var tag = GetDomElement("button", "bbb");
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -36,7 +53,7 @@ namespace XamlCSS.Tests.Dom
             var selector = new Selector("button");
 
             var tag = GetDomElement("button", "bbb");
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -45,7 +62,7 @@ namespace XamlCSS.Tests.Dom
             var selector = new Selector(".important");
 
             var tag = GetDomElement("button", "bbb", "some important stuff");
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -54,7 +71,7 @@ namespace XamlCSS.Tests.Dom
             var selector = new Selector(".important.some");
 
             var tag = GetDomElement("button", "bbb", "some important stuff");
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -63,7 +80,7 @@ namespace XamlCSS.Tests.Dom
             var selector = new Selector("button.important");
 
             var tag = GetDomElement("button", "bbb", "some important stuff");
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -72,7 +89,7 @@ namespace XamlCSS.Tests.Dom
             var selector = new Selector("#bbb.important");
 
             var tag = GetDomElement("button", "bbb", "some important stuff");
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -85,7 +102,7 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("parent", null, "", new[] { sibling, tag });
             
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -99,7 +116,7 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("parent", null, "", new[] { sibling, sibling2, tag });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -113,7 +130,7 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("parent", null, "", new[] { sibling, sibling2, tag });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -131,7 +148,7 @@ namespace XamlCSS.Tests.Dom
 
             var parentRoot = GetDomElement("parent", null, "", new[] { parentSibling, parentSibling2, parent});
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -143,7 +160,7 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("a", null, "", new[] { tag });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -156,7 +173,7 @@ namespace XamlCSS.Tests.Dom
             var parent = GetDomElement("a", null, "", new[] { tag });
             var parentRoot = GetDomElement("b", null, "", new[] { parent });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -169,7 +186,7 @@ namespace XamlCSS.Tests.Dom
             var parent = GetDomElement("a", null, "", new[] { tag });
             var parentRoot = GetDomElement("a", null, "", new[] { parent });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -182,7 +199,7 @@ namespace XamlCSS.Tests.Dom
             var parent = GetDomElement("a", null, "", new[] { tag });
             var parentRoot = GetDomElement("b", null, "", new[] { parent });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -195,7 +212,7 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("a", null, "", new[] { tag, sibling });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -208,7 +225,7 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("a", null, "", new[] { sibling, tag });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -221,7 +238,7 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("a", null, "", new[] { sibling, tag });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -235,7 +252,7 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
 
-            selector.Match(tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
         [Test]
@@ -249,10 +266,10 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
 
-            selector.Match(tag).Should().Be(true);
-            selector.Match(parent).Should().Be(true);
-            selector.Match(sibling).Should().Be(true);
-            selector.Match(sibling2).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, parent).Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling).Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling2).Should().Be(true);
         }
 
         [Test]
@@ -266,15 +283,19 @@ namespace XamlCSS.Tests.Dom
 
             var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
 
-            selector.Match(tag).Should().Be(true);
-            selector.Match(parent).Should().Be(false);
-            selector.Match(sibling).Should().Be(false);
-            selector.Match(sibling2).Should().Be(false);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+            selector.Match(defaultStyleSheet, parent).Should().Be(false);
+            selector.Match(defaultStyleSheet, sibling).Should().Be(false);
+            selector.Match(defaultStyleSheet, sibling2).Should().Be(false);
         }
 
         public TestNode GetDomElement(string tagname, string id, string classes = "", IEnumerable<IDomElement<UIElement>> children = null)
         {
-            return new TestNode(GetUiElement(), tagname, children, null, id, classes);
+            var node = new TestNode(GetUiElement(), null, tagname, children, null, id, classes);
+
+            node.StyleInfo.CurrentStyleSheet = defaultStyleSheet;
+
+            return node;
         }
 
         public UIElement GetUiElement()
