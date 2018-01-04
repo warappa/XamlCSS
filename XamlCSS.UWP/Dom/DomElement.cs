@@ -9,8 +9,8 @@ namespace XamlCSS.UWP.Dom
 {
     public abstract class DomElement : DomElementBase<DependencyObject, DependencyProperty>, IDisposable
     {
-        public DomElement(DependencyObject dependencyObject, ITreeNodeProvider<DependencyObject> treeNodeProvider, INamespaceProvider<DependencyObject> namespaceProvider)
-            : base(dependencyObject, treeNodeProvider, namespaceProvider)
+        public DomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent, ITreeNodeProvider<DependencyObject> treeNodeProvider, INamespaceProvider<DependencyObject> namespaceProvider)
+            : base(dependencyObject, parent, treeNodeProvider, namespaceProvider)
         {
             RegisterChildrenChangeHandler();
         }

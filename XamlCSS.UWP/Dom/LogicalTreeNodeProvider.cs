@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 using XamlCSS.Dom;
 
@@ -16,7 +18,7 @@ namespace XamlCSS.UWP.Dom
 
         public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            return new LogicalDomElement(dependencyObject, this, namespaceProvider);
+            return new LogicalDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
         }
 
         public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
@@ -74,7 +76,11 @@ namespace XamlCSS.UWP.Dom
 
         public override bool IsInTree(DependencyObject tUIElement)
         {
-            return true;
+            var p = GetParent(tUIElement);
+            if (p == null)
+                return tUIElement is Frame;
+
+            return GetChildren(p).Contains(tUIElement);
         }
 
         public void Switch(SelectorType type)

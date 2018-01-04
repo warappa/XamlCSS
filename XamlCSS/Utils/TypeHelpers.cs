@@ -72,6 +72,12 @@ namespace XamlCSS.Utils
                 .Select(x => new DependencyPropertyInfo<TDependencyProperty>(x.GetValue(null) as TDependencyProperty, x.DeclaringType, x.Name))
                 .ToList();
 
+            // UWP declares dependencyproperties as properties
+            dps = dps.Concat(DeclaredProperties(type)
+                .Where(x => x.PropertyType == typeof(TDependencyProperty))
+                .Select(x => new DependencyPropertyInfo<TDependencyProperty>(x.GetValue(null) as TDependencyProperty, x.DeclaringType, x.Name))
+                .ToList())
+                .ToList();
 
             dependencyPropertyInfos[type] = dps;
 
