@@ -9,6 +9,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 using XamlCSS.UWP.CssParsing;
 using XamlCSS.UWP.Dom;
 
@@ -88,6 +89,8 @@ namespace XamlCSS.UWP
             {
                 return;
             }
+
+            TypeHelpers.Initialze(dependencyPropertiesAreFields: false);
 
             var dependencyPropertyService = new DependencyPropertyService();
             var markupExtensionParser = new MarkupExtensionParser();

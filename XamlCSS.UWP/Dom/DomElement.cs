@@ -53,8 +53,7 @@ namespace XamlCSS.UWP.Dom
 
         protected override IDictionary<string, DependencyProperty> CreateNamedNodeMap(DependencyObject dependencyObject)
         {
-            return TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(dependencyObject.GetType())
-                .ToDictionary(x => x.Name, x => x.Property);
+            return TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(dependencyObject.GetType());
         }
 
         public override bool Equals(object obj)

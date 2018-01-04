@@ -97,8 +97,10 @@ namespace XamlCSS
 
             var declaringType = Type.GetType(typeAndProperyName.Item1);
 
-            return TypeHelpers.DeclaredDependencyProperties<TDependencyProperty>(declaringType)
-                .FirstOrDefault(x => x.ShortName == typeAndProperyName.Item2);
+            DependencyPropertyInfo<TDependencyProperty> result;
+            TypeHelpers.DeclaredDependencyPropertyInfos<TDependencyProperty>(declaringType).TryGetValue(typeAndProperyName.Item2, out result);
+
+            return result;
         }
 
         public object GetClrPropertyValue(List<CssNamespace> namespaces, object obj, string propertyExpression)

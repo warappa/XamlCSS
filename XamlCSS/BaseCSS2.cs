@@ -48,15 +48,28 @@ namespace XamlCSS
             IStyleResourcesService applicationResourcesService,
             CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle> cssTypeHelper)
         {
+            var stopwatch = new Stopwatch();
             applicationResourcesService.BeginUpdate();
 
             var cylce = Guid.NewGuid();
 
-            RemoveOldStyleObjects(copy, nativeStyleService, applicationResourcesService);
+            stopwatch.Restart();
 
+            RemoveOldStyleObjects(copy, nativeStyleService, applicationResourcesService);
+            stopwatch.Stop();
+            Debug.WriteLine($"RemoveOldStyleObjects: {stopwatch.ElapsedMilliseconds}ms");
+
+            stopwatch.Restart();
             SetAttachedToToNull(copy);
 
+            stopwatch.Stop();
+            Debug.WriteLine($"SetAttachedToToNull: {stopwatch.ElapsedMilliseconds}ms");
+
+            stopwatch.Restart();
             SetAttachedToToNewStyleSheet(copy);
+
+            stopwatch.Stop();
+            Debug.WriteLine($"SetAttachedToToNewStyleSheet: {stopwatch.ElapsedMilliseconds}ms");
 
             var styleUpdateInfos = new Dictionary<TDependencyObject, StyleUpdateInfo>();
 
@@ -70,7 +83,7 @@ namespace XamlCSS
                 .Distinct()
                 .ToList();
 
-            var stopwatch = new Stopwatch();
+           
 
             switchableTreeNodeProvider.Switch(SelectorType.LogicalTree);
             stopwatch.Restart();
@@ -167,7 +180,10 @@ namespace XamlCSS
                 // remove style
                 nativeStyleService.SetStyle(key, dependencyPropertyService.GetInitialStyle(key));
             }
+            stopwatch.Stop();
+            Debug.WriteLine($"handle allNotFound: {stopwatch.ElapsedMilliseconds}ms");
 
+            stopwatch.Restart();
             foreach (var group in styleUpdateInfos.Where(x => allFoundElements.Contains(x.Key)).GroupBy(x => x.Value.CurrentStyleSheet).ToList())
             {
                 GenerateStyles(
@@ -563,8 +579,8 @@ namespace XamlCSS
             a = domElement.Prefix;
             a = domElement.TagName;
             a = domElement.HasAttribute("Name");
-            a = domElement.Parent;
-
+            /*// a = domElement.Parent;
+            */
             foreach (var child in domElement.ChildNodes)
             {
                 SetupStyleInfo(child, styleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, updateCurrentAndOldStyleSheet);
@@ -591,12 +607,14 @@ namespace XamlCSS
                     var rule = styleMatchInfo.CurrentStyleSheet.Rules.Where(x => x.SelectorString == s).First();
 
                     var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id, matchedElementType, rule.SelectorString);
-
+                    
                     if (applicationResourcesService.Contains(resourceKey))
                     {
                         continue;
                     }
 
+                    var stopwatch = new Stopwatch();
+                    stopwatch.Restart();
                     // // Debug.WriteLine("Generate Style " + resourceKey);
 
                     CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> result = null;
@@ -617,14 +635,15 @@ namespace XamlCSS
                         }
 
                         var nativeTriggers = rule.DeclarationBlock.Triggers
-                            .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, (TDependencyObject)styleSheet.AttachedTo));
+                            .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, (TDependencyObject)styleSheet.AttachedTo))
+                            .ToList();
 
-                        if (!propertyStyleValues.Any() &&
-                            !nativeTriggers.Any())
-                        {
-                            // // Debug.WriteLine("no values found -> continue");
-                            continue;
-                        }
+                        //if (!propertyStyleValues.Any() &&
+                        //    !nativeTriggers.Any())
+                        //{
+                        //    // // Debug.WriteLine("no values found -> continue");
+                        //    continue;
+                        //}
 
                         var style = nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType);
 
@@ -636,6 +655,9 @@ namespace XamlCSS
                     {
                         styleSheet.AddError($@"ERROR in Selector ""{rule.SelectorString}"": {e.Message}");
                     }
+
+                    stopwatch.Stop();
+                    Debug.WriteLine($"    {stopwatch.ElapsedMilliseconds}ms for {s}");
                 }
             }
         }

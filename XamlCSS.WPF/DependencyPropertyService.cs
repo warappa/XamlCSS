@@ -18,9 +18,11 @@ namespace XamlCSS.WPF
         }
         public DependencyProperty GetBindableProperty(Type bindableObjectType, string propertyName)
         {
-            return TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(bindableObjectType)
-                .FirstOrDefault(x => x.ShortName == propertyName)
-                ?.Property;
+            DependencyProperty result;
+
+            TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(bindableObjectType).TryGetValue(propertyName, out result);
+
+            return result;
         }
 
         public object GetBindablePropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
