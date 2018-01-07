@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace XamlCSS.Utils
 {
-	public sealed class Timer : CancellationTokenSource, IDisposable
+    public sealed class Timer : CancellationTokenSource, IDisposable
 	{
 		public Timer(TimeSpan period, Action<object> callback, object state = null, TaskScheduler taskScheduler = null)
 		{
