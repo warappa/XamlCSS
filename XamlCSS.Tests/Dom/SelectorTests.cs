@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
@@ -14,12 +15,14 @@ namespace XamlCSS.Tests.Dom
 
         public SelectorTests()
         {
-            TestNamespaceProvider.Instance["ui"] = "XamlCSS.Dom.Tests";
+
         }
 
         [SetUp]
         public void Setup()
         {
+            TestNamespaceProvider.Instance.Clear();
+            TestNamespaceProvider.Instance["ui"] = "XamlCSS.Dom.Tests";
             defaultStyleSheet = CssParser.Parse(@"@namespace ui ""XamlCSS.Dom.Tests"";");
         }
 
@@ -96,12 +99,12 @@ namespace XamlCSS.Tests.Dom
         public void Can_match_direct_sibling()
         {
             var selector = new Selector("a+#bbb");
-        
+
             var tag = GetDomElement("button", "bbb", "some important stuff");
             var sibling = GetDomElement("a", null);
 
             var parent = GetDomElement("parent", null, "", new[] { sibling, tag });
-            
+
             selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
 
@@ -146,7 +149,7 @@ namespace XamlCSS.Tests.Dom
             var parentSibling = GetDomElement("c", null, "", null);
             var parentSibling2 = GetDomElement("y", null, "", null);
 
-            var parentRoot = GetDomElement("parent", null, "", new[] { parentSibling, parentSibling2, parent});
+            var parentRoot = GetDomElement("parent", null, "", new[] { parentSibling, parentSibling2, parent });
 
             selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
@@ -155,6 +158,8 @@ namespace XamlCSS.Tests.Dom
         public void Can_match_direct_descendant()
         {
             var selector = new Selector("a>#bbb");
+
+            Debug.WriteLine(string.Join("\n", TestNamespaceProvider.Instance.prefixToNamespaceUri.Select(x => $"{x.Key}: {x.Value}")));
 
             var tag = GetDomElement("button", "bbb", "some important stuff");
 

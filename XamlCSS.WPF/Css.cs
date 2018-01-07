@@ -58,7 +58,7 @@ namespace XamlCSS.WPF
                 );
 
             // warmup parser
-            markupExtensionParser.Parse("true", Application.Current.MainWindow, new[] { new CssNamespace("", defaultCssNamespace) });
+            markupExtensionParser.Parse("true", Application.Current?.MainWindow ?? new Window(), new[] { new CssNamespace("", defaultCssNamespace) });
 
             LoadedDetectionHelper.Initialize();
             CompositionTarget.Rendering += RenderingHandler();

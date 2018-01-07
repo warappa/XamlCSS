@@ -36,6 +36,11 @@ namespace XamlCSS.Tests.Dom
             return null;
         }
 
+        public void Clear()
+        {
+            prefixToNamespaceUri.Clear();
+        }
+
         public string this[string key]
         {
             get => prefixToNamespaceUri[key];
