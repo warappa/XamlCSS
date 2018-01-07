@@ -52,10 +52,7 @@ namespace XamlCSS.ComponentModel
 						Convert.ToByte(b, 16));
 				}
 
-				return TypeHelpers.DeclaredProperties(typeof(Colors))
-					.Where(x => x.Name == value)
-					.Select(x => x.GetValue(null, null))
-					.SingleOrDefault();
+                return TypeHelpers.GetPropertyValue(typeof(Colors), value);
 			}
 
 			return null;

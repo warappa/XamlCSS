@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Xamarin.Forms;
 using XamlCSS.ComponentModel;
+using XamlCSS.Utils;
 
 namespace XamlCSS.XamarinForms
 {
@@ -234,7 +235,7 @@ namespace XamlCSS.XamarinForms
                     value = GetClrValue(type, str);
                 }
 
-                nativeTriggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(nativeTriggerAction, value);
+                TypeHelpers.SetPropertyValue(nativeTriggerAction, parameterName, value);
             }
 
             return nativeTriggerAction;

@@ -19,26 +19,18 @@ namespace XamlCSS.UWP
         }
         public DependencyProperty GetBindableProperty(Type bindableObjectType, string propertyName)
         {
-            string dpName = $"{propertyName}Property";
+            DependencyProperty result;
 
-            var dpProperties = TypeHelpers.DeclaredProperties(bindableObjectType);
-            var dpProperty = dpProperties.FirstOrDefault(i => i.Name == dpName);
+            TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(bindableObjectType).TryGetValue(propertyName, out result);
 
-            if (dpProperty != null)
-            {
-                return dpProperty.GetValue(null) as DependencyProperty;
-            }
-
-            return null;
+            return result;
         }
 
         public object GetBindablePropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
         {
             Type propertyType = null;
 
-            var prop = TypeHelpers.DeclaredProperties(frameworkElementType)
-                .Where(x => x.Name == propertyName)
-                .FirstOrDefault();
+            TypeHelpers.DeclaredProperties(frameworkElementType).TryGetValue(propertyName, out PropertyInfo prop);
 
             if (prop == null)
             {

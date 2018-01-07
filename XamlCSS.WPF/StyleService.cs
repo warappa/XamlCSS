@@ -9,6 +9,7 @@ using System.Text;
 using System.Windows;
 using System.Windows.Markup;
 using System.Xml;
+using XamlCSS.Utils;
 
 namespace XamlCSS.WPF
 {
@@ -303,7 +304,7 @@ namespace XamlCSS.WPF
 
                 }
 
-                nativeTriggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(nativeTriggerAction, value);
+                TypeHelpers.SetPropertyValue(nativeTriggerAction, parameterName, value);
             }
 
             return nativeTriggerAction;

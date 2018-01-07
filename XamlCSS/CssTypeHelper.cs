@@ -108,7 +108,7 @@ namespace XamlCSS
             var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, obj.GetType());
 
             var type = Type.GetType(typeAndProperyName.Item1);
-            return type.GetRuntimeProperty(typeAndProperyName.Item2).GetValue(obj);
+            return TypeHelpers.GetPropertyValue(obj, typeAndProperyName.Item2);
         }
 
         public Type GetClrPropertyType(IList<CssNamespace> namespaces, object obj, string propertyExpression)
@@ -116,7 +116,7 @@ namespace XamlCSS
             var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, obj.GetType());
 
             var type = Type.GetType(typeAndProperyName.Item1);
-            return type.GetRuntimeProperty(typeAndProperyName.Item2).PropertyType;
+            return TypeHelpers.GetPropertyAccessor(type, typeAndProperyName.Item2).PropertyInfo.PropertyType;
         }
 
         public Tuple<string, string> ResolveFullTypeNameAndPropertyName(IList<CssNamespace> namespaces, string cssPropertyExpression, Type matchedType)
