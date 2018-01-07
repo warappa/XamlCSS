@@ -44,21 +44,24 @@ namespace XamlCSS.WPF
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
             var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);
+            var defaultCssNamespace = DomElementBase<DependencyObject, DependencyProperty>.GetNamespaceUri(typeof(System.Windows.Controls.Button));
 
             instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
                 switchableTreeNodeProvider,
                 new StyleResourceService(),
                 new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
-                DomElementBase<DependencyObject, DependencyProperty>.GetNamespaceUri(typeof(System.Windows.Controls.Button)),
+                defaultCssNamespace,
                 markupExtensionParser,
                 dispatcher.Invoke,
                 new CssFileProvider(cssTypeHelper)
                 );
 
-            CompositionTarget.Rendering += RenderingHandler();
+            // warmup parser
+            markupExtensionParser.Parse("true", Application.Current.MainWindow, new[] { new CssNamespace("", defaultCssNamespace) });
 
             LoadedDetectionHelper.Initialize();
+            CompositionTarget.Rendering += RenderingHandler();
         }
 
         public static readonly DependencyProperty MatchingStylesProperty =

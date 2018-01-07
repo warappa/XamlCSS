@@ -1,8 +1,12 @@
-﻿namespace XamlCSS
+﻿using System;
+
+namespace XamlCSS
 {
-	public enum SelectorType
-	{
-		VisualTree,
-		LogicalTree
-	}
+    [Flags]
+    public enum SelectorType
+    {
+        None = 0,
+        VisualTree = 1,
+        LogicalTree = 2
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -167,7 +168,7 @@ namespace XamlCSS.WPF
                 nativeTrigger.Binding = binding;
 
                 nativeTrigger.Value = GetBasicValue(dataTrigger);
-
+                
                 foreach (var styleDeclaration in dataTrigger.StyleDeclarationBlock)
                 {
                     try
@@ -190,7 +191,7 @@ namespace XamlCSS.WPF
                         styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
                     }
                 }
-
+                
                 foreach (var action in dataTrigger.EnterActions)
                 {
                     try
@@ -204,7 +205,7 @@ namespace XamlCSS.WPF
                         styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {action}"" enter action: {e.Message}");
                     }
                 }
-
+                
                 foreach (var action in dataTrigger.ExitActions)
                 {
                     try
@@ -249,6 +250,7 @@ namespace XamlCSS.WPF
 
             throw new NotSupportedException($"Trigger '{trigger.GetType().FullName}' is not supported!");
         }
+        private IServiceProvider serviceProvider;
 
         private System.Windows.TriggerAction CreateTriggerAction(StyleSheet styleSheet, DependencyObject styleResourceReferenceHolder, TriggerAction action)
         {
@@ -256,6 +258,7 @@ namespace XamlCSS.WPF
             var actionType = Type.GetType(actionTypeName);
             var nativeTriggerAction = (System.Windows.TriggerAction)Activator.CreateInstance(actionType);
 
+            
             foreach (var parameter in action.Parameters)
             {
                 var parameterName = parameter.Property;
@@ -275,13 +278,13 @@ namespace XamlCSS.WPF
                     if (value is DynamicResourceExtension)
                     {
                         var dyn = value as DynamicResourceExtension;
-                        var serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current);
+                        serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current));
                         value = dyn.ProvideValue(serviceProvider);
                     }
                     else if (value is StaticResourceExtension)
                     {
                         var dyn = value as StaticResourceExtension;
-                        var serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current);
+                        serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current));
                         value = dyn.ProvideValue(serviceProvider);
                     }
                 }
@@ -299,6 +302,7 @@ namespace XamlCSS.WPF
                 {
 
                 }
+
                 nativeTriggerAction.GetType().GetRuntimeProperty(parameterName).SetValue(nativeTriggerAction, value);
             }
 

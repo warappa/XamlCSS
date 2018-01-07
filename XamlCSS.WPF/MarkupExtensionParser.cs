@@ -1,15 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
-using System.Xml.Linq;
-using XamlCSS.CssParsing;
 
 namespace XamlCSS.WPF
 {
@@ -44,12 +40,6 @@ namespace XamlCSS.WPF
 
         public object Parse(string expression, FrameworkElement obj, IEnumerable<CssNamespace> namespaces)
         {
-            var wasStaticResourceExtension = expression.Replace(" ", "").StartsWith("{StaticResource");
-            if (wasStaticResourceExtension)
-            {
-                expression = expression.Replace("StaticResource", "DynamicResource");
-            }
-
             var xmlnamespaces = string.Join(" ", namespaces.Where(x => x.Alias != "")
                 .Select(x =>
                 {
@@ -106,10 +96,6 @@ xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
             {
                 return ((BindingExpression)localValue).ParentBinding;
             }
-            else if (wasStaticResourceExtension)
-            {
-                return resolvedValue;
-            }
             else if (resolvedValue == DependencyProperty.UnsetValue)
             {
                 return localValue;
@@ -124,14 +110,13 @@ xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
 
             if (parseResult is Binding binding)
             {
-                return binding.ProvideValue(null);
+                parseResult= binding.ProvideValue(null);
             }
-
-            if (parseResult?.GetType().Name == "ResourceReferenceExpression")
+            else if (parseResult?.GetType().Name == "ResourceReferenceExpression")
             {
                 var resourceKeyProperty = parseResult.GetType().GetProperty("ResourceKey");
 
-                return new DynamicResourceExtension(resourceKeyProperty.GetValue(parseResult));
+                parseResult= new DynamicResourceExtension(resourceKeyProperty.GetValue(parseResult));
             }
 
             return parseResult;
