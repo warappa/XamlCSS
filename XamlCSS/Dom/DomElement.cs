@@ -178,7 +178,7 @@ namespace XamlCSS.Dom
             {
                 if (prefix == Undefined)
                 {
-                    prefix = StyleInfo.CurrentStyleSheet.GetAlias(NamespaceUri) ?? Undefined;
+                    prefix = StyleInfo.CurrentStyleSheet?.GetAlias(NamespaceUri) ?? Undefined;
                 }
 
                 return prefix != Undefined ? prefix : null;

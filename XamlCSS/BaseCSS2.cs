@@ -160,8 +160,8 @@ namespace XamlCSS
                     {
                         //var task = Task.Run(() =>
                         //{
-                        tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos,
-                            dependencyPropertyService, nativeStyleService)));
+                            tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
+                            //return UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService);
 
                         //});
                         //tasks.Add(task);
@@ -288,10 +288,29 @@ namespace XamlCSS
             var current = domElement.Parent;
             while (current != null)
             {
-                current.StyleInfo = current.StyleInfo ?? (styleUpdateInfos.ContainsKey(current.Element) ? styleUpdateInfos[current.Element] : new StyleUpdateInfo
+                var styleUpdateInfo = current.StyleInfo = current.StyleInfo ?? (styleUpdateInfos.ContainsKey(current.Element) ? styleUpdateInfos[current.Element] : new StyleUpdateInfo
                 {
                     MatchedType = current.Element.GetType()
                 });
+
+                if ((styleUpdateInfo.DoMatchCheck & switchableTreeNodeProvider.CurrentSelectorType) == switchableTreeNodeProvider.CurrentSelectorType)
+                {
+                    return;
+                }
+                
+                object a;
+                "ClassList".Measure(() => a = current.ClassList);
+                "Id".Measure(() => a = current.Id);
+                "LocalName".Measure(() => a = current.LocalName);
+                "NamespaceUri".Measure(() => a = current.NamespaceUri);
+                "Prefix".Measure(() => a = current.Prefix);
+                "TagName".Measure(() => a = current.TagName);
+                "HasAttribute".Measure(() => a = current.HasAttribute("Name"));
+                /*// a = domElement.Parent;
+                */
+
+                a = current.ChildNodes;
+
                 current = current.Parent;
             }
         }
@@ -604,7 +623,7 @@ namespace XamlCSS
                 }
                 styleUpdateInfo.CurrentMatchedSelectors.Clear();
                 styleUpdateInfo.DoMatchCheck |= switchableTreeNodeProvider.CurrentSelectorType;
-                
+
                 styleUpdateInfos[domElement.Element] = styleUpdateInfo;
             });
 
