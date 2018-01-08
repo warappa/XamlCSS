@@ -53,25 +53,23 @@ namespace XamlCSS.WPF
                         return "xmlns:" + x.Alias + "=\"" + x.Namespace + "\"";
                     }
                 }));
-
+            
             var test = $@"
-<TextBlock 
+<DataTemplate
 xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
 xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
-{xmlnamespaces}
-	 x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"">
-</TextBlock>";
+{xmlnamespaces}><FrameworkElement x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" /></DataTemplate>";
             /*
             var pc = new ParserContext();
             pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
             pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");*/
-            //var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
+            var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
 
-            TextBlock textBlock;
+            FrameworkElement textBlock;
             try
             {
-                //textBlock = (TextBlock)dataTemplate.LoadContent();
-                textBlock = (TextBlock)XamlReader.Parse(test);
+                textBlock = (FrameworkElement)dataTemplate.LoadContent();
+                //textBlock = (FrameworkElement)XamlReader.Parse(test);
             }
             catch (Exception e)
             {
@@ -85,7 +83,6 @@ xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
             try
             {
                 localValue = textBlock.ReadLocalValue(FrameworkElement.TagProperty);
-                resolvedValue = textBlock.GetValue(FrameworkElement.TagProperty);
             }
             finally
             {
@@ -96,7 +93,7 @@ xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
             {
                 return ((BindingExpression)localValue).ParentBinding;
             }
-            else if (resolvedValue == DependencyProperty.UnsetValue)
+            else if ((resolvedValue = textBlock.GetValue(FrameworkElement.TagProperty)) == DependencyProperty.UnsetValue)
             {
                 return localValue;
             }

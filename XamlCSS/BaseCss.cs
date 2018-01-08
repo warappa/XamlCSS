@@ -46,9 +46,10 @@ namespace XamlCSS
 
         protected bool executeApplyStylesExecuting;
         private CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle> cssTypeHelper;
-
+        private int noopCount = 0;
         public void ExecuteApplyStyles()
         {
+            
             if (executeApplyStylesExecuting)
             {
                 return;
@@ -60,21 +61,30 @@ namespace XamlCSS
             {
                 List<RenderInfo<TDependencyObject, TUIElement>> copy;
 
-                lock (items)
+                //lock (items)
                 {
-                    if (items.Any() == false)
+                    if (items.Count == 0)
                     {
+                        noopCount++;
                         return;
                     }
 
                     copy = items.Distinct().ToList();
                     items.Clear();
                 }
+                Debug.WriteLine("Noops: " + noopCount);
+                noopCount = 0;
 
                 //applicationResourcesService.BeginUpdate();
 
-                BaseCSS2<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
-                    .Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
+                "Render".Measure(() =>
+                {
+                    BaseCSS2<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+                        .Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
+                });
+
+                Investigate.Print();
+
                 return;
                 treeNodeProvider.Switch(SelectorType.VisualTree);
 

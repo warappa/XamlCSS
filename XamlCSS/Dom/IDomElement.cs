@@ -18,8 +18,8 @@ namespace XamlCSS.Dom
         string LocalName { get; }
         string Prefix { get; }
 
-        string LookupPrefix(string v);
-        string LookupNamespaceUri(string v);
+        //string LookupPrefix(string v);
+        //string LookupNamespaceUri(string v);
         bool HasAttribute(string v);
 
         StyleUpdateInfo StyleInfo { get; set; }

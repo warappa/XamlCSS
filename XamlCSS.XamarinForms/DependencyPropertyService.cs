@@ -24,12 +24,7 @@ namespace XamlCSS.XamarinForms
         public BindableProperty GetBindableProperty(Type bindableObjectType, string propertyName)
         {
             string dpName = $"{propertyName}Property";
-            var dpFields = TypeHelpers.DeclaredFields(bindableObjectType);
-            var dpField = dpFields.FirstOrDefault(i => i.Name == dpName);
-
-            if (dpField != null)
-                return dpField.GetValue(null) as BindableProperty;
-            return null;
+            return TypeHelpers.GetFieldValue(bindableObjectType, dpName) as BindableProperty;
         }
         
         public object GetClrValue(Type propertyType, string propertyValueString)
@@ -77,7 +72,7 @@ namespace XamlCSS.XamarinForms
                 {
                     if ((propertyType == typeof(float) ||
                         propertyType == typeof(double)) &&
-                        (propertyValue as string)?.StartsWith(".") == true)
+                        (propertyValue as string)?.StartsWith(".", StringComparison.Ordinal) == true)
                     {
                         var stringValue = propertyValue as string;
                         propertyValue = "0" + (stringValue.Length > 1 ? stringValue : "");

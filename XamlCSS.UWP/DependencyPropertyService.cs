@@ -21,7 +21,7 @@ namespace XamlCSS.UWP
         {
             DependencyProperty result;
 
-            TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(bindableObjectType).TryGetValue(propertyName, out result);
+            result = TypeHelpers.GetDependencyPropertyInfo<DependencyProperty>(bindableObjectType, propertyName)?.Property;
 
             return result;
         }
@@ -30,7 +30,7 @@ namespace XamlCSS.UWP
         {
             Type propertyType = null;
 
-            TypeHelpers.DeclaredProperties(frameworkElementType).TryGetValue(propertyName, out PropertyInfo prop);
+            var prop = TypeHelpers.DeclaredProperty(frameworkElementType,propertyName);
 
             if (prop == null)
             {
@@ -57,7 +57,7 @@ namespace XamlCSS.UWP
                 {
                     if ((propertyType == typeof(float) ||
                         propertyType == typeof(double)) &&
-                        (propertyValue as string)?.StartsWith(".") == true)
+                        (propertyValue as string)?.StartsWith(".", StringComparison.Ordinal) == true)
                     {
                         var stringValue = propertyValue as string;
                         propertyValue = "0" + (stringValue.Length > 1 ? stringValue : "");

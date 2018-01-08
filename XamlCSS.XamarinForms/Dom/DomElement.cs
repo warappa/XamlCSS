@@ -50,7 +50,7 @@ namespace XamlCSS.XamarinForms.Dom
 
         protected override IDictionary<string, BindableProperty> CreateNamedNodeMap(BindableObject dependencyObject)
         {
-            return TypeHelpers.DeclaredDependencyProperties<BindableProperty>(dependencyObject.GetType());
+            return new LazyDependencyPropertyDictionary<BindableProperty>(dependencyObject.GetType());
         }
 
         protected override string GetId(BindableObject dependencyObject)

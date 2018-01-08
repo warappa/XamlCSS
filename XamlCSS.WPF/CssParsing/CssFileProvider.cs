@@ -43,9 +43,9 @@ namespace XamlCSS.WPF.CssParsing
 
         protected Stream TryGetFromPackedResource(string source, params Assembly[] searchAssemblies)
         {
-            source = source.Replace("\\", "/");
+            source = source.Replace('\\', '/');
             
-            if (!source.StartsWith("pack://"))
+            if (!source.StartsWith("pack://", StringComparison.Ordinal))
             {
                 return null;
             }

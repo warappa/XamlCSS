@@ -21,7 +21,7 @@ namespace XamlCSS.Dom
         public IList<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
 
         protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
-        private readonly INamespaceProvider<TDependencyObject> namespaceProvider;
+        // private readonly INamespaceProvider<TDependencyObject> namespaceProvider;
         protected readonly static char[] classSplitter = { ' ' };
         protected readonly TDependencyObject dependencyObject;
         protected string id;
@@ -41,7 +41,7 @@ namespace XamlCSS.Dom
             this.dependencyObject = dependencyObject;
             this.parent = parent;
             this.treeNodeProvider = treeNodeProvider;
-            this.namespaceProvider = namespaceProvider;
+            //this.namespaceProvider = namespaceProvider;
 
             this.id = GetId(dependencyObject);
             this.NodeName = dependencyObject.GetType().Name;
@@ -178,7 +178,7 @@ namespace XamlCSS.Dom
             {
                 if (prefix == Undefined)
                 {
-                    prefix = namespaceProvider.LookupPrefix(this, NamespaceUri) ?? Undefined;
+                    prefix = StyleInfo.CurrentStyleSheet.GetAlias(NamespaceUri) ?? Undefined;
                 }
 
                 return prefix != Undefined ? prefix : null;
@@ -202,7 +202,7 @@ namespace XamlCSS.Dom
                 {
                     return tagName;
                 }
-                tagName = LookupPrefix(dependencyObject.GetType().Namespace) + "|" + dependencyObject.GetType().Name;
+                tagName = Prefix + "|" + dependencyObject.GetType().Name;
                 return tagName;
             }
             protected set
@@ -240,18 +240,18 @@ namespace XamlCSS.Dom
 
         public bool IsDefaultNamespace(string namespaceUri)
         {
-            return LookupPrefix(namespaceUri) == "";
+            return Prefix == "";
         }
 
-        public string LookupNamespaceUri(string prefix)
-        {
-            return namespaceProvider.LookupNamespaceUri(this, prefix);
-        }
+        //public string LookupNamespaceUri(string prefix)
+        //{
+        //    return namespaceProvider.LookupNamespaceUri(this, prefix);
+        //}
 
-        public string LookupPrefix(string namespaceUri)
-        {
-            return namespaceProvider.LookupPrefix(this, namespaceUri);
-        }
+        //public string LookupPrefix(string namespaceUri)
+        //{
+        //    return namespaceProvider.LookupPrefix(this, namespaceUri);
+        //}
 
         public bool Matches(StyleSheet styleSheet, ISelector selector)
         {
@@ -288,7 +288,8 @@ namespace XamlCSS.Dom
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            if (StyleInfo.CurrentStyleSheet != styleSheet)
+            if (StyleInfo.CurrentStyleSheet != styleSheet ||
+                StyleInfo.DoMatchCheck == SelectorType.None)
             {
                 return new List<IDomElement<TDependencyObject>>();
             }

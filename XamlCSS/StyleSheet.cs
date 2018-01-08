@@ -5,6 +5,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using XamlCSS.CssParsing;
+using XamlCSS.Dom;
+using XamlCSS.Utils;
 
 namespace XamlCSS
 {
@@ -122,10 +124,25 @@ namespace XamlCSS
             this.localRules = sheet.LocalRules;
             this.variables = sheet.Variables;
 
+            EagerLoading();
+
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalRules"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Warnings"));
+        }
+
+        private void EagerLoading()
+        {
+            object a = Namespaces;
+            a = Rules;
+            a = Errors;
+            a = Warnings;
+
+            foreach(var rule in Rules)
+            {
+                CachedSelectorProvider.Instance.GetOrAdd(rule.SelectorString);
+            }
         }
 
         private ObservableCollection<string> errors = new ObservableCollection<string>();
@@ -186,6 +203,11 @@ namespace XamlCSS
             }
             set
             {
+                if (attachedTo == value)
+                {
+                    // return;
+                }
+
                 attachedTo = value;
 
                 inheritedStyleSheets = null;
@@ -193,6 +215,8 @@ namespace XamlCSS
                 Reset();
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("AttachedTo"));
+                
+                // EagerLoading();
             }
         }
 
@@ -215,7 +239,12 @@ namespace XamlCSS
         {
             get
             {
-                return combinedNamespaces ?? (combinedNamespaces = GetCombinedNamespaces());
+                if (combinedNamespaces == null)
+                {
+                    combinedNamespaces = GetCombinedNamespaces();
+                    // WarmupNamespaceResolution();
+                }
+                return combinedNamespaces;
             }
         }
 
@@ -279,6 +308,8 @@ namespace XamlCSS
                 InitializeBaseStyleSheet(baseStyleSheets);
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("BaseStyleSheets"));
+
+                // EagerLoading();
             }
         }
 
@@ -375,20 +406,35 @@ namespace XamlCSS
 
         protected CssNamespaceCollection GetCombinedNamespaces()
         {
-            if (BaseStyleSheets.Count == 0 &&
-                InheritedStyleSheets.Count == 0)
+            return "GetCombinedNamespaces".Measure(() =>
             {
-                return LocalNamespaces;
-            }
+                if (BaseStyleSheets.Count == 0 &&
+                    InheritedStyleSheets.Count == 0)
+                {
+                    return LocalNamespaces;
+                }
 
-            return new CssNamespaceCollection(
-                InheritedStyleSheets
-                .Select(x => x.Namespaces)
-                .Concat(BaseStyleSheets.Select(x => x.Namespaces))
-                .Aggregate((a, b) => new CssNamespaceCollection(a.Concat(b)))
-                .Concat(LocalNamespaces)
-                .GroupBy(x => x.Alias)
-                .Select(x => x.Last()));
+                var result = new CssNamespaceCollection(
+                    InheritedStyleSheets
+                    .Select(x => x.Namespaces)
+                    .Concat(BaseStyleSheets.Select(x => x.Namespaces))
+                    .Aggregate((a, b) => new CssNamespaceCollection(a.Concat(b)))
+                    .Concat(LocalNamespaces)
+                    .GroupBy(x => x.Alias)
+                    .Select(x => x.Last()));
+
+                return result;
+            });
+        }
+
+        private void WarmupNamespaceResolution()
+        {
+            // warmup
+            foreach (var item in Namespaces)
+            {
+                GetAlias(item.Namespace);
+                GetNamespaceUri(item.Alias);
+            }
         }
 
         protected ObservableCollection<string> GetCombinedErrors()

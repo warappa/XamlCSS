@@ -20,53 +20,51 @@ namespace XamlCSS.WPF
         {
             DependencyProperty result;
 
-            TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(bindableObjectType).TryGetValue(propertyName, out result);
+            result = TypeHelpers.GetDependencyPropertyInfo<DependencyProperty>(bindableObjectType, propertyName)?.Property;
 
             return result;
         }
 
         public object GetBindablePropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
         {
-            if (property != null &&
-                !(property.PropertyType.IsInstanceOfType(propertyValue)))
+            return $"GetBindablePropertyValue {propertyName} {propertyValue}".Measure(() =>
             {
-                var propertyType = property.PropertyType;
-
-                var converter = TypeDescriptor.GetConverter(propertyType);
-
-                if (converter == null)
+                if (property != null &&
+                    !(property.PropertyType.IsInstanceOfType(propertyValue)))
                 {
-                    converter = TypeDescriptor.GetConverter(propertyType);
-                }
+                    var propertyType = property.PropertyType;
 
-                if (converter != null)
-                {
-                    if ((property.PropertyType == typeof(float) ||
-                        property.PropertyType == typeof(double)) &&
-                        (propertyValue as string)?.StartsWith(".") == true)
+                    var converter = TypeDescriptor.GetConverter(propertyType);
+
+                    if (converter != null)
                     {
-                        var stringValue = propertyValue as string;
-                        propertyValue = "0" + (stringValue.Length > 1 ? stringValue : "");
+                        if ((property.PropertyType == typeof(float) ||
+                            property.PropertyType == typeof(double)) &&
+                            (propertyValue as string)?.StartsWith(".", StringComparison.Ordinal) == true)
+                        {
+                            var stringValue = propertyValue as string;
+                            propertyValue = "0" + (stringValue.Length > 1 ? stringValue : "");
+                        }
+
+                        propertyValue = converter.ConvertFrom(context, CultureInfo.InvariantCulture, propertyValue as string);
+
                     }
+                    else if (propertyType == typeof(bool))
+                    {
+                        propertyValue = propertyValue.Equals("true");
+                    }
+                    else if (propertyType.IsEnum)
+                    {
+                        propertyValue = Enum.Parse(propertyType, propertyValue as string);
+                    }
+                    else
+                    {
+                        propertyValue = Convert.ChangeType(propertyValue, propertyType);
+                    }
+                }
 
-                    propertyValue = converter.ConvertFrom(context, CultureInfo.InvariantCulture, propertyValue as string);
-
-                }
-                else if (propertyType == typeof(bool))
-                {
-                    propertyValue = propertyValue.Equals("true");
-                }
-                else if (propertyType.IsEnum)
-                {
-                    propertyValue = Enum.Parse(propertyType, propertyValue as string);
-                }
-                else
-                {
-                    propertyValue = Convert.ChangeType(propertyValue, propertyType);
-                }
-            }
-
-            return propertyValue;
+                return propertyValue;
+            });
         }
 
         protected object ReadSafe(DependencyObject obj, DependencyProperty property)

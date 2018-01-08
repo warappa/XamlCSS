@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
@@ -111,7 +112,7 @@ namespace XamlCSS
                 {
                     return domElement.Parent?.ChildNodes.IndexOf(domElement) == (domElement.Parent?.ChildNodes.Count()) - 1;
                 }
-                else if (Text.StartsWith(":nth-child"))
+                else if (Text.StartsWith(":nth-child", StringComparison.Ordinal))
                 {
                     var expression = Text.Substring(11).Replace(")", "");
                     if (int.TryParse(expression, out int i))
@@ -122,7 +123,7 @@ namespace XamlCSS
                         return i == thisIndex + 1;
                     }
                 }
-                else if (Text.StartsWith(":nth-of-type"))
+                else if (Text.StartsWith(":nth-of-type", StringComparison.Ordinal))
                 {
                     var expression = Text.Substring(13).Replace(")", "");
                     if (int.TryParse(expression, out int i))

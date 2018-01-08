@@ -111,7 +111,7 @@ namespace XamlCSS.ComponentModel
 
         public TypeConverter GetConverterFromProperty(string propertyName, Type type)
         {
-            TypeHelpers.DeclaredProperties(type).TryGetValue(propertyName, out PropertyInfo property);
+            var property = TypeHelpers.DeclaredProperty(type, propertyName);
 
             if (property == null)
             {

@@ -139,14 +139,14 @@ namespace XamlCSS.Dom
                 var element = elements[i];
                 if (element != null)
                 {
-                    if (element.StyleInfo?.CurrentStyleSheet != styleSheet)
+                    if (element.StyleInfo?.CurrentStyleSheet != styleSheet ||
+                        element.StyleInfo.DoMatchCheck == SelectorType.None)
                     {
                         continue;
                     }
 
                     if (selector.Match(styleSheet, element))
                     {
-                        var path = element.GetPath();
                         result.Add(element);
                     }
 

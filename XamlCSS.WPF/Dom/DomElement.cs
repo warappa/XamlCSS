@@ -91,7 +91,7 @@ namespace XamlCSS.WPF.Dom
 
         protected override IDictionary<string, DependencyProperty> CreateNamedNodeMap(DependencyObject dependencyObject)
         {
-            return TypeHelpers.DeclaredDependencyProperties<DependencyProperty>(dependencyObject.GetType());
+            return new LazyDependencyPropertyDictionary<DependencyProperty>(dependencyObject.GetType());
         }
     }
 }

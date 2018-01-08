@@ -118,6 +118,7 @@
     <Compile Include="Dom\CachedSelectorProvider.cs" />
     <Compile Include="Dom\DomElement.cs" />
     <Compile Include="Dom\IDomElement.cs" />
+    <Compile Include="Dom\LazyDependencyPropertyDictionary.cs" />
     <Compile Include="Dom\LinqExtensions.cs" />
     <Compile Include="Dom\TreeNodeProviderBase.cs" />
     <Compile Include="EventTrigger.cs" />

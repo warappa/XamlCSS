@@ -63,7 +63,7 @@ namespace XamlCSS
             ClassSpecificity = charArray.Count(x => x == '.' || x == ':' || x == '[');
 
             var simpleSpecifitySplit = value.Split(new[] { ' ', '>', '*' }, StringSplitOptions.RemoveEmptyEntries);
-            SimpleSpecificity = simpleSpecifitySplit.Count(x => !x.StartsWith(".") && !x.StartsWith("#"));
+            SimpleSpecificity = simpleSpecifitySplit.Count(x => !x.StartsWith(".", StringComparison.Ordinal) && !x.StartsWith("#", StringComparison.Ordinal));
         }
 
         private void GetFragments(string val)

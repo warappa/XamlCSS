@@ -95,9 +95,8 @@ Grid Grid
 
         public App()
         {
-            InitializeComponent();
-
             Css.Initialize();
+            InitializeComponent();
         }
     }
 }

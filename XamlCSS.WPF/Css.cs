@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 using XamlCSS.WPF.CssParsing;
 using XamlCSS.WPF.Dom;
 
@@ -36,11 +37,11 @@ namespace XamlCSS.WPF
             initialized = true;
 
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-            IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService = 
+            IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService =
                 new DependencyPropertyService();
             var visualTreeNodeProvider = new VisualTreeNodeProvider(dependencyPropertyService);
             var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
-            var visualTreeNodeWithLogicalFallbackProvider = new VisualWithLogicalFallbackTreeNodeProvider(dependencyPropertyService,visualTreeNodeProvider, logicalTreeNodeProvider);
+            var visualTreeNodeWithLogicalFallbackProvider = new VisualWithLogicalFallbackTreeNodeProvider(dependencyPropertyService, visualTreeNodeProvider, logicalTreeNodeProvider);
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
             var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);
@@ -60,6 +61,8 @@ namespace XamlCSS.WPF
             // warmup parser
             markupExtensionParser.Parse("true", Application.Current?.MainWindow ?? new FrameworkElement(), new[] { new CssNamespace("", defaultCssNamespace) });
 
+            TypeHelpers.GetPropertyAccessor(typeof(FrameworkElement), "IsLoaded");
+
             LoadedDetectionHelper.Initialize();
             CompositionTarget.Rendering += RenderingHandler();
         }
@@ -72,7 +75,7 @@ namespace XamlCSS.WPF
                 new PropertyMetadata(null));
         public static string[] GetMatchingStyles(DependencyObject obj)
         {
-            return obj.GetValue(MatchingStylesProperty) as string[];
+            return ReadSafe<string[]>(obj, MatchingStylesProperty);
         }
         public static void SetMatchingStyles(DependencyObject obj, string[] value)
         {
@@ -87,7 +90,7 @@ namespace XamlCSS.WPF
                 new PropertyMetadata(null));
         public static string[] GetAppliedMatchingStyles(DependencyObject obj)
         {
-            return obj.GetValue(AppliedMatchingStylesProperty) as string[];
+            return ReadSafe<string[]>(obj, AppliedMatchingStylesProperty);
         }
         public static void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
         {
@@ -102,7 +105,7 @@ namespace XamlCSS.WPF
                 new PropertyMetadata(null));
         public static Style GetInitialStyle(DependencyObject obj)
         {
-            return obj.GetValue(InitialStyleProperty) as Style;
+            return ReadSafe<Style>(obj, InitialStyleProperty);
         }
         public static void SetInitialStyle(DependencyObject obj, Style value)
         {
@@ -117,7 +120,7 @@ namespace XamlCSS.WPF
                 new PropertyMetadata(null));
         public static bool? GetHadStyle(DependencyObject obj)
         {
-            return obj.GetValue(HadStyleProperty) as bool?;
+            return ReadSafe<bool?>(obj, HadStyleProperty);
         }
         public static void SetHadStyle(DependencyObject obj, bool? value)
         {
@@ -132,7 +135,7 @@ namespace XamlCSS.WPF
                 new PropertyMetadata(null));
         public static StyleSheet GetStyledByStyleSheet(DependencyObject obj)
         {
-            return obj.GetValue(StyledByStyleSheetProperty) as StyleSheet;
+            return ReadSafe<StyleSheet>(obj, StyledByStyleSheetProperty);
         }
         public static void SetStyledByStyleSheet(DependencyObject obj, StyleSheet value)
         {
@@ -151,23 +154,27 @@ namespace XamlCSS.WPF
         }
         public static StyleDeclarationBlock GetStyle(DependencyObject obj)
         {
-            return obj.GetValue(StyleProperty) as StyleDeclarationBlock;
+            return ReadSafe<StyleDeclarationBlock>(obj, StyleProperty);
         }
         public static void SetStyle(DependencyObject obj, StyleDeclarationBlock value)
         {
             obj.SetValue(StyleProperty, value);
         }
-        public static void SetStyleSheet(DependencyObject obj, StyleSheet value)
-        {
-            obj.SetValue(StyleSheetProperty, value);
-        }
-
+        
         public static readonly DependencyProperty StyleSheetProperty =
             DependencyProperty.RegisterAttached(
                 "StyleSheet",
                 typeof(StyleSheet),
                 typeof(Css),
             new PropertyMetadata(null, Css.StyleSheetPropertyChanged));
+        public static StyleSheet GetStyleSheet(DependencyObject obj)
+        {
+            return ReadSafe<StyleSheet>(obj, StyleSheetProperty);
+        }
+        public static void SetStyleSheet(DependencyObject obj, StyleSheet value)
+        {
+            obj.SetValue(StyleSheetProperty, value);
+        }
         private static void StyleSheetPropertyChanged(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
             if (e.OldValue != null)
@@ -200,7 +207,7 @@ namespace XamlCSS.WPF
                 instance?.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
             }
         }
-
+        
         public static readonly DependencyProperty ClassProperty =
             DependencyProperty.RegisterAttached(
                 "Class",
@@ -209,7 +216,7 @@ namespace XamlCSS.WPF
                 new PropertyMetadata(null, ClassPropertyAttached));
         public static string GetClass(DependencyObject obj)
         {
-            return obj.GetValue(ClassProperty) as string;
+            return ReadSafe<string>(obj, ClassProperty);
         }
         public static void SetClass(DependencyObject obj, string value)
         {
@@ -230,11 +237,11 @@ namespace XamlCSS.WPF
                 typeof(bool),
                 typeof(Css),
                 new PropertyMetadata(false));
-        public static string GetHandledCss(DependencyObject obj)
+        public static bool GetHandledCss(DependencyObject obj)
         {
-            return obj.GetValue(HandledCssProperty) as string;
+            return ReadSafe<bool>(obj, HandledCssProperty);
         }
-        public static void SetHandledCss(DependencyObject obj, string value)
+        public static void SetHandledCss(DependencyObject obj, bool value)
         {
             obj.SetValue(HandledCssProperty, value);
         }
@@ -249,7 +256,7 @@ namespace XamlCSS.WPF
 
         public static IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
         {
-            return obj.GetValue(DomElementProperty) as IDomElement<DependencyObject>;
+            return ReadSafe<IDomElement<DependencyObject>>(obj, DomElementProperty);
         }
         public static void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
         {
@@ -265,11 +272,23 @@ namespace XamlCSS.WPF
 
         public static IDomElement<DependencyObject> GetVisualDomElement(DependencyObject obj)
         {
-            return obj.GetValue(VisualDomElementProperty) as IDomElement<DependencyObject>;
+            return ReadSafe<IDomElement<DependencyObject>>(obj, VisualDomElementProperty);
         }
         public static void SetVisualDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
         {
             obj.SetValue(VisualDomElementProperty, value);
         }
+
+        private static T ReadSafe<T>(DependencyObject obj, DependencyProperty property)
+        {
+            var val = obj.ReadLocalValue(property);
+            if (val == DependencyProperty.UnsetValue)
+            {
+                return default(T);
+            }
+
+            return (T)val;
+        }
+
     }
 }
