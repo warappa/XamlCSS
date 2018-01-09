@@ -183,6 +183,12 @@ namespace XamlCSS
 
                     return isNth;
                 }
+                else if (Text.StartsWith(":only-of-type", StringComparison.Ordinal))
+                {
+                    var tagname = domElement.TagName;
+
+                    return domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).Count() == 1;
+                }
 
                 return false;
             }

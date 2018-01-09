@@ -439,6 +439,20 @@ namespace XamlCSS.Tests.Dom
         }
 
         [Test]
+        public void Can_match_only_of_type()
+        {
+            var selector = new Selector(":only-of-type");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(defaultStyleSheet, sibling2).Should().Be(true);
+        }
+
+        [Test]
         public void Can_match_universal()
         {
             var selector = new Selector("*");
