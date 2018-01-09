@@ -234,7 +234,46 @@ namespace XamlCSS.Tests.Dom
         }
 
         [Test]
-        public void Can_match_nth_child()
+        public void Can_match_nth_last_child_1()
+        {
+            var selector = new Selector("button:nth-last-child(1)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, tag });
+
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_last_child_2n_1()
+        {
+            var selector = new Selector("button:nth-last-child(2n+1)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, tag });
+
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_last_child_2n_minus_1()
+        {
+            var selector = new Selector("button:nth-last-child(2n-1)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, tag });
+
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_child_2()
         {
             var selector = new Selector("button:nth-child(2)");
 
@@ -242,6 +281,45 @@ namespace XamlCSS.Tests.Dom
             var sibling = GetDomElement("button", "bbb", "some important stuff");
 
             var parent = GetDomElement("a", null, "", new[] { sibling, tag });
+
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_child_2n()
+        {
+            var selector = new Selector("button:nth-child(2n)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, tag });
+
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_child_2n_plus_1()
+        {
+            var selector = new Selector("button:nth-child(2n+1)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { tag, sibling });
+
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_child_2n_minus_1()
+        {
+            var selector = new Selector("button:nth-child(2n-1)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { tag, sibling });
 
             selector.Match(defaultStyleSheet, tag).Should().Be(true);
         }
@@ -258,6 +336,106 @@ namespace XamlCSS.Tests.Dom
             var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
 
             selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_of_type_2n_plus_2()
+        {
+            var selector = new Selector("button:nth-of-type(2n+2)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_of_type_n_plus_1()
+        {
+            var selector = new Selector("button:nth-of-type(n+1)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(defaultStyleSheet, sibling).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_of_type_n_plus_2()
+        {
+            var selector = new Selector("button:nth-of-type(n+2)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_last_of_type()
+        {
+            var selector = new Selector("button:nth-last-of-type(2)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(defaultStyleSheet, sibling).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_last_of_type_2n_plus_2()
+        {
+            var selector = new Selector("button:nth-last-of-type(2n+2)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(defaultStyleSheet, sibling).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_last_of_type_n_plus_1()
+        {
+            var selector = new Selector("button:nth-last-of-type(n+1)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(defaultStyleSheet, sibling).Should().Be(true);
+            selector.Match(defaultStyleSheet, tag).Should().Be(true);
+        }
+
+        [Test]
+        public void Can_match_nth_last_of_type_n_plus_2()
+        {
+            var selector = new Selector("button:nth-last-of-type(n+2)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("x", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
+
+            selector.Match(defaultStyleSheet, sibling).Should().Be(true);
         }
 
         [Test]

@@ -66,19 +66,22 @@ namespace XamlCSS.Tests.Dom
                 this.ClassList.Add(item);
             }
 
+            var nsp = namespaceProvider ?? TestNamespaceProvider.Instance;
+
             this.Id = id;
             var namespaceSeparatorIndex = tagname.IndexOf('|');
             if (namespaceSeparatorIndex > -1)
             {
                 this.LocalName = tagname.Substring(namespaceSeparatorIndex + 1);
                 this.NodeName = this.TagName = tagname;
-                this.namespaceUri = this.LookupNamespaceUri(tagname.Substring(0, namespaceSeparatorIndex));
+                this.prefix = tagname.Substring(0, namespaceSeparatorIndex);
+                this.namespaceUri = nsp.LookupNamespaceUri(this, prefix);
             }
             else
             {
                 this.LocalName = this.NodeName = this.TagName = tagname;
                 this.prefix = "";
-                this.namespaceUri = this.LookupNamespaceUri(prefix);
+                this.namespaceUri = nsp.LookupNamespaceUri(this, prefix);
             }
 
             this.attributes = attributes ?? new Dictionary<string, IDictionary<object, object>>();

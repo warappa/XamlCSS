@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 
@@ -8,14 +9,18 @@ namespace XamlCSS
 {
     public class SelectorFragment
     {
+        public CssNodeType Type { get; protected set; }
+        public string Text { get; protected set; }
+
+        private Regex nthRegex;
+
         public SelectorFragment(CssNodeType type, string text)
         {
             Type = type;
             Text = text;
-        }
 
-        public CssNodeType Type { get; protected set; }
-        public string Text { get; protected set; }
+            nthRegex = new Regex(@"((?<factor>[0-9]+)n)?(?<distance>([\+\-]?[0-9]+))?");
+        }
 
         virtual public bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
         {
@@ -115,30 +120,107 @@ namespace XamlCSS
                 else if (Text.StartsWith(":nth-child", StringComparison.Ordinal))
                 {
                     var expression = Text.Substring(11).Replace(")", "");
-                    if (int.TryParse(expression, out int i))
-                    {
-                        var tagname = domElement.TagName;
-                        var thisIndex = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
+                    int factor, distance;
 
-                        return i == thisIndex + 1;
-                    }
+                    GetFactorAndDistance(expression, out factor, out distance);
+
+                    var thisPosition = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
+                    thisPosition++;
+
+                    var isNth = ((factor != 0 ? thisPosition % factor : thisPosition) - (distance >= 0 ? distance : factor + distance)) == 0;
+
+                    return isNth;
+                }
+                else if (Text.StartsWith(":nth-last-child", StringComparison.Ordinal))
+                {
+                    var expression = Text.Substring(11).Replace(")", "");
+                    int factor, distance;
+
+                    GetFactorAndDistance(expression, out factor, out distance);
+
+                    var thisPosition = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
+                    thisPosition++;
+
+                    thisPosition = (domElement.Parent?.ChildNodes.Count ?? 0) - thisPosition;
+
+                    var isNth = ((factor != 0 ? thisPosition % factor : thisPosition) - (distance >= 0 ? distance : factor + distance)) == 0;
+
+                    return isNth;
                 }
                 else if (Text.StartsWith(":nth-of-type", StringComparison.Ordinal))
                 {
                     var expression = Text.Substring(13).Replace(")", "");
-                    if (int.TryParse(expression, out int i))
-                    {
-                        var tagname = domElement.TagName;
-                        var thisIndex = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).IndexOf(domElement) ?? -1;
 
-                        return i == thisIndex + 1;
-                    }
+                    int factor, distance;
+
+                    GetFactorAndDistance(expression, out factor, out distance);
+
+                    var tagname = domElement.TagName;
+
+                    var thisPosition = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).IndexOf(domElement) ?? -1;
+                    thisPosition++;
+
+                    var isNth = ((factor != 0 ? thisPosition % factor : thisPosition) - (distance >= 0 ? distance : factor + distance)) == 0;
+
+                    return isNth;
                 }
-                return false;
+                else if (Text.StartsWith(":nth-last-of-type", StringComparison.Ordinal))
+                {
+                    var expression = Text.Substring(13).Replace(")", "");
 
+                    int factor, distance;
+
+                    GetFactorAndDistance(expression, out factor, out distance);
+
+                    var tagname = domElement.TagName;
+
+                    var thisPosition = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).IndexOf(domElement) ?? -1;
+                    thisPosition++;
+
+                    thisPosition = (domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).Count() ?? 0) - thisPosition;
+
+                    var isNth = ((factor != 0 ? thisPosition % factor : thisPosition) - (distance >= 0 ? distance : factor + distance)) == 0;
+
+                    return isNth;
+                }
+
+                return false;
             }
 
             return false;
+        }
+
+        private void GetFactorAndDistance(string expression, out int factor, out int distance)
+        {
+            factor = 0;
+            distance = 0;
+            if (expression == "even")
+            {
+                factor = 2;
+            }
+            else if (expression == "odd")
+            {
+                factor = 2;
+                distance = 1;
+            }
+            else
+            {
+                var matchResult = nthRegex.Match(expression);
+
+                int.TryParse(matchResult.Groups["factor"]?.Value ?? "", out factor);
+                int.TryParse(matchResult.Groups["distance"]?.Value ?? "", out distance);
+
+                if (factor == 0 &&
+                    matchResult.Groups["n"] != null)
+                {
+                    factor = 1;
+                }
+            }
+
+            if (factor != 0)
+            {
+                distance = distance % factor;
+            }
         }
     }
 }

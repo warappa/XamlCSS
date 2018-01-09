@@ -76,6 +76,7 @@ ui|Grid
         private void SetCurrentStyleSheet(IDomElement<UIElement> domElement, StyleSheet styleSheet)
         {
             domElement.StyleInfo.CurrentStyleSheet = styleSheet;
+            domElement.StyleInfo.DoMatchCheck = SelectorType.LogicalTree | SelectorType.VisualTree;
 
             foreach(var child in domElement.ChildNodes)
             {

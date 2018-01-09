@@ -48,17 +48,16 @@
         ActionParameterBlock = 43,
         ActionParameter = 44,
         Extend = 45,
-        ChildCombinator = 46,
-        GeneralDescendantCombinator = 47,
-        DirectSiblingCombinator = 48,
-        DirectDescendantCombinator = 49,
-        GeneralSiblingCombinator = 50,
-        IdSelector = 51,
-        TypeSelector = 52,
-        ClassSelector = 53,
-        UniversalSelector = 54,
-        AttributeSelector = 55,
-        PseudoSelector = 56,
-        ParentSelector = 57
+        GeneralDescendantCombinator = 46,
+        DirectSiblingCombinator = 47,
+        DirectDescendantCombinator = 48,
+        GeneralSiblingCombinator = 49,
+        IdSelector = 50,
+        TypeSelector = 51,
+        ClassSelector = 52,
+        UniversalSelector = 53,
+        AttributeSelector = 54,
+        PseudoSelector = 55,
+        ParentSelector = 56
     }
 }
