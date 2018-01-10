@@ -125,6 +125,11 @@
     <Compile Include="IdSelector.cs" />
     <Compile Include="ISelector.cs" />
     <Compile Include="ITrigger.cs" />
+    <Compile Include="NthChildSelector.cs" />
+    <Compile Include="NthLastChildSelector.cs" />
+    <Compile Include="NthLastOfTypeSelector.cs" />
+    <Compile Include="NthOfTypeSelector.cs" />
+    <Compile Include="NthSelectorFragmentBase.cs" />
     <Compile Include="SelectorCollection.cs" />
     <Compile Include="SelectorFragment.cs" />
     <Compile Include="SelectorFragmentFactory.cs" />

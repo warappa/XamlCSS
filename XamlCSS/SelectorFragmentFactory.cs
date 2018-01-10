@@ -1,4 +1,5 @@
-﻿using XamlCSS.CssParsing;
+﻿using System;
+using XamlCSS.CssParsing;
 
 namespace XamlCSS
 {
@@ -22,6 +23,26 @@ namespace XamlCSS
             {
                 return new UnivseralSelector(type, text);
             }
+            else if (type == CssNodeType.PseudoSelector)
+            {
+                if (text.StartsWith(":nth-child", StringComparison.Ordinal))
+                {
+                    return new NthChildSelector(CssNodeType.PseudoSelector, text);
+                }
+                else if (text.StartsWith(":nth-of-type", StringComparison.Ordinal))
+                {
+                    return new NthOfTypeSelector(CssNodeType.PseudoSelector, text);
+                }
+                else if (text.StartsWith(":nth-last-child", StringComparison.Ordinal))
+                {
+                    return new NthLastChildSelector(CssNodeType.PseudoSelector, text);
+                }
+                else if (text.StartsWith(":nth-last-of-type", StringComparison.Ordinal))
+                {
+                    return new NthLastOfTypeSelector(CssNodeType.PseudoSelector, text);
+                }
+            }
+
             return new SelectorFragment(type, text);
         }
     }
