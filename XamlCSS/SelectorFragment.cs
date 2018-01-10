@@ -18,7 +18,7 @@ namespace XamlCSS
         {
             Type = type;
             Text = text;
-            
+
         }
 
         virtual public bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
@@ -109,6 +109,11 @@ namespace XamlCSS
                 }
                 else if (Text.StartsWith(":nth-child", StringComparison.Ordinal))
                 {
+                    if (Text.Length < 11)
+                    {
+                        return false;
+                    }
+
                     var expression = Text.Substring(11).Replace(")", "");
                     int factor, distance;
 
@@ -117,28 +122,33 @@ namespace XamlCSS
                     var thisPosition = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
                     thisPosition++;
 
-                    var isNth = ((factor != 0 ? thisPosition % factor : thisPosition) - (distance >= 0 ? distance : factor + distance)) == 0;
-
-                    return isNth;
+                    return CalcIsNth(factor, distance, ref thisPosition);
                 }
                 else if (Text.StartsWith(":nth-last-child", StringComparison.Ordinal))
                 {
-                    var expression = Text.Substring(11).Replace(")", "");
+                    if (Text.Length < 16)
+                    {
+                        return false;
+                    }
+
+                    var expression = Text.Substring(16).Replace(")", "");
                     int factor, distance;
 
                     GetFactorAndDistance(expression, out factor, out distance);
 
                     var thisPosition = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
-                    thisPosition++;
 
                     thisPosition = (domElement.Parent?.ChildNodes.Count ?? 0) - thisPosition;
 
-                    var isNth = ((factor != 0 ? thisPosition % factor : thisPosition) - (distance >= 0 ? distance : factor + distance)) == 0;
-
-                    return isNth;
+                    return CalcIsNth(factor, distance, ref thisPosition);
                 }
                 else if (Text.StartsWith(":nth-of-type", StringComparison.Ordinal))
                 {
+                    if (Text.Length < 13)
+                    {
+                        return false;
+                    }
+
                     var expression = Text.Substring(13).Replace(")", "");
 
                     int factor, distance;
@@ -150,12 +160,15 @@ namespace XamlCSS
                     var thisPosition = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).IndexOf(domElement) ?? -1;
                     thisPosition++;
 
-                    var isNth = ((factor != 0 ? thisPosition % factor : thisPosition) - (distance >= 0 ? distance : factor + distance)) == 0;
-
-                    return isNth;
+                    return CalcIsNth(factor, distance, ref thisPosition);
                 }
                 else if (Text.StartsWith(":nth-last-of-type", StringComparison.Ordinal))
                 {
+                    if (Text.Length < 18)
+                    {
+                        return false;
+                    }
+
                     var expression = Text.Substring(18).Replace(")", "");
 
                     int factor, distance;
@@ -165,13 +178,10 @@ namespace XamlCSS
                     var tagname = domElement.TagName;
 
                     var thisPosition = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).IndexOf(domElement) ?? -1;
-                    
 
                     thisPosition = (domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).Count() ?? 0) - thisPosition;
 
-                    var isNth = ((factor != 0 ? thisPosition % factor : thisPosition) - (distance >= 0 ? distance : factor + distance)) == 0;
-
-                    return isNth;
+                    return CalcIsNth(factor, distance, ref thisPosition);
                 }
                 else if (Text.StartsWith(":only-of-type", StringComparison.Ordinal))
                 {
@@ -184,6 +194,19 @@ namespace XamlCSS
             }
 
             return false;
+        }
+
+        private static bool CalcIsNth(int factor, int distance, ref int thisPosition)
+        {
+            thisPosition = thisPosition - distance;
+
+            if (thisPosition < 0)
+            {
+                return false;
+            }
+
+            var isNth = (factor != 0 ? thisPosition % factor : thisPosition) == 0;
+            return isNth;
         }
 
         private void GetFactorAndDistance(string expression, out int factor, out int distance)
@@ -211,11 +234,6 @@ namespace XamlCSS
                 {
                     factor = 1;
                 }
-            }
-
-            if (factor != 0)
-            {
-                distance = distance % factor;
             }
         }
     }
