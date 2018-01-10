@@ -96,7 +96,7 @@
     <Compile Include="BaseCss.cs" />
     <Compile Include="BaseCSS2.cs" />
     <Compile Include="ChangeKind.cs" />
-    <Compile Include="ClasssSelector.cs" />
+    <Compile Include="ClassSelector.cs" />
     <Compile Include="CreateStyleDictionaryFromDeclarationBlockResult.cs" />
     <Compile Include="CssNamespaceCollection.cs" />
     <Compile Include="CssParsing\AstGenerationException.cs" />

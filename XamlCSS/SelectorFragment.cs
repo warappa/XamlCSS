@@ -12,27 +12,17 @@ namespace XamlCSS
         public CssNodeType Type { get; protected set; }
         public string Text { get; protected set; }
 
-        private Regex nthRegex;
+        private static Regex nthRegex = new Regex(@"((?<factor>[0-9]+)?(?<n>n))?(?<distance>([\+\-]?[0-9]+))?");
 
         public SelectorFragment(CssNodeType type, string text)
         {
             Type = type;
             Text = text;
-
-            nthRegex = new Regex(@"((?<factor>[0-9]+)n)?(?<distance>([\+\-]?[0-9]+))?");
+            
         }
 
         virtual public bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
         {
-            /*if (Type == CssNodeType.IdSelector)
-            {
-                return domElement.Id == Text.Substring(1);
-            }
-            else if (Type == CssNodeType.ClassSelector)
-            {
-                return domElement.ClassList.Contains(Text.Substring(1));
-            }
-            else*/
             if (Type == CssNodeType.DirectSiblingCombinator)
             {
                 var thisIndex = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
@@ -166,7 +156,7 @@ namespace XamlCSS
                 }
                 else if (Text.StartsWith(":nth-last-of-type", StringComparison.Ordinal))
                 {
-                    var expression = Text.Substring(13).Replace(")", "");
+                    var expression = Text.Substring(18).Replace(")", "");
 
                     int factor, distance;
 
@@ -175,7 +165,7 @@ namespace XamlCSS
                     var tagname = domElement.TagName;
 
                     var thisPosition = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).IndexOf(domElement) ?? -1;
-                    thisPosition++;
+                    
 
                     thisPosition = (domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).Count() ?? 0) - thisPosition;
 
@@ -217,7 +207,7 @@ namespace XamlCSS
                 int.TryParse(matchResult.Groups["distance"]?.Value ?? "", out distance);
 
                 if (factor == 0 &&
-                    matchResult.Groups["n"] != null)
+                    matchResult.Groups["n"].Success)
                 {
                     factor = 1;
                 }

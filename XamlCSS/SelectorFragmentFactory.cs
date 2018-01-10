@@ -12,7 +12,7 @@ namespace XamlCSS
             }
             else if (type == CssNodeType.ClassSelector)
             {
-                return new ClasssSelector(type, text);
+                return new ClassSelector(type, text);
             }
             else if (type == CssNodeType.IdSelector)
             {

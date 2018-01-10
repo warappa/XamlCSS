@@ -3,9 +3,9 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public class ClasssSelector : SelectorFragment
+    public class ClassSelector : SelectorFragment
     {
-        public ClasssSelector(CssNodeType type, string text) : base(type, text)
+        public ClassSelector(CssNodeType type, string text) : base(type, text)
         {
             Text = text?.Substring(1);
         }
