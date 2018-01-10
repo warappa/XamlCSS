@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -314,11 +313,11 @@ namespace XamlCSS.XamarinForms
         private static void VisualTreeHelper_ChildAdded(object sender, EventArgs e)
         {
             //Debug.WriteLine("A");
-            instance?.UpdateElement(sender as BindableObject);
+            instance?.NewElement(sender as BindableObject);
         }
         private static void VisualTreeHelper_ChildRemoved(object sender, EventArgs e)
         {
-            instance?.UnapplyMatchingStyles(sender as Element, instance.dependencyPropertyService.GetStyledByStyleSheet(sender as Element));
+            Css.instance?.RemoveElement(sender as BindableObject);
         }
 
         private static void StyleSheetPropertyChanged(BindableObject bindableObject, object oldValue, object newValue)
@@ -329,7 +328,6 @@ namespace XamlCSS.XamarinForms
             {
                 var oldStyleSheet = oldValue as StyleSheet;
                 oldStyleSheet.PropertyChanged -= StyleSheet_PropertyChanged;
-                //oldStyleSheet.AttachedTo = null;
 
                 instance?.EnqueueRemoveStyleSheet(element, (StyleSheet)oldValue);
             }
@@ -342,7 +340,6 @@ namespace XamlCSS.XamarinForms
             }
 
             newStyleSheet.PropertyChanged += StyleSheet_PropertyChanged;
-            // newStyleSheet.AttachedTo = element;
 
             instance?.EnqueueRenderStyleSheet(element, newStyleSheet);
         }
