@@ -600,11 +600,6 @@ namespace XamlCSS
                 MatchedType = domElement.Element.GetType()
             }));
 
-            if ((styleUpdateInfo.DoMatchCheck & switchableTreeNodeProvider.CurrentSelectorType) == switchableTreeNodeProvider.CurrentSelectorType)
-            {
-                return;
-            }
-
             var styleSheetFromDom = "GetStyleSheet".Measure(() => dependencyPropertyService.GetStyleSheet(domElement.Element));
             if (styleSheetFromDom != null &&
                 styleSheetFromDom != styleSheet)

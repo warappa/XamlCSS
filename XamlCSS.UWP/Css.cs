@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using System.Reflection;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
@@ -55,15 +54,6 @@ namespace XamlCSS.UWP
             }
         }
 
-        private static void LoadedDetectionHelper_SubTreeAdded(object sender, EventArgs e)
-        {
-            instance?.UpdateElement(sender as DependencyObject);
-        }
-        private static void LoadedDetectionHelper_SubTreeRemoved(object sender, EventArgs e)
-        {
-            instance?.UnapplyMatchingStyles(sender as DependencyObject, instance.dependencyPropertyService.GetStyledByStyleSheet(sender as DependencyObject));
-        }
-
         public static void Reset()
         {
             if (!initialized)
@@ -72,9 +62,6 @@ namespace XamlCSS.UWP
             }
 
             CompositionTarget.Rendering -= RenderingHandler;
-
-            LoadedDetectionHelper.SubTreeAdded -= LoadedDetectionHelper_SubTreeAdded;
-            LoadedDetectionHelper.SubTreeRemoved -= LoadedDetectionHelper_SubTreeRemoved;
 
             LoadedDetectionHelper.Reset();
 
@@ -108,9 +95,6 @@ namespace XamlCSS.UWP
                 );
 
             LoadedDetectionHelper.Initialize();
-
-            LoadedDetectionHelper.SubTreeAdded += LoadedDetectionHelper_SubTreeAdded;
-            LoadedDetectionHelper.SubTreeRemoved += LoadedDetectionHelper_SubTreeRemoved;
 
             CompositionTarget.Rendering += RenderingHandler;
 
@@ -291,13 +275,10 @@ namespace XamlCSS.UWP
 
         private static void StyleSheetPropertyChanged(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
-            // Debug.WriteLine($"StyleSheetPropertyChanged: {e.NewValue.ToString()}");
-
             if (e.OldValue != null)
             {
                 var oldStyleSheet = e.OldValue as StyleSheet;
                 oldStyleSheet.PropertyChanged -= NewStyleSheet_PropertyChanged;
-                //oldStyleSheet.AttachedTo = null;
 
                 instance?.EnqueueRemoveStyleSheet(element, oldStyleSheet);
             }
@@ -310,7 +291,6 @@ namespace XamlCSS.UWP
             }
 
             newStyleSheet.PropertyChanged += NewStyleSheet_PropertyChanged;
-            // newStyleSheet.AttachedTo = element;
 
             instance?.EnqueueRenderStyleSheet(element, newStyleSheet);
         }

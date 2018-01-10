@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 
@@ -114,7 +112,6 @@ namespace XamlCSS.UWP
 
                 element.Loaded += Obj_Loaded;
                 element.Unloaded += LoadedDetectionHelper_Unloaded;
-                SubTreeAdded?.Invoke(dpo, new EventArgs());
 
                 Css.instance?.UpdateElement(dpo);
             }
@@ -122,50 +119,19 @@ namespace XamlCSS.UWP
             // Load detection is only relyable for the first time
         }
 
-        private static void ApplyStyle(FrameworkElement obj)
-        {
-            if (obj == null)
-            {
-                return;
-            }
-
-            if (!Windows.ApplicationModel.DesignMode.DesignModeEnabled)
-            {
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
-                {
-                    Css.instance?.UpdateElement(obj);
-                });
-            }
-            else
-            {
-                var dispatcherTimer = new DispatcherTimer();
-                dispatcherTimer.Interval = TimeSpan.FromMilliseconds(0);
-                dispatcherTimer.Tick += (s, e) =>
-                  {
-                      (s as DispatcherTimer).Stop();
-                      Css.instance?.UpdateElement(obj);
-                  };
-                dispatcherTimer.Start();
-            }
-        }
-
         private static void Obj_Loaded(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("Added (Obj_Loaded)");
             var element = sender as FrameworkElement;
 
-            ApplyStyle(element);
+            SubTreeAdded?.Invoke(sender, new EventArgs());
+            Css.instance?.NewElement(sender as DependencyObject);
         }
 
         private static void LoadedDetectionHelper_Unloaded(object sender, RoutedEventArgs e)
         {
-            Debug.WriteLine("Removed (LoadedDetectionHelper_Unloaded)");
-
-            // (sender as FrameworkElement).Unloaded -= LoadedDetectionHelper_Unloaded;
-
-            Css.instance?.UnapplyMatchingStyles(sender as DependencyObject, Css.instance?.dependencyPropertyService.GetStyledByStyleSheet(sender as DependencyObject));
-
             SubTreeRemoved?.Invoke(sender, new EventArgs());
+
+            Css.instance?.RemoveElement(sender as DependencyObject);
         }
 
         #endregion
