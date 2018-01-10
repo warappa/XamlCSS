@@ -30,21 +30,7 @@ namespace XamlCSS.WPF
             //}
             SetLoadDetection((DependencyObject)sender, true);
         }
-        /*
-        private static void UpdateStyle(DependencyObject sender)
-        {
-            if (sender != null &&
-                ((sender as FrameworkElement)?.TemplatedParent == null) &&
-                ((sender as FrameworkContentElement)?.TemplatedParent == null))
-            {
-                Css.instance?.UpdateElement(sender);
-            }
-            else
-            {
-                Css.instance?.UpdateElement(sender);
-            }
-        }
-        */
+
         #region LoadDetection
 
         public static readonly DependencyProperty LoadDetectionProperty =
@@ -75,8 +61,6 @@ namespace XamlCSS.WPF
 
             if ((bool)ev.NewValue == true)
             {
-                //SubTreeAdded?.Invoke(dpo, new EventArgs());
-                
                 if (dpo is FrameworkElement frameworkElement)
                 {
                     
@@ -101,8 +85,6 @@ namespace XamlCSS.WPF
             }
             else
             {
-                //SubTreeRemoved?.Invoke(dpo, new EventArgs());
-
                 if (dpo is FrameworkElement frameworkElement)
                 {
                     frameworkElement.Unloaded -= UnloadedEventHandler;
@@ -115,8 +97,6 @@ namespace XamlCSS.WPF
                     frameworkContentElement.Loaded -= LoadedEventHandler;
                     frameworkContentElement.Initialized -= FrameworkElement_Initialized;
                 }
-
-                //Css.instance?.UnapplyMatchingStyles(dpo, Css.instance.dependencyPropertyService.GetStyledByStyleSheet(dpo));
             }
         }
 
@@ -129,18 +109,13 @@ namespace XamlCSS.WPF
         private static readonly RoutedEventHandler UnloadedEventHandler = delegate (object sender, RoutedEventArgs e)
         {
             SubTreeRemoved?.Invoke(sender, e);
-            //SubTreeAdded?.Invoke(sender, e);
-            //UpdateStyle(sender as DependencyObject);
-            //Css.instance?.UpdateElement(sender as DependencyObject);
+
             Css.instance?.RemoveElement(sender as DependencyObject);
         };
 
         private static readonly RoutedEventHandler LoadedEventHandler = delegate (object sender, RoutedEventArgs e)
         {
-            //SubTreeRemoved?.Invoke(sender, e);
             SubTreeAdded?.Invoke(sender, e);
-            //UpdateStyle(sender as DependencyObject);
-            //Css.instance?.UpdateElement(sender as DependencyObject);
             Css.instance?.NewElement(sender as DependencyObject);
         };
 
