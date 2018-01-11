@@ -98,10 +98,10 @@ namespace XamlCSS
 
                         "EnsureParents".Measure(() =>
                         {
-                            EnsureParents(domElement, switchableTreeNodeProvider, styleUpdateInfos);
+                            EnsureParents(domElement, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos);
                         });
 
-                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, false);
+                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, false);
                     }
                 });
 
@@ -120,11 +120,11 @@ namespace XamlCSS
 
                         "EnsureParents".Measure(() =>
                         {
-                            EnsureParents(domElement, switchableTreeNodeProvider, styleUpdateInfos);
+                            EnsureParents(domElement, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos);
                         });
 
                         var discardOldMatchingStyles = newOrUpdatedStyleSheets.Contains(item.StyleSheet);
-                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, discardOldMatchingStyles);
+                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles);
                     }
                 });
 
@@ -160,8 +160,8 @@ namespace XamlCSS
                     {
                         //var task = Task.Run(() =>
                         //{
-                            tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
-                            //return UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService);
+                        tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
+                        //return UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService);
 
                         //});
                         //tasks.Add(task);
@@ -198,6 +198,7 @@ namespace XamlCSS
                             group.Key,
                             group.ToDictionary(x => x.Key, x => x.Value),
                             applicationResourcesService,
+                            dependencyPropertyService,
                             nativeStyleService,
                             cssTypeHelper);
                     }
@@ -283,21 +284,21 @@ namespace XamlCSS
         }
 
         private static void EnsureParents(IDomElement<TDependencyObject> domElement, ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
+            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             IDictionary<TDependencyObject, StyleUpdateInfo> styleUpdateInfos)
         {
             var current = domElement.Parent;
             while (current != null)
             {
-                var styleUpdateInfo = current.StyleInfo = current.StyleInfo ?? (styleUpdateInfos.ContainsKey(current.Element) ? styleUpdateInfos[current.Element] : new StyleUpdateInfo
-                {
-                    MatchedType = current.Element.GetType()
-                });
+                var styleUpdateInfo = current.StyleInfo = current.StyleInfo ?? (styleUpdateInfos.ContainsKey(current.Element) ? styleUpdateInfos[current.Element] : 
+                    GetNewStyleUpdateInfo(current, dependencyPropertyService, nativeStyleService));
 
                 if ((styleUpdateInfo.DoMatchCheck & switchableTreeNodeProvider.CurrentSelectorType) == switchableTreeNodeProvider.CurrentSelectorType)
                 {
                     return;
                 }
-                
+
                 object a;
                 "ClassList".Measure(() => a = current.ClassList);
                 "Id".Measure(() => a = current.Id);
@@ -516,7 +517,9 @@ namespace XamlCSS
 
                             found.Add(matchingNode);
 
-                            var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id, element.GetType(), rule.SelectorString);
+                            var discriminator = dependencyPropertyService.GetInitialStyle(element) != null ? element.GetHashCode().ToString() : "";
+                            var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id + discriminator, element.GetType(), rule.SelectorString);
+                            //var resourceKey = nativeStyleService.GetStyleResourceKey(rule.StyleSheetId, element.GetType(), rule.SelectorString);
 
                             if (!matchingNode.StyleInfo.CurrentMatchedSelectors.Contains(resourceKey))
                             {
@@ -593,19 +596,18 @@ namespace XamlCSS
             Dictionary<TDependencyObject, StyleUpdateInfo> styleUpdateInfos,
             ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
             IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             bool styleChanged)
         {
-            var styleUpdateInfo = "get styleUpdateInfo".Measure(() => domElement.StyleInfo = domElement.StyleInfo ?? (styleUpdateInfos.ContainsKey(domElement.Element) ? styleUpdateInfos[domElement.Element] : new StyleUpdateInfo
-            {
-                MatchedType = domElement.Element.GetType()
-            }));
+            var styleUpdateInfo = "get styleUpdateInfo".Measure(() => domElement.StyleInfo = domElement.StyleInfo ?? (styleUpdateInfos.ContainsKey(domElement.Element) ? styleUpdateInfos[domElement.Element] : 
+                GetNewStyleUpdateInfo(domElement, dependencyPropertyService, nativeStyleService)));
 
             var styleSheetFromDom = "GetStyleSheet".Measure(() => dependencyPropertyService.GetStyleSheet(domElement.Element));
             if (styleSheetFromDom != null &&
                 styleSheetFromDom != styleSheet)
             {
                 // another stylesheet's domelement
-                SetupStyleInfo(domElement, styleSheetFromDom, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, styleChanged);
+                SetupStyleInfo(domElement, styleSheetFromDom, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, styleChanged);
                 return;
             }
 
@@ -638,13 +640,29 @@ namespace XamlCSS
 
             foreach (var child in domElement.ChildNodes)
             {
-                SetupStyleInfo(child, styleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, styleChanged);
+                SetupStyleInfo(child, styleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, styleChanged);
             }
+        }
+
+        private static StyleUpdateInfo GetNewStyleUpdateInfo(IDomElement<TDependencyObject> domElement,
+            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
+        {
+            if (dependencyPropertyService.GetInitialStyle(domElement.Element) == null)
+            {
+                dependencyPropertyService.SetInitialStyle(domElement.Element, nativeStyleService.GetStyle(domElement.Element));
+            }
+
+            return new StyleUpdateInfo
+            {
+                MatchedType = domElement.Element.GetType()
+            };
         }
 
         private static void GenerateStyles(StyleSheet styleSheet,
             IDictionary<TDependencyObject, StyleUpdateInfo> styleMatchInfos,
             IStyleResourcesService applicationResourcesService,
+            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle> cssTypeHelper)
         {
@@ -690,6 +708,20 @@ namespace XamlCSS
                             .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, (TDependencyObject)styleSheet.AttachedTo))
                             .ToList());
 
+
+                        var initalStyle = dependencyPropertyService.GetInitialStyle(styleMatchInfoKeyValue.Key);
+                        if (initalStyle != null)
+                        {
+                            var subDict = nativeStyleService.GetStyleAsDictionary(initalStyle as TStyle);
+
+                            foreach (var i in subDict)
+                            {
+                                propertyStyleValues[i.Key] = i.Value;
+                            }
+
+                            var triggers = nativeStyleService.GetTriggersAsList(initalStyle as TStyle);
+                            nativeTriggers.AddRange(triggers);
+                        }
 
                         var style = "Create Style".Measure(() => nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType));
 
