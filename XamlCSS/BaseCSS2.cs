@@ -58,11 +58,11 @@ namespace XamlCSS
                 });
                 "SetAttachedToToNull".Measure(() =>
                 {
-                    SetAttachedToToNull(copy);
+                    SetAttachedToToNull(copy, dependencyPropertyService, switchableTreeNodeProvider, nativeStyleService);
                 });
                 "SetAttachedToToNewStyleSheet".Measure(() =>
                 {
-                    SetAttachedToToNewStyleSheet(copy);
+                    SetAttachedToToNewStyleSheet(copy, dependencyPropertyService, switchableTreeNodeProvider, nativeStyleService);
                 });
 
                 var styleUpdateInfos = new Dictionary<TDependencyObject, StyleUpdateInfo>();
@@ -79,7 +79,7 @@ namespace XamlCSS
                         x.ChangeKind == ChangeKind.New ||
                         x.ChangeKind == ChangeKind.Update ||
                         x.ChangeKind == ChangeKind.Remove)
-                    .Select(x => new { x.StartFrom, x.StyleSheet, x.StyleSheetHolder })
+                    .Select(x => new { x.ChangeKind, x.StartFrom, x.StyleSheet, x.StyleSheetHolder })
                     .Distinct()
                     .ToList();
 
@@ -101,7 +101,7 @@ namespace XamlCSS
                             EnsureParents(domElement, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos);
                         });
 
-                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, false);
+                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, false, item.ChangeKind == ChangeKind.Remove);
                     }
                 });
 
@@ -124,7 +124,7 @@ namespace XamlCSS
                         });
 
                         var discardOldMatchingStyles = newOrUpdatedStyleSheets.Contains(item.StyleSheet);
-                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles);
+                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles,item.ChangeKind == ChangeKind.Remove);
                     }
                 });
 
@@ -234,8 +234,33 @@ namespace XamlCSS
             }
 
         }
+        private static void ReevaluateStylesheetInSubTree(IDomElement<TDependencyObject> domElement, StyleSheet oldStyleSheet,
+            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
+        {
+            if (domElement.StyleInfo == null)
+            {
+                return;
+            }
 
-        private static void SetAttachedToToNewStyleSheet(List<RenderInfo<TDependencyObject, TUIElement>> copy)
+            if (domElement == null ||
+                domElement.StyleInfo.CurrentStyleSheet != oldStyleSheet)
+            {
+                return;
+            }
+
+            domElement.StyleInfo.CurrentStyleSheet = GetStyleSheetFromTree(domElement, dependencyPropertyService);
+
+            foreach (var child in domElement.ChildNodes)
+            {
+                ReevaluateStylesheetInSubTree(child, oldStyleSheet, dependencyPropertyService, nativeStyleService);
+            }
+        }
+
+        private static void SetAttachedToToNewStyleSheet(List<RenderInfo<TDependencyObject, TUIElement>> copy,
+            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
+            INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             var addedStyleSheets = copy
                             .Where(x => x.RenderTargetKind == RenderTargetKind.Stylesheet &&
@@ -246,11 +271,18 @@ namespace XamlCSS
 
             foreach (var item in addedStyleSheets)
             {
+                var domElement = switchableTreeNodeProvider.GetDomElement(item.StyleSheetHolder);
+
                 item.StyleSheet.AttachedTo = item.StyleSheetHolder;
+
+                ReevaluateStylesheetInSubTree(domElement, domElement.StyleInfo?.CurrentStyleSheet, dependencyPropertyService, nativeStyleService);
             }
         }
 
-        private static void SetAttachedToToNull(List<RenderInfo<TDependencyObject, TUIElement>> copy)
+        private static void SetAttachedToToNull(List<RenderInfo<TDependencyObject, TUIElement>> copy,
+            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
+            INativeStyleService<TStyle,TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             var removedStyleSheets = copy
                             .Where(x =>
@@ -260,26 +292,31 @@ namespace XamlCSS
                             .Distinct()
                             .ToList();
 
-            foreach (var styleSheet in removedStyleSheets)
+            foreach (var removedStyleSheet in removedStyleSheets)
             {
-                styleSheet.AttachedTo = null;
+                switchableTreeNodeProvider.Switch(SelectorType.LogicalTree);
+                ReevaluateStylesheetInSubTree(switchableTreeNodeProvider.GetDomElement((TDependencyObject)removedStyleSheet.AttachedTo), removedStyleSheet, dependencyPropertyService, nativeStyleService);
+
+                removedStyleSheet.AttachedTo = null;
             }
         }
 
-        private static void RemoveOldStyleObjects(List<RenderInfo<TDependencyObject, TUIElement>> copy, INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService, IStyleResourcesService applicationResourcesService)
+        private static void RemoveOldStyleObjects(List<RenderInfo<TDependencyObject, TUIElement>> copy, 
+            INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService, IStyleResourcesService applicationResourcesService)
         {
             var updatedOrRemovedStyleSheets = copy
                             .Where(x => x.RenderTargetKind == RenderTargetKind.Stylesheet)
                             .Where(x =>
                                 x.ChangeKind == ChangeKind.Update ||
                                 x.ChangeKind == ChangeKind.Remove)
-                            .Select(x => new { x.StyleSheet, x.StyleSheetHolder })
+                            .Select(x => new {x.StyleSheet, x.StyleSheetHolder })
                             .Distinct()
                             .ToList();
 
             foreach (var item in updatedOrRemovedStyleSheets)
             {
                 RemoveStyleResourcesInternal(item.StyleSheetHolder, item.StyleSheet, applicationResourcesService, nativeStyleService);
+                
             }
         }
 
@@ -597,7 +634,8 @@ namespace XamlCSS
             ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
             IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
-            bool styleChanged)
+            bool styleChanged,
+            bool styleSheetRemoved)
         {
             var styleUpdateInfo = "get styleUpdateInfo".Measure(() => domElement.StyleInfo = domElement.StyleInfo ?? (styleUpdateInfos.ContainsKey(domElement.Element) ? styleUpdateInfos[domElement.Element] : 
                 GetNewStyleUpdateInfo(domElement, dependencyPropertyService, nativeStyleService)));
@@ -607,13 +645,17 @@ namespace XamlCSS
                 styleSheetFromDom != styleSheet)
             {
                 // another stylesheet's domelement
-                SetupStyleInfo(domElement, styleSheetFromDom, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, styleChanged);
+                SetupStyleInfo(domElement, styleSheetFromDom, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, styleChanged, false);
                 return;
             }
 
             "set styleUpdateInfo values".Measure(() =>
             {
-                styleUpdateInfo.CurrentStyleSheet = styleSheet;
+                if (!styleSheetRemoved)
+                {
+                    styleUpdateInfo.CurrentStyleSheet = styleSheet;
+                }
+
                 if (styleChanged)
                 {
                     styleUpdateInfo.OldMatchedSelectors = new List<string>();
@@ -640,7 +682,7 @@ namespace XamlCSS
 
             foreach (var child in domElement.ChildNodes)
             {
-                SetupStyleInfo(child, styleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, styleChanged);
+                SetupStyleInfo(child, styleSheet, styleUpdateInfos, switchableTreeNodeProvider, dependencyPropertyService, nativeStyleService, styleChanged, styleSheetRemoved);
             }
         }
 
