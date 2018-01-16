@@ -87,36 +87,6 @@ namespace XamlCSS.WPF
             instance.ExecuteApplyStyles();
         }
 
-        public static readonly DependencyProperty MatchingStylesProperty =
-            DependencyProperty.RegisterAttached(
-                "MatchingStyles",
-                typeof(string[]),
-                typeof(Css),
-                new PropertyMetadata(null));
-        public static string[] GetMatchingStyles(DependencyObject obj)
-        {
-            return ReadSafe<string[]>(obj, MatchingStylesProperty);
-        }
-        public static void SetMatchingStyles(DependencyObject obj, string[] value)
-        {
-            obj.SetValue(MatchingStylesProperty, value);
-        }
-
-        public static readonly DependencyProperty AppliedMatchingStylesProperty =
-            DependencyProperty.RegisterAttached(
-                "AppliedMatchingStyles",
-                typeof(string[]),
-                typeof(Css),
-                new PropertyMetadata(null));
-        public static string[] GetAppliedMatchingStyles(DependencyObject obj)
-        {
-            return ReadSafe<string[]>(obj, AppliedMatchingStylesProperty);
-        }
-        public static void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
-        {
-            obj.SetValue(AppliedMatchingStylesProperty, value);
-        }
-
         public static readonly DependencyProperty InitialStyleProperty =
             DependencyProperty.RegisterAttached(
                 "InitialStyle",
@@ -131,37 +101,7 @@ namespace XamlCSS.WPF
         {
             obj.SetValue(InitialStyleProperty, value);
         }
-
-        public static readonly DependencyProperty HadStyleProperty =
-            DependencyProperty.RegisterAttached(
-                "HadStyle",
-                typeof(bool?),
-                typeof(Css),
-                new PropertyMetadata(null));
-        public static bool? GetHadStyle(DependencyObject obj)
-        {
-            return ReadSafe<bool?>(obj, HadStyleProperty);
-        }
-        public static void SetHadStyle(DependencyObject obj, bool? value)
-        {
-            obj.SetValue(HadStyleProperty, value);
-        }
-
-        public static readonly DependencyProperty StyledByStyleSheetProperty =
-            DependencyProperty.RegisterAttached(
-                "StyledByStyleSheet",
-                typeof(StyleSheet),
-                typeof(Css),
-                new PropertyMetadata(null));
-        public static StyleSheet GetStyledByStyleSheet(DependencyObject obj)
-        {
-            return ReadSafe<StyleSheet>(obj, StyledByStyleSheetProperty);
-        }
-        public static void SetStyledByStyleSheet(DependencyObject obj, StyleSheet value)
-        {
-            obj.SetValue(StyledByStyleSheetProperty, value);
-        }
-
+        
         public static readonly DependencyProperty StyleProperty =
             DependencyProperty.RegisterAttached(
                 "Style",
@@ -250,22 +190,7 @@ namespace XamlCSS.WPF
 
             Css.instance?.UpdateElement(element);
         }
-
-        public static readonly DependencyProperty HandledCssProperty =
-            DependencyProperty.RegisterAttached(
-                "HandledCss",
-                typeof(bool),
-                typeof(Css),
-                new PropertyMetadata(false));
-        public static bool GetHandledCss(DependencyObject obj)
-        {
-            return ReadSafe<bool>(obj, HandledCssProperty);
-        }
-        public static void SetHandledCss(DependencyObject obj, bool value)
-        {
-            obj.SetValue(HandledCssProperty, value);
-        }
-
+        
         public static readonly DependencyProperty DomElementProperty =
             DependencyProperty.RegisterAttached(
                 "DomElement",

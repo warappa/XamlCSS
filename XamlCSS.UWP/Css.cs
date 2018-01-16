@@ -107,37 +107,7 @@ namespace XamlCSS.UWP
         }
 
         #region dependency properties
-
-        public static readonly DependencyProperty MatchingStylesProperty =
-            DependencyProperty.RegisterAttached(
-                "MatchingStyles",
-                typeof(string[]),
-                typeof(Css),
-                new PropertyMetadata(null));
-        public static string[] GetMatchingStyles(DependencyObject obj)
-        {
-            return obj.ReadLocalValue(MatchingStylesProperty) as string[];
-        }
-        public static void SetMatchingStyles(DependencyObject obj, string[] value)
-        {
-            obj.SetValue(MatchingStylesProperty, value);
-        }
-
-        public static readonly DependencyProperty AppliedMatchingStylesProperty =
-            DependencyProperty.RegisterAttached(
-                "AppliedMatchingStyles",
-                typeof(string[]),
-                typeof(Css),
-                new PropertyMetadata(null));
-        public static string[] GetAppliedMatchingStyles(DependencyObject obj)
-        {
-            return obj.ReadLocalValue(AppliedMatchingStylesProperty) as string[];
-        }
-        public static void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
-        {
-            obj.SetValue(AppliedMatchingStylesProperty, value);
-        }
-
+        
         public static readonly DependencyProperty InitialStyleProperty =
             DependencyProperty.RegisterAttached("InitialStyle", typeof(Style),
             typeof(Css), new PropertyMetadata(null));
@@ -149,19 +119,7 @@ namespace XamlCSS.UWP
         {
             obj.SetValue(InitialStyleProperty, value ?? DependencyProperty.UnsetValue);
         }
-
-        public static readonly DependencyProperty HadStyleProperty =
-            DependencyProperty.RegisterAttached("HadStyle", typeof(bool?),
-            typeof(Css), new PropertyMetadata(null));
-        public static bool? GetHadStyle(DependencyObject obj)
-        {
-            return obj.ReadLocalValue(HadStyleProperty) as bool?;
-        }
-        public static void SetHadStyle(DependencyObject obj, bool? value)
-        {
-            obj.SetValue(HadStyleProperty, value ?? DependencyProperty.UnsetValue);
-        }
-
+        
         public static readonly DependencyProperty StyleProperty =
             DependencyProperty.RegisterAttached("Style", typeof(StyleDeclarationBlock),
             typeof(Css), new PropertyMetadata(null, StylePropertyAttached));
@@ -208,23 +166,7 @@ namespace XamlCSS.UWP
         {
             obj.SetValue(ClassProperty, value ?? DependencyProperty.UnsetValue);
         }
-
-        public static readonly DependencyProperty HandledCssProperty =
-            DependencyProperty.RegisterAttached("HandledCss", typeof(bool),
-            typeof(Css), new PropertyMetadata(null, null));
-
-        public static bool GetHandledCss(DependencyObject obj)
-        {
-            var res = obj.ReadLocalValue(HandledCssProperty);
-            if (res == DependencyProperty.UnsetValue)
-                return false;
-            return (bool)res;
-        }
-        public static void SetHandledCss(DependencyObject obj, bool value)
-        {
-            obj.SetValue(HandledCssProperty, value == true ? true : DependencyProperty.UnsetValue);
-        }
-
+        
         public static readonly DependencyProperty DomElementProperty =
             DependencyProperty.RegisterAttached("DomElement", typeof(bool),
             typeof(Css), new PropertyMetadata(null, null));
@@ -256,19 +198,7 @@ namespace XamlCSS.UWP
         {
             obj.SetValue(VisualDomElementProperty, value ?? DependencyProperty.UnsetValue);
         }
-
-        public static readonly DependencyProperty StyledByStyleSheetProperty =
-            DependencyProperty.RegisterAttached("StyledByStyleSheet", typeof(StyleSheet),
-            typeof(Css), new PropertyMetadata(null));
-        public static StyleSheet GetStyledByStyleSheet(DependencyObject obj)
-        {
-            return obj.ReadLocalValue(StyledByStyleSheetProperty) as StyleSheet;
-        }
-        public static void SetStyledByStyleSheet(DependencyObject obj, StyleSheet value)
-        {
-            obj.SetValue(StyledByStyleSheetProperty, value ?? DependencyProperty.UnsetValue);
-        }
-
+        
         #endregion
 
         #region attached behaviours

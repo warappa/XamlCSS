@@ -120,38 +120,6 @@ namespace XamlCSS.XamarinForms
             }
         }
         
-        public static readonly BindableProperty MatchingStylesProperty =
-            BindableProperty.CreateAttached(
-                "MatchingStyles",
-                typeof(string[]),
-                typeof(Css),
-                null,
-                BindingMode.TwoWay);
-        public static string[] GetMatchingStyles(BindableObject obj)
-        {
-            return obj.GetValue(MatchingStylesProperty) as string[];
-        }
-        public static void SetMatchingStyles(BindableObject obj, string[] value)
-        {
-            obj.SetValue(MatchingStylesProperty, value);
-        }
-
-        public static readonly BindableProperty AppliedMatchingStylesProperty =
-            BindableProperty.CreateAttached(
-                "AppliedMatchingStyles",
-                typeof(string[]),
-                typeof(Css),
-                null,
-                BindingMode.TwoWay);
-        public static string[] GetAppliedMatchingStyles(BindableObject obj)
-        {
-            return obj.GetValue(AppliedMatchingStylesProperty) as string[];
-        }
-        public static void SetAppliedMatchingStyles(BindableObject obj, string[] value)
-        {
-            obj.SetValue(AppliedMatchingStylesProperty, value);
-        }
-
         public static readonly BindableProperty IdProperty =
             BindableProperty.CreateAttached(
                 "Id",
@@ -183,23 +151,7 @@ namespace XamlCSS.XamarinForms
         {
             obj.SetValue(InitialStyleProperty, value);
         }
-
-        public static readonly BindableProperty HadStyleProperty =
-            BindableProperty.CreateAttached(
-                "HadStyle",
-                typeof(bool?),
-                typeof(Css),
-                null,
-                BindingMode.TwoWay);
-        public static bool? GetHadStyle(BindableObject obj)
-        {
-            return obj.GetValue(HadStyleProperty) as bool?;
-        }
-        public static void SetHadStyle(BindableObject obj, bool? value)
-        {
-            obj.SetValue(HadStyleProperty, value);
-        }
-
+        
         public static readonly BindableProperty StyleProperty =
             BindableProperty.CreateAttached(
                 "Style",
@@ -261,39 +213,7 @@ namespace XamlCSS.XamarinForms
         {
             obj.SetValue(ClassProperty, value);
         }
-
-        public static readonly BindableProperty HandledCssProperty =
-            BindableProperty.CreateAttached(
-                "HandledCss",
-                typeof(bool),
-                typeof(Css),
-                false,
-                BindingMode.TwoWay);
-        public static bool GetHandledCss(BindableObject obj)
-        {
-            return ((bool?)obj.GetValue(HandledCssProperty) ?? false);
-        }
-        public static void SetHandledCss(BindableObject obj, bool value)
-        {
-            obj.SetValue(HandledCssProperty, value);
-        }
-
-        public static readonly BindableProperty StyledByStyleSheetProperty =
-            BindableProperty.CreateAttached(
-                "StyledByStyleSheet",
-                typeof(StyleSheet),
-                typeof(Css),
-                null,
-                BindingMode.TwoWay);
-        public static StyleSheet GetStyledByStyleSheet(BindableObject obj)
-        {
-            return (StyleSheet)obj.GetValue(StyledByStyleSheetProperty);
-        }
-        public static void SetStyledByStyleSheet(BindableObject obj, StyleSheet value)
-        {
-            obj.SetValue(StyledByStyleSheetProperty, value);
-        }
-
+        
         public static readonly BindableProperty DomElementProperty =
             BindableProperty.CreateAttached(
                 "DomElement",

@@ -94,32 +94,17 @@ namespace XamlCSS.XamarinForms
 
             return propertyValue;
         }
-
-        public string[] GetAppliedMatchingStyles(BindableObject obj)
-        {
-            return Css.GetAppliedMatchingStyles(obj);
-        }
-
+        
         public string GetClass(BindableObject obj)
         {
             return Css.GetClass(obj);
         }
-
-        public bool? GetHadStyle(BindableObject obj)
-        {
-            return Css.GetHadStyle(obj);
-        }
-
+        
         public Style GetInitialStyle(BindableObject obj)
         {
             return Css.GetInitialStyle(obj);
         }
-
-        public string[] GetMatchingStyles(BindableObject obj)
-        {
-            return Css.GetMatchingStyles(obj);
-        }
-
+        
         public string GetName(BindableObject obj)
         {
             return Css.GetId(obj);
@@ -134,42 +119,17 @@ namespace XamlCSS.XamarinForms
         {
             return Css.GetStyleSheet(obj);
         }
-
-        public bool GetHandledCss(BindableObject obj)
-        {
-            return Css.GetHandledCss(obj);
-        }
-
-        public StyleSheet GetStyledByStyleSheet(BindableObject obj)
-        {
-            return Css.GetStyledByStyleSheet(obj);
-        }
-
-        public void SetAppliedMatchingStyles(BindableObject obj, string[] value)
-        {
-            Css.SetAppliedMatchingStyles(obj, value);
-        }
-
+        
         public void SetClass(BindableObject obj, string value)
         {
             Css.SetClass(obj, value);
         }
-
-        public void SetHadStyle(BindableObject obj, bool? value)
-        {
-            Css.SetHadStyle(obj, value);
-        }
-
+        
         public void SetInitialStyle(BindableObject obj, Style value)
         {
             Css.SetInitialStyle(obj, value);
         }
-
-        public void SetMatchingStyles(BindableObject obj, string[] value)
-        {
-            Css.SetMatchingStyles(obj, value);
-        }
-
+        
         public void SetName(BindableObject obj, string value)
         {
             Css.SetId(obj, value);
@@ -184,17 +144,7 @@ namespace XamlCSS.XamarinForms
         {
             Css.SetStyleSheet(obj, value);
         }
-
-        public void SetHandledCss(BindableObject obj, bool value)
-        {
-            Css.SetHandledCss(obj, value);
-        }
-
-        public void SetStyledByStyleSheet(BindableObject obj, StyleSheet value)
-        {
-            Css.SetStyledByStyleSheet(obj, value);
-        }
-
+        
         public bool IsLoaded(BindableObject obj)
         {
             return (obj as Element)?.Parent != null;

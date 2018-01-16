@@ -87,31 +87,14 @@ namespace XamlCSS.WPF
             return val;
         }
 
-        
-
-        public string[] GetAppliedMatchingStyles(DependencyObject obj)
-        {
-            return (string[])ReadSafe(obj, Css.AppliedMatchingStylesProperty);
-        }
-
         public string GetClass(DependencyObject obj)
         {
             return (string)ReadSafe(obj, Css.ClassProperty);
         }
 
-        public bool? GetHadStyle(DependencyObject obj)
-        {
-            return (bool?)ReadSafe(obj, Css.HadStyleProperty);
-        }
-
         public Style GetInitialStyle(DependencyObject obj)
         {
             return (Style)ReadSafe(obj, Css.InitialStyleProperty);
-        }
-
-        public string[] GetMatchingStyles(DependencyObject obj)
-        {
-            return (string[])ReadSafe(obj, Css.MatchingStylesProperty);
         }
 
         public string GetName(DependencyObject obj)
@@ -128,12 +111,7 @@ namespace XamlCSS.WPF
         {
             return (StyleSheet)ReadSafe(obj, Css.StyleSheetProperty);
         }
-
-        public bool GetHandledCss(DependencyObject obj)
-        {
-            return ((bool?)ReadSafe(obj, Css.HandledCssProperty) ?? false);
-        }
-
+        
         public IDomElement<DependencyObject> GetDomElement(DependencyObject obj, SelectorType selectorType)
         {
             if (selectorType == SelectorType.LogicalTree)
@@ -145,32 +123,17 @@ namespace XamlCSS.WPF
                 return ReadSafe(obj, Css.VisualDomElementProperty) as IDomElement<DependencyObject>;
             }
         }
-
-        public void SetAppliedMatchingStyles(DependencyObject obj, string[] value)
-        {
-            obj.SetValue(Css.AppliedMatchingStylesProperty, value);
-        }
-
+        
         public void SetClass(DependencyObject obj, string value)
         {
             obj.SetValue(Css.ClassProperty, value);
         }
-
-        public void SetHadStyle(DependencyObject obj, bool? value)
-        {
-            obj.SetValue(Css.HadStyleProperty, value);
-        }
-
+        
         public void SetInitialStyle(DependencyObject obj, Style value)
         {
             obj.SetValue(Css.InitialStyleProperty, value);
         }
-
-        public void SetMatchingStyles(DependencyObject obj, string[] value)
-        {
-            obj.SetValue(Css.MatchingStylesProperty, value);
-        }
-
+        
         public void SetName(DependencyObject obj, string value)
         {
             (obj as FrameworkElement).Name = value;
@@ -185,12 +148,7 @@ namespace XamlCSS.WPF
         {
             obj.SetValue(Css.StyleSheetProperty, value);
         }
-
-        public void SetHandledCss(DependencyObject obj, bool value)
-        {
-            obj.SetValue(Css.HandledCssProperty, value);
-        }
-
+        
         public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value, SelectorType selectorType)
         {
             if (selectorType == SelectorType.LogicalTree)
@@ -248,17 +206,7 @@ namespace XamlCSS.WPF
                 }
             }
         }
-
-        public StyleSheet GetStyledByStyleSheet(DependencyObject obj)
-        {
-            return (StyleSheet)ReadSafe(obj, Css.StyledByStyleSheetProperty);
-        }
-
-        public void SetStyledByStyleSheet(DependencyObject obj, StyleSheet value)
-        {
-            obj.SetValue(Css.StyledByStyleSheetProperty, value);
-        }
-
+        
         public object GetValue(DependencyObject obj, string propertyName)
         {
             if (obj == null)
