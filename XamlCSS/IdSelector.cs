@@ -12,9 +12,9 @@ namespace XamlCSS
         }
 
         
-        public override bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
+        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
         {
-            return domElement.Id == Text;
+            return domElement.Id == Text ? MatchResult.Success : MatchResult.ItemFailed;
         }
     }
 }

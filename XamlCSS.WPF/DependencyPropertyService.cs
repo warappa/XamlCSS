@@ -3,6 +3,8 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Media.Animation;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 
@@ -77,66 +79,15 @@ namespace XamlCSS.WPF
 
             if (val?.GetType().Name == "ResourceReferenceExpression")
             {
-                var resourceKeyProperty = val.GetType().GetProperty("ResourceKey");
+                var resourceKey = TypeHelpers.GetPropertyValue(val, "ResourceKey");
 
-                val = GetDynamicResourceValue(resourceKeyProperty.GetValue(val), obj);
+                val = MarkupExtensionParser.GetDynamicResourceValue(resourceKey, obj);
             }
 
             return val;
         }
 
-        private static object GetDynamicResourceValue(object resourceKey, object element)
-        {
-            object val = null;
-            while (element != null)
-            {
-                if (element is FrameworkElement)
-                {
-                    if (((FrameworkElement)element).Resources?.Contains(resourceKey) == true)
-                    {
-                        val = ((FrameworkElement)element).Resources[resourceKey];
-                        break;
-                    }
-
-                    if (element is Window)
-                    {
-                        element = Application.Current;
-                    }
-                    else
-                    {
-                        element = ((FrameworkElement)element).Parent;
-                    }
-                }
-                else if (element is FrameworkContentElement)
-                {
-                    if (((FrameworkContentElement)element).Resources?.Contains(resourceKey) == true)
-                    {
-                        val = ((FrameworkContentElement)element).Resources[resourceKey];
-                        break;
-                    }
-
-                    element = ((FrameworkContentElement)element).Parent;
-                }
-                else if (element is Application)
-                {
-                    element = Application.Current;
-
-                    if (((Application)element).Resources?.Contains(resourceKey) == true)
-                    {
-                        val = ((Application)element).Resources[resourceKey];
-                        break;
-                    }
-
-                    element = null;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            return val;
-        }
+        
 
         public string[] GetAppliedMatchingStyles(DependencyObject obj)
         {
@@ -306,6 +257,28 @@ namespace XamlCSS.WPF
         public void SetStyledByStyleSheet(DependencyObject obj, StyleSheet value)
         {
             obj.SetValue(Css.StyledByStyleSheetProperty, value);
+        }
+
+        public object GetValue(DependencyObject obj, string propertyName)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            var dp = TypeHelpers.GetDependencyPropertyInfo<DependencyProperty>(obj.GetType(), propertyName);
+            return obj.GetValue(dp.Property);
+        }
+
+        public void SetValue(DependencyObject obj, string propertyName, object value)
+        {
+            if (obj == null)
+            {
+                return;
+            }
+
+            var dp = TypeHelpers.GetDependencyPropertyInfo<DependencyProperty>(obj.GetType(), propertyName);
+            obj.SetValue(dp.Property, value);
         }
     }
 }

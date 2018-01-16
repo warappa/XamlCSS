@@ -8,6 +8,35 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
+    public class SpecificityCalculator
+    {
+        public static SpecificityResult Calculate(string expression)
+        {
+            var charArray = expression.ToCharArray();
+
+            var idSpecificity = charArray.Count(x => x == '#');
+            var classSpecificity = charArray.Count(x => x == '.' || x == ':' || x == '[');
+
+            var simpleSpecifitySplit = expression.Split(new[] { ' ', '>', '*' }, StringSplitOptions.RemoveEmptyEntries);
+            var simpleSpecificity = simpleSpecifitySplit.Count(x => !x.StartsWith(".", StringComparison.Ordinal) && !x.StartsWith("#", StringComparison.Ordinal));
+
+            return new SpecificityResult(idSpecificity, classSpecificity, simpleSpecificity);
+        }
+
+        public class SpecificityResult
+        {
+            public SpecificityResult(int idSpecificity, int classSpecificity, int simpleSpecificity)
+            {
+                IdSpecificity = idSpecificity;
+                ClassSpecificity = classSpecificity;
+                SimpleSpecificity = simpleSpecificity;
+            }
+
+            public int SimpleSpecificity { get; private set; }
+            public int ClassSpecificity { get; private set; }
+            public int IdSpecificity { get; private set; }
+        }
+    }
     [DebuggerDisplay("{Value}")]
     public class Selector : ISelector
     {
@@ -57,13 +86,11 @@ namespace XamlCSS
 
         private void CalculateSpecificity(string value)
         {
-            var charArray = value.ToCharArray();
+            var result = SpecificityCalculator.Calculate(value);
 
-            IdSpecificity = charArray.Count(x => x == '#');
-            ClassSpecificity = charArray.Count(x => x == '.' || x == ':' || x == '[');
-
-            var simpleSpecifitySplit = value.Split(new[] { ' ', '>', '*' }, StringSplitOptions.RemoveEmptyEntries);
-            SimpleSpecificity = simpleSpecifitySplit.Count(x => !x.StartsWith(".", StringComparison.Ordinal) && !x.StartsWith("#", StringComparison.Ordinal));
+            IdSpecificity = result.IdSpecificity;
+            ClassSpecificity = result.ClassSpecificity;
+            SimpleSpecificity = result.SimpleSpecificity;
         }
 
         private void GetFragments(string val)
@@ -144,20 +171,21 @@ namespace XamlCSS
             return false;
         }
 
-        public bool Match<TDependencyObject>(StyleSheet styleSheet, IDomElement<TDependencyObject> domElement)
+        public MatchResult Match<TDependencyObject>(StyleSheet styleSheet, IDomElement<TDependencyObject> domElement)
             where TDependencyObject : class
         {
             for (var i = Fragments.Length - 1; i >= 0; i--)
             {
                 var fragment = Fragments[i];
 
-                if (!fragment.Match(styleSheet, ref domElement, Fragments, ref i))
+                var match = fragment.Match(styleSheet, ref domElement, Fragments, ref i);
+                if (!match.IsSuccess)
                 {
-                    return false;
+                    return match;
                 }
             }
 
-            return true;
+            return MatchResult.Success;
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 using XamlCSS.WPF.CssParsing;
@@ -24,7 +26,10 @@ namespace XamlCSS.WPF
 
         static Css()
         {
-            Initialize();
+            if (DesignerProperties.GetIsInDesignMode(new DependencyObject()))
+            {
+                Initialize();
+            }
         }
 
         public static void Initialize()
@@ -35,6 +40,8 @@ namespace XamlCSS.WPF
             }
 
             initialized = true;
+
+            CompositionTarget.Rendering += RenderingHandler();
 
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
             IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService =
@@ -58,13 +65,26 @@ namespace XamlCSS.WPF
                 new CssFileProvider(cssTypeHelper)
                 );
 
+            // Warmup(markupExtensionParser, defaultCssNamespace);
+
+            LoadedDetectionHelper.Initialize();
+        }
+
+        private static void Warmup(MarkupExtensionParser markupExtensionParser, string defaultCssNamespace)
+        {
             // warmup parser
             markupExtensionParser.Parse("true", Application.Current?.MainWindow ?? new FrameworkElement(), new[] { new CssNamespace("", defaultCssNamespace) });
 
             TypeHelpers.GetPropertyAccessor(typeof(FrameworkElement), "IsLoaded");
 
-            LoadedDetectionHelper.Initialize();
-            CompositionTarget.Rendering += RenderingHandler();
+            var styleSheet = CssParser.Parse("*{Background: #StaticResource no;}");
+
+            var f = new Button();
+            f.SetValue(Css.StyleSheetProperty, styleSheet);
+            f.Content = new TextBlock();
+
+            instance.EnqueueNewElement(f, styleSheet, f);
+            instance.ExecuteApplyStyles();
         }
 
         public static readonly DependencyProperty MatchingStylesProperty =

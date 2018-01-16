@@ -21,11 +21,11 @@ namespace XamlCSS
             return null;
         }
 
-        public override bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
+        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
         {
             if (string.IsNullOrWhiteSpace(Text))
             {
-                return false;
+                return MatchResult.ItemFailed;
             }
 
             var tagname = domElement.TagName;
@@ -34,7 +34,7 @@ namespace XamlCSS
 
             thisPosition = (domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).Count() ?? 0) - thisPosition;
 
-            return CalcIsNth(factor, distance, ref thisPosition);
+            return CalcIsNth(factor, distance, ref thisPosition) ? MatchResult.Success : MatchResult.ItemFailed;
         }
     }
 }

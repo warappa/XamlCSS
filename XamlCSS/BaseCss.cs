@@ -49,7 +49,7 @@ namespace XamlCSS
         private int noopCount = 0;
         public void ExecuteApplyStyles()
         {
-            
+
             if (executeApplyStylesExecuting)
             {
                 return;
@@ -57,38 +57,33 @@ namespace XamlCSS
 
             executeApplyStylesExecuting = true;
 
-            try
+            List<RenderInfo<TDependencyObject, TUIElement>> copy;
+
+            //lock (items)
             {
-                List<RenderInfo<TDependencyObject, TUIElement>> copy;
-
-                //lock (items)
+                if (items.Count == 0)
                 {
-                    if (items.Count == 0)
-                    {
-                        noopCount++;
-                        return;
-                    }
-
-                    copy = items.Distinct().ToList();
-                    items.Clear();
+                    noopCount++;
+                    executeApplyStylesExecuting = false;
+                    return;
                 }
-                Debug.WriteLine("Noops: " + noopCount);
-                noopCount = 0;
 
-                //applicationResourcesService.BeginUpdate();
-
-                "Render".Measure(() =>
-                {
-                    BaseCSS2<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
-                        .Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
-                });
-
-                Investigate.Print();
+                copy = items.Distinct().ToList();
+                items.Clear();
             }
-            finally
+            Debug.WriteLine("Noops: " + noopCount);
+            noopCount = 0;
+
+            //applicationResourcesService.BeginUpdate();
+
+            "Render".Measure(() =>
             {
-                executeApplyStylesExecuting = false;
-            }
+                BaseCSS2<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+                    .Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
+            });
+
+            Investigate.Print();
+            executeApplyStylesExecuting = false;
         }
 
         public void EnqueueRenderStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet)
@@ -277,7 +272,7 @@ namespace XamlCSS
                 });
             }
         }
-        
+
         private StyleSheet GetStyleSheetFromTree(IDomElement<TDependencyObject> domElement)
         {
             var current = domElement;

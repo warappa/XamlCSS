@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XamlCSS.Utils;
 
 namespace XamlCSS.Dom
 {
@@ -114,10 +115,10 @@ namespace XamlCSS.Dom
 
         protected IList<IDomElement<TDependencyObject>> GetChildNodes(TDependencyObject dependencyObject)
         {
-            return treeNodeProvider
+            return "GetChildNodes".Measure(() => treeNodeProvider
                 .GetChildren(dependencyObject)
                 .Select(x => treeNodeProvider.GetDomElement(x))
-                .ToList();
+                .ToList());
         }
 
         abstract protected IList<string> GetClassList(TDependencyObject dependencyObject);
@@ -253,7 +254,7 @@ namespace XamlCSS.Dom
         //    return namespaceProvider.LookupPrefix(this, namespaceUri);
         //}
 
-        public bool Matches(StyleSheet styleSheet, ISelector selector)
+        public MatchResult Matches(StyleSheet styleSheet, ISelector selector)
         {
             return selector.Match(styleSheet, this);
         }
@@ -267,9 +268,14 @@ namespace XamlCSS.Dom
 
         public IDomElement<TDependencyObject> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector)
         {
-            if (this.Matches(styleSheet, selector))
+            var match = Matches(styleSheet, selector);
+            if (match.IsSuccess)
             {
                 return this;
+            }
+            else if (match.HasGeneralParentFailed)
+            {
+                // return null;
             }
 
             //var selector = cachedSelectorProvider.GetOrAdd(selectors);
@@ -287,18 +293,28 @@ namespace XamlCSS.Dom
         public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
-
-            if (StyleInfo.CurrentStyleSheet != styleSheet ||
-                StyleInfo.DoMatchCheck == SelectorType.None)
+            var check = "StyleInfo check".Measure(() =>
             {
-                return new List<IDomElement<TDependencyObject>>();
-            }
+                if (StyleInfo.CurrentStyleSheet != styleSheet ||
+                    StyleInfo.DoMatchCheck == SelectorType.None)
+                {
+                    return new List<IDomElement<TDependencyObject>>();
+                }
+                return null;
+            });
+            if (check != null)
+                return check;
 
-            var res = ChildNodes.QuerySelectorAll(styleSheet, selector);
-            if (this.Matches(styleSheet, selector))
+            var res = "ROOT QuerySelectorAll".Measure(() => ChildNodes.QuerySelectorAll(styleSheet, selector));
+
+            "match this".Measure(() =>
             {
-                res.Add(this);
-            }
+                var match = Matches(styleSheet, selector);
+                if (match.IsSuccess)
+                {
+                    res.Add(this);
+                }
+            });
 
             return res;
         }

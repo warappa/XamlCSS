@@ -58,17 +58,14 @@ namespace XamlCSS.Dom
             for (int i = 0; i < length; i++)
             {
                 var element = elements[i];
-                if (element != null)
+                if (element.ClassList.ContainsAll(classNames))
                 {
-                    if (element.ClassList.ContainsAll(classNames))
-                    {
-                        result.Add(element);
-                    }
+                    result.Add(element);
+                }
 
-                    if (element.ChildNodes.Count != 0)
-                    {
-                        element.ChildNodes.GetElementsByClassName(classNames, result);
-                    }
+                if (element.ChildNodes.Count != 0)
+                {
+                    element.ChildNodes.GetElementsByClassName(classNames, result);
                 }
             }
         }
@@ -81,17 +78,14 @@ namespace XamlCSS.Dom
             for (int i = 0; i < length; i++)
             {
                 var element = elements[i];
-                if (element != null)
+                if (tagName == null || tagName.Isi(element.TagName))
                 {
-                    if (tagName == null || tagName.Isi(element.TagName))
-                    {
-                        result.Add(element);
-                    }
+                    result.Add(element);
+                }
 
-                    if (element.ChildNodes.Count != 0)
-                    {
-                        element.ChildNodes.GetElementsByTagName(tagName, result);
-                    }
+                if (element.ChildNodes.Count != 0)
+                {
+                    element.ChildNodes.GetElementsByTagName(tagName, result);
                 }
             }
         }
@@ -104,17 +98,14 @@ namespace XamlCSS.Dom
             for (int i = 0; i < length; i++)
             {
                 var element = elements[i];
-                if (element != null)
+                if (element.NamespaceUri.Is(namespaceUri) && (localName == null || localName.Isi(element.LocalName)))
                 {
-                    if (element.NamespaceUri.Is(namespaceUri) && (localName == null || localName.Isi(element.LocalName)))
-                    {
-                        result.Add(element);
-                    }
+                    result.Add(element);
+                }
 
-                    if (element.ChildNodes.Count != 0)
-                    {
-                        element.ChildNodes.GetElementsByTagName(namespaceUri, localName, result);
-                    }
+                if (element.ChildNodes.Count != 0)
+                {
+                    element.ChildNodes.GetElementsByTagName(namespaceUri, localName, result);
                 }
             }
         }
@@ -122,7 +113,7 @@ namespace XamlCSS.Dom
         public static IList<IDomElement<TDependencyObject>> QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector)
             where TDependencyObject : class
         {
-            var list = new List<IDomElement<TDependencyObject>>();
+            var list = new List<IDomElement<TDependencyObject>>(50);
 
             elements.QuerySelectorAll(styleSheet, selector, list);
 
@@ -132,22 +123,37 @@ namespace XamlCSS.Dom
         public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, IList<IDomElement<TDependencyObject>> result)
             where TDependencyObject : class
         {
-            var length = elements.Count;
-
-            for (int i = 0; i < length; i++)
+            "QuerySelectorAll".Measure(() =>
             {
-                var element = elements[i];
-                if (element != null)
-                {
-                    if (element.StyleInfo?.CurrentStyleSheet != styleSheet ||
-                        element.StyleInfo.DoMatchCheck == SelectorType.None)
-                    {
-                        continue;
-                    }
+                var length = elements.Count;
+                var skipThisLevel = false;
 
-                    if (selector.Match(styleSheet, element))
+                for (int i = 0; i < length; i++)
+                {
+                    var element = elements[i];
+                    if (!skipThisLevel)
                     {
-                        result.Add(element);
+                        if (element.StyleInfo?.CurrentStyleSheet != styleSheet ||
+                            element.StyleInfo.DoMatchCheck == SelectorType.None)
+                        {
+                            continue;
+                        }
+
+                        var match = selector.Match(styleSheet, element);
+
+                        if (match.IsSuccess)
+                        {
+                            result.Add(element);
+                        }
+                        else if (match.HasGeneralParentFailed)
+                        {
+                            //return;
+                            skipThisLevel = true;
+                        }
+                        else if (match.HasDirectParentFailed)
+                        {
+                            skipThisLevel = true;
+                        }
                     }
 
                     if (element.ChildNodes.Count != 0)
@@ -155,32 +161,43 @@ namespace XamlCSS.Dom
                         element.ChildNodes.QuerySelectorAll(styleSheet, selector, result);
                     }
                 }
-            }
+            });
         }
 
         public static IDomElement<TDependencyObject> QuerySelector<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector)
             where TDependencyObject : class
         {
             var length = elements.Count;
+            var skipThisLevel = false;
 
             for (int i = 0; i < length; i++)
             {
                 var element = elements[i];
-                if (element != null)
+                if (!skipThisLevel)
                 {
-                    if (selector.Match(styleSheet, element))
+                    var match = selector.Match(styleSheet, element);
+                    if (match.IsSuccess)
                     {
                         return element;
                     }
-
-                    if (element.ChildNodes.Count != 0)
+                    else if (match.HasGeneralParentFailed)
                     {
-                        element = element.ChildNodes.QuerySelector(styleSheet, selector);
+                        //return null;
+                        skipThisLevel = true;
+                    }
+                    else if (match.HasDirectParentFailed)
+                    {
+                        skipThisLevel = true;
+                    }
+                }
 
-                        if (element != null)
-                        {
-                            return element;
-                        }
+                if (element.ChildNodes.Count != 0)
+                {
+                    element = element.ChildNodes.QuerySelector(styleSheet, selector);
+
+                    if (element != null)
+                    {
+                        return element;
                     }
                 }
             }

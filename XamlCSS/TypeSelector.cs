@@ -46,14 +46,15 @@ namespace XamlCSS
             this.initializedWith = styleSheet;
         }
 
-        public override bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
+        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
         {
             if (initializedWith != styleSheet)
             {
                 Initialize(styleSheet);
             }
 
-            return domElement.LocalName == LocalName && (Alias == "*" || domElement.NamespaceUri == NamespaceUri);
+            var isMatch = domElement.LocalName == LocalName && (Alias == "*" || domElement.NamespaceUri == NamespaceUri);
+            return isMatch ? MatchResult.Success : MatchResult.ItemFailed;
         }
 
         public string Alias { get; private set; }

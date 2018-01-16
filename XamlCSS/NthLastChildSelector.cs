@@ -20,18 +20,19 @@ namespace XamlCSS
             return null;
         }
 
-        public override bool Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
+        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
         {
             if (string.IsNullOrWhiteSpace(Text))
             {
-                return false;
+                // TODO: maybe can use GeneralParentFailed
+                return MatchResult.ItemFailed;
             }
 
             var thisPosition = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
 
             thisPosition = (domElement.Parent?.ChildNodes.Count ?? 0) - thisPosition;
 
-            return CalcIsNth(factor, distance, ref thisPosition);
+            return CalcIsNth(factor, distance, ref thisPosition) ? MatchResult.Success : MatchResult.ItemFailed;
         }
     }
 }

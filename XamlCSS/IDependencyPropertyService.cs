@@ -50,5 +50,8 @@ namespace XamlCSS
 
         IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj, SelectorType selectorType);
         void SetDomElement(TDependencyObject obj, IDomElement<TDependencyObject> value, SelectorType selectorType);
+
+        object GetValue(TDependencyObject obj, string propertyName);
+        void SetValue(TDependencyObject obj, string propertyName, object value);
     }
 }

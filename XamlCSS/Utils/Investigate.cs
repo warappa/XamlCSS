@@ -14,7 +14,7 @@ namespace XamlCSS.Utils
         }
         static Stopwatch stopwatch;
 
-        static StringBuilder sb = new StringBuilder();
+        static StringBuilder sb = new StringBuilder(50000);
         private static int level = 0;
         public static void Measure(this string title, Action action)
         {

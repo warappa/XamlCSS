@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
+using XamlCSS.Utils;
 
 namespace XamlCSS.WPF
 {
@@ -37,9 +39,15 @@ namespace XamlCSS.WPF
         {
             removeLogicalChild.Invoke(null, new object[] { parent, child });
         }
+        private static Regex dynamicOrStaticResource = new Regex(@"{\s?(DynamicResource|StaticResource)\s(?<key>[a-zA-Z]+)\s?}");
 
         public object Parse(string expression, FrameworkElement obj, IEnumerable<CssNamespace> namespaces)
         {
+            var match = "match".Measure(() => dynamicOrStaticResource.Match(expression));
+            if (match.Success)
+            {
+                return GetDynamicResourceValue(match.Groups["key"].Value, obj);
+            }
             var xmlnamespaces = string.Join(" ", namespaces.Where(x => x.Alias != "")
                 .Select(x =>
                 {
@@ -53,7 +61,7 @@ namespace XamlCSS.WPF
                         return "xmlns:" + x.Alias + "=\"" + x.Namespace + "\"";
                     }
                 }));
-            
+
             var test = $@"
 <DataTemplate
 xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
@@ -107,16 +115,30 @@ xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
 
             if (parseResult is Binding binding)
             {
-                parseResult= binding.ProvideValue(null);
+                parseResult = binding.ProvideValue(null);
             }
             else if (parseResult?.GetType().Name == "ResourceReferenceExpression")
             {
-                var resourceKeyProperty = parseResult.GetType().GetProperty("ResourceKey");
+                var resourceKey = TypeHelpers.GetPropertyValue(parseResult, "ResourceKey");
 
-                parseResult= new DynamicResourceExtension(resourceKeyProperty.GetValue(parseResult));
+                parseResult = new DynamicResourceExtension(resourceKey);
             }
 
             return parseResult;
+        }
+
+        internal static object GetDynamicResourceValue(object resourceKey, object element)
+        {
+            if (element is FrameworkElement)
+            {
+                return ((FrameworkElement)element).TryFindResource(resourceKey);
+            }
+            else if (element is FrameworkContentElement)
+            {
+                return ((FrameworkContentElement)element).TryFindResource(resourceKey);
+            }
+
+            return null;
         }
     }
 }
