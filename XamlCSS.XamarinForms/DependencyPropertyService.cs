@@ -234,5 +234,27 @@ namespace XamlCSS.XamarinForms
                 Css.SetDomElement(obj, value);
             }
         }
+
+        public object GetValue(BindableObject obj, string propertyName)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            var dp = TypeHelpers.GetDependencyPropertyInfo<BindableProperty>(obj.GetType(), propertyName);
+            return obj.GetValue(dp.Property);
+        }
+
+        public void SetValue(BindableObject obj, string propertyName, object value)
+        {
+            if (obj == null)
+            {
+                return;
+            }
+
+            var dp = TypeHelpers.GetDependencyPropertyInfo<BindableProperty>(obj.GetType(), propertyName);
+            obj.SetValue(dp.Property, value);
+        }
     }
 }

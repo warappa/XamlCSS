@@ -223,5 +223,27 @@ namespace XamlCSS.UWP
         {
             Css.SetStyledByStyleSheet(obj, value);
         }
+
+        public object GetValue(DependencyObject obj, string propertyName)
+        {
+            if (obj == null)
+            {
+                return null;
+            }
+
+            var dp = TypeHelpers.GetDependencyPropertyInfo<DependencyProperty>(obj.GetType(), propertyName);
+            return obj.GetValue(dp.Property);
+        }
+
+        public void SetValue(DependencyObject obj, string propertyName, object value)
+        {
+            if (obj == null)
+            {
+                return;
+            }
+
+            var dp = TypeHelpers.GetDependencyPropertyInfo<DependencyProperty>(obj.GetType(), propertyName);
+            obj.SetValue(dp.Property, value);
+        }
     }
 }
