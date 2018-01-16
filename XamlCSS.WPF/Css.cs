@@ -14,7 +14,7 @@ namespace XamlCSS.WPF
 {
     public class Css
     {
-        public static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance;
+        public static BaseCss<DependencyObject, Style, DependencyProperty> instance;
 
         private static EventHandler RenderingHandler()
         {
@@ -44,17 +44,17 @@ namespace XamlCSS.WPF
             CompositionTarget.Rendering += RenderingHandler();
 
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-            IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService =
+            IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService =
                 new DependencyPropertyService();
             var visualTreeNodeProvider = new VisualTreeNodeProvider(dependencyPropertyService);
             var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
             var visualTreeNodeWithLogicalFallbackProvider = new VisualWithLogicalFallbackTreeNodeProvider(dependencyPropertyService, visualTreeNodeProvider, logicalTreeNodeProvider);
             var markupExtensionParser = new MarkupExtensionParser();
-            var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
+            var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
             var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);
             var defaultCssNamespace = DomElementBase<DependencyObject, DependencyProperty>.GetNamespaceUri(typeof(System.Windows.Controls.Button));
 
-            instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
+            instance = new BaseCss<DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
                 switchableTreeNodeProvider,
                 new StyleResourceService(),

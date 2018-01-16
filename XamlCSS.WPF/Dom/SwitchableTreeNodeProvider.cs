@@ -10,7 +10,7 @@ namespace XamlCSS.WPF.Dom
         private ITreeNodeProvider<DependencyObject> visualTreeNodeProvider;
         private ITreeNodeProvider<DependencyObject> logicalTreeNodeProvider;
         
-        public SwitchableTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService,
+        public SwitchableTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService,
             ITreeNodeProvider<DependencyObject> visualTreeNodeProvider,
             ITreeNodeProvider<DependencyObject> logicalTreeNodeProvider
             )
@@ -77,9 +77,9 @@ namespace XamlCSS.WPF.Dom
             return currentTreeNodeProvider.GetParent(element);
         }
 
-        public override bool IsInTree(DependencyObject tUIElement)
+        public override bool IsInTree(DependencyObject dependencyObject)
         {
-            return currentTreeNodeProvider.IsInTree(tUIElement);
+            return currentTreeNodeProvider.IsInTree(dependencyObject);
         }
     }
 }

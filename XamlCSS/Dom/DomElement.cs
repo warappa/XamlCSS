@@ -179,7 +179,7 @@ namespace XamlCSS.Dom
             {
                 if (prefix == Undefined)
                 {
-                    prefix = StyleInfo.CurrentStyleSheet?.GetAlias(NamespaceUri) ?? Undefined;
+                    prefix = StyleInfo?.CurrentStyleSheet?.GetAlias(NamespaceUri) ?? Undefined;
                 }
 
                 return prefix != Undefined ? prefix : null;
@@ -387,16 +387,15 @@ namespace XamlCSS.Dom
         #endregion
     }
 
-    public class NamespaceProvider<TDependencyObject, TUIElement, TStyle, TDependencyProperty> : INamespaceProvider<TDependencyObject>
+    public class NamespaceProvider<TDependencyObject, TStyle, TDependencyProperty> : INamespaceProvider<TDependencyObject>
         where TDependencyObject : class
-        where TUIElement : class, TDependencyObject
         where TStyle : class
         where TDependencyProperty : class
     {
-        private readonly IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService;
+        private readonly IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
         private readonly IDictionary<string, string> prefix2Namespace = new Dictionary<string, string>();
 
-        public NamespaceProvider(IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService)
+        public NamespaceProvider(IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService)
         {
             this.dependencyPropertyService = dependencyPropertyService;
         }

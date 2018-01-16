@@ -16,7 +16,7 @@ namespace XamlCSS.UWP
 {
     public class Css
     {
-        public static BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty> instance;
+        public static BaseCss<DependencyObject, Style, DependencyProperty> instance;
 
         public static void RunOnUIThread(Action action)
         {
@@ -81,9 +81,9 @@ namespace XamlCSS.UWP
 
             var dependencyPropertyService = new DependencyPropertyService();
             var markupExtensionParser = new MarkupExtensionParser();
-            var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
+            var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
 
-            instance = new BaseCss<DependencyObject, DependencyObject, Style, DependencyProperty>(
+            instance = new BaseCss<DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
                 new LogicalTreeNodeProvider(dependencyPropertyService),
                 new StyleResourceService(),

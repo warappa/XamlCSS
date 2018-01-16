@@ -9,24 +9,24 @@ using XamlCSS.Utils;
 
 namespace XamlCSS.UWP
 {
-    public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty>
+    public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, Style, DependencyProperty>
     {
         private UWPTypeConverterProvider typeConverter = new UWPTypeConverterProvider();
 
-        public DependencyProperty GetBindableProperty(DependencyObject frameworkElement, string propertyName)
+        public DependencyProperty GetDependencyProperty(DependencyObject frameworkElement, string propertyName)
         {
-            return GetBindableProperty(frameworkElement.GetType(), propertyName);
+            return GetDependencyProperty(frameworkElement.GetType(), propertyName);
         }
-        public DependencyProperty GetBindableProperty(Type bindableObjectType, string propertyName)
+        public DependencyProperty GetDependencyProperty(Type dependencyObjectType, string propertyName)
         {
             DependencyProperty result;
 
-            result = TypeHelpers.GetDependencyPropertyInfo<DependencyProperty>(bindableObjectType, propertyName)?.Property;
+            result = TypeHelpers.GetDependencyPropertyInfo<DependencyProperty>(dependencyObjectType, propertyName)?.Property;
 
             return result;
         }
 
-        public object GetBindablePropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
+        public object GetDependencyPropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
         {
             Type propertyType = null;
 

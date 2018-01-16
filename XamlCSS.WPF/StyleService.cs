@@ -15,16 +15,16 @@ namespace XamlCSS.WPF
 {
     public class StyleService : StyleServiceBase<Style, DependencyObject, DependencyProperty>
     {
-        private IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyService;
+        private IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyService;
         private IMarkupExtensionParser markupExtensionParser;
-        private CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style> typeNameResolver;
+        private CssTypeHelper<DependencyObject, DependencyProperty, Style> typeNameResolver;
 
-        public StyleService(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyService,
+        public StyleService(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyService,
             IMarkupExtensionParser markupExtensionParser)
         {
             this.dependencyService = dependencyService;
             this.markupExtensionParser = markupExtensionParser;
-            this.typeNameResolver = new CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyService);
+            this.typeNameResolver = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyService);
         }
 
         protected override void AddTrigger(Style style, DependencyObject trigger)
@@ -91,14 +91,14 @@ namespace XamlCSS.WPF
                     var propertyTrigger = trigger as Trigger;
                     var nativeTrigger = new System.Windows.Trigger();
 
-                    var dependencyProperty = dependencyService.GetBindableProperty(targetType, propertyTrigger.Property);
+                    var dependencyProperty = dependencyService.GetDependencyProperty(targetType, propertyTrigger.Property);
                     if (dependencyProperty == null)
                     {
                         throw new NullReferenceException($"Property '{propertyTrigger.Property}' may not be null (targetType '{targetType.Name}')!");
                     }
 
                     nativeTrigger.Property = dependencyProperty;
-                    nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property.Name, nativeTrigger.Property, propertyTrigger.Value);
+                    nativeTrigger.Value = dependencyService.GetDependencyPropertyValue(targetType, nativeTrigger.Property.Name, nativeTrigger.Property, propertyTrigger.Value);
                     "StyleDeclarationBlock".Measure(() =>
                     {
                         foreach (var styleDeclaration in propertyTrigger.StyleDeclarationBlock)

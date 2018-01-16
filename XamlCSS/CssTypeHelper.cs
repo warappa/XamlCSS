@@ -8,17 +8,16 @@ using XamlCSS.Utils;
 
 namespace XamlCSS
 {
-    public class CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle>
+    public class CssTypeHelper<TDependencyObject, TDependencyProperty, TStyle>
         where TDependencyObject : class
-        where TUIElement : class, TDependencyObject
         where TStyle : class
         where TDependencyProperty : class
     {
         private IMarkupExtensionParser markupExpressionParser;
-        private IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService;
+        private IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
 
         public CssTypeHelper(IMarkupExtensionParser markupExpressionParser,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService)
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService)
         {
             this.markupExpressionParser = markupExpressionParser;
             this.dependencyPropertyService = dependencyPropertyService;
@@ -88,7 +87,7 @@ namespace XamlCSS
             }
             else
             {
-                propertyValue = dependencyPropertyService.GetBindablePropertyValue(matchedType, propertyName, property, valueExpression);
+                propertyValue = dependencyPropertyService.GetDependencyPropertyValue(matchedType, propertyName, property, valueExpression);
             }
 
             return propertyValue;

@@ -7,7 +7,7 @@ namespace XamlCSS.WPF.Dom
 {
     public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
-        public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
+        public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService, SelectorType.LogicalTree)
         {
         }
@@ -47,13 +47,13 @@ namespace XamlCSS.WPF.Dom
             return LogicalTreeHelper.GetParent(element);
         }
 
-        public override bool IsInTree(DependencyObject tUIElement)
+        public override bool IsInTree(DependencyObject dependencyObject)
         {
-            var p = GetParent(tUIElement);
+            var p = GetParent(dependencyObject);
             if (p == null)
-                return tUIElement is Window;
+                return dependencyObject is Window;
 
-            return GetChildren(p).Contains(tUIElement);
+            return GetChildren(p).Contains(dependencyObject);
         }
     }
 }

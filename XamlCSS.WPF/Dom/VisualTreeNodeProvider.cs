@@ -9,7 +9,7 @@ namespace XamlCSS.WPF.Dom
 {
     public class VisualTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
-        public VisualTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
+        public VisualTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService, SelectorType.VisualTree)
         {
         }

@@ -9,15 +9,15 @@ namespace XamlCSS.Dom
         where TStyle : class
         where TDependencyProperty : class
     {
-        protected readonly IDependencyPropertyService<TDependencyObject, TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
+        protected readonly IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
         protected readonly INamespaceProvider<TDependencyObject> namespaceProvider;
         protected SelectorType selectorType;
 
-        public TreeNodeProviderBase(IDependencyPropertyService<TDependencyObject, TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
+        public TreeNodeProviderBase(IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             SelectorType selectorType)
         {
             this.dependencyPropertyService = dependencyPropertyService;
-            this.namespaceProvider = new NamespaceProvider<TDependencyObject, TDependencyObject, TStyle, TDependencyProperty>(dependencyPropertyService);
+            this.namespaceProvider = new NamespaceProvider<TDependencyObject, TStyle, TDependencyProperty>(dependencyPropertyService);
             this.selectorType = selectorType;
         }
 
@@ -25,7 +25,7 @@ namespace XamlCSS.Dom
 
         public abstract bool IsCorrectTreeNode(IDomElement<TDependencyObject> node);
 
-        public abstract TDependencyObject GetParent(TDependencyObject tUIElement);
+        public abstract TDependencyObject GetParent(TDependencyObject dependencyObject);
 
         public abstract IEnumerable<TDependencyObject> GetChildren(TDependencyObject element);
 
@@ -65,7 +65,7 @@ namespace XamlCSS.Dom
             return cached;
         }
 
-        public abstract bool IsInTree(TDependencyObject tUIElement);
+        public abstract bool IsInTree(TDependencyObject dependencyObject);
 
         private IDomElement<TDependencyObject> GetFromDependencyObject(TDependencyObject obj)
         {

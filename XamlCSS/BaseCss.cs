@@ -8,21 +8,20 @@ using XamlCSS.Utils;
 
 namespace XamlCSS
 {
-    public class BaseCss<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+    public class BaseCss<TDependencyObject, TStyle, TDependencyProperty>
         where TDependencyObject : class
-        where TUIElement : class, TDependencyObject
         where TStyle : class
         where TDependencyProperty : class
     {
-        public readonly IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService;
+        public readonly IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
         public readonly ISwitchableTreeNodeProvider<TDependencyObject> treeNodeProvider;
         public readonly IStyleResourcesService applicationResourcesService;
         public readonly INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService;
         private readonly IMarkupExtensionParser markupExpressionParser;
         private Action<Action> uiInvoker;
-        private List<RenderInfo<TDependencyObject, TUIElement>> items = new List<RenderInfo<TDependencyObject, TUIElement>>();
+        private List<RenderInfo<TDependencyObject>> items = new List<RenderInfo<TDependencyObject>>();
 
-        public BaseCss(IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+        public BaseCss(IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             ISwitchableTreeNodeProvider<TDependencyObject> treeNodeProvider,
             IStyleResourcesService applicationResourcesService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
@@ -37,7 +36,7 @@ namespace XamlCSS
             this.nativeStyleService = nativeStyleService;
             this.markupExpressionParser = markupExpressionParser;
             this.uiInvoker = uiInvoker;
-            this.cssTypeHelper = new CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle>(markupExpressionParser, dependencyPropertyService);
+            this.cssTypeHelper = new CssTypeHelper<TDependencyObject, TDependencyProperty, TStyle>(markupExpressionParser, dependencyPropertyService);
 
             CssParser.Initialize(defaultCssNamespace, fileProvider);
             StyleSheet.GetParent = parent => treeNodeProvider.GetParent((TDependencyObject)parent);
@@ -45,7 +44,7 @@ namespace XamlCSS
         }
 
         protected bool executeApplyStylesExecuting;
-        private CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle> cssTypeHelper;
+        private CssTypeHelper<TDependencyObject, TDependencyProperty, TStyle> cssTypeHelper;
         private int noopCount = 0;
         public void ExecuteApplyStyles()
         {
@@ -57,7 +56,7 @@ namespace XamlCSS
 
             executeApplyStylesExecuting = true;
 
-            List<RenderInfo<TDependencyObject, TUIElement>> copy;
+            List<RenderInfo<TDependencyObject>> copy;
 
             //lock (items)
             {
@@ -78,7 +77,7 @@ namespace XamlCSS
 
             "Render".Measure(() =>
             {
-                BaseCSS2<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+                BaseCSS2<TDependencyObject, TStyle, TDependencyProperty>
                     .Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
             });
 
@@ -86,7 +85,7 @@ namespace XamlCSS
             executeApplyStylesExecuting = false;
         }
 
-        public void EnqueueRenderStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet)
+        public void EnqueueRenderStyleSheet(TDependencyObject styleSheetHolder, StyleSheet styleSheet)
         {
             if (styleSheetHolder == null ||
                 styleSheet == null)
@@ -96,7 +95,7 @@ namespace XamlCSS
 
             lock (items)
             {
-                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                items.Add(new RenderInfo<TDependencyObject>
                 {
                     RenderTargetKind = RenderTargetKind.Stylesheet,
                     ChangeKind = ChangeKind.New,
@@ -107,7 +106,7 @@ namespace XamlCSS
             }
         }
 
-        public void EnqueueUpdateStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet)
+        public void EnqueueUpdateStyleSheet(TDependencyObject styleSheetHolder, StyleSheet styleSheet)
         {
             if (styleSheetHolder == null ||
                 styleSheet == null)
@@ -117,7 +116,7 @@ namespace XamlCSS
 
             lock (items)
             {
-                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                items.Add(new RenderInfo<TDependencyObject>
                 {
                     RenderTargetKind = RenderTargetKind.Stylesheet,
                     ChangeKind = ChangeKind.Update,
@@ -128,7 +127,7 @@ namespace XamlCSS
             }
         }
 
-        public void EnqueueUpdateElement(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
+        public void EnqueueUpdateElement(TDependencyObject styleSheetHolder, StyleSheet styleSheet, TDependencyObject startFrom)
         {
             if (styleSheetHolder == null ||
                 styleSheet == null)
@@ -138,7 +137,7 @@ namespace XamlCSS
 
             lock (items)
             {
-                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                items.Add(new RenderInfo<TDependencyObject>
                 {
                     RenderTargetKind = RenderTargetKind.Element,
                     ChangeKind = ChangeKind.Update,
@@ -149,7 +148,7 @@ namespace XamlCSS
             }
         }
 
-        public void EnqueueNewElement(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
+        public void EnqueueNewElement(TDependencyObject styleSheetHolder, StyleSheet styleSheet, TDependencyObject startFrom)
         {
             if (styleSheetHolder == null ||
                 styleSheet == null)
@@ -159,7 +158,7 @@ namespace XamlCSS
 
             lock (items)
             {
-                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                items.Add(new RenderInfo<TDependencyObject>
                 {
                     RenderTargetKind = RenderTargetKind.Element,
                     ChangeKind = ChangeKind.New,
@@ -177,7 +176,7 @@ namespace XamlCSS
                 return;
             }
 
-            var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
+            var parent = GetStyleSheetParent(sender as TDependencyObject);
             if (parent == null)
             {
                 return;
@@ -190,10 +189,10 @@ namespace XamlCSS
             EnqueueNewElement(
                 parent,
                 dependencyPropertyService.GetStyleSheet(parent),
-                sender as TUIElement);
+                sender);
         }
 
-        public void EnqueueRemoveElement(TUIElement styleSheetHolder, StyleSheet styleSheet, TUIElement startFrom)
+        public void EnqueueRemoveElement(TDependencyObject styleSheetHolder, StyleSheet styleSheet, TDependencyObject startFrom)
         {
             if (styleSheetHolder == null ||
                 styleSheet == null)
@@ -203,7 +202,7 @@ namespace XamlCSS
 
             lock (items)
             {
-                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                items.Add(new RenderInfo<TDependencyObject>
                 {
                     RenderTargetKind = RenderTargetKind.Element,
                     ChangeKind = ChangeKind.Remove,
@@ -221,7 +220,7 @@ namespace XamlCSS
                 return;
             }
 
-            var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
+            var parent = GetStyleSheetParent(sender as TDependencyObject);
             if (parent == null)
             {
                 return;
@@ -230,7 +229,7 @@ namespace XamlCSS
             EnqueueRemoveElement(
                 parent,
                 dependencyPropertyService.GetStyleSheet(parent),
-                sender as TUIElement);
+                sender);
         }
 
         public void UpdateElement(TDependencyObject sender)
@@ -240,7 +239,7 @@ namespace XamlCSS
                 return;
             }
 
-            var parent = GetStyleSheetParent(sender as TDependencyObject) as TUIElement;
+            var parent = GetStyleSheetParent(sender as TDependencyObject);
             if (parent == null)
             {
                 return;
@@ -249,10 +248,10 @@ namespace XamlCSS
             EnqueueUpdateElement(
                 parent,
                 dependencyPropertyService.GetStyleSheet(parent),
-                sender as TUIElement);
+                sender);
         }
 
-        public void EnqueueRemoveStyleSheet(TUIElement styleSheetHolder, StyleSheet styleSheet)
+        public void EnqueueRemoveStyleSheet(TDependencyObject styleSheetHolder, StyleSheet styleSheet)
         {
             if (styleSheetHolder == null ||
                 styleSheet == null)
@@ -262,7 +261,7 @@ namespace XamlCSS
 
             lock (items)
             {
-                items.Add(new RenderInfo<TDependencyObject, TUIElement>
+                items.Add(new RenderInfo<TDependencyObject>
                 {
                     RenderTargetKind = RenderTargetKind.Stylesheet,
                     ChangeKind = ChangeKind.Remove,
@@ -288,19 +287,19 @@ namespace XamlCSS
 
         private TDependencyObject GetStyleSheetParent(TDependencyObject obj)
         {
-            var currentBindableObject = obj;
+            var currentDependencyObject = obj;
 
             try
             {
-                while (currentBindableObject != null)
+                while (currentDependencyObject != null)
                 {
-                    var styleSheet = dependencyPropertyService.GetStyleSheet(currentBindableObject);
+                    var styleSheet = dependencyPropertyService.GetStyleSheet(currentDependencyObject);
                     if (styleSheet != null)
                     {
-                        return currentBindableObject;
+                        return currentDependencyObject;
                     }
 
-                    currentBindableObject = treeNodeProvider.GetParent(currentBindableObject as TDependencyObject);
+                    currentDependencyObject = treeNodeProvider.GetParent(currentDependencyObject as TDependencyObject);
                 }
             }
             finally

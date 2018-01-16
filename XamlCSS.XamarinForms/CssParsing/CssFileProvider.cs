@@ -10,16 +10,16 @@ namespace XamlCSS.XamarinForms.CssParsing
 {
     public class CssFileProvider : CssFileProviderBase
     {
-        private readonly CssTypeHelper<BindableObject, BindableObject, BindableProperty, Style> cssTypeHelper;
+        private readonly CssTypeHelper<BindableObject, BindableProperty, Style> cssTypeHelper;
 
-        public CssFileProvider(CssTypeHelper<BindableObject, BindableObject, BindableProperty, Style> cssTypeHelper)
+        public CssFileProvider(CssTypeHelper<BindableObject, BindableProperty, Style> cssTypeHelper)
             : base(new[] { Application.Current.GetType().GetTypeInfo().Assembly })
         {
             this.cssTypeHelper = cssTypeHelper;
         }
 
         public CssFileProvider(IEnumerable<Assembly> assemblies,
-            CssTypeHelper<BindableObject, BindableObject, BindableProperty, Style> typeHelper)
+            CssTypeHelper<BindableObject, BindableProperty, Style> typeHelper)
             : this(typeHelper)
         {
             this.assemblies = assemblies.ToArray();

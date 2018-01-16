@@ -14,7 +14,7 @@ namespace XamlCSS.XamarinForms
 {
     public class Css
     {
-        public static BaseCss<BindableObject, BindableObject, Style, BindableProperty> instance;
+        public static BaseCss<BindableObject, Style, BindableProperty> instance;
 
         private static Timer uiTimer;
 
@@ -74,9 +74,9 @@ namespace XamlCSS.XamarinForms
 
                 var markupExtensionParser = new MarkupExtensionParser();
                 var dependencyPropertyService = new DependencyPropertyService();
-                var cssTypeHelper = new CssTypeHelper<BindableObject, BindableObject, BindableProperty, Style>(markupExtensionParser, dependencyPropertyService);
+                var cssTypeHelper = new CssTypeHelper<BindableObject, BindableProperty, Style>(markupExtensionParser, dependencyPropertyService);
                 
-                instance = new BaseCss<BindableObject, BindableObject, Style, BindableProperty>(
+                instance = new BaseCss<BindableObject, Style, BindableProperty>(
                     dependencyPropertyService,
                     new LogicalTreeNodeProvider(dependencyPropertyService),
                     new StyleResourceService(),

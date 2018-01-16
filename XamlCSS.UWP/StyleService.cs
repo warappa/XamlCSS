@@ -7,9 +7,9 @@ namespace XamlCSS.UWP
 {
     public class StyleService : StyleServiceBase<Style, DependencyObject, DependencyProperty>
     {
-        private IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyService;
+        private IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyService;
 
-        public StyleService(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyService)
+        public StyleService(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyService)
         {
             this.dependencyService = dependencyService;
         }

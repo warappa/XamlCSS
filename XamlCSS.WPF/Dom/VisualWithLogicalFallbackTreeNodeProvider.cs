@@ -12,7 +12,7 @@ namespace XamlCSS.WPF.Dom
         public ITreeNodeProvider<DependencyObject> VisualTreeNodeProvider { get; }
         public ITreeNodeProvider<DependencyObject> LogicalTreeNodeProvider { get; }
 
-        public VisualWithLogicalFallbackTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService,
+        public VisualWithLogicalFallbackTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService,
             ITreeNodeProvider<DependencyObject> visualTreeNodeProvider,
             ITreeNodeProvider<DependencyObject> logicalTreeNodeProvider
             )

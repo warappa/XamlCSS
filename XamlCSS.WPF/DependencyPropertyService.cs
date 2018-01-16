@@ -10,15 +10,15 @@ using XamlCSS.Utils;
 
 namespace XamlCSS.WPF
 {
-    public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty>
+    public class DependencyPropertyService : IDependencyPropertyService<DependencyObject, Style, DependencyProperty>
     {
         readonly ITypeDescriptorContext context = new TypeDescriptorContext(new Uri("pack://application:,,,/", UriKind.Absolute));
 
-        public DependencyProperty GetBindableProperty(DependencyObject frameworkElement, string propertyName)
+        public DependencyProperty GetDependencyProperty(DependencyObject frameworkElement, string propertyName)
         {
-            return GetBindableProperty(frameworkElement.GetType(), propertyName);
+            return GetDependencyProperty(frameworkElement.GetType(), propertyName);
         }
-        public DependencyProperty GetBindableProperty(Type bindableObjectType, string propertyName)
+        public DependencyProperty GetDependencyProperty(Type bindableObjectType, string propertyName)
         {
             DependencyProperty result;
 
@@ -27,9 +27,9 @@ namespace XamlCSS.WPF
             return result;
         }
 
-        public object GetBindablePropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
+        public object GetDependencyPropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
         {
-            return $"GetBindablePropertyValue {propertyName} {propertyValue}".Measure(() =>
+            return $"GetDependencyPropertyValue {propertyName} {propertyValue}".Measure(() =>
             {
                 if (property != null &&
                     !(property.PropertyType.IsInstanceOfType(propertyValue)))

@@ -17,14 +17,13 @@ namespace XamlCSS
         public Type MatchedType { get; internal set; }
         public SelectorType DoMatchCheck { get; internal set; }
     }
-    class BaseCSS2<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
+    class BaseCSS2<TDependencyObject, TStyle, TDependencyProperty>
             where TDependencyObject : class
-            where TUIElement : class, TDependencyObject
             where TStyle : class
             where TDependencyProperty : class
     {
         private static void RemoveStyleResourcesInternal(
-            TUIElement styleResourceReferenceHolder,
+            TDependencyObject styleResourceReferenceHolder,
             StyleSheet styleSheet,
             IStyleResourcesService applicationResourcesService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
@@ -41,12 +40,12 @@ namespace XamlCSS
         }
 
         public static void Render(
-            List<RenderInfo<TDependencyObject, TUIElement>> copy,
+            List<RenderInfo<TDependencyObject>> copy,
             ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             IStyleResourcesService applicationResourcesService,
-            CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle> cssTypeHelper)
+            CssTypeHelper<TDependencyObject, TDependencyProperty, TStyle> cssTypeHelper)
         {
             try
             {
@@ -235,7 +234,7 @@ namespace XamlCSS
 
         }
         private static void ReevaluateStylesheetInSubTree(IDomElement<TDependencyObject> domElement, StyleSheet oldStyleSheet,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             if (domElement.StyleInfo == null)
@@ -257,8 +256,8 @@ namespace XamlCSS
             }
         }
 
-        private static void SetAttachedToToNewStyleSheet(List<RenderInfo<TDependencyObject, TUIElement>> copy,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+        private static void SetAttachedToToNewStyleSheet(List<RenderInfo<TDependencyObject>> copy,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
@@ -279,8 +278,8 @@ namespace XamlCSS
             }
         }
 
-        private static void SetAttachedToToNull(List<RenderInfo<TDependencyObject, TUIElement>> copy,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+        private static void SetAttachedToToNull(List<RenderInfo<TDependencyObject>> copy,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
@@ -301,7 +300,7 @@ namespace XamlCSS
             }
         }
 
-        private static void RemoveOldStyleObjects(List<RenderInfo<TDependencyObject, TUIElement>> copy,
+        private static void RemoveOldStyleObjects(List<RenderInfo<TDependencyObject>> copy,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService, IStyleResourcesService applicationResourcesService)
         {
             var updatedOrRemovedStyleSheets = copy
@@ -321,7 +320,7 @@ namespace XamlCSS
         }
 
         private static void EnsureParents(IDomElement<TDependencyObject> domElement, ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             IDictionary<TDependencyObject, StyleUpdateInfo> styleUpdateInfos)
         {
@@ -473,7 +472,7 @@ namespace XamlCSS
             IDomElement<TDependencyObject> startFromLogical,
             IDomElement<TDependencyObject> startFromVisual,
             Dictionary<TDependencyObject, StyleUpdateInfo> styleUpdateInfos,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             // var requiredStyleInfos = new List<StyleMatchInfo>();
@@ -620,7 +619,7 @@ namespace XamlCSS
         }
 
         private static StyleSheet GetStyleSheetFromTree(IDomElement<TDependencyObject> domElement,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService)
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService)
         {
             var current = domElement;
             StyleSheet styleSheet = null;
@@ -638,7 +637,7 @@ namespace XamlCSS
             StyleSheet styleSheet,
             Dictionary<TDependencyObject, StyleUpdateInfo> styleUpdateInfos,
             ISwitchableTreeNodeProvider<TDependencyObject> switchableTreeNodeProvider,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             bool styleChanged,
             bool styleSheetRemoved)
@@ -693,7 +692,7 @@ namespace XamlCSS
         }
 
         private static StyleUpdateInfo GetNewStyleUpdateInfo(IDomElement<TDependencyObject> domElement,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             if (dependencyPropertyService.GetInitialStyle(domElement.Element) == null)
@@ -710,9 +709,9 @@ namespace XamlCSS
         private static void GenerateStyles(StyleSheet styleSheet,
             IDictionary<TDependencyObject, StyleUpdateInfo> styleMatchInfos,
             IStyleResourcesService applicationResourcesService,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
-            CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle> cssTypeHelper)
+            CssTypeHelper<TDependencyObject, TDependencyProperty, TStyle> cssTypeHelper)
         {
             applicationResourcesService.EnsureResources();
 
@@ -791,7 +790,7 @@ namespace XamlCSS
             StyleDeclarationBlock declarationBlock,
             Type matchedType,
             TDependencyObject dependencyObject,
-            CssTypeHelper<TDependencyObject, TUIElement, TDependencyProperty, TStyle> cssTypeHelper)
+            CssTypeHelper<TDependencyObject, TDependencyProperty, TStyle> cssTypeHelper)
         {
             var result = new CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty>();
 

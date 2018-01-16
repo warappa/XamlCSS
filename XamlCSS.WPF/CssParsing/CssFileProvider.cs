@@ -11,9 +11,9 @@ namespace XamlCSS.WPF.CssParsing
     public class CssFileProvider
          : CssFileProviderBase
     {
-        private readonly CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style> cssTypeHelper;
+        private readonly CssTypeHelper<DependencyObject, DependencyProperty, Style> cssTypeHelper;
 
-        public CssFileProvider(CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style> cssTypeHelper)
+        public CssFileProvider(CssTypeHelper<DependencyObject, DependencyProperty, Style> cssTypeHelper)
             : base(AppDomain.CurrentDomain.GetAssemblies()
                  .Where(x =>
                     x.IsDynamic == false &&

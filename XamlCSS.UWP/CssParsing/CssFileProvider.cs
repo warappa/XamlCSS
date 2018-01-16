@@ -11,16 +11,16 @@ namespace XamlCSS.UWP.CssParsing
 {
     public class CssFileProvider : CssFileProviderBase
     {
-        private readonly CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style> cssTypeHelper;
+        private readonly CssTypeHelper<DependencyObject, DependencyProperty, Style> cssTypeHelper;
 
-        public CssFileProvider(CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style> cssTypeHelper)
+        public CssFileProvider(CssTypeHelper<DependencyObject, DependencyProperty, Style> cssTypeHelper)
             : base(new[] { Application.Current.GetType().GetTypeInfo().Assembly })
         {
             this.cssTypeHelper = cssTypeHelper;
         }
 
         public CssFileProvider(IEnumerable<Assembly> assemblies,
-            CssTypeHelper<DependencyObject, DependencyObject, DependencyProperty, Style> typeHelper)
+            CssTypeHelper<DependencyObject, DependencyProperty, Style> typeHelper)
             : this(typeHelper)
         {
             this.assemblies = assemblies.ToArray();

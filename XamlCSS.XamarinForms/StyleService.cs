@@ -10,17 +10,17 @@ namespace XamlCSS.XamarinForms
 {
     public class StyleService : StyleServiceBase<Style, BindableObject, BindableProperty>
     {
-        private IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> dependencyService;
+        private IDependencyPropertyService<BindableObject, Style, BindableProperty> dependencyService;
         private IMarkupExtensionParser markupExtensionParser;
-        private CssTypeHelper<BindableObject, BindableObject, BindableProperty, Style> typeNameResolver;
+        private CssTypeHelper<BindableObject, BindableProperty, Style> typeNameResolver;
         private XamarinTypeConverterProvider typeConverterProvider;
 
-        public StyleService(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> dependencyService,
+        public StyleService(IDependencyPropertyService<BindableObject, Style, BindableProperty> dependencyService,
             IMarkupExtensionParser markupExtensionParser)
         {
             this.dependencyService = dependencyService;
             this.markupExtensionParser = markupExtensionParser;
-            this.typeNameResolver = new CssTypeHelper<BindableObject, BindableObject, BindableProperty, Style>(markupExtensionParser, dependencyService);
+            this.typeNameResolver = new CssTypeHelper<BindableObject, BindableProperty, Style>(markupExtensionParser, dependencyService);
             this.typeConverterProvider = new XamarinTypeConverterProvider();
         }
         protected override void AddSetter(Style style, BindableProperty property, object value)
@@ -47,14 +47,14 @@ namespace XamlCSS.XamarinForms
                 var propertyTrigger = trigger as Trigger;
                 var nativeTrigger = new Xamarin.Forms.Trigger(targetType);
 
-                var bindableProperty = dependencyService.GetBindableProperty(targetType, propertyTrigger.Property);
+                var bindableProperty = dependencyService.GetDependencyProperty(targetType, propertyTrigger.Property);
                 if (bindableProperty == null)
                 {
                     throw new NullReferenceException($"Property '{propertyTrigger.Property}' may not be null (targetType '{targetType.Name}')!");
                 }
 
                 nativeTrigger.Property = bindableProperty;
-                nativeTrigger.Value = dependencyService.GetBindablePropertyValue(targetType, nativeTrigger.Property.PropertyName, nativeTrigger.Property, propertyTrigger.Value);
+                nativeTrigger.Value = dependencyService.GetDependencyPropertyValue(targetType, nativeTrigger.Property.PropertyName, nativeTrigger.Property, propertyTrigger.Value);
 
                 foreach (var styleDeclaration in propertyTrigger.StyleDeclarationBlock)
                 {

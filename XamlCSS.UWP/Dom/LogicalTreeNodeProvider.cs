@@ -11,7 +11,7 @@ namespace XamlCSS.UWP.Dom
     {
         public SelectorType CurrentSelectorType => SelectorType.LogicalTree;
 
-        public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, DependencyObject, Style, DependencyProperty> dependencyPropertyService)
+        public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService, SelectorType.LogicalTree)
         {
         }
@@ -74,13 +74,13 @@ namespace XamlCSS.UWP.Dom
             return (element as FrameworkElement)?.Parent;
         }
 
-        public override bool IsInTree(DependencyObject tUIElement)
+        public override bool IsInTree(DependencyObject dependencyObject)
         {
-            var p = GetParent(tUIElement);
+            var p = GetParent(dependencyObject);
             if (p == null)
-                return tUIElement is Frame;
+                return dependencyObject is Frame;
 
-            return GetChildren(p).Contains(tUIElement);
+            return GetChildren(p).Contains(dependencyObject);
         }
 
         public void Switch(SelectorType type)

@@ -7,7 +7,7 @@ namespace XamlCSS.XamarinForms.Dom
 {
     public class VisualTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
     {
-        public VisualTreeNodeProvider(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> dependencyPropertyService)
+        public VisualTreeNodeProvider(IDependencyPropertyService<BindableObject, Style, BindableProperty> dependencyPropertyService)
             : base(dependencyPropertyService, SelectorType.VisualTree)
         {
         }
@@ -37,7 +37,7 @@ namespace XamlCSS.XamarinForms.Dom
             return VisualTreeHelper.GetParent(element as Element);
         }
 
-        public override bool IsInTree(BindableObject tUIElement)
+        public override bool IsInTree(BindableObject dependencyObject)
         {
             return true;
         }

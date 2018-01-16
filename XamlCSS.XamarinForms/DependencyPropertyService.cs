@@ -8,7 +8,7 @@ using XamlCSS.Utils;
 
 namespace XamlCSS.XamarinForms
 {
-    public class DependencyPropertyService : IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty>
+    public class DependencyPropertyService : IDependencyPropertyService<BindableObject, Style, BindableProperty>
     {
         private ITypeConverterProvider<TypeConverter> typeConverterProvider;
 
@@ -17,11 +17,11 @@ namespace XamlCSS.XamarinForms
             this.typeConverterProvider = new XamarinTypeConverterProvider();
         }
 
-        public BindableProperty GetBindableProperty(BindableObject frameworkElement, string propertyName)
+        public BindableProperty GetDependencyProperty(BindableObject frameworkElement, string propertyName)
         {
-            return GetBindableProperty(frameworkElement.GetType(), propertyName);
+            return GetDependencyProperty(frameworkElement.GetType(), propertyName);
         }
-        public BindableProperty GetBindableProperty(Type bindableObjectType, string propertyName)
+        public BindableProperty GetDependencyProperty(Type bindableObjectType, string propertyName)
         {
             string dpName = $"{propertyName}Property";
             return TypeHelpers.GetFieldValue(bindableObjectType, dpName) as BindableProperty;
@@ -56,7 +56,7 @@ namespace XamlCSS.XamarinForms
             return propertyValueString;
         }
 
-        public object GetBindablePropertyValue(Type frameworkElementType, string propertyName, BindableProperty bindableProperty, object propertyValue)
+        public object GetDependencyPropertyValue(Type frameworkElementType, string propertyName, BindableProperty bindableProperty, object propertyValue)
         {
             if (!(bindableProperty.ReturnType.GetTypeInfo()
                 .IsAssignableFrom(propertyValue.GetType().GetTypeInfo())))

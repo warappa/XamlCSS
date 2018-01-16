@@ -3,19 +3,18 @@
 namespace XamlCSS
 {
     [DebuggerDisplay("{ChangeKind} {RenderTargetKind} {(StartFrom ?? StyleSheetHolder).GetType().Name} {GetHashCode()}")]
-    public class RenderInfo<TDependencyObject, TUIElement>
+    public class RenderInfo<TDependencyObject>
         where TDependencyObject : class
-        where TUIElement : class, TDependencyObject
     {
-        public TUIElement StyleSheetHolder { get; set; }
+        public TDependencyObject StyleSheetHolder { get; set; }
         public StyleSheet StyleSheet { get; set; }
-        public TUIElement StartFrom { get; set; }
+        public TDependencyObject StartFrom { get; set; }
         public RenderTargetKind RenderTargetKind { get; internal set; }
         public ChangeKind ChangeKind { get; internal set; }
 
         public override bool Equals(object obj)
         {
-            var other = obj as RenderInfo<TDependencyObject, TUIElement>;
+            var other = obj as RenderInfo<TDependencyObject>;
             if (other == null)
             {
                 return false;

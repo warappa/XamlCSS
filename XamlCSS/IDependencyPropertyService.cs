@@ -3,15 +3,14 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public interface IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty>
-        where TUIElement : class, TDependencyObject
+    public interface IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty>
         where TDependencyObject : class
         where TStyle : class
         where TDependencyProperty : class
     {
-        bool IsLoaded(TUIElement obj);
+        bool IsLoaded(TDependencyObject obj);
 
-        void RegisterLoadedOnce(TUIElement frameworkElement, Action<object> func);
+        void RegisterLoadedOnce(TDependencyObject frameworkElement, Action<object> func);
 
         string[] GetMatchingStyles(TDependencyObject obj);
         void SetMatchingStyles(TDependencyObject obj, string[] value);
@@ -43,10 +42,10 @@ namespace XamlCSS
         string GetClass(TDependencyObject obj);
         void SetClass(TDependencyObject obj, string value);
 
-        object GetBindablePropertyValue(Type type, string propertyName, TDependencyProperty property, object value);
+        object GetDependencyPropertyValue(Type type, string propertyName, TDependencyProperty property, object value);
 
-        TDependencyProperty GetBindableProperty(TDependencyObject frameworkElement, string propertyName);
-        TDependencyProperty GetBindableProperty(Type uiElementType, string propertyName);
+        TDependencyProperty GetDependencyProperty(TDependencyObject frameworkElement, string propertyName);
+        TDependencyProperty GetDependencyProperty(Type uiElementType, string propertyName);
 
         IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj, SelectorType selectorType);
         void SetDomElement(TDependencyObject obj, IDomElement<TDependencyObject> value, SelectorType selectorType);

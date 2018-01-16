@@ -21,14 +21,13 @@ namespace XamlCSS.Utils
             return string.Join("->", sb);
         }
 
-        public static void PrintHerarchyDebugInfo<TDependencyObject, TUIElement, TStyle, TDependencyProperty>(
+        public static void PrintHerarchyDebugInfo<TDependencyObject, TStyle, TDependencyProperty>(
             this ITreeNodeProvider<TDependencyObject> treeNodeProvider,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
-            TUIElement styleResourceReferenceHolder, 
-            TUIElement startFrom
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
+            TDependencyObject styleResourceReferenceHolder,
+            TDependencyObject startFrom
             )
             where TDependencyObject : class
-            where TUIElement : class, TDependencyObject
             where TStyle : class
             where TDependencyProperty : class
         {
@@ -52,15 +51,14 @@ namespace XamlCSS.Utils
             Debug.WriteLine("----------------");
         }
 
-        public static void Recursive<TDependencyObject, TUIElement, TStyle, TDependencyProperty>(
+        public static void Recursive<TDependencyObject, TStyle, TDependencyProperty>(
             this ITreeNodeProvider<TDependencyObject> treeNodeProvider,
-            IDependencyPropertyService<TDependencyObject, TUIElement, TStyle, TDependencyProperty> dependencyPropertyService,
+            IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             TDependencyObject element,
             int level,
             TDependencyObject expectedParent
             )
             where TDependencyObject : class
-            where TUIElement : class, TDependencyObject
             where TStyle : class
             where TDependencyProperty : class
         {

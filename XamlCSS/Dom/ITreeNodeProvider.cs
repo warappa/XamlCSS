@@ -8,8 +8,8 @@ namespace XamlCSS.Dom
         IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj);
         IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node);
         IEnumerable<TDependencyObject> GetChildren(TDependencyObject element);
-        TDependencyObject GetParent(TDependencyObject tUIElement);
-        bool IsInTree(TDependencyObject tUIElement);
+        TDependencyObject GetParent(TDependencyObject dependencyObject);
+        bool IsInTree(TDependencyObject dependencyObject);
         IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
         bool IsCorrectTreeNode(IDomElement<TDependencyObject> node);
     }

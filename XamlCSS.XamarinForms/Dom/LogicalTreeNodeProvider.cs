@@ -10,7 +10,7 @@ namespace XamlCSS.XamarinForms.Dom
     {
         public SelectorType CurrentSelectorType => SelectorType.LogicalTree;
 
-        public LogicalTreeNodeProvider(IDependencyPropertyService<BindableObject, BindableObject, Style, BindableProperty> BindablePropertyService)
+        public LogicalTreeNodeProvider(IDependencyPropertyService<BindableObject, Style, BindableProperty> BindablePropertyService)
             : base(BindablePropertyService, SelectorType.LogicalTree)
         {
         }
@@ -73,7 +73,7 @@ namespace XamlCSS.XamarinForms.Dom
             return (element as Element)?.Parent;
         }
         
-        public override bool IsInTree(BindableObject tUIElement)
+        public override bool IsInTree(BindableObject dependencyObject)
         {
             return true;
         }
