@@ -18,11 +18,18 @@ namespace XamlCSS.Utils
         private static int level = 0;
         public static void Measure(this string title, Action action)
         {
+#if !INVESTIGATE
+            action();
+            return;
+#endif
             title.Measure(() => { action(); return true; });
         }
 
         public static T Measure<T>(this string title, Func<T> action)
         {
+#if !INVESTIGATE
+            return action();
+#endif
             var currentLevel = level;
             level++;
 
