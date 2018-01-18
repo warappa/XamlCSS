@@ -111,103 +111,22 @@ namespace XamlCSS
 
         public object GetClrPropertyValue(List<CssNamespace> namespaces, object obj, string propertyExpression)
         {
-            var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, obj.GetType());
-
-            var type = Type.GetType(typeAndProperyName.Item1);
-            return TypeHelpers.GetPropertyValue(obj, typeAndProperyName.Item2);
+            return TypeHelpers.GetClrPropertyValue(namespaces, obj, propertyExpression);
         }
 
         public Type GetClrPropertyType(IList<CssNamespace> namespaces, object obj, string propertyExpression)
         {
-            return "GetClrPropertyType".Measure(() =>
-            {
-                var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, obj.GetType());
-
-                var type = Type.GetType(typeAndProperyName.Item1);
-                return TypeHelpers.DeclaredProperty(type, typeAndProperyName.Item2).PropertyType;
-            });
+            return TypeHelpers.GetClrPropertyType(namespaces, obj, propertyExpression);
         }
 
         public Tuple<string, string> ResolveFullTypeNameAndPropertyName(IList<CssNamespace> namespaces, string cssPropertyExpression, Type matchedType)
         {
-            return "ResolveFullTypeNameAndPropertyName".Measure(() =>
-            {
-                string typename = null, propertyName = null;
-
-                if (cssPropertyExpression.IndexOf('|') > -1)
-                {
-                    "| expression".Measure(() =>
-                    {
-                        var strs = cssPropertyExpression.Split('|', '.');
-                        var alias = strs[0];
-                        var namespaceFragments = namespaces
-                            .First(x => x.Alias == alias)
-                            .Namespace
-                            .Split(',');
-
-                        typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                        propertyName = strs[2];
-                    });
-                }
-                else if (cssPropertyExpression.IndexOf('.') > -1)
-                {
-                    ". expression".Measure(() =>
-                    {
-                        var strs = cssPropertyExpression.Split('.');
-                        var namespaceFragments = namespaces
-                            .First(x => x.Alias == "")
-                            .Namespace
-                            .Split(',');
-
-                        typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
-                        propertyName = strs[1];
-                    });
-                }
-                else
-                {
-                    "simple expression".Measure(() =>
-                    {
-                        typename = matchedType.AssemblyQualifiedName;
-                        propertyName = cssPropertyExpression;
-                    });
-                }
-
-                return new Tuple<string, string>(typename, propertyName);
-            });
+            return TypeHelpers.ResolveFullTypeNameAndPropertyName(namespaces, cssPropertyExpression, matchedType);
         }
 
         public string ResolveFullTypeName(IList<CssNamespace> namespaces, string cssTypeExpression)
         {
-            string typename;
-
-            if (cssTypeExpression.IndexOf('|') > -1)
-            {
-                var strs = cssTypeExpression.Split('|');
-                var alias = strs[0];
-                var namespaceFragments = namespaces
-                    .FirstOrDefault(x => x.Alias == alias)
-                    ?.Namespace
-                    .Split(',');
-
-                if (namespaceFragments == null)
-                {
-                    throw new Exception($@"Namespace ""{alias}"" not found!");
-                }
-
-                typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
-            }
-            else
-            {
-                var strs = cssTypeExpression.Split('.');
-                var namespaceFragments = namespaces
-                    .First(x => x.Alias == "")
-                    .Namespace
-                    .Split(',');
-
-                typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
-            }
-
-            return typename;
+            return TypeHelpers.ResolveFullTypeName(namespaces, cssTypeExpression);
         }
 
         private bool IsHexColorValue(string value)

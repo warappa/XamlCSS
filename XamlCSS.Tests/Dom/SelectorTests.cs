@@ -602,9 +602,24 @@ namespace XamlCSS.Tests.Dom
             selector.Match(defaultStyleSheet, sibling2).IsSuccess.Should().Be(false);
         }
 
-        public TestNode GetDomElement(string tagname, string id, string classes = "", IEnumerable<IDomElement<UIElement>> children = null)
+        [Test]
+        public void Can_match_derived_type()
         {
-            var node = new TestNode(GetUiElement(), null, tagname, children, null, id, classes);
+            defaultStyleSheet = CssParser.Parse(@"@namespace ui ""XamlCSS.Tests.Dom, XamlCSS.Tests, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null"";");
+            var selector = new Selector("^ui|UIElement");
+
+            var tag = GetDomElement("ui|UIElement", "bbb", "some important stuff");
+            var sibling = GetDomElement("ui|UIElement", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("ui|DerivedUIElement", "bbb", "some important stuff", uiElement: new DerivedUIElement());
+
+            selector.Match(defaultStyleSheet, tag).IsSuccess.Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling).IsSuccess.Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling2).IsSuccess.Should().Be(true);
+        }
+
+        public TestNode GetDomElement(string tagname, string id, string classes = "", IEnumerable<IDomElement<UIElement>> children = null, UIElement uiElement = null)
+        {
+            var node = new TestNode(uiElement ?? GetUiElement(), null, tagname, children, null, id, classes);
 
             node.StyleInfo.CurrentStyleSheet = defaultStyleSheet;
 

@@ -9,7 +9,7 @@ namespace XamlCSS
         {
             if (type == CssNodeType.TypeSelector)
             {
-                return new TypeSelector(type, text);
+                return new TypeFragment(type, text);
             }
             else if (type == CssNodeType.ClassSelector)
             {
@@ -21,7 +21,7 @@ namespace XamlCSS
             }
             else if (type == CssNodeType.UniversalSelector)
             {
-                return new UnivseralSelector(type, text);
+                return new UnivseralFragment(type, text);
             }
             else if (type == CssNodeType.PseudoSelector)
             {
@@ -61,6 +61,10 @@ namespace XamlCSS
                 {
                     return new OnlyOfTypeSelector(CssNodeType.PseudoSelector, text);
                 }
+            }
+            else if (type == CssNodeType.InheritedTypeSelector)
+            {
+                return new InheritedTypeFragment(type, text);
             }
 
             return new SelectorFragment(type, text);

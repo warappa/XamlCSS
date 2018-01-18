@@ -1413,6 +1413,12 @@ namespace XamlCSS.CssParsing
                 ReadTypeSelector();
                 GoToParent();
             }
+            else if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Circumflex)
+            {
+                AddAndSetCurrent(CssNodeType.InheritedTypeSelector);
+                ReadInheritedTypeSelector();
+                GoToParent();
+            }
             else if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Asterisk)
             {
                 AddAndSetCurrent(CssNodeType.UniversalSelector);
@@ -1653,6 +1659,26 @@ namespace XamlCSS.CssParsing
         private void ReadTypeSelector()
         {
             ReadToken();
+
+            if (!ReachedEnd &&
+                currentToken.Type == CssTokenType.Pipe)
+            {
+                ReadToken();
+                if (!ReachedEnd)
+                {
+                    ReadToken();
+                }
+            }
+        }
+
+        private void ReadInheritedTypeSelector()
+        {
+            ReadToken();
+
+            if (!ReachedEnd)
+            {
+                ReadToken();
+            }
 
             if (!ReachedEnd &&
                 currentToken.Type == CssTokenType.Pipe)

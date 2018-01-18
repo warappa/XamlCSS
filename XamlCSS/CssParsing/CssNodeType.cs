@@ -58,6 +58,7 @@
         UniversalSelector = 53,
         AttributeSelector = 54,
         PseudoSelector = 55,
-        ParentSelector = 56
+        ParentSelector = 56,
+        InheritedTypeSelector = 57
     }
 }

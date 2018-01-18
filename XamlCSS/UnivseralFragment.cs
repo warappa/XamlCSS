@@ -1,12 +1,11 @@
-﻿using System.Collections.Generic;
-using XamlCSS.CssParsing;
+﻿using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public class UnivseralSelector : SelectorFragment
+    public class UnivseralFragment : SelectorFragment
     {
-        public UnivseralSelector(CssNodeType type, string text) : base(type, text)
+        public UnivseralFragment(CssNodeType type, string text) : base(type, text)
         {
             
         }

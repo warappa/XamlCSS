@@ -34,6 +34,8 @@ namespace XamlCSS
         protected string content = null;
         protected object attachedTo;
 
+        public int Version { get; private set; }
+
         virtual public CssNamespaceCollection LocalNamespaces
         {
             get
@@ -107,6 +109,7 @@ namespace XamlCSS
 
         private void Invalidate()
         {
+            Version++;
             Reset();
 
             var sheet = CssParser.Parse(content ?? "", null, GetCombinedVariables());
