@@ -127,11 +127,44 @@ namespace XamlCSS
                 {
                     return domElement.Parent?.ChildNodes.IndexOf(domElement) == (domElement.Parent?.ChildNodes.Count()) - 1 ? MatchResult.Success : MatchResult.ItemFailed;
                 }
+                else if (Text == ":first-of-type")
+                {
+                    var tagname = domElement.TagName;
+                    var namespaceUri = domElement.NamespaceUri;
+
+                    var children = domElement.Parent?.ChildNodes
+                        .Where(x => x.TagName == tagname && x.NamespaceUri == namespaceUri)
+                        .ToList();
+
+                    if (children == null)
+                    {
+                        return MatchResult.ItemFailed;
+                    }
+                    return children.IndexOf(domElement) == 0 ? MatchResult.Success : MatchResult.ItemFailed;
+                }
+                else if (Text == ":last-of-type")
+                {
+                    var tagname = domElement.TagName;
+                    var namespaceUri = domElement.NamespaceUri;
+
+                    var children = domElement.Parent?.ChildNodes
+                        .Where(x => x.TagName == tagname && x.NamespaceUri == namespaceUri)
+                        .ToList();
+
+                    if (children == null)
+                    {
+                        return MatchResult.ItemFailed;
+                    }
+                    return children.IndexOf(domElement) == children.Count - 1 ? MatchResult.Success : MatchResult.ItemFailed;
+                }
                 else if (Text.StartsWith(":only-of-type", StringComparison.Ordinal))
                 {
                     var tagname = domElement.TagName;
+                    var namespaceUri = domElement.NamespaceUri;
 
-                    return domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).Count() == 1 ? MatchResult.Success : MatchResult.ItemFailed;
+                    return domElement.Parent?.ChildNodes
+                        .Where(x => x.TagName == tagname && x.NamespaceUri == namespaceUri)
+                        .Count() == 1 ? MatchResult.Success : MatchResult.ItemFailed;
                 }
 
                 return MatchResult.ItemFailed;
