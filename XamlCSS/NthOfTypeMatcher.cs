@@ -4,9 +4,9 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public class NthOfTypeSelector : NthSelectorFragmentBase
+    public class NthOfTypeMatcher : NthMatcherBase
     {
-        public NthOfTypeSelector(CssNodeType type, string text) : base(type, text)
+        public NthOfTypeMatcher(CssNodeType type, string text) : base(type, text)
         {
             
         }
@@ -21,7 +21,7 @@ namespace XamlCSS
             return null;
         }
 
-        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
+        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             if (string.IsNullOrWhiteSpace(Text))
             {

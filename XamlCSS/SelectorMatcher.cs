@@ -4,18 +4,18 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public class SelectorFragment
+    public class SelectorMatcher
     {
         public CssNodeType Type { get; protected set; }
         public string Text { get; protected set; }
 
-        public SelectorFragment(CssNodeType type, string text)
+        public SelectorMatcher(CssNodeType type, string text)
         {
             Type = type;
             Text = text;
         }
 
-        virtual public MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
+        virtual public MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             if (Type == CssNodeType.GeneralDescendantCombinator)
             {

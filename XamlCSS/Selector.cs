@@ -82,9 +82,9 @@ namespace XamlCSS
                     x.Type == CssNodeType.DirectSiblingCombinator ||
                     x.Type == CssNodeType.GeneralSiblingCombinator)
                 {
-                    return new[] { new SelectorFragmentFactory().Create(x.Type, x.Text) };
+                    return new[] { new SelectorMatcherFactory().Create(x.Type, x.Text) };
                 }
-                return x.Children.Select(y => new SelectorFragmentFactory().Create(y.Type, y.Text));
+                return x.Children.Select(y => new SelectorMatcherFactory().Create(y.Type, y.Text));
             })
             .ToArray();
         }
@@ -92,7 +92,7 @@ namespace XamlCSS
         public int SimpleSpecificity { get; private set; }
         public int ClassSpecificity { get; private set; }
         public int IdSpecificity { get; private set; }
-        public SelectorFragment[] Fragments { get; private set; }
+        public SelectorMatcher[] Fragments { get; private set; }
 
         public string Specificity
         {

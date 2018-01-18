@@ -4,13 +4,13 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public class LastOfTypeSelector : SelectorFragment
+    public class LastOfTypeMatcher : SelectorMatcher
     {
-        public LastOfTypeSelector(CssNodeType type, string text) : base(type, text)
+        public LastOfTypeMatcher(CssNodeType type, string text) : base(type, text)
         {
         }
 
-        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
+        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             var tagname = domElement.TagName;
             var namespaceUri = domElement.NamespaceUri;

@@ -3,14 +3,14 @@ using XamlCSS.CssParsing;
 
 namespace XamlCSS
 {
-    public abstract class NthSelectorFragmentBase : SelectorFragment
+    public abstract class NthMatcherBase : SelectorMatcher
     {
         private static Regex nthRegex = new Regex(@"((?<factor>[0-9]+)?(?<n>n))?(?<distance>([\+\-]?[0-9]+))?");
 
         protected int factor;
         protected int distance;
 
-        public NthSelectorFragmentBase(CssNodeType type, string text)
+        public NthMatcherBase(CssNodeType type, string text)
             : base(type, text)
         {
             Text = GetParameterExpression(text);

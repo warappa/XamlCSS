@@ -3,9 +3,9 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public class UnivseralFragment : SelectorFragment
+    public class UnivseralMatcher : SelectorMatcher
     {
-        public UnivseralFragment(CssNodeType type, string text) : base(type, text)
+        public UnivseralMatcher(CssNodeType type, string text) : base(type, text)
         {
             
         }
@@ -20,12 +20,12 @@ namespace XamlCSS
                 alias = Text.Substring(0, namespaceSeparatorIndex);
                 if (alias != "*")
                 {
-                    @namespace = styleSheet.GetNamespaceUri(alias); //domElement.LookupNamespaceUri(@namespace);
+                    @namespace = styleSheet.GetNamespaceUri(alias);
                 }
             }
             else
             {
-                @namespace = styleSheet.GetNamespaceUri(""); //domElement.LookupNamespaceUri("");
+                @namespace = styleSheet.GetNamespaceUri("");
             }
 
             this.Alias = alias;
@@ -33,7 +33,7 @@ namespace XamlCSS
             this.initializedWith = styleSheet;
         }
 
-        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
+        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             if (initializedWith != styleSheet)
             {

@@ -3,9 +3,9 @@ using XamlCSS.Dom;
 
 namespace XamlCSS
 {
-    public class NthLastChildSelector : NthSelectorFragmentBase
+    public class NthLastChildMatcher : NthMatcherBase
     {
-        public NthLastChildSelector(CssNodeType type, string text) : base(type, text)
+        public NthLastChildMatcher(CssNodeType type, string text) : base(type, text)
         {
             Text = text?.Substring(11).Replace(")", "");
         }
@@ -20,7 +20,7 @@ namespace XamlCSS
             return null;
         }
 
-        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorFragment[] fragments, ref int currentIndex)
+        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             if (string.IsNullOrWhiteSpace(Text))
             {

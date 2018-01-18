@@ -3,71 +3,71 @@ using XamlCSS.CssParsing;
 
 namespace XamlCSS
 {
-    public class SelectorFragmentFactory
+    public class SelectorMatcherFactory
     {
-        public SelectorFragment Create(CssNodeType type, string text)
+        public SelectorMatcher Create(CssNodeType type, string text)
         {
             if (type == CssNodeType.TypeSelector)
             {
-                return new TypeFragment(type, text);
+                return new TypeMatcher(type, text);
             }
             else if (type == CssNodeType.ClassSelector)
             {
-                return new ClassSelector(type, text);
+                return new ClassMatcher(type, text);
             }
             else if (type == CssNodeType.IdSelector)
             {
-                return new IdSelector(type, text);
+                return new IdMatcher(type, text);
             }
             else if (type == CssNodeType.UniversalSelector)
             {
-                return new UnivseralFragment(type, text);
+                return new UnivseralMatcher(type, text);
             }
             else if (type == CssNodeType.PseudoSelector)
             {
                 if (text.StartsWith(":nth-child", StringComparison.Ordinal))
                 {
-                    return new NthChildSelector(CssNodeType.PseudoSelector, text);
+                    return new NthChildMatcher(CssNodeType.PseudoSelector, text);
                 }
                 else if (text.StartsWith(":nth-of-type", StringComparison.Ordinal))
                 {
-                    return new NthOfTypeSelector(CssNodeType.PseudoSelector, text);
+                    return new NthOfTypeMatcher(CssNodeType.PseudoSelector, text);
                 }
                 else if (text.StartsWith(":nth-last-child", StringComparison.Ordinal))
                 {
-                    return new NthLastChildSelector(CssNodeType.PseudoSelector, text);
+                    return new NthLastChildMatcher(CssNodeType.PseudoSelector, text);
                 }
                 else if (text.StartsWith(":nth-last-of-type", StringComparison.Ordinal))
                 {
-                    return new NthLastOfTypeSelector(CssNodeType.PseudoSelector, text);
+                    return new NthLastOfTypeMatcher(CssNodeType.PseudoSelector, text);
                 }
                 else if (text.StartsWith(":first-child", StringComparison.Ordinal))
                 {
-                    return new FirstChildSelector(CssNodeType.PseudoSelector, text);
+                    return new FirstChildMatcher(CssNodeType.PseudoSelector, text);
                 }
                 else if (text.StartsWith(":last-child", StringComparison.Ordinal))
                 {
-                    return new LastChildSelector(CssNodeType.PseudoSelector, text);
+                    return new LastChildMatcher(CssNodeType.PseudoSelector, text);
                 }
                 else if (text.StartsWith(":first-of-type", StringComparison.Ordinal))
                 {
-                    return new FirstOfTypeSelector(CssNodeType.PseudoSelector, text);
+                    return new FirstOfTypeMatcher(CssNodeType.PseudoSelector, text);
                 }
                 else if (text.StartsWith(":last-of-type", StringComparison.Ordinal))
                 {
-                    return new LastOfTypeSelector(CssNodeType.PseudoSelector, text);
+                    return new LastOfTypeMatcher(CssNodeType.PseudoSelector, text);
                 }
                 else if (text.StartsWith(":only-of-type", StringComparison.Ordinal))
                 {
-                    return new OnlyOfTypeSelector(CssNodeType.PseudoSelector, text);
+                    return new OnlyOfTypeMatcher(CssNodeType.PseudoSelector, text);
                 }
             }
             else if (type == CssNodeType.InheritedTypeSelector)
             {
-                return new InheritedTypeFragment(type, text);
+                return new InheritedTypeMatcher(type, text);
             }
 
-            return new SelectorFragment(type, text);
+            return new SelectorMatcher(type, text);
         }
     }
 }
