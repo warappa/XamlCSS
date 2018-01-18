@@ -282,6 +282,22 @@ namespace XamlCSS.Tests.Dom
         }
 
         [Test]
+        public void Can_match_nth_last_child_3n_minus_1()
+        {
+            var selector = new Selector(":nth-child(3n-1)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling2 = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { sibling, tag, sibling2 });
+
+            selector.Match(defaultStyleSheet, sibling).IsSuccess.Should().Be(false);
+            selector.Match(defaultStyleSheet, tag).IsSuccess.Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling2).IsSuccess.Should().Be(false);
+        }
+
+        [Test]
         public void Can_match_nth_child_2()
         {
             var selector = new Selector(":nth-child(2)");

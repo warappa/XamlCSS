@@ -41,6 +41,26 @@ namespace XamlCSS
                 {
                     return new NthLastOfTypeSelector(CssNodeType.PseudoSelector, text);
                 }
+                else if (text.StartsWith(":first-child", StringComparison.Ordinal))
+                {
+                    return new FirstChildSelector(CssNodeType.PseudoSelector, text);
+                }
+                else if (text.StartsWith(":last-child", StringComparison.Ordinal))
+                {
+                    return new LastChildSelector(CssNodeType.PseudoSelector, text);
+                }
+                else if (text.StartsWith(":first-of-type", StringComparison.Ordinal))
+                {
+                    return new FirstOfTypeSelector(CssNodeType.PseudoSelector, text);
+                }
+                else if (text.StartsWith(":last-of-type", StringComparison.Ordinal))
+                {
+                    return new LastOfTypeSelector(CssNodeType.PseudoSelector, text);
+                }
+                else if (text.StartsWith(":only-of-type", StringComparison.Ordinal))
+                {
+                    return new OnlyOfTypeSelector(CssNodeType.PseudoSelector, text);
+                }
             }
 
             return new SelectorFragment(type, text);
