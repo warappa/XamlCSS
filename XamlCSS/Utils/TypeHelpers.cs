@@ -8,9 +8,11 @@ namespace XamlCSS.Utils
     public static class TypeHelpers
     {
         private static bool dependencyPropertiesAreFields = true;
+        private static IDictionary<string, List<string>> namespaceMapping;
 
-        public static void Initialze(bool dependencyPropertiesAreFields = true)
+        public static void Initialze(IDictionary<string, List<string>> namespaceMapping, bool dependencyPropertiesAreFields = true)
         {
+            TypeHelpers.namespaceMapping = namespaceMapping;
             TypeHelpers.dependencyPropertiesAreFields = dependencyPropertiesAreFields;
         }
 
@@ -331,12 +333,16 @@ namespace XamlCSS.Utils
                     {
                         var strs = cssPropertyExpression.Split('|', '.');
                         var alias = strs[0];
-                        var namespaceFragments = namespaces
+                        var shortTypename = strs[1];
+
+                        var namespaceUri = namespaces
                             .First(x => x.Alias == alias)
-                            .Namespace
+                            .Namespace;
+
+                        var namespaceFragments = EnsureAssemblyQualifiedName(namespaceUri, shortTypename)
                             .Split(',');
 
-                        typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
+                        typename = $"{namespaceFragments[0]}.{shortTypename}, {string.Join(",", namespaceFragments.Skip(1))}";
                         propertyName = strs[2];
                     });
                 }
@@ -345,12 +351,15 @@ namespace XamlCSS.Utils
                     ". expression".Measure(() =>
                     {
                         var strs = cssPropertyExpression.Split('.');
-                        var namespaceFragments = namespaces
+                        var shortTypename = strs[0];
+                        var namespaceUri = namespaces
                             .First(x => x.Alias == "")
-                            .Namespace
+                            .Namespace;
+
+                        var namespaceFragments = EnsureAssemblyQualifiedName(namespaceUri, shortTypename)
                             .Split(',');
 
-                        typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
+                        typename = $"{namespaceFragments[0]}.{shortTypename}, {string.Join(",", namespaceFragments.Skip(1))}";
                         propertyName = strs[1];
                     });
                 }
@@ -367,6 +376,36 @@ namespace XamlCSS.Utils
             });
         }
 
+        public static string EnsureAssemblyQualifiedName(string namespaceUri, string shortTypename)
+        {
+            if (namespaceUri == null)
+            {
+                return null;
+            }
+
+            if (namespaceMapping.TryGetValue(namespaceUri, out List<string> mapped))
+            {
+                foreach (var fullQualifiedNamespaceName in mapped)
+                {
+                    var namespaceFragments = fullQualifiedNamespaceName
+                               .Split(',');
+                    var testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
+                    var parsedType = Type.GetType(testTypename, false);
+                    if (parsedType != null)
+                    {
+                        return fullQualifiedNamespaceName;
+                    }
+                    //var parsedType = Type.GetType(fullQualifiedNamespaceName.Replace("_TYPENAME_", typename), false);
+                    //if (parsedType != null)
+                    //{
+                    //    return fullQualifiedNamespaceName.Replace("._TYPENAME_", "");
+                    //}
+                }
+            }
+
+            return namespaceUri;
+        }
+
         public static string ResolveFullTypeName(IList<CssNamespace> namespaces, string cssTypeExpression)
         {
             string typename;
@@ -375,9 +414,15 @@ namespace XamlCSS.Utils
             {
                 var strs = cssTypeExpression.Split('|');
                 var alias = strs[0];
-                var namespaceFragments = namespaces
+                var shortTypename = strs[1];
+
+                var namespaceUri = namespaces
                     .FirstOrDefault(x => x.Alias == alias)
-                    ?.Namespace
+                    ?.Namespace;
+
+                namespaceUri = EnsureAssemblyQualifiedName(namespaceUri, shortTypename);
+
+                var namespaceFragments = namespaceUri
                     .Split(',');
 
                 if (namespaceFragments == null)
@@ -385,17 +430,21 @@ namespace XamlCSS.Utils
                     throw new Exception($@"Namespace ""{alias}"" not found!");
                 }
 
-                typename = $"{namespaceFragments[0]}.{strs[1]}, {string.Join(",", namespaceFragments.Skip(1))}";
+                typename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
             }
             else
             {
                 var strs = cssTypeExpression.Split('.');
-                var namespaceFragments = namespaces
+                var shortTypename = strs[0];
+
+                var namespaceUri = namespaces
                     .First(x => x.Alias == "")
-                    .Namespace
+                    .Namespace;
+
+                var namespaceFragments = EnsureAssemblyQualifiedName(namespaceUri, shortTypename)
                     .Split(',');
 
-                typename = $"{namespaceFragments[0]}.{strs[0]}, {string.Join(",", namespaceFragments.Skip(1))}";
+                typename = $"{namespaceFragments[0]}.{strs[0]},{string.Join(",", namespaceFragments.Skip(1))}";
             }
 
             return typename;

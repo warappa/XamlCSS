@@ -401,7 +401,7 @@ namespace XamlCSS
                 "ClassList".Measure(() => a = current.ClassList);
                 //"Id".Measure(() => a = current.Id);
                 "LocalName".Measure(() => a = current.LocalName);
-                "NamespaceUri".Measure(() => a = current.NamespaceUri);
+                "NamespaceUri".Measure(() => a = current.AssemblyQualifiedNamespaceName);
                 "Prefix".Measure(() => a = current.Prefix);
                 "TagName".Measure(() => a = current.TagName);
                 //"HasAttribute".Measure(() => a = current.HasAttribute("Name"));
@@ -739,7 +739,7 @@ namespace XamlCSS
                 "ClassList".Measure(() => a = domElement.ClassList);
                 "Id".Measure(() => a = domElement.Id);
                 "LocalName".Measure(() => a = domElement.LocalName);
-                "NamespaceUri".Measure(() => a = domElement.NamespaceUri);
+                "NamespaceUri".Measure(() => a = domElement.AssemblyQualifiedNamespaceName);
                 "Prefix".Measure(() => a = domElement.Prefix);
                 "TagName".Measure(() => a = domElement.TagName);
                 //"HasAttribute".Measure(() => a = domElement.HasAttribute("Name"));

@@ -13,10 +13,10 @@ namespace XamlCSS
         public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             var tagname = domElement.TagName;
-            var namespaceUri = domElement.NamespaceUri;
+            var namespaceUri = domElement.AssemblyQualifiedNamespaceName;
 
             return domElement.Parent?.ChildNodes
-                .Where(x => x.TagName == tagname && x.NamespaceUri == namespaceUri)
+                .Where(x => x.TagName == tagname && x.AssemblyQualifiedNamespaceName == namespaceUri)
                 .Count() == 1 ? MatchResult.Success : MatchResult.ItemFailed;
         }
     }

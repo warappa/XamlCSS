@@ -77,7 +77,22 @@ namespace XamlCSS.UWP
                 return;
             }
 
-            TypeHelpers.Initialze(dependencyPropertiesAreFields: false);
+            var mapping = new Dictionary<string, List<string>>
+            {
+                {
+                    "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
+                    new List<string>
+                    {
+                        typeof(Windows.UI.Xaml.Data.Binding).AssemblyQualifiedName.Replace(".Binding,", ","),
+                        typeof(Windows.UI.Xaml.Shapes.Rectangle).AssemblyQualifiedName.Replace(".Rectangle,", ","),
+                        typeof(Windows.UI.Xaml.Controls.Button).AssemblyQualifiedName.Replace(".Button,", ","),
+                        typeof(Windows.UI.Xaml.FrameworkElement).AssemblyQualifiedName.Replace(".FrameworkElement,", ","),
+                        typeof(Windows.UI.Xaml.Documents.Run).AssemblyQualifiedName.Replace(".Run,", ",")
+                    }
+                }
+            };
+
+            TypeHelpers.Initialze(mapping, false);
 
             var dependencyPropertyService = new DependencyPropertyService();
             var markupExtensionParser = new MarkupExtensionParser();
@@ -88,7 +103,7 @@ namespace XamlCSS.UWP
                 new LogicalTreeNodeProvider(dependencyPropertyService),
                 new StyleResourceService(),
                 new StyleService(dependencyPropertyService),
-                DomElementBase<DependencyObject, DependencyProperty>.GetNamespaceUri(typeof(Button)),
+                DomElementBase<DependencyObject, DependencyProperty>.GetAssemblyQualifiedNamespaceName(typeof(Button)),
                 markupExtensionParser,
                 RunOnUIThread,
                 new CssFileProvider(resourceSearchAssemblies, cssTypeHelper)

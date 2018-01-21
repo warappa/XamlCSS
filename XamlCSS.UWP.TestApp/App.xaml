@@ -10,14 +10,21 @@
         <x:String x:Key="appVariables">
             $base-color: #88ff00ff;
         </x:String>
-        <x:String x:Key="appStyleSheet">
-            @import "appVariables";
-                Button
-            {
-                Background: $base-color;
-                FontStyle: Bold;
-            }
-        </x:String>
-        
+        <css:StyleSheet x:Key="appStyleSheet">
+            <css:StyleSheet.Content>
+                <x:String>
+                    @namespace uwp "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+                    @import "appVariables";
+                    
+                    uwp|Button
+                    {
+                        Background: $base-color;
+                        FontStyle: Bold;
+                        Content: "hello";
+                    }
+                </x:String>
+            </css:StyleSheet.Content>
+        </css:StyleSheet>
+
     </Application.Resources>
 </Application>

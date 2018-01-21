@@ -20,12 +20,12 @@ namespace XamlCSS
                 alias = Text.Substring(0, namespaceSeparatorIndex);
                 if (alias != "*")
                 {
-                    @namespace = styleSheet.GetNamespaceUri(alias);
+                    @namespace = styleSheet.GetNamespaceUri(alias, "");
                 }
             }
             else
             {
-                @namespace = styleSheet.GetNamespaceUri("");
+                @namespace = styleSheet.GetNamespaceUri("", "");
             }
 
             this.Alias = alias;
@@ -40,7 +40,7 @@ namespace XamlCSS
                 Initialize(styleSheet);
             }
 
-            var isMatch = domElement.NamespaceUri == NamespaceUri || NamespaceUri == "*";
+            var isMatch = domElement.AssemblyQualifiedNamespaceName == NamespaceUri || NamespaceUri == "*";
             return isMatch ? MatchResult.Success : MatchResult.ItemFailed;
         }
 

@@ -354,13 +354,15 @@ namespace XamlCSS
 
         private Dictionary<string, string> prefix2NamespaceUri = new Dictionary<string, string>();
         private Dictionary<string, string> namespaceUri2Alias = new Dictionary<string, string>();
-        public string GetNamespaceUri(string alias)
+        public string GetNamespaceUri(string alias, string shortTypename)
         {
             if (!prefix2NamespaceUri.TryGetValue(alias, out string value))
             {
                 value = Namespaces.Where(x => x.Alias == alias)
                     .Select(x => x.Namespace)
                     .FirstOrDefault();
+
+                value = TypeHelpers.EnsureAssemblyQualifiedName(value, shortTypename);
 
                 prefix2NamespaceUri[alias] = value;
             }
@@ -436,7 +438,7 @@ namespace XamlCSS
             foreach (var item in Namespaces)
             {
                 GetAlias(item.Namespace);
-                GetNamespaceUri(item.Alias);
+                GetNamespaceUri(item.Alias, "");
             }
         }
 

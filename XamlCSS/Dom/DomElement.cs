@@ -26,7 +26,7 @@ namespace XamlCSS.Dom
         protected readonly static char[] classSplitter = { ' ' };
         protected readonly TDependencyObject dependencyObject;
         protected string id;
-        protected string namespaceUri = Undefined;
+        protected string assemblyQualifiedNamespaceName = Undefined;
         protected IList<IDomElement<TDependencyObject>> childNodes = null;
         protected string prefix = Undefined;
         protected IDictionary<string, TDependencyProperty> attributes = null;
@@ -47,7 +47,7 @@ namespace XamlCSS.Dom
             this.id = GetId(dependencyObject);
             this.NodeName = dependencyObject.GetType().Name;
             this.LocalName = dependencyObject.GetType().Name;
-            this.namespaceUri = GetNamespaceUri(dependencyObject.GetType());
+            this.assemblyQualifiedNamespaceName = GetAssemblyQualifiedNamespaceName(dependencyObject.GetType());
         }
 
         protected void ElementAdded(object sender, EventArgs e)
@@ -101,8 +101,8 @@ namespace XamlCSS.Dom
         {
             classList = null;
         }
-
-        public static string GetNamespaceUri(Type type)
+        
+        public static string GetAssemblyQualifiedNamespaceName(Type type)
         {
             return type.AssemblyQualifiedName.Replace($".{type.Name},", ",");
         }
@@ -179,18 +179,18 @@ namespace XamlCSS.Dom
             {
                 if (prefix == Undefined)
                 {
-                    prefix = StyleInfo?.CurrentStyleSheet?.GetAlias(NamespaceUri) ?? Undefined;
+                    prefix = StyleInfo?.CurrentStyleSheet?.GetAlias(AssemblyQualifiedNamespaceName) ?? Undefined;
                 }
 
                 return prefix != Undefined ? prefix : null;
             }
         }
 
-        public string NamespaceUri
+        public string AssemblyQualifiedNamespaceName
         {
             get
             {
-                return namespaceUri;
+                return assemblyQualifiedNamespaceName;
             }
         }
 

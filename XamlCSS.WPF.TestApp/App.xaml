@@ -11,7 +11,9 @@
         <sys:String x:Key="testString">Hello World from StaticResource!</sys:String>
         <css:StyleSheet x:Key="appStyleSheet">
             <css:StyleSheet.Content>
-                Button
+                @namespace wpf "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
+                
+                wpf|Button
             {
                 FontStyle: Italic;
             }

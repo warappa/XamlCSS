@@ -26,21 +26,21 @@ namespace XamlCSS
             if (namespaceSeparatorIndex > -1)
             {
                 alias = Text.Substring(0, namespaceSeparatorIndex);
+                localName = Text.Substring(namespaceSeparatorIndex + 1);
+
                 if (alias != "*")
                 {
-                    @namespace = styleSheet.GetNamespaceUri(alias);
+                    @namespace = styleSheet.GetNamespaceUri(alias, localName);
                 }
                 else
                 {
 
                 }
-
-                localName = Text.Substring(namespaceSeparatorIndex + 1);
             }
             else
             {
-                @namespace = styleSheet.GetNamespaceUri("");
                 localName = Text;
+                @namespace = styleSheet.GetNamespaceUri("", localName);
             }
 
             this.Alias = alias;

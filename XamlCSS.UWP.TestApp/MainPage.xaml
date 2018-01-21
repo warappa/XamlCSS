@@ -13,13 +13,7 @@
     <Page.Resources>
         <ResourceDictionary>
             <local:ListToStringConverter x:Key="errorToTextConverter"></local:ListToStringConverter>
-            <css:StyleSheet x:Key="InternalStyle">
-                <css:StyleSheet.BaseStyleSheets>
-                    <css:StyleSheetCollection>
-                        <StaticResource ResourceKey="appVariables"/>
-                        <StaticResource ResourceKey="appStyleSheet"/>
-                    </css:StyleSheetCollection>
-                </css:StyleSheet.BaseStyleSheets>
+            <css:StyleSheet x:Key="InternalStyle" SingleBaseStyleSheet="{StaticResource appStyleSheet}">
                 <css:StyleSheet.Content>
                     <x:String xml:space="preserve">
                     //@import "Resources/baseStyle.scss";

@@ -98,7 +98,7 @@ namespace XamlCSS.Dom
             for (int i = 0; i < length; i++)
             {
                 var element = elements[i];
-                if (element.NamespaceUri.Is(namespaceUri) && (localName == null || localName.Isi(element.LocalName)))
+                if (element.AssemblyQualifiedNamespaceName.Is(namespaceUri) && (localName == null || localName.Isi(element.LocalName)))
                 {
                     result.Add(element);
                 }

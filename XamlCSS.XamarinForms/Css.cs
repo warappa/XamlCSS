@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -72,6 +73,19 @@ namespace XamlCSS.XamarinForms
 
                 Reset();
 
+                var mapping = new Dictionary<string, List<string>>
+                {
+                    {
+                        "http://xamarin.com/schemas/2014/forms",
+                        new List<string>
+                        {
+                            typeof(Xamarin.Forms.Button).AssemblyQualifiedName.Replace(".Button,", ","),
+                        }
+                    }
+                };
+
+                TypeHelpers.Initialze(mapping, true);
+
                 var markupExtensionParser = new MarkupExtensionParser();
                 var dependencyPropertyService = new DependencyPropertyService();
                 var cssTypeHelper = new CssTypeHelper<BindableObject, BindableProperty, Style>(markupExtensionParser, dependencyPropertyService);
@@ -81,7 +95,7 @@ namespace XamlCSS.XamarinForms
                     new LogicalTreeNodeProvider(dependencyPropertyService),
                     new StyleResourceService(),
                     new StyleService(dependencyPropertyService, markupExtensionParser),
-                    DomElementBase<BindableObject, Element>.GetNamespaceUri(typeof(Button)),
+                    DomElementBase<BindableObject, Element>.GetAssemblyQualifiedNamespaceName(typeof(Button)),
                     markupExtensionParser,
                     Device.BeginInvokeOnMainThread,
                     new CssFileProvider(resourceSearchAssemblies ?? new Assembly[0], cssTypeHelper)

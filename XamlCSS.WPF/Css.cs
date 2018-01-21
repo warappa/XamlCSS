@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
 using XamlCSS.CssParsing;
@@ -41,6 +43,24 @@ namespace XamlCSS.WPF
 
             initialized = true;
 
+            var mapping = new Dictionary<string, List<string>>
+            {
+                {
+                    "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
+                    new List<string>
+                    {
+                        typeof(System.Windows.Data.Binding).AssemblyQualifiedName.Replace(".Binding,", ","),
+                        typeof(System.Windows.Navigation.NavigationWindow).AssemblyQualifiedName.Replace(".NavigationWindow,", ","),
+                        typeof(System.Windows.Shapes.Rectangle).AssemblyQualifiedName.Replace(".Rectangle,", ","),
+                        typeof(System.Windows.Controls.Button).AssemblyQualifiedName.Replace(".Button,", ","),
+                        typeof(System.Windows.FrameworkElement).AssemblyQualifiedName.Replace(".FrameworkElement,", ","),
+                        typeof(System.Windows.Documents.Run).AssemblyQualifiedName.Replace(".Run,", ",")
+                    }
+                }
+            };
+
+            TypeHelpers.Initialze(mapping);
+
             CompositionTarget.Rendering += RenderingHandler();
 
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
@@ -52,7 +72,7 @@ namespace XamlCSS.WPF
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
             var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);
-            var defaultCssNamespace = DomElementBase<DependencyObject, DependencyProperty>.GetNamespaceUri(typeof(System.Windows.Controls.Button));
+            var defaultCssNamespace = DomElementBase<DependencyObject, DependencyProperty>.GetAssemblyQualifiedNamespaceName(typeof(System.Windows.Controls.Button));
 
             instance = new BaseCss<DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
@@ -101,7 +121,7 @@ namespace XamlCSS.WPF
         {
             obj.SetValue(InitialStyleProperty, value);
         }
-        
+
         public static readonly DependencyProperty StyleProperty =
             DependencyProperty.RegisterAttached(
                 "Style",
@@ -120,7 +140,7 @@ namespace XamlCSS.WPF
         {
             obj.SetValue(StyleProperty, value);
         }
-        
+
         public static readonly DependencyProperty StyleSheetProperty =
             DependencyProperty.RegisterAttached(
                 "StyleSheet",
@@ -167,7 +187,7 @@ namespace XamlCSS.WPF
                 instance?.EnqueueUpdateStyleSheet(attachedTo, styleSheet);
             }
         }
-        
+
         public static readonly DependencyProperty ClassProperty =
             DependencyProperty.RegisterAttached(
                 "Class",
@@ -190,7 +210,7 @@ namespace XamlCSS.WPF
 
             Css.instance?.UpdateElement(element);
         }
-        
+
         public static readonly DependencyProperty DomElementProperty =
             DependencyProperty.RegisterAttached(
                 "DomElement",
