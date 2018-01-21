@@ -57,7 +57,7 @@ namespace XamlCSS.WPF
 
         public override IEnumerable<DependencyObject> GetTriggersAsList(Style style)
         {
-            return style.Triggers.ToList();//.Select(x => (DependencyObject)XamlReader.Parse(XamlWriter.Save(x))).ToList();
+            return style.Triggers.Select(x => (DependencyObject)XamlReader.Parse(XamlWriter.Save(x))).ToList();
         }
 
         private static object GetBasicValue(DataTrigger dataTrigger)
