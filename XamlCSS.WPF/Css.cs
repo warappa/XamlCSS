@@ -157,6 +157,11 @@ namespace XamlCSS.WPF
         }
         private static void StyleSheetPropertyChanged(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
+            if (e.OldValue == e.NewValue)
+            {
+                return;
+            }
+
             if (e.OldValue != null)
             {
                 (e.OldValue as StyleSheet).PropertyChanged -= StyleSheet_PropertyChanged;
