@@ -28,7 +28,6 @@ namespace XamlCSS.Dom
         protected string id;
         protected string assemblyQualifiedNamespaceName = Undefined;
         protected IList<IDomElement<TDependencyObject>> childNodes = null;
-        protected string prefix = Undefined;
         protected IDictionary<string, TDependencyProperty> attributes = null;
         protected IList<string> classList = null;
 
@@ -45,8 +44,7 @@ namespace XamlCSS.Dom
             //this.namespaceProvider = namespaceProvider;
 
             this.id = GetId(dependencyObject);
-            this.NodeName = dependencyObject.GetType().Name;
-            this.LocalName = dependencyObject.GetType().Name;
+            this.TagName = dependencyObject.GetType().Name;
             this.assemblyQualifiedNamespaceName = GetAssemblyQualifiedNamespaceName(dependencyObject.GetType());
         }
 
@@ -137,9 +135,7 @@ namespace XamlCSS.Dom
 
         public bool IsFocused { get { return false; } }
 
-        public string LocalName { get; protected set; }
-
-        public string NodeName { get; protected set; }
+        public string TagName { get; protected set; }
 
         public IDomElement<TDependencyObject> Owner
         {
@@ -173,42 +169,11 @@ namespace XamlCSS.Dom
             }
         }
 
-        public string Prefix
-        {
-            get
-            {
-                if (prefix == Undefined)
-                {
-                    prefix = StyleInfo?.CurrentStyleSheet?.GetAlias(AssemblyQualifiedNamespaceName) ?? Undefined;
-                }
-
-                return prefix != Undefined ? prefix : null;
-            }
-        }
-
         public string AssemblyQualifiedNamespaceName
         {
             get
             {
                 return assemblyQualifiedNamespaceName;
-            }
-        }
-
-        private string tagName = null;
-        public string TagName
-        {
-            get
-            {
-                if (tagName != null)
-                {
-                    return tagName;
-                }
-                tagName = Prefix + "|" + dependencyObject.GetType().Name;
-                return tagName;
-            }
-            protected set
-            {
-                tagName = value;
             }
         }
 
@@ -238,12 +203,7 @@ namespace XamlCSS.Dom
         {
             return Attributes.ContainsKey(name);
         }
-
-        public bool IsDefaultNamespace(string namespaceUri)
-        {
-            return Prefix == "";
-        }
-
+        
         //public string LookupNamespaceUri(string prefix)
         //{
         //    return namespaceProvider.LookupNamespaceUri(this, prefix);

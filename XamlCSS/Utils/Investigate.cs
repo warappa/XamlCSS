@@ -16,6 +16,8 @@ namespace XamlCSS.Utils
 
         static StringBuilder sb = new StringBuilder(50000);
         private static int level = 0;
+
+        [DebuggerStepThrough]
         public static void Measure(this string title, Action action)
         {
 #if !INVESTIGATE
@@ -25,6 +27,7 @@ namespace XamlCSS.Utils
             title.Measure(() => { action(); return true; });
         }
 
+        [DebuggerStepThrough]
         public static T Measure<T>(this string title, Func<T> action)
         {
 #if !INVESTIGATE

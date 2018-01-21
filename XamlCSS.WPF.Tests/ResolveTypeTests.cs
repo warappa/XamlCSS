@@ -32,7 +32,7 @@ namespace XamlCSS.WPF.Tests
                     "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
                     new List<string>
                     {
-                        typeof(Button).AssemblyQualifiedName.Replace(".Button", "._TYPENAME_")
+                        typeof(Button).AssemblyQualifiedName.Replace(".Button", "")
                     }
                 }
             };

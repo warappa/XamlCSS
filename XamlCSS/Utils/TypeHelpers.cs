@@ -8,7 +8,7 @@ namespace XamlCSS.Utils
     public static class TypeHelpers
     {
         private static bool dependencyPropertiesAreFields = true;
-        private static IDictionary<string, List<string>> namespaceMapping;
+        private static IDictionary<string, List<string>> namespaceMapping = new Dictionary<string, List<string>>();
 
         public static void Initialze(IDictionary<string, List<string>> namespaceMapping, bool dependencyPropertiesAreFields = true)
         {

@@ -22,15 +22,15 @@ namespace XamlCSS
             string @namespace = null;
             //string prefix = null;
             string alias = "";
-            string localName = null;
+            string tagName = null;
             if (namespaceSeparatorIndex > -1)
             {
                 alias = Text.Substring(0, namespaceSeparatorIndex);
-                localName = Text.Substring(namespaceSeparatorIndex + 1);
+                tagName = Text.Substring(namespaceSeparatorIndex + 1);
 
                 if (alias != "*")
                 {
-                    @namespace = styleSheet.GetNamespaceUri(alias, localName);
+                    @namespace = styleSheet.GetNamespaceUri(alias, tagName);
                 }
                 else
                 {
@@ -39,12 +39,12 @@ namespace XamlCSS
             }
             else
             {
-                localName = Text;
-                @namespace = styleSheet.GetNamespaceUri("", localName);
+                tagName = Text;
+                @namespace = styleSheet.GetNamespaceUri("", tagName);
             }
 
             this.Alias = alias;
-            this.LocalName = localName;
+            this.TagName = tagName;
             this.NamespaceUri = @namespace;
             this.initializedWith = styleSheet;
             this.styleSheetVersion = styleSheet.Version;
@@ -74,7 +74,7 @@ namespace XamlCSS
         }
 
         public string Alias { get; private set; }
-        public string LocalName { get; private set; }
+        public string TagName { get; private set; }
         public string NamespaceUri { get; private set; }
     }
 }

@@ -69,8 +69,8 @@ namespace XamlCSS.Dom
                 }
             }
         }
-
-        public static void GetElementsByTagName<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, string tagName, IList<IDomElement<TDependencyObject>> result)
+        
+        public static void GetElementsByTagName<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, string namespaceUri, string tagName, IList<IDomElement<TDependencyObject>> result)
             where TDependencyObject : class
         {
             var length = elements.Count;
@@ -78,34 +78,14 @@ namespace XamlCSS.Dom
             for (int i = 0; i < length; i++)
             {
                 var element = elements[i];
-                if (tagName == null || tagName.Isi(element.TagName))
+                if (element.AssemblyQualifiedNamespaceName.Is(namespaceUri) && (tagName == null || tagName.Isi(element.TagName)))
                 {
                     result.Add(element);
                 }
 
                 if (element.ChildNodes.Count != 0)
                 {
-                    element.ChildNodes.GetElementsByTagName(tagName, result);
-                }
-            }
-        }
-
-        public static void GetElementsByTagName<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, string namespaceUri, string localName, IList<IDomElement<TDependencyObject>> result)
-            where TDependencyObject : class
-        {
-            var length = elements.Count;
-
-            for (int i = 0; i < length; i++)
-            {
-                var element = elements[i];
-                if (element.AssemblyQualifiedNamespaceName.Is(namespaceUri) && (localName == null || localName.Isi(element.LocalName)))
-                {
-                    result.Add(element);
-                }
-
-                if (element.ChildNodes.Count != 0)
-                {
-                    element.ChildNodes.GetElementsByTagName(namespaceUri, localName, result);
+                    element.ChildNodes.GetElementsByTagName(namespaceUri, tagName, result);
                 }
             }
         }

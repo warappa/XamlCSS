@@ -9,20 +9,20 @@ namespace XamlCSS.Tests.Dom
     public class CssSelectionTests
     {
         private CssParser selectorEngine;
-        string test1 = @"
-@namespace ""XamlCSS.Tests.Dom"";
-@namespace xamlcss ""XamlCSS"";
-@namespace ui ""XamlCSS.Tests.Dom"";
-@namespace special ""A.Namespace"";
+        string test1 = $@"
+@namespace ""{TestNode.GetAssemblyQualifiedNamespaceName(typeof(TestNode))}"";
+@namespace xamlcss ""{TestNode.GetAssemblyQualifiedNamespaceName(typeof(XamlCSS.CssNamespace))}"";
+@namespace ui ""{TestNode.GetAssemblyQualifiedNamespaceName(typeof(TestNode))}"";
+@namespace special ""{TestNode.GetAssemblyQualifiedNamespaceName(typeof(TestNode))}"";
 
-.main .sub>div xamlcss|Button {
+.main .sub>div xamlcss|Button {{
 	background-color: red;
 	background: #00ff00;
-}
+}}
 ui|Grid
-{
+{{
 	Background: red;
-}
+}}
 ";
         private StyleSheet defaultStyleSheet;
         private TestNode dom;
@@ -48,6 +48,7 @@ ui|Grid
             //TestNamespaceProvider.Instance.prefixToNamespaceUri["ui"] = typeof(TestNode).Namespace;
             TestNamespaceProvider.Instance.prefixToNamespaceUri[""] = typeof(TestNode).Namespace;
 
+            CssParser.defaultCssNamespace = "XamlCSS.Tests.Dom, XamlCSS.Tests, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
             defaultStyleSheet = CssParser.Parse(test1);
             
             dom = (body = new TestNode(new UIElement(), null, "body",
@@ -155,7 +156,8 @@ ui|Grid
         [Test]
         public void Select_ascending_node_with_nth_child()
         {
-            var nodes = label2.QuerySelectorAllWithSelf(defaultStyleSheet, new Selector("label:nth-of-type(2)"));
+            var selector = new Selector("label:nth-of-type(2)");
+            var nodes = label2.QuerySelectorAllWithSelf(defaultStyleSheet, selector);
 
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(label2, nodes.First());
@@ -169,16 +171,16 @@ ui|Grid
             Assert.AreEqual(4, styleSheet.Namespaces.Count());
 
             Assert.AreEqual("", styleSheet.Namespaces[0].Alias);
-            Assert.AreEqual("XamlCSS.Tests.Dom", styleSheet.Namespaces[0].Namespace);
+            Assert.AreEqual(TestNode.GetAssemblyQualifiedNamespaceName(typeof(TestNode)), styleSheet.Namespaces[0].Namespace);
 
             Assert.AreEqual("xamlcss", styleSheet.Namespaces[1].Alias);
-            Assert.AreEqual("XamlCSS", styleSheet.Namespaces[1].Namespace);
+            Assert.AreEqual(TestNode.GetAssemblyQualifiedNamespaceName(typeof(CssNamespace)), styleSheet.Namespaces[1].Namespace);
 
             Assert.AreEqual("ui", styleSheet.Namespaces[2].Alias);
-            Assert.AreEqual("XamlCSS.Tests.Dom", styleSheet.Namespaces[2].Namespace);
+            Assert.AreEqual(TestNode.GetAssemblyQualifiedNamespaceName(typeof(TestNode)), styleSheet.Namespaces[2].Namespace);
 
             Assert.AreEqual("special", styleSheet.Namespaces[3].Alias);
-            Assert.AreEqual("A.Namespace", styleSheet.Namespaces[3].Namespace);
+            Assert.AreEqual(TestNode.GetAssemblyQualifiedNamespaceName(typeof(TestNode)), styleSheet.Namespaces[3].Namespace);
         }
 
         [Test]
@@ -186,8 +188,9 @@ ui|Grid
         {
             var nodes = dom.QuerySelectorAllWithSelf(defaultStyleSheet, new Selector("Grid"));
 
-            Assert.AreEqual(1, nodes.Count());
-            Assert.AreEqual(grid, nodes.First());
+            Assert.AreEqual(2, nodes.Count());
+            Assert.AreEqual(grid, nodes[0]);
+            Assert.AreEqual(gridSpecial, nodes[1]);
         }
 
         [Test]
@@ -195,8 +198,9 @@ ui|Grid
         {
             var nodes = dom.QuerySelectorAllWithSelf(defaultStyleSheet, new Selector("special|Grid"));
 
-            Assert.AreEqual(1, nodes.Count());
-            Assert.AreEqual(gridSpecial, nodes.First());
+            Assert.AreEqual(2, nodes.Count());
+            Assert.AreEqual(grid, nodes[0]);
+            Assert.AreEqual(gridSpecial, nodes[1]);
         }
     }
 }

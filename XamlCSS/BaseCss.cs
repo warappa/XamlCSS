@@ -400,10 +400,8 @@ namespace XamlCSS
                 object a;
                 "ClassList".Measure(() => a = current.ClassList);
                 //"Id".Measure(() => a = current.Id);
-                "LocalName".Measure(() => a = current.LocalName);
-                "NamespaceUri".Measure(() => a = current.AssemblyQualifiedNamespaceName);
-                "Prefix".Measure(() => a = current.Prefix);
                 "TagName".Measure(() => a = current.TagName);
+                "AssemblyQualifiedNamespaceName".Measure(() => a = current.AssemblyQualifiedNamespaceName);
                 //"HasAttribute".Measure(() => a = current.HasAttribute("Name"));
                 /*// a = domElement.Parent;
                 */
@@ -738,10 +736,8 @@ namespace XamlCSS
                 object a;
                 "ClassList".Measure(() => a = domElement.ClassList);
                 "Id".Measure(() => a = domElement.Id);
-                "LocalName".Measure(() => a = domElement.LocalName);
-                "NamespaceUri".Measure(() => a = domElement.AssemblyQualifiedNamespaceName);
-                "Prefix".Measure(() => a = domElement.Prefix);
                 "TagName".Measure(() => a = domElement.TagName);
+                "NamespaceUri".Measure(() => a = domElement.AssemblyQualifiedNamespaceName);
                 //"HasAttribute".Measure(() => a = domElement.HasAttribute("Name"));
                 /*// a = domElement.Parent;
                 */
@@ -830,6 +826,14 @@ namespace XamlCSS
 
                             var triggers = nativeStyleService.GetTriggersAsList(initalStyle as TStyle);
                             nativeTriggers.AddRange(triggers);
+                        }
+
+                        foreach(var item in propertyStyleValues)
+                        {
+                            if(item.Value == null)
+                            {
+
+                            }
                         }
 
                         var style = "Create Style".Measure(() => nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType));

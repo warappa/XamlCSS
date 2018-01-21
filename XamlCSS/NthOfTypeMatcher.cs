@@ -28,9 +28,9 @@ namespace XamlCSS
                 return MatchResult.ItemFailed;
             }
 
-            var tagname = domElement.TagName;
+            var tagName = domElement.TagName;
 
-            var thisPosition = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagname).IndexOf(domElement) ?? -1;
+            var thisPosition = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagName).IndexOf(domElement) ?? -1;
             thisPosition++;
 
             return CalcIsNth(factor, distance, ref thisPosition) ? MatchResult.Success : MatchResult.ItemFailed;

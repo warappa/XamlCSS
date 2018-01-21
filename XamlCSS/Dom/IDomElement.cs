@@ -10,17 +10,12 @@ namespace XamlCSS.Dom
         IDomElement<TDependencyObject> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector);
         IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector);
         IDomElement<TDependencyObject> Parent { get; }
-        string TagName { get; }
         string Id { get; }
         IList<string> ClassList { get; }
         IList<IDomElement<TDependencyObject>> ChildNodes { get; }
         string AssemblyQualifiedNamespaceName { get; }
-        string LocalName { get; }
-        string Prefix { get; }
-
-        //string LookupPrefix(string v);
-        //string LookupNamespaceUri(string v);
-        bool HasAttribute(string v);
+        string TagName { get; }
+        bool HasAttribute(string attribute);
 
         StyleUpdateInfo StyleInfo { get; set; }
     }

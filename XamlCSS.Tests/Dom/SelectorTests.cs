@@ -22,8 +22,10 @@ namespace XamlCSS.Tests.Dom
         public void Setup()
         {
             TestNamespaceProvider.Instance.Clear();
-            TestNamespaceProvider.Instance["ui"] = "XamlCSS.Dom.Tests";
-            defaultStyleSheet = CssParser.Parse(@"@namespace ui ""XamlCSS.Dom.Tests"";");
+            TestNamespaceProvider.Instance["ui"] = "XamlCSS.Tests.Dom, XamlCSS.Tests, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
+
+            CssParser.defaultCssNamespace = "XamlCSS.Tests.Dom, XamlCSS.Tests, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
+            defaultStyleSheet = CssParser.Parse(@"@namespace ui ""XamlCSS.Tests.Dom, XamlCSS.Tests, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null"";");
         }
 
         [Test]
@@ -597,9 +599,9 @@ namespace XamlCSS.Tests.Dom
             var parent = GetDomElement("a", null, "", new[] { sibling, sibling2, tag });
 
             selector.Match(defaultStyleSheet, tag).IsSuccess.Should().Be(true);
-            selector.Match(defaultStyleSheet, parent).IsSuccess.Should().Be(false);
-            selector.Match(defaultStyleSheet, sibling).IsSuccess.Should().Be(false);
-            selector.Match(defaultStyleSheet, sibling2).IsSuccess.Should().Be(false);
+            selector.Match(defaultStyleSheet, parent).IsSuccess.Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling).IsSuccess.Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling2).IsSuccess.Should().Be(true);
         }
 
         [Test]

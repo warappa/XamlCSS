@@ -72,16 +72,13 @@ namespace XamlCSS.Tests.Dom
             var namespaceSeparatorIndex = tagname.IndexOf('|');
             if (namespaceSeparatorIndex > -1)
             {
-                this.LocalName = tagname.Substring(namespaceSeparatorIndex + 1);
-                this.NodeName = this.TagName = tagname;
-                this.prefix = tagname.Substring(0, namespaceSeparatorIndex);
-                this.assemblyQualifiedNamespaceName = nsp.LookupNamespaceUri(this, prefix);
+                this.TagName = tagname.Substring(namespaceSeparatorIndex + 1);
+                this.assemblyQualifiedNamespaceName = TestNode.GetAssemblyQualifiedNamespaceName(GetType());
             }
             else
             {
-                this.LocalName = this.NodeName = this.TagName = tagname;
-                this.prefix = "";
-                this.assemblyQualifiedNamespaceName = nsp.LookupNamespaceUri(this, prefix);
+                this.TagName = tagname;
+                this.assemblyQualifiedNamespaceName = TestNode.GetAssemblyQualifiedNamespaceName(GetType());
             }
 
             this.attributes = attributes ?? new Dictionary<string, IDictionary<object, object>>();
