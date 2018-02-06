@@ -396,5 +396,26 @@ $foreground: #00ff00;
 
             result.Errors.Count.Should().Be(1);
         }
+
+        [Test]
+        public void Can_parse_and_use_variables_referencing_other_variables()
+        {
+            var css = @"
+$textVariable1: ""Title"";
+$textVariable2: $textVariable1;
+.header {
+    Title: $textVariable1;
+    SubTitle: $textVariable2;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Title");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Title");
+        }
     }
 }

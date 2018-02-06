@@ -216,8 +216,16 @@ namespace XamlCSS.CssParsing
                 if (node.Type == CssNodeType.VariableDeclaration)
                 {
                     var name = node.Children.First(x => x.Type == CssNodeType.VariableName).Text;
-                    var value = node.Children.First(x => x.Type == CssNodeType.VariableValue).Text;
-                    dict[name] = value;
+                    var variableValue = node.Children.FirstOrDefault(x => x.Type == CssNodeType.VariableValue);
+                    var variableReference = variableValue.Children.FirstOrDefault(x => x.Type == CssNodeType.VariableReference);
+                    if (variableReference != null)
+                    {
+                        dict[name] = GetVariableValue(variableReference, dict);
+                    }
+                    else
+                    {
+                        dict[name] = variableValue.Text;
+                    }
                 }
             }
 

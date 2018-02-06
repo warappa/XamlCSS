@@ -634,7 +634,13 @@ namespace XamlCSS.CssParsing
 
                 SkipWhitespace();
 
-                if (currentToken.Type == CssTokenType.DoubleQuotes)
+                if (currentToken.Type == CssTokenType.Dollar)
+                {
+                    AddAndSetCurrent(CssNodeType.VariableReference);
+                    ReadUntil(CssTokenType.Semicolon);
+                    GoToParent();
+                }
+                else if (currentToken.Type == CssTokenType.DoubleQuotes)
                 {
                     SkipExpected(startToken, CssTokenType.DoubleQuotes);
                     ReadDoubleQuoteText(false);
