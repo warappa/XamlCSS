@@ -637,28 +637,58 @@ namespace XamlCSS.CssParsing
                 if (currentToken.Type == CssTokenType.Dollar)
                 {
                     AddAndSetCurrent(CssNodeType.VariableReference);
-                    ReadUntil(CssTokenType.Semicolon);
+                    ReadUntil(CssTokenType.Semicolon, CssTokenType.Whitespace, CssTokenType.ExclamationMark);
                     GoToParent();
                 }
                 else if (currentToken.Type == CssTokenType.DoubleQuotes)
                 {
                     SkipExpected(startToken, CssTokenType.DoubleQuotes);
                     ReadDoubleQuoteText(false);
-                    ReadUntil(CssTokenType.Semicolon);
+                    ReadUntil(CssTokenType.Semicolon, CssTokenType.ExclamationMark);
                 }
                 else if (currentToken.Type == CssTokenType.SingleQuotes)
                 {
                     SkipExpected(startToken, CssTokenType.SingleQuotes);
                     ReadSingleQuoteText(false);
-                    ReadUntil(CssTokenType.Semicolon);
+                    ReadUntil(CssTokenType.Semicolon, CssTokenType.ExclamationMark);
                 }
                 else
                 {
-                    ReadUntil(CssTokenType.Semicolon);
+                    ReadUntil(CssTokenType.Semicolon, CssTokenType.ExclamationMark);
                 }
 
                 TrimCurrentNode();
-                SkipExpected(startToken, CssTokenType.Semicolon);
+
+                SkipWhitespace();
+
+                if (currentToken.Type == CssTokenType.ExclamationMark)
+                {
+                    if (nextToken.Type == CssTokenType.Identifier)
+                    {
+                        SkipToken();
+
+                        if (currentToken.Text == "default")
+                        {
+                            AddAndSetCurrent(CssNodeType.VariableDefaultModifier);
+                            ReadToken();
+                            GoToParent();
+                        }
+                        else if (currentToken.Text == "important")
+                        {
+                            // AddOnParentAndSetCurrent(CssNodeType.VariableDefaultModifier);
+                        }
+                        else
+                        {
+                            SkipUntil(true, CssTokenType.Semicolon);
+                        }
+                    }
+                    else
+                    {
+                        SkipUntil(true, CssTokenType.Semicolon);
+                    }
+                }
+
+                SkipExpected(currentToken, CssTokenType.Semicolon);
 
                 GoToParent();
             }
@@ -1412,7 +1442,7 @@ namespace XamlCSS.CssParsing
             var startToken = currentToken;
 
             var tokenToCheckForNamespacedSelectors = GetTokenToCheckForNamespacedSelectors();
-            
+
             if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Identifier)
             {
                 AddAndSetCurrent(CssNodeType.TypeSelector);
@@ -1653,6 +1683,11 @@ namespace XamlCSS.CssParsing
             {
                 ReadIdentifier();
             }
+        }
+
+        private void SkipToken()
+        {
+            currentIndex++;
         }
 
         private void ReadToken()

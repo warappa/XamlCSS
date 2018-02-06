@@ -217,6 +217,14 @@ namespace XamlCSS.CssParsing
                 {
                     var name = node.Children.First(x => x.Type == CssNodeType.VariableName).Text;
                     var variableValue = node.Children.FirstOrDefault(x => x.Type == CssNodeType.VariableValue);
+                    var defaultModifier = variableValue.Children.FirstOrDefault(x => x.Type == CssNodeType.VariableDefaultModifier);
+
+                    if (defaultModifier != null &&
+                        dict.ContainsKey(name))
+                    {
+                        continue;
+                    }
+
                     var variableReference = variableValue.Children.FirstOrDefault(x => x.Type == CssNodeType.VariableReference);
                     if (variableReference != null)
                     {
@@ -494,7 +502,7 @@ namespace XamlCSS.CssParsing
                                 {
                                     Property = GetValueFromValueAst(propertyAst, parameterValues),
                                     Value = GetValueFromValueAst(valueAst, parameterValues),
-                                    StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, null)),
+                                    StyleDeclarationBlock = new StyleDeclarationBlock(GetStyleDeclarationsFromBlock(astTriggerStyleDeclarationBlock, parameterValues)),
                                     EnterActions = enterActions,
                                     ExitActions = exitActions
                                 };

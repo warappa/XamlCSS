@@ -417,5 +417,31 @@ $textVariable2: $textVariable1;
             styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Title");
             styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Title");
         }
+
+        [Test]
+        public void Can_parse_and_use_variables_with_default_modifier()
+        {
+            var css = @"
+$textVariable1: ""Title"";
+$textVariable2: ""Title 2"" !default;
+$textVariable2: $textVariable1 !default;
+$textVariable3: $textVariable1 !default;
+$textVariable3: ""Title 3"" !default;
+.header {
+    Title: $textVariable1;
+    SubTitle: $textVariable2;
+    SubSubTitle: $textVariable3;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Title");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Title 2");
+            styleSheet.Rules[0].DeclarationBlock[2].Value.Should().Be("Title");
+        }
     }
 }

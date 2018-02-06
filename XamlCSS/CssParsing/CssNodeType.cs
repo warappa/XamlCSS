@@ -59,6 +59,7 @@
         AttributeSelector = 54,
         PseudoSelector = 55,
         ParentSelector = 56,
-        InheritedTypeSelector = 57
+        InheritedTypeSelector = 57,
+        VariableDefaultModifier = 58
     }
 }
