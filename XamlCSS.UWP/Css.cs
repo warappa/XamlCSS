@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Media;
 using XamlCSS.Dom;
@@ -17,6 +17,20 @@ namespace XamlCSS.UWP
     public class Css
     {
         public static BaseCss<DependencyObject, Style, DependencyProperty> instance;
+        public static readonly IDictionary<string, List<string>> DefaultCssNamespaceMapping = new Dictionary<string, List<string>>
+        {
+            {
+                "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
+                new List<string>
+                {
+                    typeof(Windows.UI.Xaml.Data.Binding).AssemblyQualifiedName.Replace(".Binding,", ","),
+                    typeof(Windows.UI.Xaml.Shapes.Rectangle).AssemblyQualifiedName.Replace(".Rectangle,", ","),
+                    typeof(Windows.UI.Xaml.Controls.Button).AssemblyQualifiedName.Replace(".Button,", ","),
+                    typeof(Windows.UI.Xaml.FrameworkElement).AssemblyQualifiedName.Replace(".FrameworkElement,", ","),
+                    typeof(Windows.UI.Xaml.Documents.Run).AssemblyQualifiedName.Replace(".Run,", ",")
+                }
+            }
+        };
 
         public static void RunOnUIThread(Action action)
         {
@@ -70,30 +84,18 @@ namespace XamlCSS.UWP
             initialized = false;
         }
 
-        public static void Initialize(IEnumerable<Assembly> resourceSearchAssemblies)
+        public static void Initialize(IEnumerable<Assembly> resourceSearchAssemblies, IDictionary<string, List<string>> cssNamespaceMapping = null)
         {
             if (initialized)
             {
                 return;
             }
 
-            var mapping = new Dictionary<string, List<string>>
-            {
-                {
-                    "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
-                    new List<string>
-                    {
-                        typeof(Windows.UI.Xaml.Data.Binding).AssemblyQualifiedName.Replace(".Binding,", ","),
-                        typeof(Windows.UI.Xaml.Shapes.Rectangle).AssemblyQualifiedName.Replace(".Rectangle,", ","),
-                        typeof(Windows.UI.Xaml.Controls.Button).AssemblyQualifiedName.Replace(".Button,", ","),
-                        typeof(Windows.UI.Xaml.FrameworkElement).AssemblyQualifiedName.Replace(".FrameworkElement,", ","),
-                        typeof(Windows.UI.Xaml.Documents.Run).AssemblyQualifiedName.Replace(".Run,", ",")
-                    }
-                }
-            };
+            cssNamespaceMapping = cssNamespaceMapping ?? DefaultCssNamespaceMapping;
 
-            TypeHelpers.Initialze(mapping, false);
+            TypeHelpers.Initialze(cssNamespaceMapping, false);
 
+            var defaultCssNamespace = cssNamespaceMapping.Keys.First();
             var dependencyPropertyService = new DependencyPropertyService();
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
@@ -103,7 +105,7 @@ namespace XamlCSS.UWP
                 new LogicalTreeNodeProvider(dependencyPropertyService),
                 new StyleResourceService(),
                 new StyleService(dependencyPropertyService),
-                DomElementBase<DependencyObject, DependencyProperty>.GetAssemblyQualifiedNamespaceName(typeof(Button)),
+                defaultCssNamespace,
                 markupExtensionParser,
                 RunOnUIThread,
                 new CssFileProvider(resourceSearchAssemblies, cssTypeHelper)
@@ -122,7 +124,7 @@ namespace XamlCSS.UWP
         }
 
         #region dependency properties
-        
+
         public static readonly DependencyProperty InitialStyleProperty =
             DependencyProperty.RegisterAttached("InitialStyle", typeof(Style),
             typeof(Css), new PropertyMetadata(null));
@@ -134,7 +136,7 @@ namespace XamlCSS.UWP
         {
             obj.SetValue(InitialStyleProperty, value ?? DependencyProperty.UnsetValue);
         }
-        
+
         public static readonly DependencyProperty StyleProperty =
             DependencyProperty.RegisterAttached("Style", typeof(StyleDeclarationBlock),
             typeof(Css), new PropertyMetadata(null, StylePropertyAttached));
@@ -181,7 +183,7 @@ namespace XamlCSS.UWP
         {
             obj.SetValue(ClassProperty, value ?? DependencyProperty.UnsetValue);
         }
-        
+
         public static readonly DependencyProperty DomElementProperty =
             DependencyProperty.RegisterAttached("DomElement", typeof(bool),
             typeof(Css), new PropertyMetadata(null, null));
@@ -213,7 +215,7 @@ namespace XamlCSS.UWP
         {
             obj.SetValue(VisualDomElementProperty, value ?? DependencyProperty.UnsetValue);
         }
-        
+
         #endregion
 
         #region attached behaviours

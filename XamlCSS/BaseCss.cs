@@ -705,6 +705,8 @@ namespace XamlCSS
             var styleUpdateInfo = "get styleUpdateInfo".Measure(() => domElement.StyleInfo = domElement.StyleInfo ?? (styleUpdateInfos.ContainsKey(domElement.Element) ? styleUpdateInfos[domElement.Element] :
                 GetNewStyleUpdateInfo(domElement, dependencyPropertyService, nativeStyleService)));
 
+            styleUpdateInfos[domElement.Element] = styleUpdateInfo;
+
             var styleSheetFromDom = "GetStyleSheet".Measure(() => dependencyPropertyService.GetStyleSheet(domElement.Element));
             if (styleSheetFromDom != null &&
                 styleSheetFromDom != styleSheet)
@@ -727,10 +729,9 @@ namespace XamlCSS
                 }
                 styleUpdateInfo.CurrentMatchedSelectors.Clear();
                 styleUpdateInfo.DoMatchCheck |= switchableTreeNodeProvider.CurrentSelectorType;
-
-                styleUpdateInfos[domElement.Element] = styleUpdateInfo;
             });
 
+            /*
             "fill DomElement".Measure(() =>
             {
                 object a;
@@ -739,9 +740,8 @@ namespace XamlCSS
                 "TagName".Measure(() => a = domElement.TagName);
                 "NamespaceUri".Measure(() => a = domElement.AssemblyQualifiedNamespaceName);
                 //"HasAttribute".Measure(() => a = domElement.HasAttribute("Name"));
-                /*// a = domElement.Parent;
-                */
             });
+            */
 
             foreach (var child in domElement.ChildNodes)
             {

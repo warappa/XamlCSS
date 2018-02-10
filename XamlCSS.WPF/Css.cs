@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
 using System.Windows.Media;
 using System.Windows.Threading;
 using XamlCSS.CssParsing;
@@ -17,6 +17,21 @@ namespace XamlCSS.WPF
     public class Css
     {
         public static BaseCss<DependencyObject, Style, DependencyProperty> instance;
+        public static readonly IDictionary<string, List<string>> DefaultCssNamespaceMapping = new Dictionary<string, List<string>>
+        {
+            {
+                "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
+                new List<string>
+                {
+                    typeof(System.Windows.Data.Binding).AssemblyQualifiedName.Replace(".Binding,", ","),
+                    typeof(System.Windows.Navigation.NavigationWindow).AssemblyQualifiedName.Replace(".NavigationWindow,", ","),
+                    typeof(System.Windows.Shapes.Rectangle).AssemblyQualifiedName.Replace(".Rectangle,", ","),
+                    typeof(System.Windows.Controls.Button).AssemblyQualifiedName.Replace(".Button,", ","),
+                    typeof(System.Windows.FrameworkElement).AssemblyQualifiedName.Replace(".FrameworkElement,", ","),
+                    typeof(System.Windows.Documents.Run).AssemblyQualifiedName.Replace(".Run,", ",")
+                }
+}
+        };
 
         private static EventHandler RenderingHandler()
         {
@@ -34,7 +49,7 @@ namespace XamlCSS.WPF
             }
         }
 
-        public static void Initialize()
+        public static void Initialize(IDictionary<string, List<string>> cssNamespaceMapping = null)
         {
             if (initialized)
             {
@@ -43,26 +58,11 @@ namespace XamlCSS.WPF
 
             initialized = true;
 
-            var mapping = new Dictionary<string, List<string>>
-            {
-                {
-                    "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
-                    new List<string>
-                    {
-                        typeof(System.Windows.Data.Binding).AssemblyQualifiedName.Replace(".Binding,", ","),
-                        typeof(System.Windows.Navigation.NavigationWindow).AssemblyQualifiedName.Replace(".NavigationWindow,", ","),
-                        typeof(System.Windows.Shapes.Rectangle).AssemblyQualifiedName.Replace(".Rectangle,", ","),
-                        typeof(System.Windows.Controls.Button).AssemblyQualifiedName.Replace(".Button,", ","),
-                        typeof(System.Windows.FrameworkElement).AssemblyQualifiedName.Replace(".FrameworkElement,", ","),
-                        typeof(System.Windows.Documents.Run).AssemblyQualifiedName.Replace(".Run,", ",")
-                    }
-                }
-            };
+            cssNamespaceMapping = cssNamespaceMapping ?? DefaultCssNamespaceMapping;
 
-            TypeHelpers.Initialze(mapping);
+            TypeHelpers.Initialze(cssNamespaceMapping);
 
-            CompositionTarget.Rendering += RenderingHandler();
-
+            var defaultCssNamespace = cssNamespaceMapping.Keys.First();
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
             IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService =
                 new DependencyPropertyService();
@@ -72,7 +72,6 @@ namespace XamlCSS.WPF
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
             var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);
-            var defaultCssNamespace = DomElementBase<DependencyObject, DependencyProperty>.GetAssemblyQualifiedNamespaceName(typeof(System.Windows.Controls.Button));
 
             instance = new BaseCss<DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
@@ -84,6 +83,8 @@ namespace XamlCSS.WPF
                 dispatcher.Invoke,
                 new CssFileProvider(cssTypeHelper)
                 );
+
+            CompositionTarget.Rendering += RenderingHandler();
 
             // Warmup(markupExtensionParser, defaultCssNamespace);
 

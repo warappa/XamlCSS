@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Xamarin.Forms;
@@ -16,6 +17,16 @@ namespace XamlCSS.XamarinForms
     public class Css
     {
         public static BaseCss<BindableObject, Style, BindableProperty> instance;
+        public static IDictionary<string, List<string>> DefaultCssNamespaceMapping = new Dictionary<string, List<string>>
+        {
+            {
+                "http://xamarin.com/schemas/2014/forms",
+                new List<string>
+                {
+                    typeof(Xamarin.Forms.Button).AssemblyQualifiedName.Replace(".Button,", ","),
+                }
+            }
+        };
 
         private static Timer uiTimer;
 
@@ -61,7 +72,7 @@ namespace XamlCSS.XamarinForms
             }
         }
 
-        public static void Initialize(Element rootElement, Assembly[] resourceSearchAssemblies = null)
+        public static void Initialize(Element rootElement, Assembly[] resourceSearchAssemblies = null, IDictionary<string, List<string>> cssNamespaceMapping = null)
         {
             lock (lockObject)
             {
@@ -73,29 +84,21 @@ namespace XamlCSS.XamarinForms
 
                 Reset();
 
-                var mapping = new Dictionary<string, List<string>>
-                {
-                    {
-                        "http://xamarin.com/schemas/2014/forms",
-                        new List<string>
-                        {
-                            typeof(Xamarin.Forms.Button).AssemblyQualifiedName.Replace(".Button,", ","),
-                        }
-                    }
-                };
+                cssNamespaceMapping = cssNamespaceMapping ?? DefaultCssNamespaceMapping;
 
-                TypeHelpers.Initialze(mapping, true);
+                TypeHelpers.Initialze(cssNamespaceMapping, true);
 
+                var defaultCssNamespace = cssNamespaceMapping.Keys.First();
                 var markupExtensionParser = new MarkupExtensionParser();
                 var dependencyPropertyService = new DependencyPropertyService();
                 var cssTypeHelper = new CssTypeHelper<BindableObject, BindableProperty, Style>(markupExtensionParser, dependencyPropertyService);
-                
+
                 instance = new BaseCss<BindableObject, Style, BindableProperty>(
                     dependencyPropertyService,
                     new LogicalTreeNodeProvider(dependencyPropertyService),
                     new StyleResourceService(),
                     new StyleService(dependencyPropertyService, markupExtensionParser),
-                    DomElementBase<BindableObject, Element>.GetAssemblyQualifiedNamespaceName(typeof(Button)),
+                    defaultCssNamespace,
                     markupExtensionParser,
                     Device.BeginInvokeOnMainThread,
                     new CssFileProvider(resourceSearchAssemblies ?? new Assembly[0], cssTypeHelper)
@@ -133,7 +136,7 @@ namespace XamlCSS.XamarinForms
                 initialized = true;
             }
         }
-        
+
         public static readonly BindableProperty IdProperty =
             BindableProperty.CreateAttached(
                 "Id",
@@ -165,7 +168,7 @@ namespace XamlCSS.XamarinForms
         {
             obj.SetValue(InitialStyleProperty, value);
         }
-        
+
         public static readonly BindableProperty StyleProperty =
             BindableProperty.CreateAttached(
                 "Style",
@@ -227,7 +230,7 @@ namespace XamlCSS.XamarinForms
         {
             obj.SetValue(ClassProperty, value);
         }
-        
+
         public static readonly BindableProperty DomElementProperty =
             BindableProperty.CreateAttached(
                 "DomElement",
