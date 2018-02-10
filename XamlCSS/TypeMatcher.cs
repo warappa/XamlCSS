@@ -6,6 +6,7 @@ namespace XamlCSS
     public class TypeMatcher : SelectorMatcher
     {
         private StyleSheet initializedWith;
+        private int styleSheetVersion;
 
         public TypeMatcher(CssNodeType type, string text) : base(type, text)
         {
@@ -42,11 +43,13 @@ namespace XamlCSS
             this.TagName = tagName;
             this.NamespaceUri = @namespace;
             this.initializedWith = styleSheet;
+            this.styleSheetVersion = styleSheet.Version;
         }
 
         public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
-            if (initializedWith != styleSheet)
+            if (initializedWith != styleSheet ||
+                styleSheetVersion != styleSheet.Version)
             {
                 Initialize(styleSheet);
             }

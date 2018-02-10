@@ -31,11 +31,13 @@ namespace XamlCSS
             this.Alias = alias;
             this.NamespaceUri = @namespace;
             this.initializedWith = styleSheet;
+            this.styleSheetVersion = styleSheet.Version;
         }
 
         public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
-            if (initializedWith != styleSheet)
+            if (initializedWith != styleSheet ||
+                styleSheetVersion != styleSheet.Version)
             {
                 Initialize(styleSheet);
             }
@@ -48,5 +50,6 @@ namespace XamlCSS
         public string NamespaceUri { get; private set; }
 
         private StyleSheet initializedWith;
+        private int styleSheetVersion;
     }
 }
