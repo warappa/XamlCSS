@@ -13,7 +13,6 @@
             <css:StyleSheet x:Key="LocalStyle">
                 <css:StyleSheet.Content>
                     @namespace local "XamlCSS.XamarinForms.TestApp, XamlCSS.XamarinForms.TestApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
-                    @namespace forms "http://xamarin.com/schemas/2014/forms";
 
 .fa {
     FontFamily: "Assets/fonts/fontawesomewebfont.ttf#FontAwesome";
@@ -22,7 +21,7 @@
     }
 }
 
-forms|Button
+Button
 {         
     @Property Text "Clicked!"
     {

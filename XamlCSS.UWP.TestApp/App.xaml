@@ -13,10 +13,9 @@
         <css:StyleSheet x:Key="appStyleSheet">
             <css:StyleSheet.Content>
                 <x:String>
-                    @namespace uwp "http://schemas.microsoft.com/winfx/2006/xaml/presentation";
                     @import "appVariables";
                     
-                    uwp|Button
+                    Button
                     {
                         Background: $base-color;
                         FontStyle: Bold;
