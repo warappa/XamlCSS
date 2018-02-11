@@ -383,24 +383,31 @@ namespace XamlCSS.Utils
                 return null;
             }
 
+            string testTypename;
+            string[] namespaceFragments;
+
             if (namespaceMapping.TryGetValue(namespaceUri, out List<string> mapped))
             {
                 foreach (var fullQualifiedNamespaceName in mapped)
                 {
-                    var namespaceFragments = fullQualifiedNamespaceName
+                    namespaceFragments = fullQualifiedNamespaceName
                                .Split(',');
-                    var testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
+                    testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
                     var parsedType = Type.GetType(testTypename, false);
                     if (parsedType != null)
                     {
                         return fullQualifiedNamespaceName;
                     }
-                    //var parsedType = Type.GetType(fullQualifiedNamespaceName.Replace("_TYPENAME_", typename), false);
-                    //if (parsedType != null)
-                    //{
-                    //    return fullQualifiedNamespaceName.Replace("._TYPENAME_", "");
-                    //}
                 }
+            }
+
+            namespaceFragments = namespaceUri.Split(',');
+            testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
+
+            var resolved = Type.GetType(testTypename, false);
+            if (resolved != null)
+            {
+                return resolved.AssemblyQualifiedName.Replace($".{shortTypename},", ","); // convert simple qualified name to full qualified name
             }
 
             return namespaceUri;

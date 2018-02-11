@@ -1,7 +1,11 @@
-﻿namespace XamlCSS
+﻿using System;
+
+namespace XamlCSS
 {
     public class CssNamespace
     {
+        private string @namespace;
+
         public CssNamespace() { }
         public CssNamespace(string alias, string @namespace)
         {
@@ -10,7 +14,41 @@
         }
 
         public string Alias { get; set; }
-        public string Namespace { get; set; }
+        public string Namespace
+        {
+            get => @namespace;
+            set
+            {
+                if (value == null)
+                    throw new ArgumentNullException("namespace");
+
+                if (value.Contains("clr-namespace:"))
+                {
+                    var strs = value.Substring(14).Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries);
+                    if (strs.Length == 2)
+                    {
+                        var ns = strs[0];
+                        var assembly = strs[1].Replace("assembly=", "");
+
+                        if (assembly == "Windows")
+                        {
+                            // for UWP types
+                            assembly += ", ContentType=WindowsRuntime";
+                        }
+
+                        this.@namespace = $"{ns}, {assembly}";
+                    }
+                    else
+                    {
+                        this.@namespace = value;
+                    }
+                }
+                else
+                {
+                    this.@namespace = value;
+                }
+            }
+        }
 
         public override bool Equals(object obj)
         {

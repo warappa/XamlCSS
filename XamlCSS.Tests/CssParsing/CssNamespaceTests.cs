@@ -1,6 +1,9 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using System;
+using System.Linq;
 using XamlCSS.CssParsing;
+using XamlCSS.Utils;
 
 namespace XamlCSS.Tests.CssParsing
 {
@@ -33,6 +36,19 @@ namespace XamlCSS.Tests.CssParsing
             ns1.GetHashCode().Should().Be(ns2.GetHashCode());
             ns1.GetHashCode().Should().NotBe(ns3.GetHashCode());
             ns1.GetHashCode().Should().NotBe(ns4.GetHashCode());
+        }
+
+        [Test]
+        public void ClrNamespace_should_be_translated_to_qualifiednamespace()
+        {
+            var ns1 = new CssNamespace("", "clr-namespace:XamlCSS;assembly=XamlCSS");
+            var ns2 = new CssNamespace("", "clr-namespace:Windows.UI.Xaml.Controls;assembly=Windows");
+
+            ns1.Namespace.Should().Be("XamlCSS, XamlCSS");
+            ns2.Namespace.Should().Be("Windows.UI.Xaml.Controls, Windows, ContentType=WindowsRuntime");
+
+            var resolved = TypeHelpers.ResolveFullTypeName(new[] { ns2 }.ToList(), "Button");
+            resolved.Should().Be("Windows.UI.Xaml.Controls.Button, Windows, ContentType=WindowsRuntime");
         }
     }
 }
