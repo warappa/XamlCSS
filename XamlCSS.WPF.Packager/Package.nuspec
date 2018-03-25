@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>XamlCSS.WPF</id>
-        <version>2.1.0</version>
+        <version>2.2.0-pre1</version>
         <title>XamlCSS.WPF</title>
         <authors>David Rettenbacher</authors>
         <owners></owners>
@@ -10,6 +10,15 @@
             Style WPF-apps with Css
         </description>
         <releaseNotes>
+            2.2.0-pre1
+            - #52 Attributes Cannot Be Matched - One-Time Matching
+            - #53 Asterisk Selector Has Wrong Specificity
+            - #54 String Value Throws Exception In Property- And DataTriggers
+            - #59 Preview-Friendly Basing StyleSheets On Others
+            - #62 Variable Cannot Reference Another Variable
+            - #64 Support Xml-Namespace mapping
+            - #65 Remove AngleSharp Dependency
+            
             2.1.0
             - #39 Ampersand Could Be Anywhere in Selector
             - #40 Support @extend
@@ -104,7 +113,7 @@
         <copyright>© 2017 David Rettenbacher</copyright>
         <dependencies>
             <group>
-                <dependency id="XamlCSS" version="2.1.0" />
+                <dependency id="XamlCSS" version="2.2.0-pre1" />
             </group>
         </dependencies>
         <references></references>
