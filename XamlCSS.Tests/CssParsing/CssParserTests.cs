@@ -88,6 +88,41 @@ namespace XamlCSS.Tests.CssParsing
         }
 
         [Test]
+        public void Test_can_parse_namespace4()
+        {
+            var styleSheet = CssParser.Parse(@"
+@namespace ""System.Windows.Controls, PresentationFramework, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = 31bf3856ad364e35"";
+|Grid
+{
+	|Grid.Row: 0;
+	|Grid.Column: 1;
+}");
+
+            Assert.AreEqual(1, styleSheet.Namespaces.Count());
+            Assert.AreEqual("", styleSheet.Namespaces[0].Alias);
+            Assert.AreEqual("System.Windows.Controls, PresentationFramework, Version = 4.0.0.0, Culture = neutral, PublicKeyToken = 31bf3856ad364e35", styleSheet.Namespaces[0].Namespace);
+            Assert.AreEqual("|Grid", styleSheet.Rules[0].SelectorString);
+            Assert.AreEqual("|Grid.Row", styleSheet.Rules[0].DeclarationBlock[0].Property);
+            Assert.AreEqual("|Grid.Column", styleSheet.Rules[0].DeclarationBlock[1].Property);
+        }
+
+        [Test]
+        public void Test_can_parse_incomplete_selector_without_fatal_exception()
+        {
+            var styleSheet = CssParser.Parse(@"
+. TextBlock
+{
+	Foreground: Red;
+}
+
+.test {}
+");
+
+            Assert.AreEqual(".test", styleSheet.Rules[0].SelectorString);
+            styleSheet.Rules[0].DeclarationBlock.Should().BeEmpty();
+        }
+
+        [Test]
         public void Test_can_parse_markupExtensions()
         {
             var styleSheet = CssParser.Parse(@"

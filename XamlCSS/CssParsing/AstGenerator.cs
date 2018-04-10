@@ -477,6 +477,7 @@ namespace XamlCSS.CssParsing
                         case CssTokenType.Circumflex:
                         case CssTokenType.Colon:
                         case CssTokenType.Underscore:
+                        case CssTokenType.Pipe:
 
                             AddAndSetCurrent(CssNodeType.StyleRule);
                             var styleRule = currentNode;
@@ -489,6 +490,8 @@ namespace XamlCSS.CssParsing
                             catch
                             {
                                 styleRule.Parent.RemoveChild(styleRule);
+
+                                currentNode = oldCurrentNode;
                             }
                             break;
                         default:
@@ -1443,7 +1446,8 @@ namespace XamlCSS.CssParsing
 
             var tokenToCheckForNamespacedSelectors = GetTokenToCheckForNamespacedSelectors();
 
-            if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Identifier)
+            if (tokenToCheckForNamespacedSelectors.Type == CssTokenType.Identifier ||
+                tokenToCheckForNamespacedSelectors.Type == CssTokenType.Pipe)
             {
                 AddAndSetCurrent(CssNodeType.TypeSelector);
                 ReadTypeSelector();
@@ -1527,7 +1531,8 @@ namespace XamlCSS.CssParsing
                     ReadParentSelector();
                     GoToParent();
                 }
-                else if (GetTokenToCheckForNamespacedSelectors().Type == CssTokenType.Identifier)
+                else if (GetTokenToCheckForNamespacedSelectors().Type == CssTokenType.Identifier ||
+                tokenToCheckForNamespacedSelectors.Type == CssTokenType.Pipe)
                 {
                     AddAndSetCurrent(CssNodeType.TypeSelector);
                     ReadTypeSelector();
@@ -1699,7 +1704,10 @@ namespace XamlCSS.CssParsing
 
         private void ReadTypeSelector()
         {
-            ReadToken();
+            if (currentToken.Type != CssTokenType.Pipe)
+            {
+                ReadToken();
+            }
 
             if (!ReachedEnd &&
                 currentToken.Type == CssTokenType.Pipe)

@@ -331,7 +331,7 @@ namespace XamlCSS.Utils
             });
         }
 
-        private static IDictionary<string, IDictionary<string, Tuple<string, string>>> resolveFullTypeNameAndPropertyNameDictionary = new Dictionary<string, IDictionary<string, Tuple<string, string>>>();
+        private static IDictionary<string, IDictionary<Type, Tuple<string, string>>> resolveFullTypeNameAndPropertyNameDictionary = new Dictionary<string, IDictionary<Type, Tuple<string, string>>>();
 
 
         public static Tuple<string, string> ResolveFullTypeNameAndPropertyName(IList<CssNamespace> namespaces, string cssPropertyExpression, Type matchedType)
@@ -339,28 +339,28 @@ namespace XamlCSS.Utils
             return $"ResolveFullTypeNameAndPropertyName {cssPropertyExpression}".Measure(() =>
             {
                 Tuple<string, string> result = null;
-                IDictionary<string, Tuple<string, string>> map;
+                IDictionary<Type, Tuple<string, string>> map;
                 string namespaceUri = null;
 
                 if (resolveFullTypeNameAndPropertyNameDictionary.TryGetValue(cssPropertyExpression, out map))
                 {
                     foreach (var nspace in namespaces)
                     {
-                        if (map.TryGetValue(nspace.Namespace, out result))
+                        if (map.TryGetValue(matchedType, out result))
                         {
                             return result;
                         }
                     }
 
-                    namespaceUri = matchedType.AssemblyQualifiedName.Replace($".{matchedType.Name}, ", ", ");
-                    if (map.TryGetValue(namespaceUri, out result))
-                    {
-                        return result;
-                    }
+                    //namespaceUri = matchedType.AssemblyQualifiedName.Replace($".{matchedType.Name}, ", ", ");
+                    //if (map.TryGetValue(matchedType, out result))
+                    //{
+                    //    return result;
+                    //}
                 }
                 else
                 {
-                    map = resolveFullTypeNameAndPropertyNameDictionary[cssPropertyExpression] = new Dictionary<string, Tuple<string, string>>();
+                    map = resolveFullTypeNameAndPropertyNameDictionary[cssPropertyExpression] = new Dictionary<Type, Tuple<string, string>>();
                 }
 
                 string typename = null, propertyName = null;
@@ -414,7 +414,7 @@ namespace XamlCSS.Utils
                 }
 
                 result = new Tuple<string, string>(typename, propertyName);
-                map[namespaceUri] = result;
+                map[matchedType] = result;
                 return result;
             });
         }

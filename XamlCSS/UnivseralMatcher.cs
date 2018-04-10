@@ -25,7 +25,7 @@ namespace XamlCSS
             }
             else
             {
-                @namespace = styleSheet.GetNamespaceUri("", "");
+                @namespace = null;
             }
 
             this.Alias = alias;
@@ -42,7 +42,7 @@ namespace XamlCSS
                 Initialize(styleSheet);
             }
 
-            var isMatch = domElement.AssemblyQualifiedNamespaceName == NamespaceUri || NamespaceUri == "*";
+            var isMatch = NamespaceUri == null || domElement.AssemblyQualifiedNamespaceName == NamespaceUri;
             return isMatch ? MatchResult.Success : MatchResult.ItemFailed;
         }
 
