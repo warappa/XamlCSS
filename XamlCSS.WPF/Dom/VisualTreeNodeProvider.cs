@@ -19,11 +19,6 @@ namespace XamlCSS.WPF.Dom
             return new VisualDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
         }
 
-        public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
-        {
-            return node is VisualDomElement;
-        }
-
         public override IEnumerable<DependencyObject> GetChildren(DependencyObject element)
         {
             var list = new List<DependencyObject>();

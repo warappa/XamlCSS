@@ -17,11 +17,6 @@ namespace XamlCSS.WPF.Dom
             return new LogicalDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
         }
 
-        public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
-        {
-            return node is LogicalDomElement;
-        }
-
         public override IEnumerable<DependencyObject> GetChildren(DependencyObject element)
         {
             if (element == null)

@@ -150,17 +150,27 @@ namespace XamlCSS.Utils
         {
             return "GetPropertyAccessor".Measure(() =>
             {
-                if (!cachedPropertyAccessors.TryGetValue(type, out Dictionary<string, IPropertyAccessor> propertyAccessors))
-                {
-                    cachedPropertyAccessors[type] = propertyAccessors = new Dictionary<string, IPropertyAccessor>();
-                }
+                Dictionary<string, IPropertyAccessor> propertyAccessors = null;
+                IPropertyAccessor accessor = null;
 
-                if (!propertyAccessors.TryGetValue(propertyName, out IPropertyAccessor accessor))
+                "cachedPropertyAccessors.TryGetValue".Measure(() =>
                 {
-                    var propertyInfo = type.GetRuntimeProperty(propertyName);
+                    if (!cachedPropertyAccessors.TryGetValue(type, out propertyAccessors))
+                    {
+                        cachedPropertyAccessors[type] = propertyAccessors = new Dictionary<string, IPropertyAccessor>();
+                    }
+                });
 
-                    propertyAccessors[propertyName] = accessor = propertyInfo == null ? null : PropertyInfoHelper.GetAccessor(propertyInfo);
-                }
+                "propertyAccessors.TryGetValue".Measure(() =>
+                {
+
+                    if (!propertyAccessors.TryGetValue(propertyName, out accessor))
+                    {
+                        var propertyInfo = type.GetRuntimeProperty(propertyName);
+
+                        propertyAccessors[propertyName] = accessor = propertyInfo == null ? null : PropertyInfoHelper.GetAccessor(propertyInfo);
+                    }
+                });
 
                 return accessor;
             });
@@ -321,10 +331,38 @@ namespace XamlCSS.Utils
             });
         }
 
+        private static IDictionary<string, IDictionary<string, Tuple<string, string>>> resolveFullTypeNameAndPropertyNameDictionary = new Dictionary<string, IDictionary<string, Tuple<string, string>>>();
+
+
         public static Tuple<string, string> ResolveFullTypeNameAndPropertyName(IList<CssNamespace> namespaces, string cssPropertyExpression, Type matchedType)
         {
-            return "ResolveFullTypeNameAndPropertyName".Measure(() =>
+            return $"ResolveFullTypeNameAndPropertyName {cssPropertyExpression}".Measure(() =>
             {
+                Tuple<string, string> result = null;
+                IDictionary<string, Tuple<string, string>> map;
+                string namespaceUri = null;
+
+                if (resolveFullTypeNameAndPropertyNameDictionary.TryGetValue(cssPropertyExpression, out map))
+                {
+                    foreach (var nspace in namespaces)
+                    {
+                        if (map.TryGetValue(nspace.Namespace, out result))
+                        {
+                            return result;
+                        }
+                    }
+
+                    namespaceUri = matchedType.AssemblyQualifiedName.Replace($".{matchedType.Name}, ", ", ");
+                    if (map.TryGetValue(namespaceUri, out result))
+                    {
+                        return result;
+                    }
+                }
+                else
+                {
+                    map = resolveFullTypeNameAndPropertyNameDictionary[cssPropertyExpression] = new Dictionary<string, Tuple<string, string>>();
+                }
+
                 string typename = null, propertyName = null;
 
                 if (cssPropertyExpression.IndexOf('|') > -1)
@@ -335,12 +373,12 @@ namespace XamlCSS.Utils
                         var alias = strs[0];
                         var shortTypename = strs[1];
 
-                        var namespaceUri = namespaces
+                        namespaceUri = namespaces
                             .First(x => x.Alias == alias)
                             .Namespace;
 
                         var namespaceFragments = EnsureAssemblyQualifiedName(namespaceUri, shortTypename)
-                            .Split(',');
+                            .Split(separator, 2);
 
                         typename = $"{namespaceFragments[0]}.{shortTypename}, {string.Join(",", namespaceFragments.Skip(1))}";
                         propertyName = strs[2];
@@ -352,12 +390,13 @@ namespace XamlCSS.Utils
                     {
                         var strs = cssPropertyExpression.Split('.');
                         var shortTypename = strs[0];
-                        var namespaceUri = namespaces
+
+                        namespaceUri = namespaces
                             .First(x => x.Alias == "")
                             .Namespace;
 
                         var namespaceFragments = EnsureAssemblyQualifiedName(namespaceUri, shortTypename)
-                            .Split(',');
+                            .Split(separator, 2);
 
                         typename = $"{namespaceFragments[0]}.{shortTypename}, {string.Join(",", namespaceFragments.Skip(1))}";
                         propertyName = strs[1];
@@ -370,47 +409,74 @@ namespace XamlCSS.Utils
                         typename = matchedType.AssemblyQualifiedName;
                         propertyName = cssPropertyExpression;
                     });
+
+                    namespaceUri = matchedType.AssemblyQualifiedName.Replace($".{matchedType.Name}, ", ", ");
                 }
 
-                return new Tuple<string, string>(typename, propertyName);
+                result = new Tuple<string, string>(typename, propertyName);
+                map[namespaceUri] = result;
+                return result;
             });
         }
 
+        private static char[] separator = new[] { ',' };
+        private static IDictionary<string, IDictionary<string, string>> resolvedNames = new Dictionary<string, IDictionary<string, string>>();
         public static string EnsureAssemblyQualifiedName(string namespaceUri, string shortTypename)
         {
-            if (namespaceUri == null)
+            return $"EnsureAssemblyQualifiedName {shortTypename} ({namespaceUri})".Measure(() =>
             {
-                return null;
-            }
-
-            string testTypename;
-            string[] namespaceFragments;
-
-            if (namespaceMapping.TryGetValue(namespaceUri, out List<string> mapped))
-            {
-                foreach (var fullQualifiedNamespaceName in mapped)
+                if (namespaceUri == null)
                 {
-                    namespaceFragments = fullQualifiedNamespaceName
-                               .Split(',');
-                    testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
-                    var parsedType = Type.GetType(testTypename, false);
-                    if (parsedType != null)
+                    return null;
+                }
+
+                string testTypename;
+                string[] namespaceFragments;
+
+                IDictionary<string, string> t;
+
+                if (resolvedNames.TryGetValue(namespaceUri, out t))
+                {
+                    if (t.TryGetValue(shortTypename, out string assemblyQualifiedName))
                     {
-                        return fullQualifiedNamespaceName;
+                        return assemblyQualifiedName;
                     }
                 }
-            }
+                else
+                {
+                    t = resolvedNames[namespaceUri] = new Dictionary<string, string>();
+                }
 
-            namespaceFragments = namespaceUri.Split(',');
-            testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
+                if (namespaceMapping.TryGetValue(namespaceUri, out List<string> mapped))
+                {
+                    foreach (var fullQualifiedNamespaceName in mapped)
+                    {
+                        namespaceFragments = fullQualifiedNamespaceName
+                                   .Split(separator, 2);
+                        testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
+                        var parsedType = Type.GetType(testTypename, false);
+                        if (parsedType != null)
+                        {
+                            t[shortTypename] = fullQualifiedNamespaceName;
+                            return fullQualifiedNamespaceName;
+                        }
+                    }
+                }
 
-            var resolved = Type.GetType(testTypename, false);
-            if (resolved != null)
-            {
-                return resolved.AssemblyQualifiedName.Replace($".{shortTypename},", ","); // convert simple qualified name to full qualified name
-            }
+                namespaceFragments = namespaceUri.Split(separator, 2);
+                testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
 
-            return namespaceUri;
+                string resolvedName = null;
+                var resolved = Type.GetType(testTypename, false);
+                if (resolved != null)
+                {
+                    t[shortTypename] = resolvedName = resolved.AssemblyQualifiedName.Replace($".{shortTypename},", ","); // convert simple qualified name to full qualified name
+                    return resolvedName;
+                }
+
+                t[shortTypename] = namespaceUri;
+                return namespaceUri;
+            });
         }
 
         public static string ResolveFullTypeName(IList<CssNamespace> namespaces, string cssTypeExpression)
@@ -430,7 +496,7 @@ namespace XamlCSS.Utils
                 namespaceUri = EnsureAssemblyQualifiedName(namespaceUri, shortTypename);
 
                 var namespaceFragments = namespaceUri
-                    .Split(',');
+                    .Split(separator, 2);
 
                 if (namespaceFragments == null)
                 {
@@ -449,7 +515,7 @@ namespace XamlCSS.Utils
                     .Namespace;
 
                 var namespaceFragments = EnsureAssemblyQualifiedName(namespaceUri, shortTypename)
-                    .Split(',');
+                    .Split(separator, 2);
 
                 typename = $"{namespaceFragments[0]}.{strs[0]},{string.Join(",", namespaceFragments.Skip(1))}";
             }
@@ -489,9 +555,9 @@ namespace XamlCSS.Utils
 
         public static IPropertyAccessor CreateAccessor(PropertyInfo PropertyInfo)
         {
-            var GenType = typeof(PropertyWrapper<,>)
-                .MakeGenericType(PropertyInfo.DeclaringType, PropertyInfo.PropertyType);
-            return (IPropertyAccessor)Activator.CreateInstance(GenType, PropertyInfo);
+            var GenType = $"GenType {PropertyInfo.DeclaringType.FullName}.{PropertyInfo.Name}".Measure(() => typeof(PropertyWrapper<,>)
+                .MakeGenericType(PropertyInfo.DeclaringType, PropertyInfo.PropertyType));
+            return (IPropertyAccessor)"CreateInstance".Measure(() => Activator.CreateInstance(GenType, PropertyInfo));
         }
     }
 

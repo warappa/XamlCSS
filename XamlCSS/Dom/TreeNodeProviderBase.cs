@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using XamlCSS.Utils;
 
 namespace XamlCSS.Dom
 {
@@ -22,8 +23,6 @@ namespace XamlCSS.Dom
         }
 
         public abstract IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
-
-        public abstract bool IsCorrectTreeNode(IDomElement<TDependencyObject> node);
 
         public abstract TDependencyObject GetParent(TDependencyObject dependencyObject);
 
@@ -53,14 +52,13 @@ namespace XamlCSS.Dom
 
             var cached = GetFromDependencyObject(obj);
 
-            if (cached != null &&
-                IsCorrectTreeNode(cached))
+            if (cached != null)
             {
                 return cached;
             }
 
-            cached = CreateTreeNode(obj);
-            dependencyPropertyService.SetDomElement(obj, cached, selectorType);
+            cached = "CreateTreeNode".Measure(() => CreateTreeNode(obj));
+            "SetDomElement".Measure(() => dependencyPropertyService.SetDomElement(obj, cached, selectorType));
 
             return cached;
         }

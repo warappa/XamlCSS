@@ -1,10 +1,12 @@
 ﻿using System;
+using XamlCSS.Utils;
 
 namespace XamlCSS
 {
     public class CssNamespace
     {
         private string @namespace;
+        private string[] namespaceFragments;
 
         public CssNamespace() { }
         public CssNamespace(string alias, string @namespace)
@@ -47,8 +49,12 @@ namespace XamlCSS
                 {
                     this.@namespace = value;
                 }
+
+                namespaceFragments = this.@namespace.Split(',');
             }
         }
+
+        public string[] NamespaceFragments => namespaceFragments;
 
         public override bool Equals(object obj)
         {

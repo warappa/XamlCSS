@@ -50,18 +50,6 @@ namespace XamlCSS.WPF.Dom
             }
         }
 
-        public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
-        {
-            if (selectorType == SelectorType.LogicalTree)
-            {
-                return logicalTreeNodeProvider.IsCorrectTreeNode(node);
-            }
-            else
-            {
-                return visualTreeNodeProvider.IsCorrectTreeNode(node);
-            }
-        }
-
         public override IEnumerable<DependencyObject> GetChildren(DependencyObject element)
         {
             return currentTreeNodeProvider.GetChildren(element);

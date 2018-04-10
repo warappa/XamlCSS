@@ -28,6 +28,8 @@ namespace XamlCSS.WPF
                  BindingFlags.FlattenHierarchy)
                 .Where(x => x.Name == "RemoveLogicalChild" && x.GetParameters().Length == 2)
                 .First();
+
+            dynamicOrStaticResource.Match("{StaticResource abc}");
         }
 
         private void AddLogicalChild(DependencyObject parent, object child)
@@ -39,16 +41,26 @@ namespace XamlCSS.WPF
         {
             removeLogicalChild.Invoke(null, new object[] { parent, child });
         }
-        private static Regex dynamicOrStaticResource = new Regex(@"{\s?(DynamicResource|StaticResource)\s(?<key>[a-zA-Z]+)\s?}");
+
+        private static Regex dynamicOrStaticResource = new Regex(@"{\s*(?<ext>StaticResource|DynamicResource)\s*(?<key>[a-zA-Z_]+)\s*}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
 
         public object Parse(string expression, FrameworkElement obj, IEnumerable<CssNamespace> namespaces)
         {
-            var match = "match".Measure(() => dynamicOrStaticResource.Match(expression));
-            if (match.Success)
-            {
-                return GetDynamicResourceValue(match.Groups["key"].Value, obj);
-            }
-            var xmlnamespaces = string.Join(" ", namespaces.Where(x => x.Alias != "")
+            FrameworkElement textBlock = null;
+            object localValue = null;
+
+            //var match = $"regex match {expression}".Measure(() => dynamicOrStaticResource.Match(expression));
+            //if (match.Success)
+            //{
+            //    // return GetDynamicResourceValue(match.Groups["key"].Value, obj);
+            //    var ext = match.Groups[1].Value;
+            //    if(ext == "StaticResource")
+            //        return GetDynamicResourceValue(match.Groups[2].Value, obj);
+            //    return new DynamicResourceExtension(match.Groups[2].Value);
+            //    "GetDynamicResourceValue".Measure(() => GetDynamicResourceValue(match.Groups[1].Value, obj));
+            //}
+
+            var xmlnamespaces = "get xaml namespaces".Measure(() => string.Join(" ", namespaces.Where(x => x.Alias != "")
                 .Select(x =>
                 {
                     var strs = x.Namespace.Split(',');
@@ -60,48 +72,54 @@ namespace XamlCSS.WPF
                     {
                         return "xmlns:" + x.Alias + "=\"" + x.Namespace + "\"";
                     }
-                }));
-
-            var test = $@"
-<DataTemplate
-xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
-xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
-{xmlnamespaces}><FrameworkElement x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" /></DataTemplate>";
-            /*
-            var pc = new ParserContext();
-            pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
-            pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");*/
-            var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
-
-            FrameworkElement textBlock;
-            try
+                })));
+            $"Parse {expression}".Measure(() =>
             {
-                textBlock = (FrameworkElement)dataTemplate.LoadContent();
-                //textBlock = (FrameworkElement)XamlReader.Parse(test);
-            }
-            catch (Exception e)
-            {
-                throw new Exception($@"Cannot evaluate markup-expression ""{expression}""!");
-            }
-            AddLogicalChild(obj, textBlock);
 
-            object localValue;
-            object resolvedValue;
+                //                var test = $@"
+                //<DataTemplate
+                //xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+                //xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+                //{xmlnamespaces}><FrameworkElement x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" /></DataTemplate>";
 
-            try
-            {
-                localValue = textBlock.ReadLocalValue(FrameworkElement.TagProperty);
-            }
-            finally
-            {
-                RemoveLogicalChild(obj, textBlock);
-            }
+                var test = $@"<FrameworkElement xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"" {xmlnamespaces} x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />";
+
+                /*
+                var pc = new ParserContext();
+                pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
+                pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");*/
+                //var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
+
+
+                try
+                {
+                    //textBlock = (FrameworkElement)dataTemplate.LoadContent();
+                    textBlock = (FrameworkElement)XamlReader.Parse(test);
+                }
+                catch (Exception e)
+                {
+                    throw new Exception($@"Cannot evaluate markup-expression ""{expression}""!");
+                }
+                // AddLogicalChild(obj, textBlock);
+
+
+
+                try
+                {
+                    localValue = textBlock.ReadLocalValue(FrameworkElement.TagProperty);
+                }
+                finally
+                {
+                    // RemoveLogicalChild(obj, textBlock);
+                }
+
+            });
 
             if (localValue is BindingExpression)
             {
                 return ((BindingExpression)localValue).ParentBinding;
             }
-            else if ((resolvedValue = textBlock.GetValue(FrameworkElement.TagProperty)) == DependencyProperty.UnsetValue)
+            else if ((textBlock.GetValue(FrameworkElement.TagProperty)) == DependencyProperty.UnsetValue)
             {
                 return localValue;
             }
@@ -129,16 +147,19 @@ xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
 
         internal static object GetDynamicResourceValue(object resourceKey, object element)
         {
-            if (element is FrameworkElement)
+            return "GetDynamicResourceValue".Measure(() =>
             {
-                return ((FrameworkElement)element).TryFindResource(resourceKey);
-            }
-            else if (element is FrameworkContentElement)
-            {
-                return ((FrameworkContentElement)element).TryFindResource(resourceKey);
-            }
+                if (element is FrameworkElement)
+                {
+                    return ((FrameworkElement)element).TryFindResource(resourceKey);
+                }
+                else if (element is FrameworkContentElement)
+                {
+                    return ((FrameworkContentElement)element).TryFindResource(resourceKey);
+                }
 
-            return null;
+                return null;
+            });
         }
     }
 }

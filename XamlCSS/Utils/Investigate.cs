@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define DEBUG
+using System;
 using System.Diagnostics;
 using System.Text;
 
@@ -39,7 +40,7 @@ namespace XamlCSS.Utils
             var startTime = stopwatch.ElapsedTicks;
             var result = action();
 
-            var message = $"{new string(' ', Math.Max(0, currentLevel) * 2)}{new TimeSpan(stopwatch.ElapsedTicks - startTime).TotalMilliseconds}ms - " + title;
+            var message = $"{new string(' ', Math.Max(0, currentLevel) * 4)}{new TimeSpan(stopwatch.ElapsedTicks - startTime).TotalMilliseconds}ms - " + title;
             if (currentLevel < 20)
             {
                 lock (sb)

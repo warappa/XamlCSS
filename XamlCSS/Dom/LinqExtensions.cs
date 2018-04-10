@@ -103,7 +103,7 @@ namespace XamlCSS.Dom
         public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, IList<IDomElement<TDependencyObject>> result)
             where TDependencyObject : class
         {
-            "QuerySelectorAll".Measure(() =>
+            $"QuerySelectorAll {selector.Value} ({elements.Count} elements [{string.Join(", ", elements.Select(x => x.Element.ToString()))}])".Measure(() =>
             {
                 var length = elements.Count;
                 var skipThisLevel = false;
@@ -113,33 +113,42 @@ namespace XamlCSS.Dom
                     var element = elements[i];
                     if (!skipThisLevel)
                     {
-                        if (element.StyleInfo?.CurrentStyleSheet != styleSheet ||
-                            element.StyleInfo.DoMatchCheck == SelectorType.None)
+                        var shouldNotProcess = "StyleInfo check".Measure(() =>
+                            !object.ReferenceEquals(element.StyleInfo != null ? element.StyleInfo.CurrentStyleSheet : null, styleSheet) ||
+                            element.StyleInfo.DoMatchCheck == SelectorType.None);
+
+                        if (shouldNotProcess)
                         {
                             continue;
                         }
 
-                        var match = selector.Match(styleSheet, element);
+                        $"match selector ({selector.Value})".Measure(() =>
+                        {
+                            var match = selector.Match(styleSheet, element);
 
-                        if (match.IsSuccess)
-                        {
-                            result.Add(element);
-                        }
-                        else if (match.HasGeneralParentFailed)
-                        {
-                            //return;
-                            skipThisLevel = true;
-                        }
-                        else if (match.HasDirectParentFailed)
-                        {
-                            skipThisLevel = true;
-                        }
+                            if (match.IsSuccess)
+                            {
+                                result.Add(element);
+                            }
+                            else if (match.HasGeneralParentFailed)
+                            {
+                                //return;
+                                skipThisLevel = true;
+                            }
+                            else if (match.HasDirectParentFailed)
+                            {
+                                skipThisLevel = true;
+                            }
+                        });
                     }
 
-                    if (element.ChildNodes.Count != 0)
+                    "Check for ChildNodes".Measure(() =>
                     {
-                        element.ChildNodes.QuerySelectorAll(styleSheet, selector, result);
-                    }
+                        if (element.ChildNodes.Count != 0)
+                        {
+                            element.ChildNodes.QuerySelectorAll(styleSheet, selector, result);
+                        }
+                    });
                 }
             });
         }

@@ -58,8 +58,10 @@ namespace XamlCSS
             }
             set
             {
+                UninitializeBaseStyleSheet(BaseStyleSheets);
                 BaseStyleSheets.Clear();
                 BaseStyleSheets.Add(value);
+                InitializeBaseStyleSheet(BaseStyleSheets);
             }
         }
 
@@ -112,7 +114,7 @@ namespace XamlCSS
             Version++;
             Reset();
 
-            var sheet = CssParser.Parse(content ?? "", null, GetCombinedVariables());
+            var sheet = CssParser.Parse(content ?? "", BaseStyleSheets.LastOrDefault()?.GetNamespaceUri("", "Button"), GetCombinedVariables());
 
             foreach (var error in sheet.Errors)
             {
@@ -131,6 +133,7 @@ namespace XamlCSS
 
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalRules"));
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalNamespaces"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Warnings"));
         }
@@ -338,7 +341,8 @@ namespace XamlCSS
         private void BaseStyleSheet_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(Content) ||
-                e.PropertyName == nameof(LocalRules))
+                e.PropertyName == nameof(LocalRules) ||
+                e.PropertyName == nameof(LocalNamespaces))
             {
                 Invalidate();
             }
@@ -399,7 +403,7 @@ namespace XamlCSS
             while (current != null)
             {
                 var styleSheet = GetStyleSheet(current);
-                if (styleSheet != null)
+                if (!ReferenceEquals(styleSheet, null))
                 {
                     styleSheets.Add(styleSheet);
                 }

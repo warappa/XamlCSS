@@ -11,7 +11,6 @@ namespace XamlCSS.Dom
         TDependencyObject GetParent(TDependencyObject dependencyObject);
         bool IsInTree(TDependencyObject dependencyObject);
         IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
-        bool IsCorrectTreeNode(IDomElement<TDependencyObject> node);
     }
     public interface ISwitchableTreeNodeProvider<TDependencyObject> : ITreeNodeProvider<TDependencyObject>
         where TDependencyObject : class

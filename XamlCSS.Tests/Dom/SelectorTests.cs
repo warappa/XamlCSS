@@ -32,9 +32,9 @@ namespace XamlCSS.Tests.Dom
         public void Test()
         {
             var selector = new Selector(".button a> #bbb");
-
-            selector.Fragments.Select(x => x.Text).ShouldBeEquivalentTo(new[] { "button", " ", "a", ">", "bbb" }.ToList());
-            selector.Fragments.Select(x => x.Type).ShouldBeEquivalentTo(new[] {
+            
+            selector.fragments.Select(x => x.Text).ShouldBeEquivalentTo(new[] { "button", " ", "a", ">", "bbb" }.ToList());
+            selector.fragments.Select(x => x.Type).ShouldBeEquivalentTo(new[] {
                 CssNodeType.ClassSelector,
                 CssNodeType.GeneralDescendantCombinator,
                 CssNodeType.TypeSelector,

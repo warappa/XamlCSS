@@ -48,7 +48,7 @@ namespace XamlCSS
 
         public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
-            if (initializedWith != styleSheet ||
+            if (!object.ReferenceEquals(initializedWith, styleSheet) ||
                 styleSheetVersion != styleSheet.Version)
             {
                 Initialize(styleSheet);

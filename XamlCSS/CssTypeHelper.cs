@@ -67,30 +67,33 @@ namespace XamlCSS
 
         public object GetPropertyValue(Type matchedType, TDependencyObject targetObject, string propertyName, string valueExpression, TDependencyProperty property, IEnumerable<CssNamespace> namespaces)
         {
-            object propertyValue;
-
-            if (valueExpression == "inherit")
+            return $"GetPropertyValue {valueExpression}".Measure(() =>
             {
-                valueExpression = $"{{Binding RelativeSource={{RelativeSource AncestorType={{x:Type FrameworkElement}}}}, Path=({matchedType.Name}.{propertyName})}}"; // DependencyProperty.UnsetValue;
-            }
+                object propertyValue;
 
-            if (valueExpression != null &&
-                ((valueExpression.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(valueExpression)) ||
-                valueExpression.StartsWith("{", StringComparison.Ordinal))) // color
-            {
-                if (valueExpression.StartsWith("#", StringComparison.Ordinal))
+                if (valueExpression == "inherit")
                 {
-                    valueExpression = "{" + valueExpression.Substring(1) + "}";
+                    valueExpression = $"{{Binding RelativeSource={{RelativeSource AncestorType={{x:Type FrameworkElement}}}}, Path=({matchedType.Name}.{propertyName})}}"; // DependencyProperty.UnsetValue;
                 }
 
-                propertyValue = markupExpressionParser.ProvideValue(valueExpression, targetObject, namespaces);
-            }
-            else
-            {
-                propertyValue = dependencyPropertyService.GetDependencyPropertyValue(matchedType, propertyName, property, valueExpression);
-            }
+                if (valueExpression != null &&
+                    ((valueExpression.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(valueExpression)) ||
+                    valueExpression.StartsWith("{", StringComparison.Ordinal))) // color
+                {
+                    if (valueExpression.StartsWith("#", StringComparison.Ordinal))
+                    {
+                        valueExpression = $"{{{ valueExpression.Substring(1) }}}";
+                    }
 
-            return propertyValue;
+                    propertyValue = markupExpressionParser.ProvideValue(valueExpression, targetObject, namespaces);
+                }
+                else
+                {
+                    propertyValue = dependencyPropertyService.GetDependencyPropertyValue(matchedType, propertyName, property, valueExpression);
+                }
+
+                return propertyValue;
+            });
         }
 
         public DependencyPropertyInfo<TDependencyProperty> GetDependencyPropertyInfo(IList<CssNamespace> namespaces, Type matchedType, string propertyExpression)

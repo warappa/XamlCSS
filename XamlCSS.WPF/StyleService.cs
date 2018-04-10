@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Windows;
 using System.Windows.Markup;
@@ -38,9 +39,12 @@ namespace XamlCSS.WPF
             using (var writer = XmlWriter.Create(sb, new XmlWriterSettings
             {
                 Indent = false,
+                CheckCharacters = false,
+                CloseOutput = true,
+                DoNotEscapeUriAttributes = false,
                 ConformanceLevel = ConformanceLevel.Fragment,
                 OmitXmlDeclaration = true,
-                NamespaceHandling = NamespaceHandling.OmitDuplicates,
+                NamespaceHandling = NamespaceHandling.Default,
             }))
             {
                 var mgr = new XamlDesignerSerializationManager(writer);
@@ -55,9 +59,97 @@ namespace XamlCSS.WPF
             }
         }
 
+        private string SerializeObject(object obj)
+        {
+            var sb = new StringBuilder();
+            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings
+            {
+                Indent = false,
+                CheckCharacters = false,
+                CloseOutput = true,
+                DoNotEscapeUriAttributes = false,
+                ConformanceLevel = ConformanceLevel.Fragment,
+                OmitXmlDeclaration = true,
+                NamespaceHandling = NamespaceHandling.Default,
+            }))
+            {
+                var mgr = new XamlDesignerSerializationManager(writer);
+                mgr.XamlWriterMode = XamlWriterMode.Expression;
+
+                XamlWriter.Save(obj, mgr);
+                return sb.ToString();
+            }
+        }
+
+        private T Clone2<T>(T obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var formatter = new BinaryFormatter();
+                formatter.Serialize(ms, obj);
+                ms.Position = 0;
+
+                return (T)formatter.Deserialize(ms);
+            }
+        }
+
         public override IEnumerable<DependencyObject> GetTriggersAsList(Style style)
         {
-            return style.Triggers.Select(x => (DependencyObject)XamlReader.Parse(XamlWriter.Save(x))).ToList();
+            return style.Triggers.Select(x =>
+            {
+                var serialized = Css.GetSerializedTrigger(x);
+                if (serialized == null)
+                {
+                    //serialized = "XamlWriter.Save(x)".Measure(() => XamlWriter.Save(x));
+                    serialized = "SerializeObject(x)".Measure(() => SerializeObject(x));
+                }
+                //if (x is System.Windows.DataTrigger d)
+                //{
+                //    var dt = new System.Windows.DataTrigger()
+                //    {
+                //        Binding = d.Binding,
+                //        Value = d.Value
+                //    };
+                //    d.EnterActions.ToList().ForEach(y => dt.EnterActions.Add(y));
+                //    d.ExitActions.ToList().ForEach(y => dt.ExitActions.Add(y));
+                //    d.Setters.ToList().ForEach(y => dt.Setters.Add(y));
+                //    return dt;
+                //}
+
+                //if (x is System.Windows.Trigger t)
+                //{
+                //    var tt = new System.Windows.Trigger()
+                //    {
+                //        Property = t.Property,
+                //        SourceName = t.SourceName,
+                //        Value = t.Value
+                //    };
+                //    t.EnterActions.ToList().ForEach(y => tt.EnterActions.Add(y));
+                //    t.ExitActions.ToList().ForEach(y => tt.ExitActions.Add(y));
+                //    t.Setters.ToList().ForEach(y => tt.Setters.Add(y));
+                //    return tt;
+                //}
+
+                //if (x is System.Windows.EventTrigger e)
+                //{
+                //    var et = new System.Windows.EventTrigger()
+                //    {
+                //        SourceName = e.SourceName,
+                //        RoutedEvent = e.RoutedEvent
+                //    };
+                //    e.Actions.ToList().ForEach(y => et.Actions.Add(y));
+                //    e.EnterActions.ToList().ForEach(y => et.EnterActions.Add(y));
+                //    e.ExitActions.ToList().ForEach(y => et.ExitActions.Add(y));
+
+                //    return et;
+                //}
+
+                var trigger = $"XamlReader.Parse({serialized})".Measure(() => (DependencyObject)XamlReader.Parse(serialized));
+
+                Css.SetSerializedTrigger(trigger, serialized);
+
+                return trigger;
+            }).ToList();
         }
 
         private static object GetBasicValue(DataTrigger dataTrigger)
@@ -157,6 +249,11 @@ namespace XamlCSS.WPF
                         }
                     });
 
+                    var serialized = $"pre SerializeObject({nativeTrigger.GetType().Name})".Measure(() => SerializeObject(nativeTrigger));
+                    //serialized = $"pre XamlWriter.Save({nativeTrigger.GetType().Name})".Measure(() => XamlWriter.Save(nativeTrigger));
+                    
+                    Css.SetSerializedTrigger(nativeTrigger, serialized);
+
                     return nativeTrigger;
                 });
             }
@@ -242,6 +339,11 @@ namespace XamlCSS.WPF
                         }
                     }
 
+                    var serialized = $"pre SerializeObject({nativeTrigger.GetType().Name})".Measure(() => SerializeObject(nativeTrigger));
+                    //serialized = $"pre XamlWriter.Save({nativeTrigger.GetType().Name})".Measure(() => XamlWriter.Save(nativeTrigger));
+
+                    Css.SetSerializedTrigger(nativeTrigger, serialized);
+
                     return nativeTrigger;
                 });
             }
@@ -269,6 +371,11 @@ namespace XamlCSS.WPF
                             }
                         }
                     });
+
+                    var serialized = $"pre SerializeObject({nativeTrigger.GetType().Name})".Measure(() => SerializeObject(nativeTrigger));
+                    //serialized = $"pre XamlWriter.Save({nativeTrigger.GetType().Name})".Measure(() => XamlWriter.Save(nativeTrigger));
+
+                    Css.SetSerializedTrigger(nativeTrigger, serialized);
 
                     return nativeTrigger;
                 });

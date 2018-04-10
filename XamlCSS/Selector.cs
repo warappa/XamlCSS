@@ -75,7 +75,7 @@ namespace XamlCSS
 
         private void SetFragmentsFromAst()
         {
-            Fragments = selectorAst.Children.SelectMany(x =>
+            fragments = selectorAst.Children.SelectMany(x =>
             {
                 if (x.Type == CssNodeType.DirectDescendantCombinator ||
                     x.Type == CssNodeType.GeneralDescendantCombinator ||
@@ -87,12 +87,15 @@ namespace XamlCSS
                 return x.Children.Select(y => new SelectorMatcherFactory().Create(y.Type, y.Text));
             })
             .ToArray();
+            fragmentLength = fragments.Length;
         }
 
         public int SimpleSpecificity { get; private set; }
         public int ClassSpecificity { get; private set; }
         public int IdSpecificity { get; private set; }
-        public SelectorMatcher[] Fragments { get; private set; }
+
+        internal SelectorMatcher[] fragments;
+        private int fragmentLength;
 
         public string Specificity
         {
@@ -140,11 +143,11 @@ namespace XamlCSS
         public MatchResult Match<TDependencyObject>(StyleSheet styleSheet, IDomElement<TDependencyObject> domElement)
             where TDependencyObject : class
         {
-            for (var i = Fragments.Length - 1; i >= 0; i--)
+            for (var i = fragmentLength - 1; i >= 0; i--)
             {
-                var fragment = Fragments[i];
+                var fragment = fragments[i];
 
-                var match = fragment.Match(styleSheet, ref domElement, Fragments, ref i);
+                var match = fragment.Match(styleSheet, ref domElement, fragments, ref i);
                 if (!match.IsSuccess)
                 {
                     return match;

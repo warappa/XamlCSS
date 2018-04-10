@@ -38,6 +38,9 @@ namespace XamlCSS.Dom
             INamespaceProvider<TDependencyObject> namespaceProvider
             )
         {
+            if (dependencyObject == null)
+                throw new ArgumentNullException(nameof(dependencyObject));
+
             this.dependencyObject = dependencyObject;
             this.parent = parent;
             this.treeNodeProvider = treeNodeProvider;
@@ -145,7 +148,9 @@ namespace XamlCSS.Dom
                 while (true)
                 {
                     if (currentNode.Parent == null)
+                    {
                         break;
+                    }
 
                     currentNode = currentNode.Parent;
                 }
@@ -255,7 +260,7 @@ namespace XamlCSS.Dom
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
             var check = "StyleInfo check".Measure(() =>
             {
-                if (StyleInfo.CurrentStyleSheet != styleSheet ||
+                if (!ReferenceEquals(StyleInfo.CurrentStyleSheet, styleSheet) ||
                     StyleInfo.DoMatchCheck == SelectorType.None)
                 {
                     return new List<IDomElement<TDependencyObject>>();

@@ -59,6 +59,7 @@
     <Compile Include="CssClassExtensionsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResolveTypeTests.cs" />
+    <Compile Include="StyleSheetTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -72,6 +73,9 @@
       <Project>{a11ea228-bcdc-46ec-8f8b-57fc9227c1ac}</Project>
       <Name>XamlCSS</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

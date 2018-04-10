@@ -20,11 +20,6 @@ namespace XamlCSS.XamarinForms.Dom
             return new LogicalDomElement(BindableObject, GetDomElement(GetParent(BindableObject)), this, namespaceProvider);
         }
 
-        public override bool IsCorrectTreeNode(IDomElement<BindableObject> node)
-        {
-            return node is LogicalDomElement;
-        }
-
         private List<BindableObject> GetLogicalChildren(BindableObject parent, BindableObject currentChild)
         {
             var listFound = new List<BindableObject>();

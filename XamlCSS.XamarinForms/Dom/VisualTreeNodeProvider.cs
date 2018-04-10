@@ -17,11 +17,6 @@ namespace XamlCSS.XamarinForms.Dom
             return new VisualDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
         }
 
-        public override bool IsCorrectTreeNode(IDomElement<BindableObject> node)
-        {
-            return node is VisualDomElement;
-        }
-
         public override IEnumerable<BindableObject> GetChildren(BindableObject element)
         {
             return VisualTreeHelper.GetChildren(element as Element);

@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
@@ -87,8 +90,77 @@ namespace XamlCSS.WPF
             CompositionTarget.Rendering += RenderingHandler();
 
             // Warmup(markupExtensionParser, defaultCssNamespace);
+            Warm();
 
             LoadedDetectionHelper.Initialize();
+        }
+
+        private static void Warm()
+        {
+            XamlWriter.Save(new Storyboard());
+            XamlWriter.Save(new DoubleAnimation());
+            //XamlWriter.Save(new Trigger());
+            XamlWriter.Save(new TriggerAction());
+            XamlWriter.Save(new DataTrigger());
+            XamlWriter.Save(new EventTrigger());
+
+            foreach (var ass in AppDomain.CurrentDomain.GetAssemblies()
+                .Where(x => !x.IsDynamic))
+            {
+                Console.WriteLine($"{ass.FullName}");
+
+                foreach (var m in ass.GetExportedTypes().SelectMany(y =>
+                    y.GetMethods(BindingFlags.DeclaredOnly
+                        | BindingFlags.NonPublic
+                        | BindingFlags.Public
+                        | BindingFlags.Instance
+                        | BindingFlags.Static)
+                    .Where(x => !x.ContainsGenericParameters && !x.IsAbstract && !x.Attributes.HasFlag(MethodAttributes.PinvokeImpl))
+                    .ToList()))
+                {
+                    try
+                    {
+                        System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(m.MethodHandle);
+                    }
+                    catch { }
+                }
+
+                foreach (var m in ass.GetExportedTypes()
+                    .Where(x => !x.ContainsGenericParameters && !x.IsAbstract && !x.IsGenericTypeDefinition)
+                    .SelectMany(y =>
+                    y.GetProperties()
+                    .Where(x => !x.DeclaringType.ContainsGenericParameters && !x.DeclaringType.IsAbstract && !x.DeclaringType.IsGenericTypeDefinition)
+                    .ToList()))
+                {
+                    if (m.SetMethod != null &&
+                        !m.SetMethod.ContainsGenericParameters &&
+                        !m.SetMethod.IsAbstract)
+                    {
+                        try
+                        {
+                            System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(m.SetMethod.MethodHandle);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (m.GetMethod != null &&
+                        !m.GetMethod.ContainsGenericParameters &&
+                        !m.GetMethod.IsAbstract &&
+                        !m.GetMethod.Attributes.HasFlag(MethodAttributes.PinvokeImpl))
+                    {
+                        try
+                        {
+                            System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(m.GetMethod.MethodHandle);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                }
+            }
         }
 
         private static void Warmup(MarkupExtensionParser markupExtensionParser, string defaultCssNamespace)
@@ -98,7 +170,7 @@ namespace XamlCSS.WPF
 
             TypeHelpers.GetPropertyAccessor(typeof(FrameworkElement), "IsLoaded");
 
-            var styleSheet = CssParser.Parse("*{Background: #StaticResource no;}");
+            var styleSheet = CssParser.Parse("*{Background: #DynamicResource no;}");
 
             var f = new Button();
             f.SetValue(Css.StyleSheetProperty, styleSheet);
@@ -106,6 +178,21 @@ namespace XamlCSS.WPF
 
             instance.EnqueueNewElement(f, styleSheet, f);
             instance.ExecuteApplyStyles();
+        }
+
+        public static readonly DependencyProperty SerializedTriggerProperty =
+            DependencyProperty.RegisterAttached(
+                "SerializedTrigger",
+                typeof(string),
+                typeof(Css),
+                new PropertyMetadata(null));
+        public static string GetSerializedTrigger(DependencyObject obj)
+        {
+            return ReadSafe<string>(obj, SerializedTriggerProperty);
+        }
+        public static void SetSerializedTrigger(DependencyObject obj, string value)
+        {
+            obj.SetValue(SerializedTriggerProperty, value);
         }
 
         public static readonly DependencyProperty InitialStyleProperty =

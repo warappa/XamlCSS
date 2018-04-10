@@ -47,8 +47,10 @@ namespace XamlCSS.Tests.CssParsing
             ns1.Namespace.Should().Be("XamlCSS, XamlCSS");
             ns2.Namespace.Should().Be("Windows.UI.Xaml.Controls, Windows, ContentType=WindowsRuntime");
 
+            // special UWP thing
             var resolved = TypeHelpers.ResolveFullTypeName(new[] { ns2 }.ToList(), "Button");
-            resolved.Should().Be("Windows.UI.Xaml.Controls.Button, Windows, ContentType=WindowsRuntime");
+            resolved.Should().Be("Windows.UI.Xaml.Controls.Button, Windows.UI.Xaml, Version=255.255.255.255, Culture=neutral, PublicKeyToken=null, ContentType=WindowsRuntime");
+            resolved.Should().Contain(", ContentType=WindowsRuntime");
         }
     }
 }

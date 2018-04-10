@@ -305,7 +305,7 @@ namespace XamlCSS
             }
 
             if (domElement == null ||
-                domElement.StyleInfo.CurrentStyleSheet != oldStyleSheet)
+                !ReferenceEquals(domElement.StyleInfo.CurrentStyleSheet, oldStyleSheet))
             {
                 return;
             }
@@ -665,7 +665,7 @@ namespace XamlCSS
         private static void SetDoMatchCheckToNoneInSubTree(IDomElement<TDependencyObject> domElement, StyleSheet styleSheet)
         {
             if (domElement == null ||
-                domElement.StyleInfo.CurrentStyleSheet != styleSheet)
+                !ReferenceEquals(domElement.StyleInfo.CurrentStyleSheet, styleSheet))
             {
                 return;
             }
@@ -1093,7 +1093,7 @@ namespace XamlCSS
                 while (currentDependencyObject != null)
                 {
                     var styleSheet = dependencyPropertyService.GetStyleSheet(currentDependencyObject);
-                    if (styleSheet != null)
+                    if (!ReferenceEquals(styleSheet, null))
                     {
                         return currentDependencyObject;
                     }
