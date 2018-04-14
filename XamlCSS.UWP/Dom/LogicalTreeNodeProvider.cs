@@ -21,11 +21,6 @@ namespace XamlCSS.UWP.Dom
             return new LogicalDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
         }
 
-        public override bool IsCorrectTreeNode(IDomElement<DependencyObject> node)
-        {
-            return node is LogicalDomElement;
-        }
-
         private List<DependencyObject> GetLogicalChildren(DependencyObject parent, DependencyObject currentChild)
         {
             var listFound = new List<DependencyObject>();
