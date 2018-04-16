@@ -42,23 +42,21 @@ namespace XamlCSS.WPF
             removeLogicalChild.Invoke(null, new object[] { parent, child });
         }
 
-        private static Regex dynamicOrStaticResource = new Regex(@"{\s*(?<ext>StaticResource|DynamicResource)\s*(?<key>[a-zA-Z_]+)\s*}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
+        private static Regex dynamicOrStaticResource = new Regex(@"{\s*(?<ext>StaticResource|DynamicResource)\s*(?<key>[a-zA-Z_0-9]+)\s*}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
 
         public object Parse(string expression, FrameworkElement obj, IEnumerable<CssNamespace> namespaces)
         {
             FrameworkElement textBlock = null;
             object localValue = null;
 
-            //var match = $"regex match {expression}".Measure(() => dynamicOrStaticResource.Match(expression));
-            //if (match.Success)
-            //{
-            //    // return GetDynamicResourceValue(match.Groups["key"].Value, obj);
-            //    var ext = match.Groups[1].Value;
-            //    if(ext == "StaticResource")
-            //        return GetDynamicResourceValue(match.Groups[2].Value, obj);
-            //    return new DynamicResourceExtension(match.Groups[2].Value);
-            //    "GetDynamicResourceValue".Measure(() => GetDynamicResourceValue(match.Groups[1].Value, obj));
-            //}
+            var match = $"regex match {expression}".Measure(() => dynamicOrStaticResource.Match(expression));
+            if (match.Success)
+            {
+                var ext = match.Groups[1].Value;
+                if (ext == "StaticResource")
+                    return GetDynamicResourceValue(match.Groups[2].Value, obj);
+                return new DynamicResourceExtension(match.Groups[2].Value).ProvideValue(null);
+            }
 
             var xmlnamespaces = "get xaml namespaces".Measure(() => string.Join(" ", namespaces.Where(x => x.Alias != "")
                 .Select(x =>
@@ -127,7 +125,7 @@ namespace XamlCSS.WPF
             return localValue;
         }
 
-        public object ProvideValue(string expression, object obj, IEnumerable<CssNamespace> namespaces)
+        public object ProvideValue(string expression, object obj, IEnumerable<CssNamespace> namespaces, bool unwrap = true)
         {
             object parseResult = Parse(expression, (FrameworkElement)obj, namespaces);
 
@@ -135,7 +133,8 @@ namespace XamlCSS.WPF
             {
                 parseResult = binding.ProvideValue(null);
             }
-            else if (parseResult?.GetType().Name == "ResourceReferenceExpression")
+            else if (unwrap == true &&
+                parseResult?.GetType().Name == "ResourceReferenceExpression")
             {
                 var resourceKey = TypeHelpers.GetPropertyValue(parseResult, "ResourceKey");
 

@@ -5,6 +5,6 @@ namespace XamlCSS
 {
     public interface IMarkupExtensionParser
     {
-        object ProvideValue(string expression, object targetObject, IEnumerable<CssNamespace> namespaces);
+        object ProvideValue(string expression, object targetObject, IEnumerable<CssNamespace> namespaces, bool unwrap = true);
     }
 }
