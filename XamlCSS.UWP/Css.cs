@@ -172,6 +172,9 @@ namespace XamlCSS.UWP
             var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
             domElement?.ResetClassList();
 
+            domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
+            domElement?.ResetClassList();
+
             Css.instance?.UpdateElement(element);
         }
 

@@ -23,6 +23,5 @@ namespace XamlCSS
         }
 
         public StyleDeclarationBlock DeclarationBlock { get; set; } = new StyleDeclarationBlock();
-        public SelectorType SelectorType { get; set; } = SelectorType.LogicalTree;
     }
 }

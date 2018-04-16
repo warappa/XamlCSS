@@ -515,7 +515,6 @@ namespace XamlCSS
                     .Select(x => new StyleRule
                     {
                         Selectors = x.First().Selectors,
-                        SelectorType = x.First().SelectorType,
                         DeclarationBlock = new StyleDeclarationBlock(GetMergedStyleDeclarations(x.ToList()), x.SelectMany(y => y.DeclarationBlock.Triggers).ToList())
                     })
                     .ToList();

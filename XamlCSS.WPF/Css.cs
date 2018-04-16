@@ -299,6 +299,11 @@ namespace XamlCSS.WPF
         private static void ClassPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
             var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
+            var read = GetClass(element);
+            domElement?.ResetClassList();
+
+            domElement = GetVisualDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
+            var read2 = GetClass(element);
             domElement?.ResetClassList();
 
             Css.instance?.UpdateElement(element);
@@ -339,7 +344,7 @@ namespace XamlCSS.WPF
 
         private static T ReadSafe<T>(DependencyObject obj, DependencyProperty property)
         {
-            var val = obj.ReadLocalValue(property);
+            var val = obj.GetValue(property);
             if (val == DependencyProperty.UnsetValue)
             {
                 return default(T);

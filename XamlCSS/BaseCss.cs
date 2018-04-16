@@ -48,7 +48,7 @@ namespace XamlCSS
             StyleSheet.GetParent = parent => treeNodeProvider.GetParent((TDependencyObject)parent);
             StyleSheet.GetStyleSheet = treeNode => dependencyPropertyService.GetStyleSheet((TDependencyObject)treeNode);
         }
-        
+
         public void ExecuteApplyStyles()
         {
             if (executeApplyStylesExecuting)
@@ -199,29 +199,21 @@ namespace XamlCSS
                         continue;
                     }
 
-                    switchableTreeNodeProvider.Switch(SelectorType.LogicalTree);
-                    var logical = switchableTreeNodeProvider.GetDomElement(start);
-                    logical.StyleInfo = styleUpdateInfos[start];
-
-                    if (!switchableTreeNodeProvider.IsInTree(start))
-                    {
-                        logical = null;
-                    }
-
                     switchableTreeNodeProvider.Switch(SelectorType.VisualTree);
+
                     var visual = switchableTreeNodeProvider.GetDomElement(start);
                     visual.StyleInfo = styleUpdateInfos[start];
 
-                    if (!switchableTreeNodeProvider.IsInTree(start))
-                    {
-                        visual = null;
-                    }
+                    //if (!switchableTreeNodeProvider.IsInTree(start))
+                    //{
+                    //    visual = null;
+                    //}
 
                     "UpdateMatchingStyles".Measure(() =>
                     {
                         //var task = Task.Run(() =>
                         //{
-                        tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
+                        tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
                         //return UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService);
 
                         //});
@@ -272,11 +264,11 @@ namespace XamlCSS
 
                         switchableTreeNodeProvider.Switch(SelectorType.LogicalTree);
 
-                        if (switchableTreeNodeProvider.IsInTree(start))
-                        {
-                            var logical = switchableTreeNodeProvider.GetDomElement(start);
-                            ApplyMatchingStyles(logical, item.StyleSheet, applicationResourcesService, nativeStyleService);
-                        }
+                        //if (switchableTreeNodeProvider.IsInTree(start))
+                        //{
+                        //    var logical = switchableTreeNodeProvider.GetDomElement(start);
+                        //    ApplyMatchingStyles(logical, item.StyleSheet, applicationResourcesService, nativeStyleService);
+                        //}
 
                         switchableTreeNodeProvider.Switch(SelectorType.VisualTree);
                         if (switchableTreeNodeProvider.IsInTree(start))
@@ -529,8 +521,7 @@ namespace XamlCSS
 
         private static IList<IDomElement<TDependencyObject>> UpdateMatchingStyles(
             StyleSheet styleSheet,
-            IDomElement<TDependencyObject> startFromLogical,
-            IDomElement<TDependencyObject> startFromVisual,
+            IDomElement<TDependencyObject> startFrom,
             Dictionary<TDependencyObject, StyleUpdateInfo> styleUpdateInfos,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
@@ -543,13 +534,12 @@ namespace XamlCSS
 
             var found = new List<IDomElement<TDependencyObject>>();
 
-            if (startFromVisual?.StyleInfo.DoMatchCheck == SelectorType.None ||
-                startFromLogical?.StyleInfo.DoMatchCheck == SelectorType.None)
+            if (startFrom?.StyleInfo.DoMatchCheck == SelectorType.None)
             {
                 return new List<IDomElement<TDependencyObject>>();
             }
 
-            return $"{startFromLogical?.GetPath() ?? startFromVisual?.GetPath() ?? "NULL!?!"}".Measure(() =>
+            return $"{startFrom?.GetPath() ?? "NULL!?!"}".Measure(() =>
             {
 
                 foreach (var rule in styleSheet.Rules)
@@ -557,37 +547,18 @@ namespace XamlCSS
                     $"{rule.SelectorString}".Measure(() =>
                     {
                         // // Debug.WriteLine($"--- RULE {rule.SelectorString} ----");
-                        if (rule.SelectorType == SelectorType.VisualTree)
-                        {
-                            if (startFromVisual == null)
-                            {
-                                //continue;
-                                return;
-                            }
-                            if (visualTree == null)
-                            {
-                                visualTree = startFromVisual;
-                                visualTree?.XamlCssStyleSheets.Clear();
-                                visualTree?.XamlCssStyleSheets.Add(styleSheet);
-                            }
 
-                            root = visualTree;
+                        if (startFrom == null)
+                        {
+                            //continue;
+                            return;
                         }
-                        else
-                        {
-                            if (startFromLogical == null)
-                            {
-                                //continue;
-                                return;
-                            }
-                            if (logicalTree == null)
-                            {
-                                logicalTree = startFromLogical;
-                                logicalTree?.XamlCssStyleSheets.Clear();
-                                logicalTree?.XamlCssStyleSheets.Add(styleSheet);
-                            }
 
-                            root = logicalTree;
+                        if (root == null)
+                        {
+                            root = startFrom;
+                            root?.XamlCssStyleSheets.Clear();
+                            root?.XamlCssStyleSheets.Add(styleSheet);
                         }
 
                         if (root == null)
@@ -655,8 +626,7 @@ namespace XamlCSS
 
                 "SetDoMatchCheckToNoneInSubTree".Measure(() =>
                 {
-                    SetDoMatchCheckToNoneInSubTree(startFromLogical, styleSheet);
-                    SetDoMatchCheckToNoneInSubTree(startFromVisual, styleSheet);
+                    SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet);
                 });
                 return found;
             });
@@ -828,9 +798,9 @@ namespace XamlCSS
                             nativeTriggers.AddRange(triggers);
                         }
 
-                        foreach(var item in propertyStyleValues)
+                        foreach (var item in propertyStyleValues)
                         {
-                            if(item.Value == null)
+                            if (item.Value == null)
                             {
 
                             }
