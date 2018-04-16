@@ -116,7 +116,7 @@ xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
             return localValue;
         }
 
-        public object ProvideValue(string expression, object obj, IEnumerable<CssNamespace> namespaces)
+        public object ProvideValue(string expression, object obj, IEnumerable<CssNamespace> namespaces, bool unwrap = true)
         {
             return Parse(expression, (FrameworkElement)obj, namespaces);
         }

@@ -49,7 +49,7 @@ namespace XamlCSS
             }
         }
 
-        public object GetMarkupExtensionValue(TDependencyObject targetObject, string valueExpression, IEnumerable<CssNamespace> namespaces)
+        public object GetMarkupExtensionValue(TDependencyObject targetObject, string valueExpression, IEnumerable<CssNamespace> namespaces, bool unwrap = true)
         {
             object propertyValue = null;
             if (IsMarkupExtension(valueExpression))
@@ -59,7 +59,7 @@ namespace XamlCSS
                     valueExpression = "{" + valueExpression.Substring(1) + "}";
                 }
 
-                propertyValue = markupExpressionParser.ProvideValue(valueExpression, targetObject, namespaces);
+                propertyValue = markupExpressionParser.ProvideValue(valueExpression, targetObject, namespaces, unwrap);
             }
 
             return propertyValue;

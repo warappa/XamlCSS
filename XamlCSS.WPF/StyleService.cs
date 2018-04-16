@@ -207,6 +207,7 @@ namespace XamlCSS.WPF
                                 {
 
                                 }
+
                                 nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
                             }
                             catch (Exception e)
@@ -294,6 +295,7 @@ namespace XamlCSS.WPF
                             {
 
                             }
+
                             nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
                         }
                         catch (Exception e)
@@ -417,7 +419,7 @@ namespace XamlCSS.WPF
                     {
                         if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                         {
-                            $"GetMarkupExtensionValue {parameterValueExpression}".Measure(() => value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces));
+                            $"GetMarkupExtensionValue {parameterValueExpression}".Measure(() => value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces, false));
                         }
                         else if ((propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, actionType, parameterName)) != null)
                         {
@@ -455,7 +457,7 @@ namespace XamlCSS.WPF
                         }
                     });
 
-                    $"Set Property Value {parameterName} = {value}".Measure(() => TypeHelpers.SetPropertyValue(nativeTriggerAction, parameterName, value));
+                    $"Set Property Value {parameterName} = {value}".Measure(() => dependencyService.SetValue(nativeTriggerAction, parameterName, value));
                 }
             });
             return nativeTriggerAction;

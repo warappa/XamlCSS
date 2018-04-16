@@ -427,8 +427,8 @@ namespace XamlCSS.XamarinForms.Internals
             }
             return value;
         }
-        
-        public object ProvideValue(string expression, object targetObject, IEnumerable<CssNamespace> namespaces)
+
+        public object ProvideValue(string expression, object targetObject, IEnumerable<CssNamespace> namespaces, bool unwrap = true)
         {
             var serviceProvider = new XamlServiceProvider();
             serviceProvider.Add(typeof(IProvideValueTarget), new ProvideValueTarget(targetObject));
