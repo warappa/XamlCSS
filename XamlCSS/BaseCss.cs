@@ -162,7 +162,8 @@ namespace XamlCSS
                             EnsureParents(domElement, treeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos, SelectorType.LogicalTree);
                         });
 
-                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, treeNodeProvider, dependencyPropertyService, nativeStyleService, false, item.ChangeKind == ChangeKind.Remove, SelectorType.LogicalTree);
+                        var discardOldMatchingStyles = newOrUpdatedStyleSheets.Contains(item.StyleSheet);
+                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, treeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles, item.ChangeKind == ChangeKind.Remove, SelectorType.LogicalTree);
                     }
                 });
 
