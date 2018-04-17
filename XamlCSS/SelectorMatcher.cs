@@ -22,7 +22,7 @@ namespace XamlCSS
                 currentIndex--;
                 var fragment = fragments[currentIndex];
 
-                var current = domElement.Parent;
+                var current = domElement.LogicalParent;
                 while (current != null)
                 {
                     if (fragment.Match(styleSheet, ref current, fragments, ref currentIndex).IsSuccess)
@@ -30,21 +30,21 @@ namespace XamlCSS
                         domElement = current;
                         return MatchResult.Success;
                     }
-                    current = current.Parent;
+                    current = current.LogicalParent;
                 }
                 return MatchResult.GeneralParentFailed;
             }
 
             else if (Type == CssNodeType.DirectDescendantCombinator)
             {
-                var result = domElement.Parent?.ChildNodes.Contains(domElement) == true;
-                domElement = domElement.Parent;
+                var result = domElement.LogicalParent?.LogicalChildNodes.Contains(domElement) == true;
+                domElement = domElement.LogicalParent;
                 return result ? MatchResult.Success : MatchResult.DirectParentFailed;
             }
 
             else if (Type == CssNodeType.GeneralSiblingCombinator)
             {
-                var thisIndex = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
+                var thisIndex = domElement.LogicalParent?.LogicalChildNodes.IndexOf(domElement) ?? -1;
 
                 if (thisIndex == 0)
                 {
@@ -53,9 +53,9 @@ namespace XamlCSS
 
                 currentIndex--;
 
-                if ((domElement.Parent?.ChildNodes.Count > 0) == true)
+                if ((domElement.LogicalParent?.LogicalChildNodes.Count > 0) == true)
                 {
-                    foreach (var sibling in domElement.Parent.ChildNodes.Take(thisIndex))
+                    foreach (var sibling in domElement.LogicalParent.LogicalChildNodes.Take(thisIndex))
                     {
                         var refSibling = sibling;
                         if (fragments[currentIndex].Match(styleSheet, ref refSibling, fragments, ref currentIndex).IsSuccess)
@@ -71,14 +71,14 @@ namespace XamlCSS
 
             else if (Type == CssNodeType.DirectSiblingCombinator)
             {
-                var thisIndex = domElement.Parent?.ChildNodes.IndexOf(domElement) ?? -1;
+                var thisIndex = domElement.LogicalParent?.LogicalChildNodes.IndexOf(domElement) ?? -1;
 
                 if (thisIndex <= 0)
                 {
                     return MatchResult.ItemFailed;
                 }
 
-                var sibling = domElement.Parent?.ChildNodes[thisIndex - 1];
+                var sibling = domElement.LogicalParent?.LogicalChildNodes[thisIndex - 1];
                 if (sibling == null)
                 {
                     return MatchResult.ItemFailed;

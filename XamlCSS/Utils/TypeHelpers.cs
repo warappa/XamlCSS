@@ -148,7 +148,7 @@ namespace XamlCSS.Utils
 
         public static IPropertyAccessor GetPropertyAccessor(Type type, string propertyName)
         {
-            return "GetPropertyAccessor".Measure(() =>
+            return $"GetPropertyAccessor {propertyName}".Measure(() =>
             {
                 Dictionary<string, IPropertyAccessor> propertyAccessors = null;
                 IPropertyAccessor accessor = null;

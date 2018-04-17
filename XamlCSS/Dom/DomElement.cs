@@ -28,12 +28,14 @@ namespace XamlCSS.Dom
         protected string id;
         protected string assemblyQualifiedNamespaceName = Undefined;
         protected IList<IDomElement<TDependencyObject>> childNodes = null;
+        protected IList<IDomElement<TDependencyObject>> logicalChildNodes = null;
         protected IDictionary<string, TDependencyProperty> attributes = null;
         protected IList<string> classList = null;
 
         public DomElementBase(
             TDependencyObject dependencyObject,
             IDomElement<TDependencyObject> parent,
+            IDomElement<TDependencyObject> logicalParent,
             ITreeNodeProvider<TDependencyObject> treeNodeProvider,
             INamespaceProvider<TDependencyObject> namespaceProvider
             )
@@ -43,6 +45,7 @@ namespace XamlCSS.Dom
 
             this.dependencyObject = dependencyObject;
             this.parent = parent;
+            this.logicalParent = logicalParent;
             this.treeNodeProvider = treeNodeProvider;
             //this.namespaceProvider = namespaceProvider;
 
@@ -56,10 +59,11 @@ namespace XamlCSS.Dom
             if (sender == Element)
             {
                 // force reevaluation
-                parent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element));
+                parent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.VisualTree));
+                logicalParent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.LogicalTree));
             }
 
-            if (treeNodeProvider.GetParent(sender as TDependencyObject) == dependencyObject)
+            if (treeNodeProvider.GetParent(sender as TDependencyObject, SelectorType.VisualTree) == dependencyObject)
             {
                 if (childNodes != null)
                 {
@@ -71,6 +75,22 @@ namespace XamlCSS.Dom
                     else
                     {
                         childNodes.Add(node);
+                    }
+                }
+            }
+
+            if (treeNodeProvider.GetParent(sender as TDependencyObject, SelectorType.LogicalTree) == dependencyObject)
+            {
+                if (logicalChildNodes != null)
+                {
+                    var node = treeNodeProvider.GetDomElement(sender as TDependencyObject);
+                    if (logicalChildNodes.Any(x => x.Element == sender))
+                    {
+
+                    }
+                    else
+                    {
+                        logicalChildNodes.Add(node);
                     }
                 }
             }
@@ -87,22 +107,32 @@ namespace XamlCSS.Dom
                 }
             }
 
+            if (LogicalChildNodes.Any(x => x.Element == sender))
+            {
+                if (logicalChildNodes != null)
+                {
+                    var node = logicalChildNodes.First(x => x.Element == sender as TDependencyObject);
+                    logicalChildNodes.Remove(node);
+                }
+            }
+
             if (sender == Element)
             {
                 parent = null;
+                logicalParent = null;
             }
         }
 
-        protected void ResetChildren()
-        {
-            this.childNodes = null;
-        }
+        //protected void ResetChildren()
+        //{
+        //    this.childNodes = null;
+        //}
 
         public void ResetClassList()
         {
             classList = null;
         }
-        
+
         public static string GetAssemblyQualifiedNamespaceName(Type type)
         {
             return type.AssemblyQualifiedName.Replace($".{type.Name},", ",");
@@ -114,10 +144,10 @@ namespace XamlCSS.Dom
 
         // abstract protected INodeList CreateNodeList(IEnumerable<INode> nodes);
 
-        protected IList<IDomElement<TDependencyObject>> GetChildNodes(TDependencyObject dependencyObject)
+        protected IList<IDomElement<TDependencyObject>> GetChildNodes(TDependencyObject dependencyObject, SelectorType type)
         {
             return "GetChildNodes".Measure(() => treeNodeProvider
-                .GetChildren(dependencyObject)
+                .GetChildren(dependencyObject, type)
                 .Select(x => treeNodeProvider.GetDomElement(x))
                 .ToList());
         }
@@ -128,11 +158,13 @@ namespace XamlCSS.Dom
 
         public IDictionary<string, TDependencyProperty> Attributes => attributes ?? (attributes = CreateNamedNodeMap(dependencyObject));
 
-        public IList<IDomElement<TDependencyObject>> ChildNodes => childNodes ?? (childNodes = GetChildNodes(dependencyObject));
+        public IList<IDomElement<TDependencyObject>> ChildNodes => childNodes ?? (childNodes = GetChildNodes(dependencyObject, SelectorType.VisualTree));
+        public IList<IDomElement<TDependencyObject>> LogicalChildNodes => logicalChildNodes ?? (logicalChildNodes = GetChildNodes(dependencyObject, SelectorType.LogicalTree));
 
         public IList<string> ClassList => classList ?? (classList = GetClassList(dependencyObject));
 
         public bool HasChildNodes { get { return ChildNodes.Any(); } }
+        public bool HasLogicalChildNodes { get { return LogicalChildNodes.Any(); } }
 
         public string Id { get { return id; } set { id = value; } }
 
@@ -160,6 +192,8 @@ namespace XamlCSS.Dom
         }
 
         IDomElement<TDependencyObject> parent = null;
+        private IDomElement<TDependencyObject> logicalParent;
+
         public virtual IDomElement<TDependencyObject> Parent
         {
             get
@@ -169,8 +203,18 @@ namespace XamlCSS.Dom
                     return parent;
                 }
                 return null;
-                //var parentElement = treeNodeProvider.GetParent(dependencyObject);
-                //return parentElement == null ? null : (parent = treeNodeProvider.GetDomElement(parentElement));
+            }
+        }
+
+        public virtual IDomElement<TDependencyObject> LogicalParent
+        {
+            get
+            {
+                if (logicalParent != null)
+                {
+                    return logicalParent;
+                }
+                return null;
             }
         }
 
@@ -184,9 +228,9 @@ namespace XamlCSS.Dom
 
         public StyleUpdateInfo StyleInfo { get; set; }
 
-        public bool Contains(IDomElement<TDependencyObject> otherNode)
+        public bool Contains(IDomElement<TDependencyObject> otherNode, SelectorType type)
         {
-            return ChildNodes.Contains(otherNode);
+            return type == SelectorType.VisualTree ? ChildNodes.Contains(otherNode) : LogicalChildNodes.Contains(otherNode);
         }
 
         public bool Equals(IDomElement<TDependencyObject> otherNode)
@@ -208,7 +252,7 @@ namespace XamlCSS.Dom
         {
             return Attributes.ContainsKey(name);
         }
-        
+
         //public string LookupNamespaceUri(string prefix)
         //{
         //    return namespaceProvider.LookupNamespaceUri(this, prefix);
@@ -270,7 +314,7 @@ namespace XamlCSS.Dom
             if (check != null)
                 return check;
 
-            var res = "ROOT QuerySelectorAll".Measure(() => ChildNodes.QuerySelectorAll(styleSheet, selector));
+            var res = "ROOT QuerySelectorAll".Measure(() => LogicalChildNodes.QuerySelectorAll(styleSheet, selector));
 
             "match this".Measure(() =>
             {

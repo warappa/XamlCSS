@@ -1,10 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media.Animation;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 
@@ -112,16 +109,9 @@ namespace XamlCSS.WPF
             return (StyleSheet)ReadSafe(obj, Css.StyleSheetProperty);
         }
         
-        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj, SelectorType selectorType)
+        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
         {
-            if (selectorType == SelectorType.LogicalTree)
-            {
-                return ReadSafe(obj, Css.DomElementProperty) as IDomElement<DependencyObject>;
-            }
-            else
-            {
-                return ReadSafe(obj, Css.VisualDomElementProperty) as IDomElement<DependencyObject>;
-            }
+            return ReadSafe(obj, Css.DomElementProperty) as IDomElement<DependencyObject>;
         }
         
         public void SetClass(DependencyObject obj, string value)
@@ -149,16 +139,9 @@ namespace XamlCSS.WPF
             obj.SetValue(Css.StyleSheetProperty, value);
         }
         
-        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value, SelectorType selectorType)
+        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
         {
-            if (selectorType == SelectorType.LogicalTree)
-            {
-                Css.SetDomElement(obj, value);
-            }
-            else
-            {
-                Css.SetVisualDomElement(obj, value);
-            }
+            Css.SetDomElement(obj, value);
         }
 
         public bool IsLoaded(DependencyObject obj)

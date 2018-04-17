@@ -12,36 +12,44 @@ namespace XamlCSS.Dom
     {
         protected readonly IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
         protected readonly INamespaceProvider<TDependencyObject> namespaceProvider;
-        protected SelectorType selectorType;
 
-        public TreeNodeProviderBase(IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
-            SelectorType selectorType)
+        public TreeNodeProviderBase(IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService)
         {
             this.dependencyPropertyService = dependencyPropertyService;
             this.namespaceProvider = new NamespaceProvider<TDependencyObject, TStyle, TDependencyProperty>(dependencyPropertyService);
-            this.selectorType = selectorType;
         }
 
         public abstract IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
 
-        public abstract TDependencyObject GetParent(TDependencyObject dependencyObject);
+        public abstract TDependencyObject GetParent(TDependencyObject dependencyObject, SelectorType type);
 
-        public abstract IEnumerable<TDependencyObject> GetChildren(TDependencyObject element);
+        public abstract IEnumerable<TDependencyObject> GetChildren(TDependencyObject element, SelectorType type);
 
-        public IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node)
+        public IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node, SelectorType type)
         {
             if (node == null) throw new ArgumentNullException(nameof(node));
             if (node.Element == null) throw new ArgumentNullException(nameof(node.Element));
 
-            return this.GetChildren(node.Element as TDependencyObject)
-                .Select(x => this.GetDomElement(x))
-                .ToList();
+            //return this.GetChildren(node.Element as TDependencyObject)
+            //    .Select(x => this.GetDomElement(x))
+            //    .ToList();
+
+            if (type == SelectorType.LogicalTree)
+            {
+                return node.LogicalChildNodes;
+            }
+            else if (type == SelectorType.VisualTree)
+            {
+                return node.ChildNodes;
+            }
+
+            throw new Exception("Invalid SelectorType " + type.ToString());
         }
 
-        public IDomElement<TDependencyObject> GetTreeParentNode(TDependencyObject obj)
-        {
-            return GetDomElement(GetParent(obj));
-        }
+        //public IDomElement<TDependencyObject> GetTreeParentNode(TDependencyObject obj)
+        //{
+        //    return GetDomElement(GetParent(obj));
+        //}
 
         public IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj)
         {
@@ -58,16 +66,16 @@ namespace XamlCSS.Dom
             }
 
             cached = "CreateTreeNode".Measure(() => CreateTreeNode(obj));
-            "SetDomElement".Measure(() => dependencyPropertyService.SetDomElement(obj, cached, selectorType));
+            "SetDomElement".Measure(() => dependencyPropertyService.SetDomElement(obj, cached));
 
             return cached;
         }
 
-        public abstract bool IsInTree(TDependencyObject dependencyObject);
+        public abstract bool IsInTree(TDependencyObject dependencyObject, SelectorType type);
 
         private IDomElement<TDependencyObject> GetFromDependencyObject(TDependencyObject obj)
         {
-            return dependencyPropertyService.GetDomElement(obj, selectorType);
+            return dependencyPropertyService.GetDomElement(obj);
         }
     }
 }

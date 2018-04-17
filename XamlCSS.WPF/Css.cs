@@ -69,16 +69,16 @@ namespace XamlCSS.WPF
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
             IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService =
                 new DependencyPropertyService();
-            var visualTreeNodeProvider = new VisualTreeNodeProvider(dependencyPropertyService);
-            var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
-            var visualTreeNodeWithLogicalFallbackProvider = new VisualWithLogicalFallbackTreeNodeProvider(dependencyPropertyService, visualTreeNodeProvider, logicalTreeNodeProvider);
+            //var visualTreeNodeProvider = new VisualTreeNodeProvider(dependencyPropertyService);
+            //var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
+            var visualTreeNodeWithLogicalFallbackProvider = new VisualWithLogicalFallbackTreeNodeProvider(dependencyPropertyService);
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
-            var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);
+            //var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);
 
             instance = new BaseCss<DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
-                switchableTreeNodeProvider,
+                visualTreeNodeWithLogicalFallbackProvider,
                 new StyleResourceService(),
                 new StyleService(new DependencyPropertyService(), new MarkupExtensionParser()),
                 defaultCssNamespace,
@@ -298,15 +298,11 @@ namespace XamlCSS.WPF
 
         private static void ClassPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
-            var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
+            var domElement = instance?.treeNodeProvider.GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
             var read = GetClass(element);
             domElement?.ResetClassList();
 
-            domElement = GetVisualDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
-            var read2 = GetClass(element);
-            domElement?.ResetClassList();
-
-            Css.instance?.UpdateElement(element);
+            instance?.UpdateElement(element);
         }
 
         public static readonly DependencyProperty DomElementProperty =
@@ -324,22 +320,6 @@ namespace XamlCSS.WPF
         public static void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
         {
             obj.SetValue(DomElementProperty, value);
-        }
-
-        public static readonly DependencyProperty VisualDomElementProperty =
-            DependencyProperty.RegisterAttached(
-                "VisualDomElement",
-                typeof(IDomElement<DependencyObject>),
-                typeof(Css),
-                new PropertyMetadata(null));
-
-        public static IDomElement<DependencyObject> GetVisualDomElement(DependencyObject obj)
-        {
-            return ReadSafe<IDomElement<DependencyObject>>(obj, VisualDomElementProperty);
-        }
-        public static void SetVisualDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
-        {
-            obj.SetValue(VisualDomElementProperty, value);
         }
 
         private static T ReadSafe<T>(DependencyObject obj, DependencyProperty property)

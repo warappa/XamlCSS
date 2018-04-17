@@ -31,6 +31,8 @@ namespace XamlCSS.Utils
             where TStyle : class
             where TDependencyProperty : class
         {
+            var type = SelectorType.LogicalTree;
+
             Debug.WriteLine("");
             Debug.WriteLine("------------------");
             Debug.WriteLine("Print FrameworkElement hierarchy:");
@@ -38,14 +40,14 @@ namespace XamlCSS.Utils
             Debug.WriteLine("----------------");
 
             var s = startFrom ?? styleResourceReferenceHolder;
-            Recursive(treeNodeProvider, dependencyPropertyService, s, 0, treeNodeProvider.GetParent(s));
+            Recursive(treeNodeProvider, dependencyPropertyService, s, 0, treeNodeProvider.GetParent(s, type));
 
             Debug.WriteLine("");
             Debug.WriteLine("Print DomElement hierarchy:");
             Debug.WriteLine("----------------");
 
             var sDom = treeNodeProvider.GetDomElement(s);
-            RecursiveDom(treeNodeProvider, sDom, 0, (IDomElement<TDependencyObject>)sDom.Parent);
+            RecursiveDom(treeNodeProvider, sDom, 0, type == SelectorType.VisualTree ? sDom.Parent : sDom.LogicalParent);
 
             Debug.WriteLine("----------------");
             Debug.WriteLine("----------------");
@@ -62,21 +64,23 @@ namespace XamlCSS.Utils
             where TStyle : class
             where TDependencyProperty : class
         {
+            var type = SelectorType.LogicalTree;
+
             if (element == null)
             {
                 return;
             }
 
-            if (expectedParent != treeNodeProvider.GetParent(element))
+            if (expectedParent != treeNodeProvider.GetParent(element, type))
             {
                 Debug.WriteLine("!!!!!");
-                Debug.WriteLine($"Expected parent: { dependencyPropertyService.GetName(expectedParent) }");
-                Debug.WriteLine($"Actual parent:   { dependencyPropertyService.GetName(treeNodeProvider.GetParent(element)) }");
+                Debug.WriteLine($"Expected parent: { dependencyPropertyService.GetName(expectedParent) } {expectedParent.GetType().Name}");
+                Debug.WriteLine($"Actual parent:   { dependencyPropertyService.GetName(treeNodeProvider.GetParent(element, type)) } {treeNodeProvider.GetParent(element, type).GetType().Name}");
                 Debug.WriteLine("!!!!!");
             }
 
             Debug.WriteLine(new String(' ', level) + element.GetType().Name + "#" + dependencyPropertyService.GetName(element));
-            var children = treeNodeProvider.GetChildren(element);
+            var children = treeNodeProvider.GetChildren(element, type);
             foreach (var child in children)
             {
                 Recursive(treeNodeProvider, dependencyPropertyService, child, level + 1, element);
@@ -88,22 +92,31 @@ namespace XamlCSS.Utils
             IDomElement<TDependencyObject> domElement, int level, IDomElement<TDependencyObject> expectedParent)
             where TDependencyObject : class
         {
+            var type = SelectorType.LogicalTree;
             if (domElement == null)
             {
                 return;
             }
 
-            if (expectedParent != domElement.Parent)
+            if (expectedParent != domElement.LogicalParent)
             {
                 Debug.WriteLine("!!!!!");
-                Debug.WriteLine($"Expected parent: { expectedParent.TagName + "#" + expectedParent.Id }");
-                Debug.WriteLine($"Actual parent:   { domElement.Parent?.TagName + "#" + domElement.Parent?.Id }");
+                Debug.WriteLine($"Expected parent: { expectedParent.TagName + "#" + expectedParent.Id } {expectedParent.Element?.GetType().Name}");
+                Debug.WriteLine($"Actual parent:   { domElement.LogicalParent?.TagName + "#" + domElement.LogicalParent?.Id } {domElement.LogicalParent?.Element?.GetType().Name ?? "null"}");
                 Debug.WriteLine("!!!!!");
+            }
+            if (expectedParent != null &&
+                expectedParent.Element != treeNodeProvider.GetParent(domElement.Element, type))
+            {
+                Debug.WriteLine("XXXXX");
+                Debug.WriteLine($"  Expected parent: {expectedParent.Element.GetType().Name}");
+                Debug.WriteLine($"  Actual parent:   { treeNodeProvider.GetParent(domElement.Element, type)?.GetType().Name}");
+                Debug.WriteLine("XXXXX");
             }
 
             Debug.WriteLine(new String(' ', level) + domElement.Element.GetType().Name + "#" + domElement.Id);
 
-            var children = treeNodeProvider.GetDomElementChildren(domElement);
+            var children = treeNodeProvider.GetDomElementChildren(domElement, type);
             foreach (var child in children)
             {
                 RecursiveDom(treeNodeProvider, child, level + 1, domElement);

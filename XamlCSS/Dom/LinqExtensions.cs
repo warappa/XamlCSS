@@ -144,9 +144,9 @@ namespace XamlCSS.Dom
 
                     "Check for ChildNodes".Measure(() =>
                     {
-                        if (element.ChildNodes.Count != 0)
+                        if (element.LogicalChildNodes.Count != 0)
                         {
-                            element.ChildNodes.QuerySelectorAll(styleSheet, selector, result);
+                            element.LogicalChildNodes.QuerySelectorAll(styleSheet, selector, result);
                         }
                     });
                 }

@@ -109,18 +109,18 @@ namespace XamlCSS.WPF
         private static readonly RoutedEventHandler UnloadedEventHandler = delegate (object sender, RoutedEventArgs e)
         {
             Css.instance?.RemoveElement(sender as DependencyObject);
-            Css.instance?.treeNodeProvider.Switch(SelectorType.LogicalTree);
-            Css.instance?.UpdateElement(Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject)?.Parent?.Element);
+            //Css.instance?.treeNodeProvider.Switch(SelectorType.LogicalTree);
+            Css.instance?.UpdateElement(Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject)?.LogicalParent?.Element);
             SubTreeRemoved?.Invoke(sender, e);
         };
 
         private static readonly RoutedEventHandler LoadedEventHandler = delegate (object sender, RoutedEventArgs e)
         {
-            Css.instance.treeNodeProvider.Switch(SelectorType.LogicalTree);
-            Css.instance.treeNodeProvider.GetDomElement((DependencyObject)sender);
+            //Css.instance.treeNodeProvider.Switch(SelectorType.LogicalTree);
+            Css.instance?.treeNodeProvider.GetDomElement((DependencyObject)sender);
 
-            Css.instance.treeNodeProvider.Switch(SelectorType.VisualTree);
-            Css.instance.treeNodeProvider.GetDomElement((DependencyObject)sender);
+            //Css.instance.treeNodeProvider.Switch(SelectorType.VisualTree);
+            //Css.instance.treeNodeProvider.GetDomElement((DependencyObject)sender);
 
             SubTreeAdded?.Invoke(sender, e);
             Css.instance?.NewElement(sender as DependencyObject);

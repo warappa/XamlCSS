@@ -6,10 +6,10 @@ namespace XamlCSS.Dom
         where TDependencyObject : class
     {
         IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj);
-        IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node);
-        IEnumerable<TDependencyObject> GetChildren(TDependencyObject element);
-        TDependencyObject GetParent(TDependencyObject dependencyObject);
-        bool IsInTree(TDependencyObject dependencyObject);
+        IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node, SelectorType type);
+        IEnumerable<TDependencyObject> GetChildren(TDependencyObject element, SelectorType type);
+        TDependencyObject GetParent(TDependencyObject dependencyObject, SelectorType type);
+        bool IsInTree(TDependencyObject dependencyObject, SelectorType type);
         IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
     }
     public interface ISwitchableTreeNodeProvider<TDependencyObject> : ITreeNodeProvider<TDependencyObject>
