@@ -5,7 +5,7 @@ using System;
 
 namespace XamlCSS.WPF.Dom
 {
-	[DebuggerDisplay("LOGICAL ({Element.GetType().Name}) Parent={Parent.Element}  Id={Id} Name={Name} Class={Class}")]
+	[DebuggerDisplay("LOGICAL ({Element.GetType().Name}) Parent={Parent?.Element}  Id={Id} Name={Name} Class={Class}")]
 	public class LogicalDomElement : DomElement
 	{
 		public LogicalDomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent, IDomElement<DependencyObject> logicalParent, ITreeNodeProvider<DependencyObject> treeNodeProvider, INamespaceProvider<DependencyObject> namespaceProvider)

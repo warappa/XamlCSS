@@ -63,9 +63,9 @@ namespace XamlCSS.Dom
                     result.Add(element);
                 }
 
-                if (element.ChildNodes.Count != 0)
+                if (element.LogicalChildNodes.Count != 0)
                 {
-                    element.ChildNodes.GetElementsByClassName(classNames, result);
+                    element.LogicalChildNodes.GetElementsByClassName(classNames, result);
                 }
             }
         }
@@ -83,9 +83,9 @@ namespace XamlCSS.Dom
                     result.Add(element);
                 }
 
-                if (element.ChildNodes.Count != 0)
+                if (element.LogicalChildNodes.Count != 0)
                 {
-                    element.ChildNodes.GetElementsByTagName(namespaceUri, tagName, result);
+                    element.LogicalChildNodes.GetElementsByTagName(namespaceUri, tagName, result);
                 }
             }
         }
@@ -103,7 +103,7 @@ namespace XamlCSS.Dom
         public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, IList<IDomElement<TDependencyObject>> result)
             where TDependencyObject : class
         {
-            $"QuerySelectorAll {selector.Value} ({elements.Count} elements [{string.Join(", ", elements.Select(x => x.Element.ToString()))}])".Measure(() =>
+            $"QuerySelectorAll {selector.Value} ({elements.Count} elements [{string.Join(", ", elements.Select(x => x.Element.GetType().Name.ToString()))}])".Measure(() =>
             {
                 var length = elements.Count;
                 var skipThisLevel = false;
@@ -180,9 +180,9 @@ namespace XamlCSS.Dom
                     }
                 }
 
-                if (element.ChildNodes.Count != 0)
+                if (element.LogicalChildNodes.Count != 0)
                 {
-                    element = element.ChildNodes.QuerySelector(styleSheet, selector);
+                    element = element.LogicalChildNodes.QuerySelector(styleSheet, selector);
 
                     if (element != null)
                     {

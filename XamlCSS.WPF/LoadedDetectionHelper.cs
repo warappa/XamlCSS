@@ -63,7 +63,7 @@ namespace XamlCSS.WPF
             {
                 if (dpo is FrameworkElement frameworkElement)
                 {
-                    
+
                     frameworkElement.Loaded += LoadedEventHandler;
                     frameworkElement.Unloaded += UnloadedEventHandler;
                     frameworkElement.Initialized += FrameworkElement_Initialized;
@@ -110,7 +110,13 @@ namespace XamlCSS.WPF
         {
             Css.instance?.RemoveElement(sender as DependencyObject);
             //Css.instance?.treeNodeProvider.Switch(SelectorType.LogicalTree);
-            Css.instance?.UpdateElement(Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject)?.LogicalParent?.Element);
+            var logicalParent = Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject)?.LogicalParent?.Element;
+            var visualParent = Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject)?.Parent?.Element;
+
+            if (logicalParent != visualParent)
+                Css.instance?.UpdateElement(visualParent);
+            Css.instance?.UpdateElement(logicalParent);
+
             SubTreeRemoved?.Invoke(sender, e);
         };
 

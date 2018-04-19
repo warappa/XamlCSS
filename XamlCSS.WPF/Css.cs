@@ -298,7 +298,8 @@ namespace XamlCSS.WPF
 
         private static void ClassPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
-            var domElement = instance?.treeNodeProvider.GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
+            //var domElement = instance?.treeNodeProvider.GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
+            var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
             var read = GetClass(element);
             domElement?.ResetClassList();
 

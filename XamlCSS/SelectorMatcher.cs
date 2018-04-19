@@ -34,6 +34,23 @@ namespace XamlCSS
                 }
                 return MatchResult.GeneralParentFailed;
             }
+            else if (Type == CssNodeType.GeneralVisualDescendantCombinator)
+            {
+                currentIndex--;
+                var fragment = fragments[currentIndex];
+
+                var current = domElement.Parent;
+                while (current != null)
+                {
+                    if (fragment.Match(styleSheet, ref current, fragments, ref currentIndex).IsSuccess)
+                    {
+                        domElement = current;
+                        return MatchResult.Success;
+                    }
+                    current = current.Parent;
+                }
+                return MatchResult.GeneralParentFailed;
+            }
 
             else if (Type == CssNodeType.DirectDescendantCombinator)
             {

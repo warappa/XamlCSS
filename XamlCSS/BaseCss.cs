@@ -203,7 +203,7 @@ namespace XamlCSS
 
                     //treeNodeProvider.Switch(SelectorType.VisualTree);
 
-                    var visual = treeNodeProvider.GetDomElement(start);
+                    var domElement = treeNodeProvider.GetDomElement(start);
                     //visual.StyleInfo = styleUpdateInfos[start];
 
                     //if (!switchableTreeNodeProvider.IsInTree(start))
@@ -215,7 +215,7 @@ namespace XamlCSS
                     {
                         //var task = Task.Run(() =>
                         //{
-                        tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
+                        tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
                         //return UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService);
 
                         //});

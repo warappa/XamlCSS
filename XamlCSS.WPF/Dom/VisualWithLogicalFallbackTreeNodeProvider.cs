@@ -35,21 +35,6 @@ namespace XamlCSS.WPF.Dom
                 try
                 {
                     list.AddRange(GetVisualChildren(element));
-
-                    /*else
-                    {
-                        children = LogicalTreeNodeProvider.GetChildren(element).Where(x => !(element is Visual || element is Visual3D)).ToList();
-                        for (int i = 0; i < children.Count; i++)
-                        {
-                            var child = children[i];
-
-                            if (child != null)
-                            {
-                                list.Add(child);
-                            }
-                        }
-                    }*/
-
                 }
                 catch { }
             }
@@ -74,9 +59,21 @@ namespace XamlCSS.WPF.Dom
 
             if (a.Count == 0)
             {
-                if (element is ItemsPresenter i)
+                if (element is ItemsPresenter itemsPresenter)
                 {
-                    a = GetChildrenOfLogicalParent(element, GetVisualChildren(element));
+                    //a = GetChildrenOfLogicalParent(element, GetVisualChildren(element));
+                    Panel itemshost = itemsPresenter != null ? VisualTreeHelper.GetChild(itemsPresenter, 0) as Panel : null;
+
+                    if (itemshost == null)
+                    {
+                        return new DependencyObject[0] { };
+                    }
+
+                    var p = GetVisualChildren(itemshost).FirstOrDefault();
+                    if (p != null)
+                        return GetLogicalChildren(p);
+
+                    return new DependencyObject[0];
                 }
                 else if (element is ContentPresenter c)
                 {
@@ -174,7 +171,6 @@ namespace XamlCSS.WPF.Dom
 
         public override bool IsInTree(DependencyObject element, SelectorType type)
         {
-            //return VisualTreeNodeProvider.IsInTree(element);
             if (type == SelectorType.LogicalTree)
             {
                 return IsInLogicalTree(element);
@@ -232,7 +228,6 @@ namespace XamlCSS.WPF.Dom
                 return null;
             }
 
-            DependencyObject parent = null;
             if (element is Visual ||
                 element is Visual3D)
             {
@@ -241,7 +236,6 @@ namespace XamlCSS.WPF.Dom
 
             // LoadedDetection: would insert into Logical Dom Tree
             return null;// LogicalTreeHelper.GetParent(element);
-            //return parent ?? LogicalTreeHelper.GetParent(element);
         }
         private DependencyObject GetLogicalParent(DependencyObject element)
         {
@@ -258,6 +252,10 @@ namespace XamlCSS.WPF.Dom
                 if (element is FrameworkElement f)
                 {
                     p = f.TemplatedParent;
+                }
+                else if (element is FrameworkContentElement fc)
+                {
+                    p = fc.TemplatedParent;
                 }
             }
 

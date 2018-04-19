@@ -60,6 +60,7 @@
         PseudoSelector = 55,
         ParentSelector = 56,
         InheritedTypeSelector = 57,
-        VariableDefaultModifier = 58
+        VariableDefaultModifier = 58,
+        GeneralVisualDescendantCombinator = 59
     }
 }

@@ -96,7 +96,14 @@ namespace XamlCSS.WPF
 
         public string GetName(DependencyObject obj)
         {
-            return (obj as FrameworkElement)?.Name;
+            if (obj is FrameworkElement)
+            {
+                return obj.GetValue(FrameworkElement.NameProperty) as string;
+            }
+            else
+            {
+                return obj.GetValue(FrameworkContentElement.NameProperty) as string;
+            }
         }
 
         public StyleDeclarationBlock GetStyle(DependencyObject obj)
@@ -126,7 +133,14 @@ namespace XamlCSS.WPF
         
         public void SetName(DependencyObject obj, string value)
         {
-            (obj as FrameworkElement).Name = value;
+            if (obj is FrameworkElement)
+            {
+                obj.SetValue(FrameworkElement.NameProperty, value);
+            }
+            else
+            {
+                obj.SetValue(FrameworkContentElement.NameProperty, value);
+            }
         }
 
         public void SetStyle(DependencyObject obj, StyleDeclarationBlock value)

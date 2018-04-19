@@ -51,6 +51,7 @@ namespace XamlCSS.Dom
 
             this.id = GetId(dependencyObject);
             this.TagName = dependencyObject.GetType().Name;
+            this.classList = GetClassList(dependencyObject);
             this.assemblyQualifiedNamespaceName = GetAssemblyQualifiedNamespaceName(dependencyObject.GetType());
         }
 
@@ -272,7 +273,7 @@ namespace XamlCSS.Dom
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            return ChildNodes.QuerySelector(styleSheet, selector);
+            return LogicalChildNodes.QuerySelector(styleSheet, selector);
         }
 
         public IDomElement<TDependencyObject> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector)
@@ -289,14 +290,14 @@ namespace XamlCSS.Dom
 
             //var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            return ChildNodes.QuerySelector(styleSheet, selector);
+            return LogicalChildNodes.QuerySelector(styleSheet, selector);
         }
 
         public IList<IDomElement<TDependencyObject>> QuerySelectorAll(StyleSheet styleSheet, ISelector selector)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            return ChildNodes.QuerySelectorAll(styleSheet, selector);
+            return LogicalChildNodes.QuerySelectorAll(styleSheet, selector);
         }
 
         public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector)
