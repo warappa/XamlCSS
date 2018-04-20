@@ -7,16 +7,16 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.UWP.Dom
 {
-    public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
+    public class TreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
-        public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
+        public TreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)
         {
         }
 
         public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            return new LogicalDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject, SelectorType.VisualTree)), GetDomElement(GetParent(dependencyObject, SelectorType.LogicalTree)), this);
+            return new DomElement(dependencyObject, GetDomElement(GetParent(dependencyObject, SelectorType.VisualTree)), GetDomElement(GetParent(dependencyObject, SelectorType.LogicalTree)), this);
         }
 
         public override IEnumerable<DependencyObject> GetChildren(DependencyObject element, SelectorType type)

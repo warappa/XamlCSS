@@ -95,7 +95,7 @@ namespace XamlCSS.XamarinForms
 
                 instance = new BaseCss<BindableObject, Style, BindableProperty>(
                     dependencyPropertyService,
-                    new LogicalTreeNodeProvider(dependencyPropertyService),
+                    new TreeNodeProvider(dependencyPropertyService),
                     new StyleResourceService(),
                     new StyleService(dependencyPropertyService, markupExtensionParser),
                     defaultCssNamespace,

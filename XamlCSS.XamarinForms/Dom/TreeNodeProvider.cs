@@ -6,16 +6,16 @@ using XamlCSS.Windows.Media;
 
 namespace XamlCSS.XamarinForms.Dom
 {
-    public class LogicalTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
+    public class TreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
     {
-        public LogicalTreeNodeProvider(IDependencyPropertyService<BindableObject, Style, BindableProperty> BindablePropertyService)
+        public TreeNodeProvider(IDependencyPropertyService<BindableObject, Style, BindableProperty> BindablePropertyService)
             : base(BindablePropertyService)
         {
         }
 
         public override IDomElement<BindableObject> CreateTreeNode(BindableObject BindableObject)
         {
-            return new LogicalDomElement(BindableObject, GetDomElement(GetParent(BindableObject, SelectorType.VisualTree)), GetDomElement(GetParent(BindableObject, SelectorType.LogicalTree)), this);
+            return new DomElement(BindableObject, GetDomElement(GetParent(BindableObject, SelectorType.VisualTree)), GetDomElement(GetParent(BindableObject, SelectorType.LogicalTree)), this);
         }
 
         private List<BindableObject> GetLogicalChildren(BindableObject parent, BindableObject currentChild)

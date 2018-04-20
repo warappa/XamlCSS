@@ -1,13 +1,13 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Windows;
 using XamlCSS.Dom;
-using XamlCSS.Utils;
 
 namespace XamlCSS.WPF.Dom
 {
-    public abstract class DomElement : DomElementBase<DependencyObject, DependencyProperty>
+    [DebuggerDisplay("Id={Id} Class={Class}")]
+    public class DomElement : DomElementBase<DependencyObject, DependencyProperty>
     {
         public DomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent, IDomElement<DependencyObject> logicalParent, ITreeNodeProvider<DependencyObject> treeNodeProvider)
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
@@ -56,6 +56,24 @@ namespace XamlCSS.WPF.Dom
             return dependencyObject.ReadLocalValue(FrameworkContentElement.NameProperty) as string;
         }
 
+        public static bool operator ==(DomElement a, DomElement b)
+        {
+            if (ReferenceEquals(a, b))
+            {
+                return true;
+            }
+            return a?.Equals(b) == true;
+        }
+        public static bool operator !=(DomElement a, DomElement b)
+        {
+            return !(a == b);
+        }
+        
+        protected override IDictionary<string, DependencyProperty> CreateNamedNodeMap(DependencyObject dependencyObject)
+        {
+            return new LazyDependencyPropertyDictionary<DependencyProperty>(dependencyObject.GetType());
+        }
+
         public override bool Equals(object obj)
         {
             var other = obj as DomElement;
@@ -71,27 +89,9 @@ namespace XamlCSS.WPF.Dom
             return this.dependencyObject == other.dependencyObject;
         }
 
-        public static bool operator ==(DomElement a, DomElement b)
-        {
-            if (ReferenceEquals(a, b))
-            {
-                return true;
-            }
-            return a?.Equals(b) == true;
-        }
-        public static bool operator !=(DomElement a, DomElement b)
-        {
-            return !(a == b);
-        }
-
         public override int GetHashCode()
         {
-            return dependencyObject?.GetHashCode() ?? 0;
-        }
-
-        protected override IDictionary<string, DependencyProperty> CreateNamedNodeMap(DependencyObject dependencyObject)
-        {
-            return new LazyDependencyPropertyDictionary<DependencyProperty>(dependencyObject.GetType());
+            return dependencyObject.GetHashCode();
         }
     }
 }

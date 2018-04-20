@@ -9,16 +9,16 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.WPF.Dom
 {
-    public class VisualWithLogicalFallbackTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
+    public class TreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
-        public VisualWithLogicalFallbackTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
+        public TreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)
         {
         }
 
         public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            return new LogicalDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject, SelectorType.VisualTree)), GetDomElement(GetParent(dependencyObject, SelectorType.LogicalTree)), this);
+            return new DomElement(dependencyObject, GetDomElement(GetParent(dependencyObject, SelectorType.VisualTree)), GetDomElement(GetParent(dependencyObject, SelectorType.LogicalTree)), this);
         }
 
         public override IEnumerable<DependencyObject> GetChildren(DependencyObject element, SelectorType type)
@@ -158,10 +158,10 @@ namespace XamlCSS.WPF.Dom
                 //    }
                 //}
 
-                //if (element is FrameworkContentElement fce)
-                //{
-                //    list.AddRange(GetLogicalChildren(fce));
-                //}
+                if (element is FrameworkContentElement fce)
+                {
+                    list.AddRange(GetLogicalChildren(fce));
+                }
                 
             }
             catch { }

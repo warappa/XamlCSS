@@ -73,7 +73,7 @@ namespace XamlCSS.WPF
                 new DependencyPropertyService();
             //var visualTreeNodeProvider = new VisualTreeNodeProvider(dependencyPropertyService);
             //var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
-            var visualTreeNodeWithLogicalFallbackProvider = new VisualWithLogicalFallbackTreeNodeProvider(dependencyPropertyService);
+            var visualTreeNodeWithLogicalFallbackProvider = new TreeNodeProvider(dependencyPropertyService);
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
             //var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);

@@ -102,7 +102,7 @@ namespace XamlCSS.UWP
 
             instance = new BaseCss<DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
-                new LogicalTreeNodeProvider(dependencyPropertyService),
+                new TreeNodeProvider(dependencyPropertyService),
                 new StyleResourceService(),
                 new StyleService(dependencyPropertyService),
                 defaultCssNamespace,

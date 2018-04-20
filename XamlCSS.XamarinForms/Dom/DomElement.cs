@@ -3,12 +3,12 @@ using XamlCSS.Dom;
 using Xamarin.Forms;
 using System;
 using XamlCSS.Windows.Media;
-using XamlCSS.Utils;
-using System.Linq;
+using System.Diagnostics;
 
 namespace XamlCSS.XamarinForms.Dom
 {
-    public abstract class DomElement : DomElementBase<BindableObject, BindableProperty>, IDisposable
+    [DebuggerDisplay("Id={Id} Class={Class}")]
+    public class DomElement : DomElementBase<BindableObject, BindableProperty>, IDisposable
     {
         public DomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent, IDomElement<BindableObject> logicalParent, ITreeNodeProvider<BindableObject> treeNodeProvider)
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
@@ -88,7 +88,7 @@ namespace XamlCSS.XamarinForms.Dom
 
         public override int GetHashCode()
         {
-            return dependencyObject?.GetHashCode() ?? 0;
+            return dependencyObject.GetHashCode();
         }
     }
 }
