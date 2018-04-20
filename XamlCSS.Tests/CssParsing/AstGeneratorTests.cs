@@ -12,8 +12,8 @@ namespace XamlCSS.Tests.CssParsing
 @namespace xamlcss ""XamlCss"";
 .main .sub>div xamlcss|Button {
 	background-color: red;
+    Grid.Row: 1;
 	background: #00ff00, solid, url('aaa');
-	Grid.Row: 1;
 }
 ";
         [Test]
@@ -72,7 +72,19 @@ namespace XamlCSS.Tests.CssParsing
                     x.Text == "red")
                 ;
 
+            var attachedPropertyNode = doc.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleRule)
+                ?.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleDeclarationBlock)
+                ?.Children.FirstOrDefault(x => x.Type == CssNodeType.StyleDeclaration && x.Children.Any(y => y.Text == "Grid.Row"))
+                ;
+            var attachedPropertyNodeValue = attachedPropertyNode
+                ?.Children.FirstOrDefault(x =>
+                    x.Type == CssNodeType.Value &&
+                    x.Text == "1")
+                ;
+
             Assert.NotNull(node);
+            Assert.NotNull(attachedPropertyNode);
+            Assert.NotNull(attachedPropertyNodeValue);
         }
 
         [Test]

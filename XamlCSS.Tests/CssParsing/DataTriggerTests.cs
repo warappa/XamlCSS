@@ -9,6 +9,22 @@ namespace XamlCSS.Tests.CssParsing
     public class DataTriggerTests
     {
         [Test]
+        public void Can_parse_attached_property()
+        {
+            var content = @"
+Button
+{
+    TextOptions.TextRenderingMode: ClearType;
+}
+";
+            var styleSheet = CssParser.Parse(content);
+            var first = styleSheet.Rules[0].DeclarationBlock;
+
+            first.First().Property.Should().Be("TextOptions.TextRenderingMode");
+            first.First().Value.Should().Be("ClearType");
+        }
+
+        [Test]
         public void DataTrigger_should_be_added_to_Triggers()
         {
             var content = @"

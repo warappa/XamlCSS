@@ -32,8 +32,8 @@ namespace XamlCSS.WPF
                     typeof(System.Windows.Controls.Button).AssemblyQualifiedName.Replace(".Button,", ","),
                     typeof(System.Windows.FrameworkElement).AssemblyQualifiedName.Replace(".FrameworkElement,", ","),
                     typeof(System.Windows.Documents.Run).AssemblyQualifiedName.Replace(".Run,", ","),
-                    typeof(System.Windows.Controls.Primitives.ScrollBar).AssemblyQualifiedName.Replace(".ScrollBar,", ",")
-
+                    typeof(System.Windows.Controls.Primitives.ScrollBar).AssemblyQualifiedName.Replace(".ScrollBar,", ","),
+                    typeof(System.Windows.Media.TextOptions).AssemblyQualifiedName.Replace(".TextOptions,", ",")
                 }
 }
         };
