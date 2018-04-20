@@ -156,5 +156,15 @@ namespace XamlCSS
 
             return MatchResult.Success;
         }
+
+        public bool StartOnVisualTree()
+        {
+            if(fragments[fragmentLength-1].Type == CssNodeType.PseudoSelector &&
+                fragments[fragmentLength - 1].Text == ":visualtree")
+            {
+                return true;
+            }
+            return false;
+        } 
     }
 }

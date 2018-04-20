@@ -1518,18 +1518,8 @@ namespace XamlCSS.CssParsing
                 }
                 else if (currentToken.Type == CssTokenType.Colon)
                 {
-                    var identifier = Peek(tokens, currentIndex);
-                    if (identifier.Type == CssTokenType.Identifier &&
-                        identifier.Text == "visual")
-                    {
-                        AddAndSetCurrent(CssNodeType.GeneralVisualDescendantCombinator);
-                        ReadGeneralVisualDescendantCombinator();
-                    }
-                    else
-                    {
-                        AddAndSetCurrent(CssNodeType.PseudoSelector);
-                        ReadPseudoSelector();
-                    }
+                    AddAndSetCurrent(CssNodeType.PseudoSelector);
+                    ReadPseudoSelector();
                     
                     GoToParent();
                 }
@@ -1650,7 +1640,7 @@ namespace XamlCSS.CssParsing
                 {
                     break;
                 }
-                else if(currentToken.Type == CssTokenType.Colon ||
+                else if (currentToken.Type == CssTokenType.Colon ||
                     first == CssTokenType.Colon)
                 {
                     throw new AstGenerationException("Pseudoelement needs previous matcher!", currentToken);

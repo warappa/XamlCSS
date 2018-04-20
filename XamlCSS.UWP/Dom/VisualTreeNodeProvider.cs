@@ -7,56 +7,56 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.UWP.Dom
 {
-    public class VisualTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
-    {
-        public VisualTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
-            : base(dependencyPropertyService, SelectorType.VisualTree)
-        {
-        }
+    //public class VisualTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
+    //{
+    //    public VisualTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
+    //        : base(dependencyPropertyService, SelectorType.VisualTree)
+    //    {
+    //    }
 
-        public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
-        {
-            return new VisualDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
-        }
+    //    public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
+    //    {
+    //        return new VisualDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
+    //    }
 
-        public override IEnumerable<DependencyObject> GetChildren(DependencyObject element)
-        {
-            var list = new List<DependencyObject>();
+    //    public override IEnumerable<DependencyObject> GetChildren(DependencyObject element)
+    //    {
+    //        var list = new List<DependencyObject>();
 
-            try
-            {
-                var count = VisualTreeHelper.GetChildrenCount(element);
-                for (int i = 0; i < count; i++)
-                {
-                    var child = VisualTreeHelper.GetChild(element, i);
+    //        try
+    //        {
+    //            var count = VisualTreeHelper.GetChildrenCount(element);
+    //            for (int i = 0; i < count; i++)
+    //            {
+    //                var child = VisualTreeHelper.GetChild(element, i);
 
-                    list.Add(child);
-                }
-            }
-            catch
-            {
-            }
+    //                list.Add(child);
+    //            }
+    //        }
+    //        catch
+    //        {
+    //        }
 
-            return list;
-        }
+    //        return list;
+    //    }
 
-        public override DependencyObject GetParent(DependencyObject element)
-        {
-            if (element == null)
-            {
-                return null;
-            }
+    //    public override DependencyObject GetParent(DependencyObject element)
+    //    {
+    //        if (element == null)
+    //        {
+    //            return null;
+    //        }
 
-            return VisualTreeHelper.GetParent(element);
-        }
+    //        return VisualTreeHelper.GetParent(element);
+    //    }
 
-        public override bool IsInTree(DependencyObject element)
-        {
-            var p = GetParent(element);
-            if (p == null)
-                return element is Frame;// LogicalTreeHelper.GetParent(element) != null;
+    //    public override bool IsInTree(DependencyObject element)
+    //    {
+    //        var p = GetParent(element);
+    //        if (p == null)
+    //            return element is Frame;
 
-            return GetChildren(p).Contains(element);
-        }
-    }
+    //        return GetChildren(p).Contains(element);
+    //    }
+    //}
 }

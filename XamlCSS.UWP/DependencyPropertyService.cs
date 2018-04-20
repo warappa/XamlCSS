@@ -142,28 +142,14 @@ namespace XamlCSS.UWP
             frameworkElement.Loaded += handler;
         }
         
-        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj, SelectorType selectorType)
+        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
         {
-            if (selectorType == SelectorType.LogicalTree)
-            {
-                return Css.GetDomElement(obj);
-            }
-            else
-            {
-                return Css.GetVisualDomElement(obj);
-            }
+            return Css.GetDomElement(obj);
         }
 
-        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value, SelectorType selectorType)
+        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
         {
-            if (selectorType == SelectorType.LogicalTree)
-            {
-                Css.SetDomElement(obj, value);
-            }
-            else
-            {
-                Css.SetVisualDomElement(obj, value);
-            }
+            Css.SetDomElement(obj, value);
         }
 
         public bool IsLoaded(DependencyObject obj)

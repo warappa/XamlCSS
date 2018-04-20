@@ -14,9 +14,26 @@
         cssWPF:Css.Class="main light"
         Title="MainWindow" Height="350" Width="525"
           cssWPF:Css.StyleSheet="{DynamicResource InternalStyle}">
-    <Window.Resources>
+    <!--<StackPanel>
+        <Button Click="Button_Click_3">css</Button>
+        <Button x:Name="buttonCss3" Click="Button_Click_3">css</Button>
+        <ItemsControl>
+        <ItemsControl.ItemsSource>
+            <sys:String>a</sys:String>
+        </ItemsControl.ItemsSource>
 
-    </Window.Resources>
+        <ItemsControl.ItemTemplate>
+            <DataTemplate
+                 xmlns:cssWPF="clr-namespace:XamlCSS.WPF;assembly=XamlCSS.WPF">
+                <StackPanel>
+                    <StackPanel cssWPF:Css.Class="uuu">
+                        <Label cssWPF:Css.Class="aaa">a</Label>
+                    </StackPanel>
+                </StackPanel>
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>-->
     <Grid x:Name="thegrid"
           >
         <StackPanel x:Name="stack">
@@ -44,7 +61,8 @@
                     <TextBlock Name="textBox1">
                         <Run x:Name="runCss3" cssWPF:Css.Class="fa fa-css3"></Run>
                         <Run>Open live Style Editor</Run>
-                    </TextBlock></Button>
+                    </TextBlock>
+                </Button>
                 <Button Name="thebutton" Click="Button_Click">
                     <TextBlock Name="textBox2">
                         <Run>Change Style</Run>
@@ -52,6 +70,85 @@
                 </Button>
                 <Button Click="Button_Click_4">Toggle Light/Dark</Button>
             </StackPanel>
+            <ItemsControl>
+                <ItemsControl.Template>
+                    <ControlTemplate>
+
+                        <WrapPanel>
+                            <ItemsPresenter  />
+                        </WrapPanel>
+                            
+                    </ControlTemplate>
+                </ItemsControl.Template>
+                <ItemsControl.ItemsSource>
+                    <sys:String>a</sys:String>
+                </ItemsControl.ItemsSource>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+                            <StackPanel cssWPF:Css.Class="uuu">
+                                <Label cssWPF:Css.Class="aaa">a</Label>
+                            </StackPanel>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+            <FlowDocumentScrollViewer>
+                <FlowDocument>
+                    <Paragraph>
+                        <Run cssWPF:Css.Class="header" Text="asdfasdfasdf"></Run>
+                    </Paragraph>
+
+                    <Paragraph>
+                        <Run Text="asdfasdfadsf"></Run>
+                    </Paragraph>
+                    <List cssWPF:Css.Class="list">
+                        <ListItem>
+                            <Paragraph>
+                                <Run cssWPF:Css.Class="fa fa-graduation-cap"></Run> &#160;
+                                <Hyperlink NavigateUri="https://aka.ms/willowlearn" >
+                                    <Run cssWPF:Css.Class="subheader important" Text="asdfasdfasdf"></Run>
+                                </Hyperlink>
+                            </Paragraph>
+                            <Paragraph Margin="21,10,0,0">
+                                <Run Text="asdfasfasdf"></Run>
+                            </Paragraph>
+                        </ListItem>
+                    </List>
+
+                    <List cssWPF:Css.Class="list">
+                        <ListItem>
+                            <Paragraph>
+                                <Run cssWPF:Css.Class="fa fa-shoping-bag"></Run> &#160;
+                                <Hyperlink NavigateUri="https://aka.ms/willowmarketplace" >
+                                    <Run cssWPF:Css.Class="subheader important" Text="asdfasdfasfd"></Run>
+                                </Hyperlink>
+                            </Paragraph>
+                            <Paragraph Margin="21,10,0,0">
+                                <Run TextBlock.TextAlignment="Center" Text="adsfasdfasdf"></Run>
+                            </Paragraph>
+                        </ListItem>
+                    </List>
+                    <Paragraph  Margin="0,21,0,5">
+                        <Run cssWPF:Css.Class="subheader" Text="asdfasdfasf"></Run>
+                    </Paragraph>
+                    <Paragraph  Margin="0,0,0,0">
+                        <Run Text="asdfasdfasdf"></Run>
+                        <Hyperlink NavigateUri="https://go.microsoft.com/fwlink/?linkid=834731" >
+                            <Run Text="asdfasdfasf"></Run>
+                        </Hyperlink>
+                        <Run Text="asdfasdasdf"></Run>
+                    </Paragraph>
+                    <Paragraph>
+                        <Run Text="asdfasdfasdf"></Run>
+                        <Hyperlink NavigateUri="https://go.microsoft.com/fwlink/?linkid=834732" >
+                            <Run Text="asdfasdfasf"></Run>
+                        </Hyperlink>
+                        <Run Text="asdfasdfasdfas"></Run>
+                    </Paragraph>
+                </FlowDocument>
+            </FlowDocumentScrollViewer>
         </StackPanel>
     </Grid>
 </Window>

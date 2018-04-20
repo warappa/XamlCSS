@@ -38,11 +38,13 @@
         </Storyboard>
         <css:StyleSheet x:Key="InternalStyle" xml:space="preserve">
                 <css:StyleSheet.Content><![CDATA[
-@import "appStyleSheet";
-@import "Resources/baseStyle.scss";
-@namespace animation "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
-@namespace local "XamlCSS.WPF.TestApp, XamlCSS.WPF.TestApp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
-     
+// @import "appStyleSheet";
+// @import "Resources/baseStyle.scss";
+// @namespace animation "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
+// @namespace local "XamlCSS.WPF.TestApp, XamlCSS.WPF.TestApp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
+ItemsControl:visualtree .uuu Label {
+    Foreground: Red;
+}
 .fa {
     FontFamily: "Assets/fonts/fontawesome-webfont.ttf#FontAwesome";
 
@@ -64,10 +66,10 @@
 Button
 {
     Width:80;
-    Template: #StaticResource abc;
+    Template: #DynamicResource abc;
     @Property IsMouseOver true
     {
-        Background: "{local:UrlBrush {}https://www.google.at/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png}";
+        //Background: "{local:UrlBrush {}https://www.google.at/images/branding/googlelogo/2x/googlelogo_color_120x44dp.png}";
     }
 }
 TextBlock
@@ -142,7 +144,7 @@ Grid
                 {
                     animation|BeginStoryboard: 
                     {
-                        Storyboard: #StaticResource storyboard;
+                        Storyboard: #DynamicResource storyboard;
                     }
                 }
                     
@@ -154,7 +156,7 @@ Grid
                 {
                     animation|BeginStoryboard: 
                     {
-                        Storyboard: #StaticResource storyboard2;
+                        Storyboard: #DynamicResource storyboard2;
                     }
                 }
             }
@@ -168,7 +170,7 @@ Grid
         {
 	        Grid.Row: 1;
 	        Grid.Column: 0;
-	        Text: #StaticResource testString;
+	        Text: #DynamicResource testString;
         }
                     
         TextBlock:nth-of-type(3)

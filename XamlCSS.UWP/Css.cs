@@ -203,22 +203,6 @@ namespace XamlCSS.UWP
             obj.SetValue(DomElementProperty, value ?? DependencyProperty.UnsetValue);
         }
 
-        public static readonly DependencyProperty VisualDomElementProperty =
-            DependencyProperty.RegisterAttached("VisualDomElement", typeof(bool),
-            typeof(Css), new PropertyMetadata(null, null));
-
-        public static IDomElement<DependencyObject> GetVisualDomElement(DependencyObject obj)
-        {
-            var res = obj.ReadLocalValue(VisualDomElementProperty);
-            if (res == DependencyProperty.UnsetValue)
-                return null;
-            return res as IDomElement<DependencyObject>;
-        }
-        public static void SetVisualDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
-        {
-            obj.SetValue(VisualDomElementProperty, value ?? DependencyProperty.UnsetValue);
-        }
-
         #endregion
 
         #region attached behaviours

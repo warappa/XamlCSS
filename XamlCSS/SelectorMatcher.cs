@@ -34,23 +34,6 @@ namespace XamlCSS
                 }
                 return MatchResult.GeneralParentFailed;
             }
-            else if (Type == CssNodeType.GeneralVisualDescendantCombinator)
-            {
-                currentIndex--;
-                var fragment = fragments[currentIndex];
-
-                var current = domElement.Parent;
-                while (current != null)
-                {
-                    if (fragment.Match(styleSheet, ref current, fragments, ref currentIndex).IsSuccess)
-                    {
-                        domElement = current;
-                        return MatchResult.Success;
-                    }
-                    current = current.Parent;
-                }
-                return MatchResult.GeneralParentFailed;
-            }
 
             else if (Type == CssNodeType.DirectDescendantCombinator)
             {
@@ -108,7 +91,43 @@ namespace XamlCSS
                 return result;
             }
 
+            else if(Type == CssNodeType.PseudoSelector)
+            {
+                if (Text == ":visualtree")
+                {
+                    if (currentIndex == fragments.Length - 1)
+                    {
+                        currentIndex--;
+                        if (currentIndex >= 0)
+                            return fragments[currentIndex].Match(styleSheet, ref domElement, fragments, ref currentIndex);
+                        return MatchResult.ItemFailed;
+                    }
+                    else
+                    {
+                        return GeneralVisualDescendantCombinator(styleSheet, ref domElement, fragments, ref currentIndex);
+                    }
+                }
+            }
+
             return MatchResult.ItemFailed;
+        }
+
+        private static MatchResult GeneralVisualDescendantCombinator<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
+        {
+            currentIndex--;
+            var fragment = fragments[currentIndex];
+
+            var current = domElement.Parent;
+            while (current != null)
+            {
+                if (fragment.Match(styleSheet, ref current, fragments, ref currentIndex).IsSuccess)
+                {
+                    domElement = current;
+                    return MatchResult.Success;
+                }
+                current = current.Parent;
+            }
+            return MatchResult.GeneralParentFailed;
         }
     }
 }

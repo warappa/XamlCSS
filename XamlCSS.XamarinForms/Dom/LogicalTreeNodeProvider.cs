@@ -6,18 +6,16 @@ using XamlCSS.Windows.Media;
 
 namespace XamlCSS.XamarinForms.Dom
 {
-    public class LogicalTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>, ISwitchableTreeNodeProvider<BindableObject>
+    public class LogicalTreeNodeProvider : TreeNodeProviderBase<BindableObject, Style, BindableProperty>
     {
-        public SelectorType CurrentSelectorType => SelectorType.LogicalTree;
-
         public LogicalTreeNodeProvider(IDependencyPropertyService<BindableObject, Style, BindableProperty> BindablePropertyService)
-            : base(BindablePropertyService, SelectorType.LogicalTree)
+            : base(BindablePropertyService)
         {
         }
 
         public override IDomElement<BindableObject> CreateTreeNode(BindableObject BindableObject)
         {
-            return new LogicalDomElement(BindableObject, GetDomElement(GetParent(BindableObject)), this, namespaceProvider);
+            return new LogicalDomElement(BindableObject, GetDomElement(GetParent(BindableObject, SelectorType.VisualTree)), GetDomElement(GetParent(BindableObject, SelectorType.LogicalTree)), this);
         }
 
         private List<BindableObject> GetLogicalChildren(BindableObject parent, BindableObject currentChild)
@@ -30,7 +28,7 @@ namespace XamlCSS.XamarinForms.Dom
             {
                 var child = children[i];
 
-                var childsParent = GetParent(child);
+                var childsParent = GetParent(child, SelectorType.LogicalTree);
                 if (childsParent == parent)
                 {
                     listFound.Add(child);
@@ -48,34 +46,57 @@ namespace XamlCSS.XamarinForms.Dom
             return listFound;
         }
 
-        public override IEnumerable<BindableObject> GetChildren(BindableObject element)
+        public override IEnumerable<BindableObject> GetChildren(BindableObject element, SelectorType type)
         {
             var list = new List<BindableObject>();
 
-            try
+            if (type == SelectorType.LogicalTree)
             {
-                list = GetLogicalChildren(element, element);
+                try
+                {
+                    list = GetLogicalChildren(element, element);
+                }
+                catch
+                {
+                }
             }
-            catch
+            else
             {
+                list = GetVisualChildren(element).ToList();
             }
 
             return list;
         }
-
-        public override BindableObject GetParent(BindableObject element)
+        public IEnumerable<BindableObject> GetVisualChildren(BindableObject element)
         {
-            return (element as Element)?.Parent;
+            return VisualTreeHelper.GetChildren(element as Element);
         }
-        
-        public override bool IsInTree(BindableObject dependencyObject)
+
+        public override BindableObject GetParent(BindableObject element, SelectorType type)
+        {
+            if (type == SelectorType.LogicalTree)
+            {
+                return (element as Element)?.Parent;
+            }
+            else
+            {
+                return GetVisualParent(element);
+            }
+        }
+
+        private BindableObject GetVisualParent(BindableObject element)
+        {
+            if (element == null)
+            {
+                return null;
+            }
+
+            return VisualTreeHelper.GetParent(element as Element);
+        }
+
+        public override bool IsInTree(BindableObject dependencyObject, SelectorType type)
         {
             return true;
-        }
-
-        public void Switch(SelectorType type)
-        {
-            
         }
     }
 }

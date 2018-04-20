@@ -12,5 +12,7 @@ namespace XamlCSS
 
         MatchResult Match<TDependencyObject>(StyleSheet styleSheet, IDomElement<TDependencyObject> domElement)
             where TDependencyObject : class;
+
+        bool StartOnVisualTree();
     }
 }

@@ -5,12 +5,6 @@ using XamlCSS.Utils;
 
 namespace XamlCSS.Dom
 {
-    public interface INamespaceProvider<TDependencyObject>
-        where TDependencyObject : class
-    {
-        string LookupNamespaceUri(IDomElement<TDependencyObject> domElement, string prefix);
-        string LookupPrefix(IDomElement<TDependencyObject> domElement, string namespaceUri);
-    }
     public abstract class DomElementBase<TDependencyObject, TDependencyProperty> : IDomElement<TDependencyObject>
         where TDependencyObject : class
         where TDependencyProperty : class
@@ -22,7 +16,6 @@ namespace XamlCSS.Dom
         public IList<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
 
         protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
-        // private readonly INamespaceProvider<TDependencyObject> namespaceProvider;
         protected readonly static char[] classSplitter = { ' ' };
         protected readonly TDependencyObject dependencyObject;
         protected string id;
@@ -36,8 +29,7 @@ namespace XamlCSS.Dom
             TDependencyObject dependencyObject,
             IDomElement<TDependencyObject> parent,
             IDomElement<TDependencyObject> logicalParent,
-            ITreeNodeProvider<TDependencyObject> treeNodeProvider,
-            INamespaceProvider<TDependencyObject> namespaceProvider
+            ITreeNodeProvider<TDependencyObject> treeNodeProvider
             )
         {
             if (dependencyObject == null)
@@ -47,7 +39,6 @@ namespace XamlCSS.Dom
             this.parent = parent;
             this.logicalParent = logicalParent;
             this.treeNodeProvider = treeNodeProvider;
-            //this.namespaceProvider = namespaceProvider;
 
             this.id = GetId(dependencyObject);
             this.TagName = dependencyObject.GetType().Name;
@@ -145,7 +136,7 @@ namespace XamlCSS.Dom
 
         // abstract protected INodeList CreateNodeList(IEnumerable<INode> nodes);
 
-        protected IList<IDomElement<TDependencyObject>> GetChildNodes(TDependencyObject dependencyObject, SelectorType type)
+        protected virtual IList<IDomElement<TDependencyObject>> GetChildNodes(SelectorType type)
         {
             return "GetChildNodes".Measure(() => treeNodeProvider
                 .GetChildren(dependencyObject, type)
@@ -159,8 +150,8 @@ namespace XamlCSS.Dom
 
         public IDictionary<string, TDependencyProperty> Attributes => attributes ?? (attributes = CreateNamedNodeMap(dependencyObject));
 
-        public IList<IDomElement<TDependencyObject>> ChildNodes => childNodes ?? (childNodes = GetChildNodes(dependencyObject, SelectorType.VisualTree));
-        public IList<IDomElement<TDependencyObject>> LogicalChildNodes => logicalChildNodes ?? (logicalChildNodes = GetChildNodes(dependencyObject, SelectorType.LogicalTree));
+        public IList<IDomElement<TDependencyObject>> ChildNodes => childNodes ?? (childNodes = GetChildNodes(SelectorType.VisualTree));
+        public IList<IDomElement<TDependencyObject>> LogicalChildNodes => logicalChildNodes ?? (logicalChildNodes = GetChildNodes(SelectorType.LogicalTree));
 
         public IList<string> ClassList => classList ?? (classList = GetClassList(dependencyObject));
 
@@ -192,8 +183,8 @@ namespace XamlCSS.Dom
             }
         }
 
-        IDomElement<TDependencyObject> parent = null;
-        private IDomElement<TDependencyObject> logicalParent;
+        protected IDomElement<TDependencyObject> parent = null;
+        protected IDomElement<TDependencyObject> logicalParent;
 
         public virtual IDomElement<TDependencyObject> Parent
         {
@@ -269,14 +260,14 @@ namespace XamlCSS.Dom
             return selector.Match(styleSheet, this);
         }
 
-        public IDomElement<TDependencyObject> QuerySelector(StyleSheet styleSheet, ISelector selector)
+        public IDomElement<TDependencyObject> QuerySelector(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            return LogicalChildNodes.QuerySelector(styleSheet, selector);
+            return (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelector(styleSheet, selector, type);
         }
 
-        public IDomElement<TDependencyObject> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector)
+        public IDomElement<TDependencyObject> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             var match = Matches(styleSheet, selector);
             if (match.IsSuccess)
@@ -290,17 +281,17 @@ namespace XamlCSS.Dom
 
             //var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            return LogicalChildNodes.QuerySelector(styleSheet, selector);
+            return (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelector(styleSheet, selector, type);
         }
 
-        public IList<IDomElement<TDependencyObject>> QuerySelectorAll(StyleSheet styleSheet, ISelector selector)
+        public IList<IDomElement<TDependencyObject>> QuerySelectorAll(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
-            return LogicalChildNodes.QuerySelectorAll(styleSheet, selector);
+            return LogicalChildNodes.QuerySelectorAll(styleSheet, selector, type);
         }
 
-        public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector)
+        public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
             var check = "StyleInfo check".Measure(() =>
@@ -315,7 +306,7 @@ namespace XamlCSS.Dom
             if (check != null)
                 return check;
 
-            var res = "ROOT QuerySelectorAll".Measure(() => LogicalChildNodes.QuerySelectorAll(styleSheet, selector));
+            var res = "ROOT QuerySelectorAll".Measure(() => (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelectorAll(styleSheet, selector, type));
 
             "match this".Measure(() =>
             {
@@ -394,97 +385,7 @@ namespace XamlCSS.Dom
             // TODO: uncomment the following line if the finalizer is overridden above.
             // GC.SuppressFinalize(this);
         }
+
         #endregion
-    }
-
-    public class NamespaceProvider<TDependencyObject, TStyle, TDependencyProperty> : INamespaceProvider<TDependencyObject>
-        where TDependencyObject : class
-        where TStyle : class
-        where TDependencyProperty : class
-    {
-        private readonly IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
-        private readonly IDictionary<string, string> prefix2Namespace = new Dictionary<string, string>();
-
-        public NamespaceProvider(IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService)
-        {
-            this.dependencyPropertyService = dependencyPropertyService;
-        }
-
-        public string LookupNamespaceUri(IDomElement<TDependencyObject> domElement, string prefix)
-        {
-            if (prefix == null)
-            {
-                return null;
-            }
-
-            if (prefix2Namespace.ContainsKey(prefix))
-            {
-                return prefix2Namespace[prefix];
-            }
-
-            var namespaceUri = GetStyleSheet(domElement)?.Namespaces
-                .Where(x => x.Alias == prefix)
-                .Select(x => x.Namespace)
-                .FirstOrDefault();
-
-            if (namespaceUri != null)
-            {
-                prefix2Namespace[prefix] = namespaceUri;
-            }
-
-            return namespaceUri;
-        }
-
-        public string LookupPrefix(IDomElement<TDependencyObject> domElement, string namespaceUri)
-        {
-            if (namespaceUri == null)
-            {
-                return null;
-            }
-
-            var prefix = prefix2Namespace.Where(x => x.Value == namespaceUri)
-                .Select(x => x.Key)
-                .FirstOrDefault();
-
-            if (prefix != null)
-            {
-                return prefix;
-            }
-
-            prefix = GetStyleSheet(domElement)?.Namespaces
-                .Where(x => x.Namespace == namespaceUri)
-                .Select(x => x.Alias)
-                .FirstOrDefault();
-
-            if (prefix != null)
-            {
-                prefix2Namespace[prefix] = namespaceUri;
-            }
-
-            return prefix;
-        }
-
-        private StyleSheet GetStyleSheet(IDomElement<TDependencyObject> domElement)
-        {
-            var element = GetStyleSheetHolder(domElement)?.Element;
-            if (element == null)
-            {
-                return null;
-            }
-
-            return dependencyPropertyService.GetStyleSheet(element);
-        }
-
-        private IDomElement<TDependencyObject> GetStyleSheetHolder(IDomElement<TDependencyObject> domElement)
-        {
-            var current = domElement;
-            while (current != null &&
-                dependencyPropertyService.GetStyleSheet(current.Element) == null)
-            {
-                current = current.Parent;
-            }
-
-            return current;
-        }
     }
 }

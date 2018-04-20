@@ -10,8 +10,8 @@ namespace XamlCSS.XamarinForms.Dom
 {
     public abstract class DomElement : DomElementBase<BindableObject, BindableProperty>, IDisposable
     {
-        public DomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent, ITreeNodeProvider<BindableObject> treeNodeProvider, INamespaceProvider<BindableObject> namespaceProvider)
-            : base(dependencyObject, parent, treeNodeProvider, namespaceProvider)
+        public DomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent, IDomElement<BindableObject> logicalParent, ITreeNodeProvider<BindableObject> treeNodeProvider)
+            : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
         }

@@ -44,10 +44,6 @@ ui|Grid
         [SetUp]
         public void TestSetup()
         {
-            TestNamespaceProvider.Instance.prefixToNamespaceUri["special"] = "A.Namespace";
-            //TestNamespaceProvider.Instance.prefixToNamespaceUri["ui"] = typeof(TestNode).Namespace;
-            TestNamespaceProvider.Instance.prefixToNamespaceUri[""] = typeof(TestNode).Namespace;
-
             CssParser.defaultCssNamespace = "XamlCSS.Tests.Dom, XamlCSS.Tests, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
             defaultStyleSheet = CssParser.Parse(test1);
             
@@ -91,7 +87,7 @@ ui|Grid
             var styleSheet = CssParser.Parse(test1);
             SetCurrentStyleSheet(dom, styleSheet);
 
-            var nodes = dom.QuerySelectorAllWithSelf(styleSheet, new Selector("body label"));
+            var nodes = dom.QuerySelectorAllWithSelf(styleSheet, new Selector("body label"), SelectorType.LogicalTree);
 
             Assert.AreEqual(3, nodes.Count());
         }
@@ -102,7 +98,7 @@ ui|Grid
             var styleSheet = CssParser.Parse(test1);
             SetCurrentStyleSheet(dom, styleSheet);
 
-            var nodes = dom.QuerySelectorAllWithSelf(styleSheet, new Selector("body label.required"));
+            var nodes = dom.QuerySelectorAllWithSelf(styleSheet, new Selector("body label.required"), SelectorType.LogicalTree);
 
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(label3, nodes.First());
@@ -114,7 +110,7 @@ ui|Grid
             var styleSheet = CssParser.Parse(test1);
             SetCurrentStyleSheet(dom, styleSheet);
 
-            var nodes = div.QuerySelectorAllWithSelf(styleSheet, new Selector("div label.required"));
+            var nodes = div.QuerySelectorAllWithSelf(styleSheet, new Selector("div label.required"), SelectorType.LogicalTree);
 
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(label3, nodes.First());
@@ -126,7 +122,7 @@ ui|Grid
             var styleSheet = CssParser.Parse(test1);
             SetCurrentStyleSheet(dom, styleSheet);
 
-            var nodes = div.QuerySelectorAllWithSelf(styleSheet, new Selector("label.required"));
+            var nodes = div.QuerySelectorAllWithSelf(styleSheet, new Selector("label.required"), SelectorType.LogicalTree);
 
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(label3, nodes.First());
@@ -138,7 +134,7 @@ ui|Grid
             var styleSheet = CssParser.Parse(test1);
             SetCurrentStyleSheet(dom, styleSheet);
 
-            var nodes = div.QuerySelectorAllWithSelf(styleSheet, new Selector("body label.required"));
+            var nodes = div.QuerySelectorAllWithSelf(styleSheet, new Selector("body label.required"), SelectorType.LogicalTree);
 
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(label3, nodes.First());
@@ -147,7 +143,7 @@ ui|Grid
         [Test]
         public void Select_ascending_node_with_tag_and_class4()
         {
-            var nodes = label3.QuerySelectorAllWithSelf(defaultStyleSheet, new Selector("body label.required"));
+            var nodes = label3.QuerySelectorAllWithSelf(defaultStyleSheet, new Selector("body label.required"), SelectorType.LogicalTree);
 
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(label3, nodes.First());
@@ -157,7 +153,7 @@ ui|Grid
         public void Select_ascending_node_with_nth_child()
         {
             var selector = new Selector("label:nth-of-type(2)");
-            var nodes = label2.QuerySelectorAllWithSelf(defaultStyleSheet, selector);
+            var nodes = label2.QuerySelectorAllWithSelf(defaultStyleSheet, selector, SelectorType.LogicalTree);
 
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(label2, nodes.First());
@@ -186,7 +182,7 @@ ui|Grid
         [Test]
         public void Select_without_namespace()
         {
-            var nodes = dom.QuerySelectorAllWithSelf(defaultStyleSheet, new Selector("Grid"));
+            var nodes = dom.QuerySelectorAllWithSelf(defaultStyleSheet, new Selector("Grid"), SelectorType.LogicalTree);
 
             Assert.AreEqual(2, nodes.Count());
             Assert.AreEqual(grid, nodes[0]);
@@ -196,7 +192,7 @@ ui|Grid
         [Test]
         public void Select_with_namespace()
         {
-            var nodes = dom.QuerySelectorAllWithSelf(defaultStyleSheet, new Selector("special|Grid"));
+            var nodes = dom.QuerySelectorAllWithSelf(defaultStyleSheet, new Selector("special|Grid"), SelectorType.LogicalTree);
 
             Assert.AreEqual(2, nodes.Count());
             Assert.AreEqual(grid, nodes[0]);

@@ -11,12 +11,10 @@ namespace XamlCSS.Dom
         where TDependencyProperty : class
     {
         protected readonly IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
-        protected readonly INamespaceProvider<TDependencyObject> namespaceProvider;
 
         public TreeNodeProviderBase(IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService)
         {
             this.dependencyPropertyService = dependencyPropertyService;
-            this.namespaceProvider = new NamespaceProvider<TDependencyObject, TStyle, TDependencyProperty>(dependencyPropertyService);
         }
 
         public abstract IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);

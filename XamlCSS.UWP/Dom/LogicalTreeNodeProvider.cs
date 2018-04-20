@@ -7,18 +7,40 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.UWP.Dom
 {
-    public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>, ISwitchableTreeNodeProvider<DependencyObject>
+    public class LogicalTreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
-        public SelectorType CurrentSelectorType => SelectorType.LogicalTree;
-
         public LogicalTreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
-            : base(dependencyPropertyService, SelectorType.LogicalTree)
+            : base(dependencyPropertyService)
         {
         }
 
         public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
         {
-            return new LogicalDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject)), this, namespaceProvider);
+            return new LogicalDomElement(dependencyObject, GetDomElement(GetParent(dependencyObject, SelectorType.VisualTree)), GetDomElement(GetParent(dependencyObject, SelectorType.LogicalTree)), this);
+        }
+
+        public override IEnumerable<DependencyObject> GetChildren(DependencyObject element, SelectorType type)
+        {
+            var list = new List<DependencyObject>();
+
+            if (element == null)
+            {
+                return list;
+            }
+
+            if (type == SelectorType.VisualTree)
+            {
+                try
+                {
+                    list.AddRange(GetVisualChildren(element));
+                }
+                catch { }
+            }
+            else
+            {
+                list = GetLogicalChildren(element, element).ToList();
+            }
+            return list;
         }
 
         private List<DependencyObject> GetLogicalChildren(DependencyObject parent, DependencyObject currentChild)
@@ -49,13 +71,19 @@ namespace XamlCSS.UWP.Dom
             return listFound;
         }
 
-        public override IEnumerable<DependencyObject> GetChildren(DependencyObject element)
+        public IEnumerable<DependencyObject> GetVisualChildren(DependencyObject element)
         {
             var list = new List<DependencyObject>();
 
             try
             {
-                list = GetLogicalChildren(element, element);
+                var count = VisualTreeHelper.GetChildrenCount(element);
+                for (int i = 0; i < count; i++)
+                {
+                    var child = VisualTreeHelper.GetChild(element, i);
+
+                    list.Add(child);
+                }
             }
             catch
             {
@@ -64,23 +92,75 @@ namespace XamlCSS.UWP.Dom
             return list;
         }
 
-        public override DependencyObject GetParent(DependencyObject element)
+        public override bool IsInTree(DependencyObject element, SelectorType type)
+        {
+            if (type == SelectorType.LogicalTree)
+            {
+                return IsInLogicalTree(element);
+            }
+            return IsInVisualTree(element);
+        }
+
+        public DependencyObject GetParent(DependencyObject element)
         {
             return (element as FrameworkElement)?.Parent;
         }
 
-        public override bool IsInTree(DependencyObject dependencyObject)
+        public bool IsInLogicalTree(DependencyObject dependencyObject)
         {
             var p = GetParent(dependencyObject);
             if (p == null)
                 return dependencyObject is Frame;
 
-            return GetChildren(p).Contains(dependencyObject);
+            return GetChildren(p, SelectorType.LogicalTree).Contains(dependencyObject);
         }
 
-        public void Switch(SelectorType type)
+        public bool IsInVisualTree(DependencyObject element)
         {
+            var p = GetParent(element);
+            if (p == null)
+                return element is Frame;
 
+            return GetChildren(p, SelectorType.VisualTree).Contains(element);
+        }
+
+        public override DependencyObject GetParent(DependencyObject element, SelectorType type)
+        {
+            if (element == null)
+            {
+                return null;
+            }
+
+            if (type == SelectorType.VisualTree)
+            {
+                return GetVisualParent(element);
+            }
+            else
+            {
+                return GetLogicalParent(element);
+            }
+
+            return null;
+        }
+
+        private DependencyObject GetVisualParent(DependencyObject element)
+        {
+            if (element == null)
+            {
+                return null;
+            }
+
+            return VisualTreeHelper.GetParent(element);
+        }
+        private DependencyObject GetLogicalParent(DependencyObject element)
+        {
+            if (element == null ||
+                element is Frame)
+            {
+                return null;
+            }
+
+            return (element as FrameworkElement)?.Parent;
         }
     }
 }

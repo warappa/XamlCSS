@@ -21,9 +21,6 @@ namespace XamlCSS.Tests.Dom
         [SetUp]
         public void Setup()
         {
-            TestNamespaceProvider.Instance.Clear();
-            TestNamespaceProvider.Instance["ui"] = "XamlCSS.Tests.Dom, XamlCSS.Tests, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
-
             CssParser.defaultCssNamespace = "XamlCSS.Tests.Dom, XamlCSS.Tests, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
             defaultStyleSheet = CssParser.Parse(@"@namespace ui ""XamlCSS.Tests.Dom, XamlCSS.Tests, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null"";");
         }
@@ -160,8 +157,6 @@ namespace XamlCSS.Tests.Dom
         public void Can_match_direct_descendant()
         {
             var selector = new Selector("a>#bbb");
-
-            Debug.WriteLine(string.Join("\n", TestNamespaceProvider.Instance.prefixToNamespaceUri.Select(x => $"{x.Key}: {x.Value}")));
 
             var tag = GetDomElement("button", "bbb", "some important stuff");
 

@@ -2,15 +2,13 @@
 using XamlCSS.Dom;
 using Windows.UI.Xaml;
 using System;
-using XamlCSS.Utils;
-using System.Linq;
 
 namespace XamlCSS.UWP.Dom
 {
     public abstract class DomElement : DomElementBase<DependencyObject, DependencyProperty>, IDisposable
     {
-        public DomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent, ITreeNodeProvider<DependencyObject> treeNodeProvider, INamespaceProvider<DependencyObject> namespaceProvider)
-            : base(dependencyObject, parent, treeNodeProvider, namespaceProvider)
+        public DomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent, IDomElement<DependencyObject> logicalParent, ITreeNodeProvider<DependencyObject> treeNodeProvider)
+            : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
         }

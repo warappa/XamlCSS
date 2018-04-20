@@ -547,7 +547,12 @@ namespace XamlCSS
                         // // Debug.WriteLine($"--- RULE {rule.SelectorString} ----");
 
                         // apply our selector
-                        var matchedNodes = "QuerySelectorAllWithSelf".Measure(() => startFrom.QuerySelectorAllWithSelf(styleSheet, rule.Selectors[0])
+
+                        var type = SelectorType.LogicalTree;
+                        if (rule.Selectors[0].StartOnVisualTree())
+                            type = SelectorType.VisualTree;
+
+                        var matchedNodes = "QuerySelectorAllWithSelf".Measure(() => startFrom.QuerySelectorAllWithSelf(styleSheet, rule.Selectors[0], type)
                                 .Where(x => x != null)
                                 .Cast<IDomElement<TDependencyObject>>()
                                 .ToList());

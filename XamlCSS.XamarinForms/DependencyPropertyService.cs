@@ -161,28 +161,14 @@ namespace XamlCSS.XamarinForms
             frameworkElement.BindingContextChanged += handler;
         }
 
-        public IDomElement<BindableObject> GetDomElement(BindableObject obj, SelectorType selectorType)
+        public IDomElement<BindableObject> GetDomElement(BindableObject obj)
         {
-            if (selectorType == SelectorType.LogicalTree)
-            {
-                return Css.GetDomElement(obj) as IDomElement<BindableObject>;
-            }
-            else
-            {
-                return Css.GetDomElement(obj) as IDomElement<BindableObject>;
-            }
+            return Css.GetDomElement(obj) as IDomElement<BindableObject>;
         }
 
-        public void SetDomElement(BindableObject obj, IDomElement<BindableObject> value, SelectorType selectorType)
+        public void SetDomElement(BindableObject obj, IDomElement<BindableObject> value)
         {
-            if (selectorType == SelectorType.LogicalTree)
-            {
-                Css.SetDomElement(obj, value);
-            }
-            else
-            {
-                Css.SetDomElement(obj, value);
-            }
+            Css.SetDomElement(obj, value);
         }
 
         public object GetValue(BindableObject obj, string propertyName)

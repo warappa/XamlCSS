@@ -90,17 +90,17 @@ namespace XamlCSS.Dom
             }
         }
 
-        public static IList<IDomElement<TDependencyObject>> QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector)
+        public static IList<IDomElement<TDependencyObject>> QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, SelectorType type)
             where TDependencyObject : class
         {
             var list = new List<IDomElement<TDependencyObject>>(50);
 
-            elements.QuerySelectorAll(styleSheet, selector, list);
+            elements.QuerySelectorAll(styleSheet, selector, list, type);
 
             return list;
         }
 
-        public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, IList<IDomElement<TDependencyObject>> result)
+        public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, IList<IDomElement<TDependencyObject>> result, SelectorType type)
             where TDependencyObject : class
         {
             $"QuerySelectorAll {selector.Value} ({elements.Count} elements [{string.Join(", ", elements.Select(x => x.Element.GetType().Name.ToString()))}])".Measure(() =>
@@ -144,16 +144,17 @@ namespace XamlCSS.Dom
 
                     "Check for ChildNodes".Measure(() =>
                     {
-                        if (element.LogicalChildNodes.Count != 0)
+                        var children = type == SelectorType.LogicalTree ? element.LogicalChildNodes : element.ChildNodes;
+                        if (children.Count != 0)
                         {
-                            element.LogicalChildNodes.QuerySelectorAll(styleSheet, selector, result);
+                            children.QuerySelectorAll(styleSheet, selector, result, type);
                         }
                     });
                 }
             });
         }
 
-        public static IDomElement<TDependencyObject> QuerySelector<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector)
+        public static IDomElement<TDependencyObject> QuerySelector<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, SelectorType type)
             where TDependencyObject : class
         {
             var length = elements.Count;
@@ -180,9 +181,10 @@ namespace XamlCSS.Dom
                     }
                 }
 
-                if (element.LogicalChildNodes.Count != 0)
+                var children = (type == SelectorType.LogicalTree ? element.LogicalChildNodes : element.ChildNodes);
+                if (children.Count != 0)
                 {
-                    element = element.LogicalChildNodes.QuerySelector(styleSheet, selector);
+                    element = children.QuerySelector(styleSheet, selector, type);
 
                     if (element != null)
                     {
@@ -194,11 +196,11 @@ namespace XamlCSS.Dom
             return null;
         }
 
-        public static T QuerySelector<T, TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selectors)
+        public static T QuerySelector<T, TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selectors, SelectorType type)
             where TDependencyObject : class
             where T : class, IDomElement<TDependencyObject>
         {
-            return elements.QuerySelector(styleSheet, selectors) as T;
+            return elements.QuerySelector(styleSheet, selectors, type) as T;
         }
     }
 }
