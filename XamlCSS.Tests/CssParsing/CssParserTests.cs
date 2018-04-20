@@ -543,5 +543,19 @@ Element *
             styleSheet.Rules[0].SelectorString.Should().Be(@"Element *");
             styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be(@"0");
         }
+
+        [Test]
+        public void Can_parse_TypeMatcher_with_pseudo_selector()
+        {
+            var styleSheet = CssParser.Parse(@"
+Label:visualtree, Hyperlink
+{
+    Width: 0;
+}");
+
+            styleSheet.Rules.Count.Should().Be(2);
+            styleSheet.Rules[0].SelectorString.Should().Be(@"Hyperlink");
+            styleSheet.Rules[1].SelectorString.Should().Be(@"Label:visualtree");
+        }
     }
 }
