@@ -70,8 +70,8 @@
                 </Button>
                 <Button Click="Button_Click_4">Toggle Light/Dark</Button>
             </StackPanel>
-            <ItemsControl>
-                <ItemsControl.Template>
+            <ItemsControl ItemsSource="{Binding TestList}">
+                <!--<ItemsControl.Template>
                     <ControlTemplate>
 
                         <WrapPanel>
@@ -79,11 +79,7 @@
                         </WrapPanel>
                             
                     </ControlTemplate>
-                </ItemsControl.Template>
-                <ItemsControl.ItemsSource>
-                    <sys:String>a</sys:String>
-                </ItemsControl.ItemsSource>
-
+                </ItemsControl.Template>-->
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel>

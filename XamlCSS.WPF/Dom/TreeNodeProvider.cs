@@ -162,7 +162,7 @@ namespace XamlCSS.WPF.Dom
                 {
                     list.AddRange(GetLogicalChildren(fce));
                 }
-                
+
             }
             catch { }
             return list;
@@ -247,8 +247,41 @@ namespace XamlCSS.WPF.Dom
 
             var p = LogicalTreeHelper.GetParent(element);
 
+            if (p == null) // templated?
+            {
+                if (element is FrameworkElement f)
+                {
+                    p = f.TemplatedParent;
+                }
+                else if (element is FrameworkContentElement fc)
+                {
+                    p = fc.TemplatedParent;
+                }
+
+
+
+                if (p is ContentPresenter cp)
+                {
+                    p = GetVisualParent(cp);
+                }
+
+                if (p is Panel panel)
+                {
+                    if (panel.IsItemsHost)
+                    {
+                        p = GetVisualParent(panel);
+                    }
+                }
+
+                if (p is ItemsPresenter ip)
+                {
+                    p = ip.TemplatedParent;
+                }
+            }
             if (p == null)
             {
+
+
                 if (element is FrameworkElement f)
                 {
                     p = f.TemplatedParent;

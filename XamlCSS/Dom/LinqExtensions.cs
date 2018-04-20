@@ -111,7 +111,21 @@ namespace XamlCSS.Dom
                 for (int i = 0; i < length; i++)
                 {
                     var element = elements[i];
-                    if (!skipThisLevel)
+                    var inTree = true;
+
+                    if (type == SelectorType.LogicalTree &&
+                            !element.IsInLogicalTree)
+                    {
+                        inTree = false;
+                    }
+                    else if (type == SelectorType.VisualTree &&
+                        !element.IsInVisualTree)
+                    {
+                        inTree = false;
+                    }
+
+                    if (!skipThisLevel &&
+                        inTree)
                     {
                         var shouldNotProcess = "StyleInfo check".Measure(() =>
                             !object.ReferenceEquals(element.StyleInfo != null ? element.StyleInfo.CurrentStyleSheet : null, styleSheet) ||

@@ -19,6 +19,9 @@ namespace XamlCSS.Dom
         string TagName { get; }
         bool HasAttribute(string attribute);
 
+        bool IsInLogicalTree { get; }
+        bool IsInVisualTree { get; }
+
         StyleUpdateInfo StyleInfo { get; set; }
     }
 }

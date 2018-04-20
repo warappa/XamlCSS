@@ -49,6 +49,8 @@ namespace XamlCSS.WPF.TestApp
             var b = new Button() { Content = "Abc" + count++, Name = "B" + Guid.NewGuid().ToString("N") };
             b.Click += B_Click;
             stack.Children.Add(b);
+
+            ViewModel.TestList.Add("b");
         }
 
         private void B_Click(object sender, RoutedEventArgs e)

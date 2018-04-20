@@ -15,9 +15,13 @@ namespace XamlCSS.Dom
 
         public IList<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
 
-        protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
+        public bool IsInLogicalTree { get; }
+        public bool IsInVisualTree { get; }
+
         protected readonly static char[] classSplitter = { ' ' };
         protected readonly TDependencyObject dependencyObject;
+        protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
+
         protected string id;
         protected string assemblyQualifiedNamespaceName = Undefined;
         protected IList<IDomElement<TDependencyObject>> childNodes = null;
@@ -40,6 +44,9 @@ namespace XamlCSS.Dom
             this.logicalParent = logicalParent;
             this.treeNodeProvider = treeNodeProvider;
 
+            this.IsInLogicalTree = treeNodeProvider.IsInTree(dependencyObject, SelectorType.LogicalTree);
+            this.IsInVisualTree = treeNodeProvider.IsInTree(dependencyObject, SelectorType.VisualTree);
+
             this.id = GetId(dependencyObject);
             this.TagName = dependencyObject.GetType().Name;
             this.classList = GetClassList(dependencyObject);
@@ -48,39 +55,38 @@ namespace XamlCSS.Dom
 
         protected void ElementAdded(object sender, EventArgs e)
         {
+            // if element is added...
+
+            // * element matches is this domelement...
             if (sender == Element)
             {
                 // force reevaluation
                 parent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.VisualTree));
-                logicalParent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.LogicalTree));
+                this.logicalParent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.LogicalTree));
             }
 
-            if (treeNodeProvider.GetParent(sender as TDependencyObject, SelectorType.VisualTree) == dependencyObject)
+            // * sender's visual parent is this DomElement
+            var visualParent = treeNodeProvider.GetParent(sender as TDependencyObject, SelectorType.VisualTree);
+            if (visualParent == dependencyObject)
             {
+                // this domelement is senders parent
                 if (childNodes != null)
                 {
                     var node = treeNodeProvider.GetDomElement(sender as TDependencyObject);
-                    if (childNodes.Any(x => x.Element == sender))
-                    {
-
-                    }
-                    else
+                    if (!childNodes.Any(x => x.Element == sender))
                     {
                         childNodes.Add(node);
                     }
                 }
             }
 
-            if (treeNodeProvider.GetParent(sender as TDependencyObject, SelectorType.LogicalTree) == dependencyObject)
+            var logicalParent = treeNodeProvider.GetParent(sender as TDependencyObject, SelectorType.LogicalTree);
+            if (logicalParent == dependencyObject)
             {
                 if (logicalChildNodes != null)
                 {
                     var node = treeNodeProvider.GetDomElement(sender as TDependencyObject);
-                    if (logicalChildNodes.Any(x => x.Element == sender))
-                    {
-
-                    }
-                    else
+                    if (!logicalChildNodes.Any(x => x.Element == sender))
                     {
                         logicalChildNodes.Add(node);
                     }
@@ -92,20 +98,14 @@ namespace XamlCSS.Dom
         {
             if (ChildNodes.Any(x => x.Element == sender))
             {
-                if (childNodes != null)
-                {
-                    var node = childNodes.First(x => x.Element == sender as TDependencyObject);
-                    childNodes.Remove(node);
-                }
+                var node = childNodes.First(x => x.Element == sender as TDependencyObject);
+                childNodes.Remove(node);
             }
 
             if (LogicalChildNodes.Any(x => x.Element == sender))
             {
-                if (logicalChildNodes != null)
-                {
-                    var node = logicalChildNodes.First(x => x.Element == sender as TDependencyObject);
-                    logicalChildNodes.Remove(node);
-                }
+                var node = logicalChildNodes.First(x => x.Element == sender as TDependencyObject);
+                logicalChildNodes.Remove(node);
             }
 
             if (sender == Element)
@@ -305,6 +305,17 @@ namespace XamlCSS.Dom
             });
             if (check != null)
                 return check;
+
+            if (type == SelectorType.LogicalTree &&
+                !IsInLogicalTree)
+            {
+                return new List<IDomElement<TDependencyObject>>();
+            }
+            else if (type == SelectorType.VisualTree &&
+                !IsInVisualTree)
+            {
+                return new List<IDomElement<TDependencyObject>>();
+            }
 
             var res = "ROOT QuerySelectorAll".Measure(() => (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelectorAll(styleSheet, selector, type));
 

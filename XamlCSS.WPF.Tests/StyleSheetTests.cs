@@ -60,7 +60,7 @@ namespace XamlCSS.Tests.CssParsing
 
             // inherited namespace matter because it is not overwritten in dependent stylesheets
             dependent.GetNamespaceUri("", "FlowDocument").Should().Be("System.Windows.Documents, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
-            dependent2.GetNamespaceUri("", "FlowDocument").Should().Be("System.Windows.Documents, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
+            dependent2.GetNamespaceUri("", "FlowDocument").Should().Be("System.Windows.Controls, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35");
         }
     }
 }

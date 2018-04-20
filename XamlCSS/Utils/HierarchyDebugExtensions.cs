@@ -7,7 +7,7 @@ namespace XamlCSS.Utils
 {
     public static class HierarchyDebugExtensions
     {
-        public static string GetPath<TDependencyObject>(this IDomElement<TDependencyObject> matchingNode)
+        public static string GetPath<TDependencyObject>(this IDomElement<TDependencyObject> matchingNode, SelectorType type)
             where TDependencyObject : class
         {
             var sb = new List<string>();
@@ -15,7 +15,21 @@ namespace XamlCSS.Utils
             while (current != null)
             {
                 sb.Add(current.Element.GetType().Name + (!string.IsNullOrWhiteSpace(current.Id) ? "#" + current.Id : ""));
-                current = current.Parent;
+                current = type == SelectorType.VisualTree ? current.Parent : current.LogicalParent;
+            }
+            sb.Reverse();
+            return string.Join("->", sb);
+        }
+
+        public static string GetElementPath<TDependencyObject>(this TDependencyObject element, ITreeNodeProvider<TDependencyObject> treeNodeProvider, SelectorType type)
+            where TDependencyObject : class
+        {
+            var sb = new List<string>();
+            var current = element;
+            while (current != null)
+            {
+                sb.Add(current.GetType().Name);
+                current = treeNodeProvider.GetParent(current, type);
             }
             sb.Reverse();
             return string.Join("->", sb);

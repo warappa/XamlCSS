@@ -83,7 +83,7 @@ namespace XamlCSS
             });
 
             Investigate.Print();
-            // HierarchyDebugExtensions.PrintHerarchyDebugInfo(treeNodeProvider, dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder, SelectorType.LogicalTree);
+            HierarchyDebugExtensions.PrintHerarchyDebugInfo(treeNodeProvider, dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder, SelectorType.LogicalTree);
             executeApplyStylesExecuting = false;
         }
 
@@ -261,13 +261,18 @@ namespace XamlCSS
                 });
                 "ApplyMatchingStyles".Measure(() =>
                 {
-                    foreach (var item in copy.Select(x => new { x.StartFrom, x.StyleSheetHolder, x.StyleSheet }).Distinct().ToList())
+                    //foreach (var item in copy.Select(x => new { x.StartFrom, x.StyleSheetHolder, x.StyleSheet }).Distinct().ToList())
+                    //{
+                    //    var start = item.StartFrom ?? item.StyleSheetHolder;
+
+                    //    var domElement = treeNodeProvider.GetDomElement(start);
+
+                    //ApplyMatchingStyles(domElement, item.StyleSheet, applicationResourcesService, nativeStyleService);
+                    //}
+
+                    foreach (var f in allFound)
                     {
-                        var start = item.StartFrom ?? item.StyleSheetHolder;
-
-                        var domElement = treeNodeProvider.GetDomElement(start);
-
-                        ApplyMatchingStyles(domElement, item.StyleSheet, applicationResourcesService, nativeStyleService);
+                        ApplyMatchingStylesNode(f, applicationResourcesService, nativeStyleService);
                     }
                 });
             }
@@ -411,29 +416,14 @@ namespace XamlCSS
                             );
         }
 
-        private static void ApplyMatchingStyles(IDomElement<TDependencyObject> domElement, StyleSheet styleSheet,
-            IStyleResourcesService applicationResourcesService,
-            INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
+        private static void ApplyMatchingStylesNode(IDomElement<TDependencyObject> domElement, 
+           IStyleResourcesService applicationResourcesService,
+           INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             var visualElement = domElement.Element;
 
-            if (domElement.StyleInfo == null)
-            {
-                throw new Exception($"StyleInfo null {domElement.GetType().Name.Replace("DomElement", "")} {domElement.GetPath()}");
-            }
-
             var matchingStyles = domElement.StyleInfo.CurrentMatchedSelectors;
             var appliedMatchingStyles = domElement.StyleInfo.OldMatchedSelectors;
-
-            var styledBy = domElement.StyleInfo.CurrentStyleSheet;
-            if (styledBy != null &&
-                styledBy != styleSheet)
-            {
-                // Debug.WriteLine("    Another Stylesheet");
-                return;
-            }
-
-            domElement.StyleInfo.CurrentStyleSheet = styleSheet;
 
             if (!AppliedStyleIdsAreMatchedStyleIds(appliedMatchingStyles, matchingStyles))
             {
@@ -509,11 +499,6 @@ namespace XamlCSS
 
                 domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToList();
             }
-
-            foreach (var child in domElement.LogicalChildNodes)
-            {
-                ApplyMatchingStyles(child, styleSheet, applicationResourcesService, nativeStyleService);
-            }
         }
 
         private static IList<IDomElement<TDependencyObject>> UpdateMatchingStyles(
@@ -539,7 +524,7 @@ namespace XamlCSS
             startFrom?.XamlCssStyleSheets.Clear();
             startFrom?.XamlCssStyleSheets.Add(styleSheet);
 
-            return $"startFrom {startFrom?.GetPath() ?? "NULL!?!"}".Measure(() =>
+            return $"startFrom {startFrom?.GetPath(SelectorType.LogicalTree) ?? "NULL!?!"}".Measure(() =>
             {
                 foreach (var rule in styleSheet.Rules)
                 {
