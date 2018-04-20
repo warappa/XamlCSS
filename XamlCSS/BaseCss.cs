@@ -83,7 +83,7 @@ namespace XamlCSS
             });
 
             Investigate.Print();
-            HierarchyDebugExtensions.PrintHerarchyDebugInfo(treeNodeProvider, dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder, SelectorType.LogicalTree);
+            //HierarchyDebugExtensions.PrintHerarchyDebugInfo(treeNodeProvider, dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder, SelectorType.LogicalTree);
             executeApplyStylesExecuting = false;
         }
 

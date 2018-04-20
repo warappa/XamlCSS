@@ -11,7 +11,7 @@ namespace XamlCSS.Tests.Dom
     {
         public TestNode(UIElement dependencyObject, IDomElement<UIElement> parent, string tagname, IEnumerable<IDomElement<UIElement>> children = null,
             IDictionary<string, IDictionary<object, object>> attributes = null, string id = null, string @class = null)
-            : base(dependencyObject ?? new UIElement(), parent, parent, null)
+            : base(dependencyObject ?? new UIElement(), parent, parent, TestTreeNodeProvider.Instance)
         {
             this.childNodes = this.logicalChildNodes = children?.ToList() ?? new List<IDomElement<UIElement>>();
             foreach (TestNode c in ChildNodes)
