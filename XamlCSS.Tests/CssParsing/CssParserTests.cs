@@ -529,5 +529,19 @@ Button {
             styleSheet.Rules[1].DeclarationBlock[0].Value.Should().Be(@"0.5");
             styleSheet.Rules[1].DeclarationBlock[1].Value.Should().Be("0");
         }
+
+        [Test]
+        public void Can_parse_TypeMatcher_with_universal_selector()
+        {
+            var styleSheet = CssParser.Parse(@"
+Element *
+{
+    Width: 0;
+}");
+
+            styleSheet.Rules.Count.Should().Be(1);
+            styleSheet.Rules[0].SelectorString.Should().Be(@"Element *");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be(@"0");
+        }
     }
 }

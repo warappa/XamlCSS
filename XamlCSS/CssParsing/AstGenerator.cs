@@ -1594,7 +1594,7 @@ namespace XamlCSS.CssParsing
                 currentToken.Type != CssTokenType.Comma)
             {
                 var first = PeekFirstTokenTypeOf(tokens, currentIndex, new[] { CssTokenType.Plus, CssTokenType.AngleBraketClose, CssTokenType.Tilde,
-                        CssTokenType.Dot, CssTokenType.Ampersand, CssTokenType.Comma,
+                        CssTokenType.Dot, CssTokenType.Ampersand, CssTokenType.Comma, CssTokenType.Asterisk,
                         CssTokenType.Identifier, CssTokenType.Hash, CssTokenType.BraceOpen, CssTokenType.BraceClose, CssTokenType.SquareBracketOpen, CssTokenType.Colon});
 
                 if (currentToken.Type == CssTokenType.Whitespace &&
