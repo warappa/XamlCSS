@@ -52,34 +52,62 @@ namespace XamlCSS.WPF.Dom
                 return new List<DependencyObject>();
             }
 
+            if(element is ItemsControl ic)
+            {
+                var list = new List<DependencyObject>();
+                for (int i = 0; i < ic.Items.Count; i++)
+                {
+                    var uiElement =
+                        ic.ItemContainerGenerator.ContainerFromIndex(i);
+                    if (uiElement != null)
+                    {
+                        var found = GetLogicalChildren(uiElement).FirstOrDefault();
+                        if(found == null)
+                            list.Add(uiElement);
+                        else
+                        {
+                            list.Add(found);
+                        }
+                    }
+                }
+
+                return list;
+            }
+
+            if (element is ItemsPresenter itemsPresenter)
+            {
+                //a = GetChildrenOfLogicalParent(element, GetVisualChildren(element));
+                Panel itemshost = itemsPresenter != null ? VisualTreeHelper.GetChild(itemsPresenter, 0) as Panel : null;
+
+                if (itemshost == null)
+                {
+                    return new DependencyObject[0] { };
+                }
+
+                var p = GetVisualChildren(itemshost).FirstOrDefault();
+                if (p != null)
+                    return GetLogicalChildren(p);
+
+                return new DependencyObject[0];
+            }
+            else if (element is ContentPresenter c)
+            {
+                return GetChildrenOfLogicalParent(element, GetVisualChildren(element));
+            }
+            else if(element is Frame frame)
+            {
+                var content = frame.Content as DependencyObject;
+                return new[] { content };
+            }
+
             var a = LogicalTreeHelper.GetChildren(element)
                 .Cast<object>()
                 .OfType<DependencyObject>()
                 .ToList();
 
-            if (a.Count == 0)
-            {
-                if (element is ItemsPresenter itemsPresenter)
-                {
-                    //a = GetChildrenOfLogicalParent(element, GetVisualChildren(element));
-                    Panel itemshost = itemsPresenter != null ? VisualTreeHelper.GetChild(itemsPresenter, 0) as Panel : null;
 
-                    if (itemshost == null)
-                    {
-                        return new DependencyObject[0] { };
-                    }
+            
 
-                    var p = GetVisualChildren(itemshost).FirstOrDefault();
-                    if (p != null)
-                        return GetLogicalChildren(p);
-
-                    return new DependencyObject[0];
-                }
-                else if (element is ContentPresenter c)
-                {
-                    a = GetChildrenOfLogicalParent(element, GetVisualChildren(element));
-                }
-            }
 
             return a;
         }
@@ -258,18 +286,29 @@ namespace XamlCSS.WPF.Dom
                     p = fc.TemplatedParent;
                 }
 
-
+                if (p == null)
+                {
+                    if (element is ContentControl cc)
+                    {
+                        p = cc.TemplatedParent ?? GetVisualParent(cc);
+                    }
+                }
 
                 if (p is ContentPresenter cp)
                 {
-                    p = GetVisualParent(cp);
+                    p = cp.TemplatedParent ?? GetVisualParent(cp);
+                }
+
+                if (p is Frame frame)
+                {
+
                 }
 
                 if (p is Panel panel)
                 {
                     if (panel.IsItemsHost)
                     {
-                        p = GetVisualParent(panel);
+                        p = panel.TemplatedParent ?? GetVisualParent(panel);
                     }
                 }
 
@@ -278,7 +317,7 @@ namespace XamlCSS.WPF.Dom
                     p = ip.TemplatedParent;
                 }
             }
-            if (p == null)
+            else if (p == null)
             {
 
 

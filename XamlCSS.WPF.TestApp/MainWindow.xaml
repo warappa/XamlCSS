@@ -13,6 +13,7 @@
         d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}"
         cssWPF:Css.Class="main light"
         Title="MainWindow" Height="350" Width="525"
+    xmlns:conv="clr-namespace:XamlCSS.WPF.TestApp.Converters"
           cssWPF:Css.StyleSheet="{DynamicResource InternalStyle}">
     <!--<StackPanel>
         <Button Click="Button_Click_3">css</Button>
@@ -34,6 +35,14 @@
         </ItemsControl.ItemTemplate>
         </ItemsControl>
     </StackPanel>-->
+    <Window.Resources>
+        <ControlTemplate TargetType="Button" x:Key="ContainerButton">
+            <Border Background="{TemplateBinding Background}">
+                <ContentPresenter Content="{TemplateBinding Content}" />
+            </Border>
+        </ControlTemplate>
+        <conv:VisibilityConverter x:Key="VisibilityConverter"></conv:VisibilityConverter>
+    </Window.Resources>
     <Grid x:Name="thegrid"
           >
         <StackPanel x:Name="stack">
@@ -90,6 +99,53 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            <ListView ItemsSource="{Binding TestList}">
+                
+            </ListView>
+
+
+            <ItemsControl
+				x:Name="test" 
+                cssWPF:Css.Class="menu-items" 
+                ItemsSource="{Binding MenuItems}"
+                MinHeight="10"
+					  >
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Template="{StaticResource ContainerButton}">
+                            <StackPanel cssWPF:Css.Class="menu-item-container">
+                                <DockPanel cssWPF:Css.Class="menu-item">
+                                    <Button Template="{StaticResource ContainerButton}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" cssWPF:Css.Class="fa" Text="{Binding Icon}" />
+                                            <TextBlock Text="{Binding Text}" />
+                                        </StackPanel>
+                                    </Button>
+
+                                    
+                                </DockPanel>
+                                <ItemsControl cssWPF:Css.Class="sub-menu-item" ItemsSource="{Binding SubMenuItems}" Visibility="{Binding IsSubMenuVisible, Converter={StaticResource VisibilityConverter}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Text}">
+                                                    <!--
+                                                    <TextBlock.GestureRecognizers>
+                                                        <TapGestureRecognizer Command="{Binding RemoveFromParent}" NumberOfTapsRequired="1"></TapGestureRecognizer>
+                                                    </TextBlock.GestureRecognizers>
+                                                    -->
+                                                </TextBlock>
+                                                <TextBox Text="{Binding Text}"></TextBox>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
             <FlowDocumentScrollViewer>
                 <FlowDocument>
                     <Paragraph>
