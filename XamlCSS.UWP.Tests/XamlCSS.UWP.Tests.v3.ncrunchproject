@@ -1,5 +1,6 @@
 ﻿<ProjectConfiguration>
   <Settings>
+    <IgnoreThisComponentCompletely>True</IgnoreThisComponentCompletely>
     <UseCPUArchitecture>x86</UseCPUArchitecture>
   </Settings>
 </ProjectConfiguration>

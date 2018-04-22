@@ -40,8 +40,13 @@
                 <css:StyleSheet.Content><![CDATA[
 // @import "appStyleSheet";
 // @import "Resources/baseStyle.scss";
-// @namespace animation "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
-// @namespace local "XamlCSS.WPF.TestApp, XamlCSS.WPF.TestApp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
+@namespace animation "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
+@namespace local "XamlCSS.WPF.TestApp, XamlCSS.WPF.TestApp, Version=2.0.0.0, Culture=neutral, PublicKeyToken=null";
+                    
+TextBlock {
+    TextOptions.TextRenderingMode: ClearType;
+}
+                    
 ItemsControl:visualtree .uuu Label {
     Foreground: Red;
 }
