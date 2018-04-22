@@ -152,19 +152,19 @@ namespace XamlCSS.WPF.TestApp
         public void Init()
         {
             this.MenuItems = new List<MainMenuItem>{
-                new MainMenuItem("a", "Start", "Start"),
-                new MainMenuItem("a", "Personen", "Persons"),
-                new MainMenuItem("a", "Gebiete", "Territories"),
-                new MainMenuItem("a", "Themen", "Topics",
+                new MainMenuItem("a", "A", "A"),
+                new MainMenuItem("a", "B", "B"),
+                new MainMenuItem("a", "C", "C"),
+                new MainMenuItem("a", "D", "D",
                 new[]{
                     new MainMenuItem("a", "Test Sub Menu 1", ""),
                     new MainMenuItem("a", "Test Sub Menu 2", "")
                 }),
-                new MainMenuItem("a", "Angebote", "Offerings"),
-                new MainMenuItem("a", "Bericht", "Report"),
-                new MainMenuItem("a", "Planer", "Planning"),
-                new MainMenuItem("a", "Backup", "Backup"),
-                new MainMenuItem("a", "Styling", "Styling")
+                new MainMenuItem("a", "E", "E"),
+                new MainMenuItem("a", "F", "F"),
+                new MainMenuItem("a", "G", "G"),
+                new MainMenuItem("a", "H", "H"),
+                new MainMenuItem("a", "I", "I")
             };
         }
     }

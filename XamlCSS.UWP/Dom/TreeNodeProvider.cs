@@ -101,14 +101,14 @@ namespace XamlCSS.UWP.Dom
             return IsInVisualTree(element);
         }
 
-        public DependencyObject GetParent(DependencyObject element)
+        private DependencyObject GetParent(DependencyObject element)
         {
             return (element as FrameworkElement)?.Parent;
         }
 
         public bool IsInLogicalTree(DependencyObject dependencyObject)
         {
-            var p = GetParent(dependencyObject);
+            var p = GetLogicalParent(dependencyObject);
             if (p == null)
                 return dependencyObject is Frame;
 
@@ -117,7 +117,7 @@ namespace XamlCSS.UWP.Dom
 
         public bool IsInVisualTree(DependencyObject element)
         {
-            var p = GetParent(element);
+            var p = GetVisualParent(element);
             if (p == null)
                 return element is Frame;
 
@@ -139,8 +139,6 @@ namespace XamlCSS.UWP.Dom
             {
                 return GetLogicalParent(element);
             }
-
-            return null;
         }
 
         private DependencyObject GetVisualParent(DependencyObject element)

@@ -13,25 +13,6 @@ namespace XamlCSS.WPF.Dom
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
-
-            AddIfNotAdded();
-        }
-
-        internal void AddIfNotAdded()
-        {
-            if (IsInLogicalTree &&
-                logicalParent != null)
-            {
-                if ((logicalParent as DomElement).logicalChildNodes?.Contains(this) == false)
-                    (logicalParent as DomElement).logicalChildNodes?.Add(this);
-            }
-
-            if (IsInVisualTree &&
-                parent != null)
-            {
-                if ((parent as DomElement).childNodes?.Contains(this) == false)
-                    (parent as DomElement).childNodes?.Add(this);
-            }
         }
 
         private void RegisterChildrenChangeHandler()
@@ -50,58 +31,12 @@ namespace XamlCSS.WPF.Dom
 
         private void DomElement_Unloaded(object sender, RoutedEventArgs e)
         {
-            if (IsInLogicalTree &&
-                logicalParent != null)
-            {
-                if (((DomElement)logicalParent)?.logicalChildNodes?.Remove(this) == false)
-                {
-                    // should not happen - bug
-                }
-            }
-
-            if (IsInVisualTree &&
-                parent != null)
-            {
-                if (((DomElement)parent)?.childNodes?.Remove(this) == false)
-                {
-                    // should not happen - bug
-                }
-            }
-
-            // got parent
-            ReevaluateParent();
+            ElementUnloaded(sender as DependencyObject);
         }
 
         private void DomElement_Loaded(object sender, RoutedEventArgs e)
         {
-            // got parent
-            ReevaluateParent();
-
-            AddIfNotAdded();
-
-            if (IsInLogicalTree)
-            {
-                if (((DomElement)logicalParent)?.logicalChildNodes?.Contains(this) == false)
-                {
-                    // should not happen - bug
-                }
-            }
-
-            if (IsInVisualTree)
-            {
-                if (((DomElement)parent)?.childNodes?.Contains(this) == false)
-                {
-                    // should not happen - bug
-                }
-            }
-        }
-
-        private void AddIfNotIn(IList<IDomElement<DependencyObject>> domElements)
-        {
-            if (!domElements.Contains(this))
-            {
-                domElements.Add(this);
-            }
+            ElementLoaded(sender);
         }
 
         public new void Dispose()

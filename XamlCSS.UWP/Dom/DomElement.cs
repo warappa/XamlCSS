@@ -17,8 +17,18 @@ namespace XamlCSS.UWP.Dom
 
         private void RegisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded += ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved += ElementRemoved;
+            LoadedDetectionHelper.SubTreeAdded += VisualTreeHelper_SubTreeAdded; ;
+            LoadedDetectionHelper.SubTreeRemoved += VisualTreeHelper_SubTreeRemoved;
+        }
+
+        private void VisualTreeHelper_SubTreeRemoved(object sender, EventArgs e)
+        {
+            ElementUnloaded(sender as DependencyObject);
+        }
+
+        private void VisualTreeHelper_SubTreeAdded(object sender, EventArgs e)
+        {
+            ElementLoaded(sender as DependencyObject);
         }
 
         void IDisposable.Dispose()
@@ -30,8 +40,8 @@ namespace XamlCSS.UWP.Dom
 
         private void UnregisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded -= ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved -= ElementRemoved;
+            LoadedDetectionHelper.SubTreeAdded -= VisualTreeHelper_SubTreeAdded; ;
+            LoadedDetectionHelper.SubTreeRemoved -= VisualTreeHelper_SubTreeRemoved;
         }
 
         protected override IList<string> GetClassList(DependencyObject dependencyObject)

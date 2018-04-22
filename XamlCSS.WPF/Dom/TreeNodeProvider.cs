@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -172,25 +171,6 @@ namespace XamlCSS.WPF.Dom
                     }
                 }
 
-                //if (element is IContentHost)
-                //{
-                //    var children = GetLogicalChildren(element).ToList();
-                //    for (int i = 0; i < children.Count; i++)
-                //    {
-                //        var child = children[i];
-
-                //        if (child != null)
-                //        {
-                //            list.Add(child);
-                //        }
-                //    }
-                //}
-
-                if (element is FrameworkContentElement fce)
-                {
-                    list.AddRange(GetLogicalChildren(fce));
-                }
-
             }
             catch { }
             return list;
@@ -315,19 +295,6 @@ namespace XamlCSS.WPF.Dom
                 if (p is ItemsPresenter ip)
                 {
                     p = ip.TemplatedParent;
-                }
-            }
-            else if (p == null)
-            {
-
-
-                if (element is FrameworkElement f)
-                {
-                    p = f.TemplatedParent;
-                }
-                else if (element is FrameworkContentElement fc)
-                {
-                    p = fc.TemplatedParent;
                 }
             }
 

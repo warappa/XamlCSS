@@ -134,15 +134,10 @@ namespace XamlCSS.WPF
             //var logicalPath = dom.GetPath(SelectorType.LogicalTree);
             //Debug.WriteLine("    " + logicalPath);
 
-
-            var visualElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.VisualTree);
-            Debug.WriteLine("  element:\n    " + visualElementPath);
-            var logicalElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.LogicalTree);
-            Debug.WriteLine("    " + logicalElementPath);
-
-
-            //Css.instance.treeNodeProvider.Switch(SelectorType.VisualTree);
-            //Css.instance.treeNodeProvider.GetDomElement((DependencyObject)sender);
+            //var visualElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.VisualTree);
+            //Debug.WriteLine("  element:\n    " + visualElementPath);
+            //var logicalElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.LogicalTree);
+            //Debug.WriteLine("    " + logicalElementPath);
 
             //SubTreeAdded?.Invoke(sender, e);
             Css.instance?.NewElement(sender as DependencyObject);
