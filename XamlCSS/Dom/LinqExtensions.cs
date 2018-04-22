@@ -146,7 +146,6 @@ namespace XamlCSS.Dom
                             }
                             else if (match.HasGeneralParentFailed)
                             {
-                                //return;
                                 skipThisLevel = true;
                             }
                             else if (match.HasDirectParentFailed)

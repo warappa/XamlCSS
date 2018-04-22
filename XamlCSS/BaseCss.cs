@@ -524,6 +524,8 @@ namespace XamlCSS
             startFrom?.XamlCssStyleSheets.Clear();
             startFrom?.XamlCssStyleSheets.Add(styleSheet);
 
+            var traversed = SelectorType.None;
+
             return $"startFrom {startFrom?.GetPath(SelectorType.LogicalTree) ?? "NULL!?!"}".Measure(() =>
             {
                 foreach (var rule in styleSheet.Rules)
@@ -537,6 +539,16 @@ namespace XamlCSS
                         var type = SelectorType.LogicalTree;
                         if (rule.Selectors[0].StartOnVisualTree())
                             type = SelectorType.VisualTree;
+
+                        if ((type == SelectorType.LogicalTree && !startFrom.IsInLogicalTree) ||
+                            (type == SelectorType.VisualTree && !startFrom.IsInVisualTree)
+                        )
+                        {
+                            return;
+                            // continue;
+                        }
+
+                        traversed |= type;
 
                         var matchedNodes = "QuerySelectorAllWithSelf".Measure(() => startFrom.QuerySelectorAllWithSelf(styleSheet, rule.Selectors[0], type)
                                 .Where(x => x != null)
@@ -596,13 +608,16 @@ namespace XamlCSS
 
                 "SetDoMatchCheckToNoneInSubTree".Measure(() =>
                 {
-                    SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet);
+                    if ((traversed & SelectorType.VisualTree) > 0)
+                        SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.VisualTree);
+                    if ((traversed & SelectorType.LogicalTree) > 0)
+                        SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.LogicalTree);
                 });
                 return found;
             });
         }
 
-        private static void SetDoMatchCheckToNoneInSubTree(IDomElement<TDependencyObject> domElement, StyleSheet styleSheet)
+        private static void SetDoMatchCheckToNoneInSubTree(IDomElement<TDependencyObject> domElement, StyleSheet styleSheet, SelectorType type)
         {
             if (domElement == null ||
                 !ReferenceEquals(domElement.StyleInfo.CurrentStyleSheet, styleSheet))
@@ -612,9 +627,10 @@ namespace XamlCSS
 
             domElement.StyleInfo.DoMatchCheck = SelectorType.None;
 
-            foreach (var child in domElement.LogicalChildNodes)
+            var children = type == SelectorType.VisualTree ? domElement.ChildNodes : domElement.LogicalChildNodes;
+            foreach (var child in children)
             {
-                SetDoMatchCheckToNoneInSubTree(child, styleSheet);
+                SetDoMatchCheckToNoneInSubTree(child, styleSheet, type);
             }
         }
 

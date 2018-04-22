@@ -15,8 +15,8 @@ namespace XamlCSS.Dom
 
         public IList<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
 
-        public bool IsInLogicalTree { get; }
-        public bool IsInVisualTree { get; }
+        public bool IsInLogicalTree { get; private set; }
+        public bool IsInVisualTree { get; private set; }
 
         protected readonly static char[] classSplitter = { ' ' };
         protected readonly TDependencyObject dependencyObject;
@@ -44,13 +44,18 @@ namespace XamlCSS.Dom
             this.logicalParent = logicalParent;
             this.treeNodeProvider = treeNodeProvider;
 
-            this.IsInLogicalTree = treeNodeProvider.IsInTree(dependencyObject, SelectorType.LogicalTree);
-            this.IsInVisualTree = treeNodeProvider.IsInTree(dependencyObject, SelectorType.VisualTree);
+            UpdateTreeAssociation();
 
             this.id = GetId(dependencyObject);
             this.TagName = dependencyObject.GetType().Name;
             this.classList = GetClassList(dependencyObject);
             this.assemblyQualifiedNamespaceName = GetAssemblyQualifiedNamespaceName(dependencyObject.GetType());
+        }
+
+        private void UpdateTreeAssociation()
+        {
+            this.IsInLogicalTree = treeNodeProvider.IsInTree(dependencyObject, SelectorType.LogicalTree);
+            this.IsInVisualTree = treeNodeProvider.IsInTree(dependencyObject, SelectorType.VisualTree);
         }
 
         protected void ElementAdded(object sender, EventArgs e)
@@ -63,6 +68,8 @@ namespace XamlCSS.Dom
                 // force reevaluation
                 parent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.VisualTree));
                 this.logicalParent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.LogicalTree));
+
+                UpdateTreeAssociation();
             }
 
             // * sender's visual parent is this DomElement

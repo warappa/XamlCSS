@@ -6,7 +6,7 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.WPF.Dom
 {
-    [DebuggerDisplay("Id={Id} Class={Class}")]
+    [DebuggerDisplay("{IsInLogicalTree ? \"L\" : \" \"}{IsInVisualTree ? \"V\" : \" \"} {Element.GetType().Name} {(Element as System.Windows.Controls.TextBlock)?.Text} Id={Id} Class={string.Join(\", \", this.ClassList)}")]
     public class DomElement : DomElementBase<DependencyObject, DependencyProperty>
     {
         public DomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent, IDomElement<DependencyObject> logicalParent, ITreeNodeProvider<DependencyObject> treeNodeProvider)
