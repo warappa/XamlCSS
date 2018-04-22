@@ -1565,7 +1565,11 @@ namespace XamlCSS.CssParsing
         private void ReadPseudoSelector()
         {
             ReadToken();
-            ReadUntil(CssTokenType.Whitespace, CssTokenType.Colon, CssTokenType.BraceOpen, CssTokenType.Comma);
+            ReadUntil(CssTokenType.Whitespace, CssTokenType.Colon, CssTokenType.BraceOpen, CssTokenType.Comma, CssTokenType.ParenthesisClose);
+            if(!ReachedEnd && currentToken.Type == CssTokenType.ParenthesisClose)
+            {
+                ReadToken();
+            }
 
             TrimCurrentNode();
         }

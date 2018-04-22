@@ -430,6 +430,31 @@ Grid {
         }
 
         [Test]
+        public void Can_parse_class_after_pseudo_selector()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"
+Grid { 
+    TextBlock:nth-of-type(1).open {
+        FontWeight: Bold;
+    }
+}");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(0);
+            styleSheet.Rules.Count.Should().Be(2);
+
+            styleSheet.Rules[1].SelectorString.Should().Be(@"Grid TextBlock:nth-of-type(1).open");
+            var selector = styleSheet.Rules[1].Selectors.First() as Selector;
+            selector.fragments.Count().Should().Be(5);
+            selector.fragments[0].Text.Should().Be("Grid");
+            selector.fragments[1].Text.Should().Be(" ");
+            selector.fragments[2].Text.Should().Be("TextBlock");
+            selector.fragments[3].Text.Should().Be("1");
+            selector.fragments[4].Text.Should().Be("open");
+        }
+
+        [Test]
         public void StyleSheet_should_update_if_AddedStyleSheet_changes()
         {
             var parent = CssParser.Parse(@"
