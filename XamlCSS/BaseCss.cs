@@ -379,7 +379,7 @@ namespace XamlCSS
                 var styleUpdateInfo = current.StyleInfo = current.StyleInfo ?? (styleUpdateInfos.ContainsKey(current.Element) ? styleUpdateInfos[current.Element] :
                     GetNewStyleUpdateInfo(current, dependencyPropertyService, nativeStyleService));
 
-                if ((styleUpdateInfo.DoMatchCheck & type) == type)
+                if ((styleUpdateInfo.DoMatchCheck & type) != type)
                 {
                     return;
                 }

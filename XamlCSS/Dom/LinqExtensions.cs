@@ -129,7 +129,7 @@ namespace XamlCSS.Dom
                     {
                         var shouldNotProcess = "StyleInfo check".Measure(() =>
                             !object.ReferenceEquals(element.StyleInfo != null ? element.StyleInfo.CurrentStyleSheet : null, styleSheet) ||
-                            element.StyleInfo.DoMatchCheck == SelectorType.None);
+                            (element.StyleInfo.DoMatchCheck & type) != type);
 
                         if (shouldNotProcess)
                         {
@@ -156,14 +156,17 @@ namespace XamlCSS.Dom
                         });
                     }
 
-                    "Check for ChildNodes".Measure(() =>
+                    if (inTree)
                     {
-                        var children = type == SelectorType.LogicalTree ? element.LogicalChildNodes : element.ChildNodes;
-                        if (children.Count != 0)
+                        "Check for ChildNodes".Measure(() =>
                         {
-                            children.QuerySelectorAll(styleSheet, selector, result, type);
-                        }
-                    });
+                            var children = type == SelectorType.LogicalTree ? element.LogicalChildNodes : element.ChildNodes;
+                            if (children.Count != 0)
+                            {
+                                children.QuerySelectorAll(styleSheet, selector, result, type);
+                            }
+                        });
+                    }
                 }
             });
         }

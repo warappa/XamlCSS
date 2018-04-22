@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
+using XamlCSS.Utils;
 
 namespace XamlCSS.WPF
 {
@@ -123,7 +125,19 @@ namespace XamlCSS.WPF
         private static readonly RoutedEventHandler LoadedEventHandler = delegate (object sender, RoutedEventArgs e)
         {
             //Css.instance.treeNodeProvider.Switch(SelectorType.LogicalTree);
-            Css.instance?.treeNodeProvider.GetDomElement((DependencyObject)sender);
+            var dom = Css.instance?.treeNodeProvider.GetDomElement((DependencyObject)sender);
+
+            //var visualPath = dom.GetPath(SelectorType.VisualTree);
+            //Debug.WriteLine("new dom:\n    " + visualPath);
+            //var logicalPath = dom.GetPath(SelectorType.LogicalTree);
+            //Debug.WriteLine("    " + logicalPath);
+
+
+            //var visualElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.VisualTree);
+            //Debug.WriteLine("  element:\n    " + visualElementPath);
+            //var logicalElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.LogicalTree);
+            //Debug.WriteLine("    " + logicalElementPath);
+
 
             //Css.instance.treeNodeProvider.Switch(SelectorType.VisualTree);
             //Css.instance.treeNodeProvider.GetDomElement((DependencyObject)sender);
