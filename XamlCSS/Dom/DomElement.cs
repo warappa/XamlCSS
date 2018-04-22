@@ -52,6 +52,11 @@ namespace XamlCSS.Dom
             this.assemblyQualifiedNamespaceName = GetAssemblyQualifiedNamespaceName(dependencyObject.GetType());
         }
 
+        protected void AddIfNotAdded()
+        {
+
+        }
+
         private void UpdateTreeAssociation()
         {
             this.IsInLogicalTree = treeNodeProvider.IsInTree(dependencyObject, SelectorType.LogicalTree);
@@ -65,11 +70,9 @@ namespace XamlCSS.Dom
             // * element matches is this domelement...
             if (sender == Element)
             {
-                // force reevaluation
-                parent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.VisualTree));
-                this.logicalParent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.LogicalTree));
+                ReevaluateParent();
 
-                UpdateTreeAssociation();
+                return;
             }
 
             // * sender's visual parent is this DomElement
@@ -101,6 +104,15 @@ namespace XamlCSS.Dom
             }
         }
 
+        protected void ReevaluateParent()
+        {
+            // force reevaluation
+            parent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.VisualTree));
+            logicalParent = treeNodeProvider.GetDomElement(treeNodeProvider.GetParent(Element, SelectorType.LogicalTree));
+
+            UpdateTreeAssociation();
+        }
+
         protected void ElementRemoved(object sender, EventArgs e)
         {
             if (ChildNodes.Any(x => x.Element == sender))
@@ -122,11 +134,6 @@ namespace XamlCSS.Dom
             }
         }
 
-        //protected void ResetChildren()
-        //{
-        //    this.childNodes = null;
-        //}
-
         public void ResetClassList()
         {
             classList = null;
@@ -140,8 +147,6 @@ namespace XamlCSS.Dom
         public TDependencyObject Element { get { return dependencyObject; } }
 
         abstract protected IDictionary<string, TDependencyProperty> CreateNamedNodeMap(TDependencyObject dependencyObject);
-
-        // abstract protected INodeList CreateNodeList(IEnumerable<INode> nodes);
 
         protected virtual IList<IDomElement<TDependencyObject>> GetChildNodes(SelectorType type)
         {

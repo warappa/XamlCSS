@@ -13,12 +13,95 @@ namespace XamlCSS.WPF.Dom
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
+
+            AddIfNotAdded();
+        }
+
+        internal void AddIfNotAdded()
+        {
+            if (IsInLogicalTree &&
+                logicalParent != null)
+            {
+                if ((logicalParent as DomElement).logicalChildNodes?.Contains(this) == false)
+                    (logicalParent as DomElement).logicalChildNodes?.Add(this);
+            }
+
+            if (IsInVisualTree &&
+                parent != null)
+            {
+                if ((parent as DomElement).childNodes?.Contains(this) == false)
+                    (parent as DomElement).childNodes?.Add(this);
+            }
         }
 
         private void RegisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded += ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved += ElementRemoved;
+            if (dependencyObject is FrameworkElement f)
+            {
+                f.Loaded += DomElement_Loaded;
+                f.Unloaded += DomElement_Unloaded;
+            }
+            if (dependencyObject is FrameworkContentElement fc)
+            {
+                fc.Loaded += DomElement_Loaded;
+                fc.Unloaded += DomElement_Unloaded;
+            }
+        }
+
+        private void DomElement_Unloaded(object sender, RoutedEventArgs e)
+        {
+            if (IsInLogicalTree &&
+                logicalParent != null)
+            {
+                if (((DomElement)logicalParent)?.logicalChildNodes?.Remove(this) == false)
+                {
+                    // should not happen - bug
+                }
+            }
+
+            if (IsInVisualTree &&
+                parent != null)
+            {
+                if (((DomElement)parent)?.childNodes?.Remove(this) == false)
+                {
+                    // should not happen - bug
+                }
+            }
+
+            // got parent
+            ReevaluateParent();
+        }
+
+        private void DomElement_Loaded(object sender, RoutedEventArgs e)
+        {
+            // got parent
+            ReevaluateParent();
+
+            AddIfNotAdded();
+
+            if (IsInLogicalTree)
+            {
+                if (((DomElement)logicalParent)?.logicalChildNodes?.Contains(this) == false)
+                {
+                    // should not happen - bug
+                }
+            }
+
+            if (IsInVisualTree)
+            {
+                if (((DomElement)parent)?.childNodes?.Contains(this) == false)
+                {
+                    // should not happen - bug
+                }
+            }
+        }
+
+        private void AddIfNotIn(IList<IDomElement<DependencyObject>> domElements)
+        {
+            if (!domElements.Contains(this))
+            {
+                domElements.Add(this);
+            }
         }
 
         public new void Dispose()
@@ -30,8 +113,16 @@ namespace XamlCSS.WPF.Dom
 
         private void UnregisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded -= ElementAdded;
-            LoadedDetectionHelper.SubTreeRemoved -= ElementRemoved;
+            if (dependencyObject is FrameworkElement f)
+            {
+                f.Loaded -= DomElement_Loaded;
+                f.Unloaded -= DomElement_Unloaded;
+            }
+            if (dependencyObject is FrameworkContentElement fc)
+            {
+                fc.Loaded -= DomElement_Loaded;
+                fc.Unloaded -= DomElement_Unloaded;
+            }
         }
 
         protected override IList<string> GetClassList(DependencyObject dependencyObject)
@@ -68,7 +159,7 @@ namespace XamlCSS.WPF.Dom
         {
             return !(a == b);
         }
-        
+
         protected override IDictionary<string, DependencyProperty> CreateNamedNodeMap(DependencyObject dependencyObject)
         {
             return new LazyDependencyPropertyDictionary<DependencyProperty>(dependencyObject.GetType());

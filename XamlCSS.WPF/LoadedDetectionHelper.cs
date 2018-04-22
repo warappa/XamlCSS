@@ -112,14 +112,16 @@ namespace XamlCSS.WPF
         {
             Css.instance?.RemoveElement(sender as DependencyObject);
             //Css.instance?.treeNodeProvider.Switch(SelectorType.LogicalTree);
-            var logicalParent = Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject)?.LogicalParent?.Element;
-            var visualParent = Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject)?.Parent?.Element;
+            var dom = Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject);
+
+            var logicalParent = dom?.LogicalParent?.Element;
+            var visualParent = dom?.Parent?.Element;
 
             if (logicalParent != visualParent)
                 Css.instance?.UpdateElement(visualParent);
             Css.instance?.UpdateElement(logicalParent);
 
-            SubTreeRemoved?.Invoke(sender, e);
+            //SubTreeRemoved?.Invoke(sender, e);
         };
 
         private static readonly RoutedEventHandler LoadedEventHandler = delegate (object sender, RoutedEventArgs e)
@@ -133,16 +135,16 @@ namespace XamlCSS.WPF
             //Debug.WriteLine("    " + logicalPath);
 
 
-            //var visualElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.VisualTree);
-            //Debug.WriteLine("  element:\n    " + visualElementPath);
-            //var logicalElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.LogicalTree);
-            //Debug.WriteLine("    " + logicalElementPath);
+            var visualElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.VisualTree);
+            Debug.WriteLine("  element:\n    " + visualElementPath);
+            var logicalElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.LogicalTree);
+            Debug.WriteLine("    " + logicalElementPath);
 
 
             //Css.instance.treeNodeProvider.Switch(SelectorType.VisualTree);
             //Css.instance.treeNodeProvider.GetDomElement((DependencyObject)sender);
 
-            SubTreeAdded?.Invoke(sender, e);
+            //SubTreeAdded?.Invoke(sender, e);
             Css.instance?.NewElement(sender as DependencyObject);
         };
 
