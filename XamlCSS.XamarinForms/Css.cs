@@ -57,10 +57,11 @@ namespace XamlCSS.XamarinForms
                     return;
                 }
 
-                VisualTreeHelper.SubTreeAdded -= VisualTreeHelper_ChildAdded;
-                VisualTreeHelper.SubTreeRemoved -= VisualTreeHelper_ChildRemoved;
+                //VisualTreeHelper.SubTreeAdded -= VisualTreeHelper_ChildAdded;
+                //VisualTreeHelper.SubTreeRemoved -= VisualTreeHelper_ChildRemoved;
 
-                VisualTreeHelper.Reset();
+                //VisualTreeHelper.Reset();
+                LoadedDetectionHelper.Reset();
 
                 uiTimer?.Cancel();
                 uiTimer?.Dispose();
@@ -106,10 +107,10 @@ namespace XamlCSS.XamarinForms
 
                 Css.rootElement = rootElement;
 
-                VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
-                VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
+                //VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
+                //VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
 
-                VisualTreeHelper.Initialize(rootElement);
+                LoadedDetectionHelper.Initialize(rootElement);
 
                 if (rootElement is Application)
                 {
@@ -123,7 +124,7 @@ namespace XamlCSS.XamarinForms
                             if (e.PropertyName == nameof(Application.MainPage))
                             {
                                 application.PropertyChanged -= handler;
-                                VisualTreeHelper.Include(application.MainPage);
+                                //VisualTreeHelper.Include(application.MainPage);
                             }
                         };
 
@@ -247,15 +248,15 @@ namespace XamlCSS.XamarinForms
             obj?.SetValue(DomElementProperty, value);
         }
 
-        private static void VisualTreeHelper_ChildAdded(object sender, EventArgs e)
-        {
-            //Debug.WriteLine("A");
-            instance?.NewElement(sender as BindableObject);
-        }
-        private static void VisualTreeHelper_ChildRemoved(object sender, EventArgs e)
-        {
-            Css.instance?.RemoveElement(sender as BindableObject);
-        }
+        //private static void VisualTreeHelper_ChildAdded(object sender, EventArgs e)
+        //{
+        //    //Debug.WriteLine("A");
+        //    instance?.NewElement(sender as BindableObject);
+        //}
+        //private static void VisualTreeHelper_ChildRemoved(object sender, EventArgs e)
+        //{
+        //    Css.instance?.RemoveElement(sender as BindableObject);
+        //}
 
         private static void StyleSheetPropertyChanged(BindableObject bindableObject, object oldValue, object newValue)
         {
@@ -295,6 +296,28 @@ namespace XamlCSS.XamarinForms
         private static void StylePropertyAttached(BindableObject d, object oldValue, object newValue)
         {
             instance?.UpdateElement(d as Element);
+        }
+
+        public static readonly BindableProperty OverriddenChildrenProperty =
+            BindableProperty.CreateAttached(
+                "OverriddenChildren",
+                typeof(IList<BindableObject>),
+                typeof(Css),
+                null,
+                BindingMode.TwoWay);
+        public static IList<BindableObject> GetOverriddenChildren(BindableObject obj)
+        {
+            var value = obj?.GetValue(OverriddenChildrenProperty) as IList<BindableObject>;
+            if(value == null)
+            {
+                value = new List<BindableObject>();
+                SetOverriddenChildren(obj, value);
+            }
+            return value;
+        }
+        public static void SetOverriddenChildren(BindableObject obj, IList<BindableObject> value)
+        {
+            obj?.SetValue(OverriddenChildrenProperty, value);
         }
     }
 }

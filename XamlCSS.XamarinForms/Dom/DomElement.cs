@@ -2,12 +2,11 @@
 using XamlCSS.Dom;
 using Xamarin.Forms;
 using System;
-using XamlCSS.Windows.Media;
 using System.Diagnostics;
 
 namespace XamlCSS.XamarinForms.Dom
 {
-    [DebuggerDisplay("Id={Id} Class={Class}")]
+    [DebuggerDisplay("{dependencyObject.GetType().Name} Id={Id} Class={string.Join(\", \", ClassList)}")]
     public class DomElement : DomElementBase<BindableObject, BindableProperty>, IDisposable
     {
         public DomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent, IDomElement<BindableObject> logicalParent, ITreeNodeProvider<BindableObject> treeNodeProvider)
@@ -18,18 +17,26 @@ namespace XamlCSS.XamarinForms.Dom
 
         private void RegisterChildrenChangeHandler()
         {
-            VisualTreeHelper.SubTreeAdded += VisualTreeHelper_SubTreeAdded; ;
-            VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_SubTreeRemoved;
         }
 
-        private void VisualTreeHelper_SubTreeRemoved(object sender, EventArgs e)
+        private void UnregisterChildrenChangeHandler()
         {
-            ElementUnloaded(sender as BindableObject);
         }
 
-        private void VisualTreeHelper_SubTreeAdded(object sender, EventArgs e)
+        public void ElementLoaded()
         {
-            ElementLoaded(sender as BindableObject);
+            ElementLoaded(dependencyObject);
+        }
+
+        public void ElementUnloaded()
+        {
+            ElementUnloaded(dependencyObject);
+        }
+
+        public void ReloadChildren()
+        {
+            this.childNodes = null;
+            this.logicalChildNodes = null;
         }
 
         public new void Dispose()
@@ -37,12 +44,6 @@ namespace XamlCSS.XamarinForms.Dom
             UnregisterChildrenChangeHandler();
 
             base.Dispose();
-        }
-
-        private void UnregisterChildrenChangeHandler()
-        {
-            VisualTreeHelper.SubTreeAdded -= VisualTreeHelper_SubTreeAdded; ;
-            VisualTreeHelper.SubTreeRemoved -= VisualTreeHelper_SubTreeRemoved;
         }
 
         protected override IList<string> GetClassList(BindableObject dependencyObject)

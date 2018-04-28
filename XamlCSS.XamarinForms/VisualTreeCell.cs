@@ -1,6 +1,4 @@
-﻿using System;
-using Xamarin.Forms;
-using XamlCSS.Windows.Media;
+﻿using Xamarin.Forms;
 
 namespace XamlCSS.XamarinForms
 {
@@ -12,7 +10,8 @@ namespace XamlCSS.XamarinForms
                 typeof(bool),
                 typeof(VisualTreeCell),
                 false,
-                propertyChanged: OnIncludeChanged);
+                propertyChanged: OnIncludeChanged
+                );
 
         public static bool GetInclude(BindableObject view)
         {
@@ -35,15 +34,11 @@ namespace XamlCSS.XamarinForms
             bool register = (bool)newValue;
             if (register)
             {
-                entry.Appearing += Entry_Appearing;
                 entry.PropertyChanged += Entry_PropertyChanged;
             }
             else
             {
-                entry.Appearing -= Entry_Appearing;
                 entry.PropertyChanged -= Entry_PropertyChanged;
-
-                VisualTreeHelper.Exclude(entry as Element);
             }
         }
 
@@ -54,18 +49,17 @@ namespace XamlCSS.XamarinForms
                 var s = sender as Element;
                 if (s.Parent != null)
                 {
-                    VisualTreeHelper.Include(sender as Element);
+                    Css.GetOverriddenChildren(s.Parent).Add(s);
+
+                    Css.instance?.UpdateElement(sender as Element);
                 }
                 else
                 {
-                    VisualTreeHelper.Exclude(sender as Element);
+                    Css.GetOverriddenChildren(s.Parent).Remove(s);
+
+                    Css.instance?.RemoveElement(sender as Element);
                 }
             }
-        }
-
-        private static void Entry_Appearing(object sender, EventArgs e)
-        {
-            VisualTreeHelper.Include(sender as Element);
         }
     }
 }
