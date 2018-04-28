@@ -1,7 +1,4 @@
-﻿using System;
-using System.Diagnostics;
-using Xamarin.Forms;
-using XamlCSS.XamarinForms;
+﻿using Xamarin.Forms;
 using XamlCSS.XamarinForms.Dom;
 
 namespace XamlCSS.XamarinForms
@@ -24,15 +21,45 @@ namespace XamlCSS.XamarinForms
                 Reset();
 
                 rootElement = root;
-
+                
                 rootElement.DescendantAdded += RootElement_DescendantAdded;
                 rootElement.DescendantRemoved += RootElement_DescendantRemoved;
 
-                RootElement_DescendantAdded(root, new ElementEventArgs(rootElement));
+                rootElement.ChildAdded += RootElement_DescendantAdded;
+                rootElement.ChildRemoved += RootElement_DescendantRemoved;
+
+                if (rootElement is Application app)
+                {
+                    app.ModalPushing += App_ModalPushing;
+                    app.ModalPopped += App_ModalPopped;
+                }
+
+                ElementAdded(root);
 
                 initialized = true;
             }
+        }
 
+        private static void App_ModalPushing(object sender, ModalPushingEventArgs e)
+        {
+            e.Modal.Parent = sender as Application;
+
+            ElementAdded(e.Modal);
+        }
+
+        private static void App_ModalPopped(object sender, ModalPoppedEventArgs e)
+        {
+            ElementRemoved(e.Modal);
+        }
+
+        private static void RootElement_DescendantAdded(object sender, ElementEventArgs e)
+        {
+            ElementAdded(e.Element);
+        }
+
+        private static void RootElement_DescendantRemoved(object sender, ElementEventArgs e)
+        {
+            ElementRemoved(e.Element);
         }
 
         public static void Reset()
@@ -52,11 +79,11 @@ namespace XamlCSS.XamarinForms
             }
         }
 
-        private static void RootElement_DescendantRemoved(object sender, ElementEventArgs e)
+        private static void ElementRemoved(Element dependencyObject)
         {
-            Css.instance?.RemoveElement(e.Element);
+            Css.instance?.RemoveElement(dependencyObject);
             //Css.instance?.treeNodeProvider.Switch(SelectorType.LogicalTree);
-            var dom = Css.instance?.treeNodeProvider.GetDomElement(e.Element) as DomElement;
+            var dom = Css.instance?.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
 
             dom.ElementUnloaded();
 
@@ -68,53 +95,12 @@ namespace XamlCSS.XamarinForms
             Css.instance?.UpdateElement(logicalParent);
         }
 
-        private static void RootElement_DescendantAdded(object sender, ElementEventArgs e)
+        private static void ElementAdded(Element dependencyObject)
         {
-            //Css.instance.treeNodeProvider.Switch(SelectorType.LogicalTree);
-            var dom = Css.instance?.treeNodeProvider.GetDomElement(e.Element) as DomElement;
+            var dom = Css.instance?.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
             dom.ElementLoaded();
 
-            if(sender is ListView iv)
-            {
-                iv.ChildAdded += (s, ev) =>
-                {
-                    Debug.WriteLine("List: child added");
-                };
-                iv.ChildRemoved+= (s, ev) =>
-                {
-                    Debug.WriteLine("List: child Removed");
-                };
-
-                iv.ItemAppearing+= (s, ev) =>
-                {
-                    Debug.WriteLine("List: ItemAppearing");
-                };
-                iv.ItemDisappearing += (s, ev) =>
-                {
-                    Debug.WriteLine("List: ItemDisappearing");
-                };
-                iv.DescendantAdded+= (s, ev) =>
-                {
-                    Debug.WriteLine("List: child DescendantAdded");
-                };
-                iv.DescendantRemoved += (s, ev) =>
-                {
-                    Debug.WriteLine("List: child DescendantRemoved");
-                };
-            }
-
-            //var visualPath = dom.GetPath(SelectorType.VisualTree);
-            //Debug.WriteLine("new dom:\n    " + visualPath);
-            //var logicalPath = dom.GetPath(SelectorType.LogicalTree);
-            //Debug.WriteLine("    " + logicalPath);
-
-            //var visualElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.VisualTree);
-            //Debug.WriteLine("  element:\n    " + visualElementPath);
-            //var logicalElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.LogicalTree);
-            //Debug.WriteLine("    " + logicalElementPath);
-
-            //SubTreeAdded?.Invoke(sender, e);
-            Css.instance?.NewElement(sender as BindableObject);
+            Css.instance?.NewElement(dependencyObject);
         }
     }
 }

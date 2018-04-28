@@ -31,14 +31,8 @@ namespace XamlCSS.XamarinForms.Dom
         private static List<BindableObject> GetLogicalChildren(Element element)
         {
             var list = new List<BindableObject>();
-            if(element is ItemsView<Cell>)
-            {
-                foreach(var child in Css.GetOverriddenChildren(element))
-                {
-                    list.Add(child);
-                }
-            }
-            else if (element is ILayoutController lc)
+
+            if (element is ILayoutController lc)
             {
                 foreach (var item in lc.Children)
                 {
@@ -61,6 +55,15 @@ namespace XamlCSS.XamarinForms.Dom
                 foreach (var item in ec.LogicalChildren)
                 {
                     list.Add(item);
+                }
+            }
+
+            var additionalChildren = Css.GetAdditionalChildren(element);
+            if (additionalChildren != null)
+            {
+                foreach (var child in additionalChildren)
+                {
+                    list.Add(child);
                 }
             }
 

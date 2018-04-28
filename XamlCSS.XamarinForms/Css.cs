@@ -298,26 +298,26 @@ namespace XamlCSS.XamarinForms
             instance?.UpdateElement(d as Element);
         }
 
-        public static readonly BindableProperty OverriddenChildrenProperty =
+        public static readonly BindableProperty AdditionalChildrenProperty =
             BindableProperty.CreateAttached(
-                "OverriddenChildren",
+                "AdditionalChildren",
                 typeof(IList<BindableObject>),
                 typeof(Css),
                 null,
                 BindingMode.TwoWay);
-        public static IList<BindableObject> GetOverriddenChildren(BindableObject obj)
+        public static IList<BindableObject> GetAdditionalChildren(BindableObject obj)
         {
-            var value = obj?.GetValue(OverriddenChildrenProperty) as IList<BindableObject>;
+            var value = obj?.GetValue(AdditionalChildrenProperty) as IList<BindableObject>;
             if(value == null)
             {
                 value = new List<BindableObject>();
-                SetOverriddenChildren(obj, value);
+                SetAdditionalChildren(obj, value);
             }
             return value;
         }
-        public static void SetOverriddenChildren(BindableObject obj, IList<BindableObject> value)
+        public static void SetAdditionalChildren(BindableObject obj, IList<BindableObject> value)
         {
-            obj?.SetValue(OverriddenChildrenProperty, value);
+            obj?.SetValue(AdditionalChildrenProperty, value);
         }
     }
 }

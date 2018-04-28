@@ -1,4 +1,5 @@
 ﻿using Xamarin.Forms;
+using XamlCSS.XamarinForms.Dom;
 
 namespace XamlCSS.XamarinForms
 {
@@ -25,7 +26,7 @@ namespace XamlCSS.XamarinForms
 
         static void OnIncludeChanged(BindableObject view, object oldValue, object newValue)
         {
-            var entry = view as Cell;
+            var entry = view;
             if (entry == null)
             {
                 return;
@@ -35,10 +36,29 @@ namespace XamlCSS.XamarinForms
             if (register)
             {
                 entry.PropertyChanged += Entry_PropertyChanged;
+                entry.PropertyChanging += Entry_PropertyChanging;
             }
             else
             {
                 entry.PropertyChanged -= Entry_PropertyChanged;
+                entry.PropertyChanging -= Entry_PropertyChanging;
+            }
+        }
+
+        private static void Entry_PropertyChanging(object sender, PropertyChangingEventArgs e)
+        {
+            if (e.PropertyName == "Parent")
+            {
+                var s = sender as Element;
+                if (s.Parent == null)
+                {
+                    var domParent = Css.GetDomElement(s.Parent) as DomElement;
+                    domParent?.ReloadChildren();
+
+                    Css.GetAdditionalChildren(s.Parent).Remove(s);
+
+                    Css.instance?.RemoveElement(sender as Element);
+                }
             }
         }
 
@@ -49,15 +69,12 @@ namespace XamlCSS.XamarinForms
                 var s = sender as Element;
                 if (s.Parent != null)
                 {
-                    Css.GetOverriddenChildren(s.Parent).Add(s);
+                    Css.GetAdditionalChildren(s.Parent).Add(s);
+
+                    var domParent = Css.GetDomElement(s.Parent) as DomElement;
+                    domParent?.ReloadChildren();
 
                     Css.instance?.UpdateElement(sender as Element);
-                }
-                else
-                {
-                    Css.GetOverriddenChildren(s.Parent).Remove(s);
-
-                    Css.instance?.RemoveElement(sender as Element);
                 }
             }
         }
