@@ -219,7 +219,7 @@ namespace XamlCSS.XamarinForms
 
                 if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                 {
-                    value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces);
+                    value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces, true);
                 }
                 else if ((propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, actionType, parameterName)) != null)
                 {

@@ -100,7 +100,7 @@ namespace XamlCSS.XamarinForms.Dom
                 return dependencyObject is Application;
             }
 
-            var children = GetChildren(p, SelectorType.LogicalTree);
+            var children = GetChildren(p, type);
 
             return children.Contains(dependencyObject);
         }

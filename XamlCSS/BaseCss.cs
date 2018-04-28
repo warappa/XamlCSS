@@ -778,19 +778,15 @@ namespace XamlCSS
 
                             foreach (var i in subDict)
                             {
-                                propertyStyleValues[i.Key] = i.Value;
+                                // only set not-overridden properties
+                                if (!propertyStyleValues.ContainsKey(i.Key))
+                                {
+                                    propertyStyleValues[i.Key] = i.Value;
+                                }
                             }
 
                             var triggers = nativeStyleService.GetTriggersAsList(initalStyle as TStyle);
-                            nativeTriggers.AddRange(triggers);
-                        }
-
-                        foreach (var item in propertyStyleValues)
-                        {
-                            if (item.Value == null)
-                            {
-
-                            }
+                            nativeTriggers.InsertRange(0, triggers);
                         }
 
                         var style = "Create Style".Measure(() => nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType));
