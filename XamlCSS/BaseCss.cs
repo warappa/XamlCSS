@@ -82,7 +82,7 @@ namespace XamlCSS
                 Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
             });
 
-            Investigate.Print();
+            // Investigate.Print();
             // HierarchyDebugExtensions.PrintHerarchyDebugInfo(treeNodeProvider, dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder, SelectorType.LogicalTree);
             executeApplyStylesExecuting = false;
         }
@@ -738,15 +738,17 @@ namespace XamlCSS
 
                 foreach (var resourceKey in styleMatchInfo.CurrentMatchedSelectors)
                 {
+                    var s = resourceKey.Split('{')[1];
+
                     if (applicationResourcesService.Contains(resourceKey))
                     {
+                        Debug.WriteLine($"GenerateStyles: Already contains '{s}' ({matchedElementType.Name})");
                         continue;
                     }
 
-                    var s = resourceKey.Split('{')[1];
+                    // Debug.WriteLine($"GenerateStyles: Generating '{s}' ({matchedElementType.Name})");
 
                     var rule = styleMatchInfo.CurrentStyleSheet.Rules.Where(x => x.SelectorString == s).First();
-                    // // Debug.WriteLine("Generate Style " + resourceKey);
 
                     CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> result = null;
                     try
@@ -762,14 +764,13 @@ namespace XamlCSS
 
                         foreach (var error in result.Errors)
                         {
-                            Debug.WriteLine($@" ERROR (normal) in Selector ""{rule.SelectorString}"": {error}");
+                            // Debug.WriteLine($@" ERROR (normal) in Selector ""{rule.SelectorString}"": {error}");
                             styleSheet.AddError($@"ERROR in Selector ""{rule.SelectorString}"": {error}");
                         }
 
                         var nativeTriggers = $"CreateTriggers ({rule.DeclarationBlock.Triggers.Count})".Measure(() => rule.DeclarationBlock.Triggers
                             .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, (TDependencyObject)styleSheet.AttachedTo))
                             .ToList());
-
 
                         var initalStyle = dependencyPropertyService.GetInitialStyle(styleMatchInfoKeyValue.Key);
                         if (initalStyle != null)
@@ -788,12 +789,12 @@ namespace XamlCSS
                             var triggers = nativeStyleService.GetTriggersAsList(initalStyle as TStyle);
                             nativeTriggers.InsertRange(0, triggers);
                         }
-
-                        var style = "Create Style".Measure(() => nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType));
+                        //Debug.WriteLine("    Values: " + string.Join(", ", propertyStyleValues.Select(x => ((dynamic)x.Key).PropertyName + ": " + x.Value.ToString())));
+                        var style = "    Create Style".Measure(() => nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType));
 
                         applicationResourcesService.SetResource(resourceKey, style);
 
-                        // // Debug.WriteLine("Finished generate Style " + resourceKey);
+                        // Debug.WriteLine("Finished generate Style " + resourceKey);
                     }
                     catch (Exception e)
                     {

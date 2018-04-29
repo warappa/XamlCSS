@@ -564,6 +564,7 @@ namespace XamlCSS.Utils
     /// <summary>
     /// From https://stackoverflow.com/questions/724143/how-do-i-create-a-delegate-for-a-net-property
     /// </summary>
+    [XamlCSS.Linker.Preserve(AllMembers = true)]
     internal class PropertyWrapper<TObject, TValue> : IPropertyAccessor where TObject : class
     {
         private Func<TObject, TValue> Getter;

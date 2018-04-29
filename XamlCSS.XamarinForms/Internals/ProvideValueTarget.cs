@@ -3,6 +3,7 @@ using Xamarin.Forms.Xaml;
 
 namespace XamlCSS.XamarinForms.Internals
 {
+    [XamlCSS.Linker.Preserve(AllMembers = true)]
     public class ProvideValueTarget : IProvideValueTarget, IProvideParentValuesPublic
 	{
 		public ProvideValueTarget(object target)

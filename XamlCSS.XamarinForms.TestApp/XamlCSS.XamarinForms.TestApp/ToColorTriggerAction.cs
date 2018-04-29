@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xamarin.Forms;
 
 namespace XamlCSS.XamarinForms.TestApp
 {
+    [XamlCSS.Linker.Preserve(AllMembers = true)]
     public class ToColorTriggerAction : TriggerAction<VisualElement>
     {
         public static Task<bool> ColorTo(VisualElement self, Color fromColor, Color toColor, Action<Color> callback, uint length = 250, Easing easing = null)

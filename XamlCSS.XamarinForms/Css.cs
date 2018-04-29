@@ -308,16 +308,62 @@ namespace XamlCSS.XamarinForms
         public static IList<BindableObject> GetAdditionalChildren(BindableObject obj)
         {
             var value = obj?.GetValue(AdditionalChildrenProperty) as IList<BindableObject>;
-            if(value == null)
-            {
-                value = new List<BindableObject>();
-                SetAdditionalChildren(obj, value);
-            }
+
             return value;
         }
         public static void SetAdditionalChildren(BindableObject obj, IList<BindableObject> value)
         {
             obj?.SetValue(AdditionalChildrenProperty, value);
+        }
+
+        public static void AddAdditionalChild(BindableObject parent, BindableObject child)
+        {
+            if (ReferenceEquals(parent, null) ||
+                ReferenceEquals(child, null))
+            {
+                return;
+            }
+
+            var additionalChildren = Css.GetAdditionalChildren(parent);
+            if (additionalChildren == null)
+            {
+                additionalChildren = new List<BindableObject>();
+                Css.SetAdditionalChildren(parent, additionalChildren);
+            }
+
+            additionalChildren.Add(child);
+
+            var domParent = Css.GetDomElement(parent) as DomElement;
+            domParent?.ReloadChildren();
+
+            Css.instance?.NewElement(child);
+        }
+
+        public static void RemoveAdditionalChild(BindableObject parent, BindableObject child)
+        {
+            if (ReferenceEquals(parent, null) ||
+                ReferenceEquals(child, null))
+            {
+                return;
+            }
+
+            var additionalChildren = Css.GetAdditionalChildren(parent);
+            if (additionalChildren == null)
+            {
+                return;
+            }
+
+            additionalChildren.Remove(child);
+
+            if (additionalChildren.Count == 0)
+            {
+                Css.SetAdditionalChildren(parent, null);
+            }
+
+            var domParent = Css.GetDomElement(parent) as DomElement;
+            domParent?.ReloadChildren();
+
+            Css.instance?.RemoveElement(child);
         }
     }
 }

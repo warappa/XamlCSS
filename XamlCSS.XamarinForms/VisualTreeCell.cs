@@ -1,4 +1,5 @@
-﻿using Xamarin.Forms;
+﻿using System.Collections.Generic;
+using Xamarin.Forms;
 using XamlCSS.XamarinForms.Dom;
 
 namespace XamlCSS.XamarinForms
@@ -52,12 +53,7 @@ namespace XamlCSS.XamarinForms
                 var s = sender as Element;
                 if (s.Parent == null)
                 {
-                    var domParent = Css.GetDomElement(s.Parent) as DomElement;
-                    domParent?.ReloadChildren();
-
-                    Css.GetAdditionalChildren(s.Parent).Remove(s);
-
-                    Css.instance?.RemoveElement(sender as Element);
+                    Css.RemoveAdditionalChild(s.Parent, s);
                 }
             }
         }
@@ -69,12 +65,7 @@ namespace XamlCSS.XamarinForms
                 var s = sender as Element;
                 if (s.Parent != null)
                 {
-                    Css.GetAdditionalChildren(s.Parent).Add(s);
-
-                    var domParent = Css.GetDomElement(s.Parent) as DomElement;
-                    domParent?.ReloadChildren();
-
-                    Css.instance?.UpdateElement(sender as Element);
+                    Css.AddAdditionalChild(s.Parent, s);
                 }
             }
         }

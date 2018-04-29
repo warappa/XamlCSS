@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using XamlCSS.Dom;
 
 namespace XamlCSS.Utils
@@ -40,7 +41,7 @@ namespace XamlCSS.Utils
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             TDependencyObject styleResourceReferenceHolder,
             TDependencyObject startFrom,
-            SelectorType  type
+            SelectorType type
             )
             where TDependencyObject : class
             where TStyle : class
@@ -91,7 +92,7 @@ namespace XamlCSS.Utils
                 Debug.WriteLine("!!!!!");
             }
 
-            Debug.WriteLine(new String(' ', level) + element.GetType().Name + "#" + dependencyPropertyService.GetName(element));
+            Debug.WriteLine(new String(' ', level * 2) + element.GetType().Name + "#" + dependencyPropertyService.GetName(element));
             var children = treeNodeProvider.GetChildren(element, type);
             foreach (var child in children)
             {
@@ -109,7 +110,7 @@ namespace XamlCSS.Utils
 
             if (expectedParent != domParent)
             {
-                Debug.WriteLine("!!!!! DomElement "+ domElement.Element.GetType().Name);
+                Debug.WriteLine("!!!!! DomElement " + domElement.Element.GetType().Name);
                 Debug.WriteLine($"Expected parent: { expectedParent.TagName + "#" + expectedParent.Id } {expectedParent.Element?.GetType().Name}");
                 Debug.WriteLine($"Provider parent:   {domParent?.TagName + "#" + domParent?.Id } {domParent?.Element?.GetType().Name ?? "null"}");
                 Debug.WriteLine("!!!!!");
@@ -124,7 +125,7 @@ namespace XamlCSS.Utils
                 Debug.WriteLine("XXXXX");
             }
 
-            Debug.WriteLine(new String(' ', level) + domElement.Element.GetType().Name + "#" + domElement.Id);
+            Debug.WriteLine(new String(' ', level * 2) + domElement.Element.GetType().Name + "#" + domElement.Id + " | " + string.Join(", ", domElement.StyleInfo.CurrentMatchedSelectors.Select(x => x.Split('{')[1])));
 
             var children = treeNodeProvider.GetDomElementChildren(domElement, type);
             foreach (var child in children)

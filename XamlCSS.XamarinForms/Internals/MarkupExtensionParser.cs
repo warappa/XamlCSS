@@ -8,10 +8,10 @@ using System.Xml;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Forms.Xaml.Internals;
-using XamlCSS.CssParsing;
 
 namespace XamlCSS.XamarinForms.Internals
 {
+    [XamlCSS.Linker.Preserve(AllMembers = true)]
     public class MarkupExtensionParser : IMarkupExtensionParser
     {
         private IMarkupExtension markupExtension;

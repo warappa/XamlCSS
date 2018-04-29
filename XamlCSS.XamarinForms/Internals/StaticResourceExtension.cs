@@ -9,6 +9,7 @@ namespace XamlCSS.XamarinForms.Internals
 {
     /// <summary>For internal use by the XAML infrastructure.</summary>
     /// <remarks>To be added.</remarks>
+    [XamlCSS.Linker.Preserve(AllMembers = true)]
     [ContentProperty("Key")]
 	public sealed class StaticResourceExtension : IMarkupExtension
 	{

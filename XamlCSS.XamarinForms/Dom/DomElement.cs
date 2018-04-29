@@ -66,6 +66,7 @@ namespace XamlCSS.XamarinForms.Dom
 
         protected override string GetId(BindableObject dependencyObject)
         {
+            // return (dependencyObject as Element).Id.ToString();
             return Css.GetId(dependencyObject);
         }
 

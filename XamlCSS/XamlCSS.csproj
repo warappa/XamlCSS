@@ -22,7 +22,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;INVESTIGATE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
@@ -166,6 +166,7 @@
     <Compile Include="Trigger.cs" />
     <Compile Include="TriggerAction.cs" />
     <Compile Include="Utils\Investigate.cs" />
+    <Compile Include="Linker\PreserveAttribute.cs" />
     <Compile Include="Utils\TypeHelpers.cs" />
     <Compile Include="Utils\Timer.cs" />
   </ItemGroup>

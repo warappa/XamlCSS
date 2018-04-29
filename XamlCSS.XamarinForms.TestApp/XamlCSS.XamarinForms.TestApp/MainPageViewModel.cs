@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace XamlCSS.XamarinForms.TestApp
 {
+    [XamlCSS.Linker.Preserve(AllMembers = true)]
     public class MainPageViewModel : INotifyPropertyChanged
     {
         private string test;

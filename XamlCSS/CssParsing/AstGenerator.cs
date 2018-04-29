@@ -117,7 +117,6 @@ namespace XamlCSS.CssParsing
                         break;
                     default:
                         throw new AstGenerationException($"ReadImport: unexpected token '{currentToken.Text}'", GetTokens(startToken, currentToken));
-                        break;
                 }
             }
             catch (AstGenerationException e)
@@ -270,8 +269,6 @@ namespace XamlCSS.CssParsing
                         break;
                     default:
                         throw new AstGenerationException($"ReadNamespaceDeclaration: unexpected token '{currentToken.Text}'", GetTokens(startToken, currentToken));
-
-                        break;
                 }
             }
             catch (AstGenerationException e)
@@ -718,7 +715,7 @@ namespace XamlCSS.CssParsing
                 ReadSelectors();
 
             }
-            catch (AstGenerationException e)
+            catch (AstGenerationException)
             {
                 if (selectorsNode != null)
                 {
