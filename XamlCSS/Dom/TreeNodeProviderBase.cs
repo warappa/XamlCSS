@@ -63,8 +63,8 @@ namespace XamlCSS.Dom
                 return cached;
             }
 
-            cached = "CreateTreeNode".Measure(() => CreateTreeNode(obj));
-            "SetDomElement".Measure(() => dependencyPropertyService.SetDomElement(obj, cached));
+            cached = CreateTreeNode(obj);
+            dependencyPropertyService.SetDomElement(obj, cached);
 
             return cached;
         }

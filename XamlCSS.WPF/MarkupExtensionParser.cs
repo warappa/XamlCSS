@@ -49,7 +49,7 @@ namespace XamlCSS.WPF
             FrameworkElement textBlock = null;
             object localValue = null;
 
-            var match = $"regex match {expression}".Measure(() => dynamicOrStaticResource.Match(expression));
+            var match = dynamicOrStaticResource.Match(expression);
             if (match.Success)
             {
                 var ext = match.Groups[1].Value;
@@ -58,7 +58,7 @@ namespace XamlCSS.WPF
                 return new DynamicResourceExtension(match.Groups[2].Value).ProvideValue(null);
             }
 
-            var xmlnamespaces = "get xaml namespaces".Measure(() => string.Join(" ", namespaces.Where(x => x.Alias != "")
+            var xmlnamespaces = string.Join(" ", namespaces.Where(x => x.Alias != "")
                 .Select(x =>
                 {
                     var strs = x.Namespace.Split(',');
@@ -70,48 +70,44 @@ namespace XamlCSS.WPF
                     {
                         return "xmlns:" + x.Alias + "=\"" + x.Namespace + "\"";
                     }
-                })));
-            $"Parse {expression}".Measure(() =>
+                }));
+
+            //                var test = $@"
+            //<DataTemplate
+            //xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+            //xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
+            //{xmlnamespaces}><FrameworkElement x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" /></DataTemplate>";
+
+            var test = $@"<FrameworkElement xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"" {xmlnamespaces} x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />";
+
+            /*
+            var pc = new ParserContext();
+            pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
+            pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");*/
+            //var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
+
+
+            try
             {
-
-                //                var test = $@"
-                //<DataTemplate
-                //xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
-                //xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
-                //{xmlnamespaces}><FrameworkElement x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" /></DataTemplate>";
-
-                var test = $@"<FrameworkElement xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"" {xmlnamespaces} x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />";
-
-                /*
-                var pc = new ParserContext();
-                pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
-                pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");*/
-                //var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
-
-
-                try
-                {
-                    //textBlock = (FrameworkElement)dataTemplate.LoadContent();
-                    textBlock = (FrameworkElement)XamlReader.Parse(test);
-                }
-                catch (Exception e)
-                {
-                    throw new Exception($@"Cannot evaluate markup-expression ""{expression}""!");
-                }
-                // AddLogicalChild(obj, textBlock);
+                //textBlock = (FrameworkElement)dataTemplate.LoadContent();
+                textBlock = (FrameworkElement)XamlReader.Parse(test);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($@"Cannot evaluate markup-expression ""{expression}""!");
+            }
+            // AddLogicalChild(obj, textBlock);
 
 
 
-                try
-                {
-                    localValue = textBlock.ReadLocalValue(FrameworkElement.TagProperty);
-                }
-                finally
-                {
-                    // RemoveLogicalChild(obj, textBlock);
-                }
-
-            });
+            try
+            {
+                localValue = textBlock.ReadLocalValue(FrameworkElement.TagProperty);
+            }
+            finally
+            {
+                // RemoveLogicalChild(obj, textBlock);
+            }
 
             if (localValue is BindingExpression)
             {
@@ -146,19 +142,16 @@ namespace XamlCSS.WPF
 
         internal static object GetDynamicResourceValue(object resourceKey, object element)
         {
-            return "GetDynamicResourceValue".Measure(() =>
+            if (element is FrameworkElement)
             {
-                if (element is FrameworkElement)
-                {
-                    return ((FrameworkElement)element).TryFindResource(resourceKey);
-                }
-                else if (element is FrameworkContentElement)
-                {
-                    return ((FrameworkContentElement)element).TryFindResource(resourceKey);
-                }
+                return ((FrameworkElement)element).TryFindResource(resourceKey);
+            }
+            else if (element is FrameworkContentElement)
+            {
+                return ((FrameworkContentElement)element).TryFindResource(resourceKey);
+            }
 
-                return null;
-            });
+            return null;
         }
     }
 }

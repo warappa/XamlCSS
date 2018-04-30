@@ -26,8 +26,6 @@ namespace XamlCSS.WPF
 
         public object GetDependencyPropertyValue(Type frameworkElementType, string propertyName, DependencyProperty property, object propertyValue)
         {
-            return $"GetDependencyPropertyValue {propertyName} {propertyValue}".Measure(() =>
-            {
                 if (property != null &&
                     !(property.PropertyType.IsInstanceOfType(propertyValue)))
                 {
@@ -63,7 +61,6 @@ namespace XamlCSS.WPF
                 }
 
                 return propertyValue;
-            });
         }
 
         protected object ReadSafe(DependencyObject obj, DependencyProperty property)

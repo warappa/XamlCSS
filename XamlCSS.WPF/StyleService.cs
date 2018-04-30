@@ -101,7 +101,7 @@ namespace XamlCSS.WPF
                 if (serialized == null)
                 {
                     //serialized = "XamlWriter.Save(x)".Measure(() => XamlWriter.Save(x));
-                    serialized = "SerializeObject(x)".Measure(() => SerializeObject(x));
+                    serialized = SerializeObject(x);
                 }
                 //if (x is System.Windows.DataTrigger d)
                 //{
@@ -144,7 +144,7 @@ namespace XamlCSS.WPF
                 //    return et;
                 //}
 
-                var trigger = $"XamlReader.Parse({serialized})".Measure(() => (DependencyObject)XamlReader.Parse(serialized));
+                var trigger = (DependencyObject)XamlReader.Parse(serialized);
 
                 Css.SetSerializedTrigger(trigger, serialized);
 
@@ -178,209 +178,181 @@ namespace XamlCSS.WPF
 
             if (trigger is Trigger)
             {
-                return "PropertyTrigger".Measure(() =>
+                var propertyTrigger = trigger as Trigger;
+                var nativeTrigger = new System.Windows.Trigger();
+
+                var dependencyProperty = dependencyService.GetDependencyProperty(targetType, propertyTrigger.Property);
+                if (dependencyProperty == null)
                 {
-                    var propertyTrigger = trigger as Trigger;
-                    var nativeTrigger = new System.Windows.Trigger();
+                    throw new NullReferenceException($"Property '{propertyTrigger.Property}' may not be null (targetType '{targetType.Name}')!");
+                }
 
-                    var dependencyProperty = dependencyService.GetDependencyProperty(targetType, propertyTrigger.Property);
-                    if (dependencyProperty == null)
+                nativeTrigger.Property = dependencyProperty;
+                nativeTrigger.Value = dependencyService.GetDependencyPropertyValue(targetType, nativeTrigger.Property.Name, nativeTrigger.Property, propertyTrigger.Value);
+                foreach (var styleDeclaration in propertyTrigger.StyleDeclarationBlock)
+                {
+                    var propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, targetType, styleDeclaration.Property);
+                    if (propertyInfo == null)
                     {
-                        throw new NullReferenceException($"Property '{propertyTrigger.Property}' may not be null (targetType '{targetType.Name}')!");
+                        continue;
                     }
-
-                    nativeTrigger.Property = dependencyProperty;
-                    nativeTrigger.Value = dependencyService.GetDependencyPropertyValue(targetType, nativeTrigger.Property.Name, nativeTrigger.Property, propertyTrigger.Value);
-                    "StyleDeclarationBlock".Measure(() =>
+                    try
                     {
-                        foreach (var styleDeclaration in propertyTrigger.StyleDeclarationBlock)
+                        var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
+                        if (value == null)
                         {
-                            var propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, targetType, styleDeclaration.Property);
-                            if (propertyInfo == null)
-                            {
-                                continue;
-                            }
-                            try
-                            {
-                                var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
-                                if (value == null)
-                                {
 
-                                }
-
-                                nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
-                            }
-                            catch (Exception e)
-                            {
-                                styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
-                            }
                         }
-                    });
 
-                    $"EnterActions ({propertyTrigger.EnterActions.Count})".Measure(() =>
+                        nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
+                    }
+                    catch (Exception e)
                     {
-                        foreach (var action in propertyTrigger.EnterActions)
-                        {
-                            try
-                            {
-                                var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+                        styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
+                    }
+                }
 
-                                nativeTrigger.EnterActions.Add(nativeTriggerAction);
-                            }
-                            catch (Exception e)
-                            {
-                                styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value}"" enter action: {e.Message}");
-                            }
-                        }
-                    });
-                    $"ExitActions ({propertyTrigger.ExitActions.Count})".Measure(() =>
+                foreach (var action in propertyTrigger.EnterActions)
+                {
+                    try
                     {
-                        foreach (var action in propertyTrigger.ExitActions)
-                        {
-                            try
-                            {
-                                var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+                        var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
 
-                                nativeTrigger.ExitActions.Add(nativeTriggerAction);
-                            }
-                            catch (Exception e)
-                            {
-                                styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value}"" exit action: {e.Message}");
-                            }
-                        }
-                    });
+                        nativeTrigger.EnterActions.Add(nativeTriggerAction);
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value}"" enter action: {e.Message}");
+                    }
+                }
+                foreach (var action in propertyTrigger.ExitActions)
+                {
+                    try
+                    {
+                        var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
 
-                    var serialized = $"pre SerializeObject({nativeTrigger.GetType().Name})".Measure(() => SerializeObject(nativeTrigger));
-                    //serialized = $"pre XamlWriter.Save({nativeTrigger.GetType().Name})".Measure(() => XamlWriter.Save(nativeTrigger));
-                    
-                    Css.SetSerializedTrigger(nativeTrigger, serialized);
+                        nativeTrigger.ExitActions.Add(nativeTriggerAction);
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in property trigger ""{propertyTrigger.Property} {propertyTrigger.Value}"" exit action: {e.Message}");
+                    }
+                }
 
-                    return nativeTrigger;
-                });
+                var serialized = SerializeObject(nativeTrigger);
+                //serialized = $"pre XamlWriter.Save({nativeTrigger.GetType().Name})".Measure(() => XamlWriter.Save(nativeTrigger));
+
+                Css.SetSerializedTrigger(nativeTrigger, serialized);
+
+                return nativeTrigger;
             }
             else if (trigger is DataTrigger)
             {
-                return "DataTrigger".Measure(() =>
+                var dataTrigger = trigger as DataTrigger;
+                var nativeTrigger = new System.Windows.DataTrigger();
+
+                string expression = null;
+                if (typeNameResolver.IsMarkupExtension(dataTrigger.Binding))
                 {
-                    var dataTrigger = trigger as DataTrigger;
-                    var nativeTrigger = new System.Windows.DataTrigger();
+                    expression = typeNameResolver.CreateMarkupExtensionExpression(dataTrigger.Binding);
+                }
+                else
+                {
+                    expression = "{Binding " + dataTrigger.Binding + "}";
+                }
 
-                    string expression = null;
-                    if (typeNameResolver.IsMarkupExtension(dataTrigger.Binding))
+                var binding = (System.Windows.Data.BindingBase)markupExtensionParser.ProvideValue(expression, null, styleSheet.Namespaces);
+                nativeTrigger.Binding = binding;
+
+                nativeTrigger.Value = GetBasicValue(dataTrigger);
+
+                foreach (var styleDeclaration in dataTrigger.StyleDeclarationBlock)
+                {
+                    try
                     {
-                        expression = typeNameResolver.CreateMarkupExtensionExpression(dataTrigger.Binding);
+                        var propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, targetType, styleDeclaration.Property);
+                        if (propertyInfo == null)
+                        {
+                            continue;
+                        }
+
+                        var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
+                        if (value == null)
+                        {
+
+                        }
+
+                        nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
                     }
-                    else
+                    catch (Exception e)
                     {
-                        expression = "{Binding " + dataTrigger.Binding + "}";
+                        styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
                     }
+                }
 
-                    var binding = (System.Windows.Data.BindingBase)markupExtensionParser.ProvideValue(expression, null, styleSheet.Namespaces);
-                    nativeTrigger.Binding = binding;
-
-                    nativeTrigger.Value = GetBasicValue(dataTrigger);
-
-                    foreach (var styleDeclaration in dataTrigger.StyleDeclarationBlock)
+                foreach (var action in dataTrigger.EnterActions)
+                {
+                    try
                     {
-                        try
-                        {
-                            var propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, targetType, styleDeclaration.Property);
-                            if (propertyInfo == null)
-                            {
-                                continue;
-                            }
+                        System.Windows.TriggerAction nativeTriggerAction = null;
 
-                            var value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, styleDeclaration.Value, propertyInfo.Property, styleSheet.Namespaces);
-                            if (value == null)
-                            {
+                        nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
 
-                            }
-
-                            nativeTrigger.Setters.Add(new Setter { Property = propertyInfo.Property, Value = value });
-                        }
-                        catch (Exception e)
-                        {
-                            styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {styleDeclaration.Property}: {styleDeclaration.Value}"": {e.Message}");
-                        }
+                        nativeTrigger.EnterActions.Add(nativeTriggerAction);
                     }
-
-                    foreach (var action in dataTrigger.EnterActions)
+                    catch (Exception e)
                     {
-                        try
-                        {
-                            var info = $"{action.Action} {string.Join(", ", action.Parameters.Select(x => x.Property + ": " + x.Value))}";
-                            $"measure {info}".Measure(() =>
-                            {
-                                $"CreateTriggerAction outer {info}".Measure(() =>
-                                {
-                                    System.Windows.TriggerAction nativeTriggerAction = null;
-
-                                    $"CreateTriggerAction {info}".Measure(() => nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action));
-
-                                    $"Add to EnterActions {info}".Measure(() => nativeTrigger.EnterActions.Add(nativeTriggerAction));
-                                });
-                            });
-                        }
-                        catch (Exception e)
-                        {
-                            styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {action}"" enter action: {e.Message}");
-                        }
+                        styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {action}"" enter action: {e.Message}");
                     }
+                }
 
-                    foreach (var action in dataTrigger.ExitActions)
+                foreach (var action in dataTrigger.ExitActions)
+                {
+                    try
                     {
-                        try
-                        {
-                            var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+                        var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
 
-                            nativeTrigger.ExitActions.Add(nativeTriggerAction);
-                        }
-                        catch (Exception e)
-                        {
-                            styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {action}"" exit action: {e.Message}");
-                        }
+                        nativeTrigger.ExitActions.Add(nativeTriggerAction);
                     }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in data trigger ""{dataTrigger.Binding} {dataTrigger.Value} - {action}"" exit action: {e.Message}");
+                    }
+                }
 
-                    var serialized = $"pre SerializeObject({nativeTrigger.GetType().Name})".Measure(() => SerializeObject(nativeTrigger));
-                    //serialized = $"pre XamlWriter.Save({nativeTrigger.GetType().Name})".Measure(() => XamlWriter.Save(nativeTrigger));
+                var serialized = SerializeObject(nativeTrigger);
+                //serialized = $"pre XamlWriter.Save({nativeTrigger.GetType().Name})".Measure(() => XamlWriter.Save(nativeTrigger));
 
-                    Css.SetSerializedTrigger(nativeTrigger, serialized);
+                Css.SetSerializedTrigger(nativeTrigger, serialized);
 
-                    return nativeTrigger;
-                });
+                return nativeTrigger;
             }
             else if (trigger is EventTrigger)
             {
-                return "EventTrigger".Measure(() =>
+                var eventTrigger = trigger as EventTrigger;
+                var nativeTrigger = new System.Windows.EventTrigger();
+
+                nativeTrigger.RoutedEvent = (RoutedEvent)TypeHelpers.GetFieldValue(targetType, eventTrigger.Event + "Event");
+                foreach (var action in eventTrigger.Actions)
                 {
-                    var eventTrigger = trigger as EventTrigger;
-                    var nativeTrigger = new System.Windows.EventTrigger();
-
-                    nativeTrigger.RoutedEvent = (RoutedEvent)TypeHelpers.GetFieldValue(targetType, eventTrigger.Event + "Event");
-                    "Actions".Measure(() =>
+                    try
                     {
-                        foreach (var action in eventTrigger.Actions)
-                        {
-                            try
-                            {
-                                var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
+                        var nativeTriggerAction = CreateTriggerAction(styleSheet, styleResourceReferenceHolder, action);
 
-                                nativeTrigger.Actions.Add(nativeTriggerAction);
-                            }
-                            catch (Exception e)
-                            {
-                                styleSheet.Errors.Add($@"ERROR in event trigger ""{eventTrigger.Event} {action.Action}"": {e.Message}");
-                            }
-                        }
-                    });
+                        nativeTrigger.Actions.Add(nativeTriggerAction);
+                    }
+                    catch (Exception e)
+                    {
+                        styleSheet.Errors.Add($@"ERROR in event trigger ""{eventTrigger.Event} {action.Action}"": {e.Message}");
+                    }
+                }
 
-                    var serialized = $"pre SerializeObject({nativeTrigger.GetType().Name})".Measure(() => SerializeObject(nativeTrigger));
-                    //serialized = $"pre XamlWriter.Save({nativeTrigger.GetType().Name})".Measure(() => XamlWriter.Save(nativeTrigger));
+                var serialized = SerializeObject(nativeTrigger);
+                //serialized = $"pre XamlWriter.Save({nativeTrigger.GetType().Name})".Measure(() => XamlWriter.Save(nativeTrigger));
 
-                    Css.SetSerializedTrigger(nativeTrigger, serialized);
+                Css.SetSerializedTrigger(nativeTrigger, serialized);
 
-                    return nativeTrigger;
-                });
+                return nativeTrigger;
             }
 
             throw new NotSupportedException($"Trigger '{trigger.GetType().FullName}' is not supported!");
@@ -393,75 +365,61 @@ namespace XamlCSS.WPF
             Type actionType = null;
             System.Windows.TriggerAction nativeTriggerAction = null;
 
-            "get types etc".Measure(() =>
-            {
-                actionTypeName = typeNameResolver.ResolveFullTypeName(styleSheet.Namespaces, action.Action);
-                actionType = Type.GetType(actionTypeName);
-                nativeTriggerAction = (System.Windows.TriggerAction)Activator.CreateInstance(actionType);
-            });
+            actionTypeName = typeNameResolver.ResolveFullTypeName(styleSheet.Namespaces, action.Action);
+            actionType = Type.GetType(actionTypeName);
+            nativeTriggerAction = (System.Windows.TriggerAction)Activator.CreateInstance(actionType);
 
-            "foreach (var parameter in action.Parameters)".Measure(() =>
+            foreach (var parameter in action.Parameters)
             {
-                foreach (var parameter in action.Parameters)
+                string parameterName = null;
+                object value = null;
+                string parameterValueExpression = null;
+                DependencyPropertyInfo<DependencyProperty> propertyInfo;
+                Type type = null;
+
+                parameterName = parameter.Property;
+                parameterValueExpression = parameter.Value.Trim();
+                type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, nativeTriggerAction, parameterName);
+                if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                 {
-                    string parameterName = null;
-                    object value = null;
-                    string parameterValueExpression = null;
-                    DependencyPropertyInfo<DependencyProperty> propertyInfo;
-                    Type type = null;
-                    "Parameter init".Measure(() =>
-                    {
-                        parameterName = parameter.Property;
-                        parameterValueExpression = parameter.Value.Trim();
-                        type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, nativeTriggerAction, parameterName);
-                    });
-                    "Value conversions".Measure(() =>
-                    {
-                        if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
-                        {
-                            $"GetMarkupExtensionValue {parameterValueExpression}".Measure(() => value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces, false));
-                        }
-                        else if ((propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, actionType, parameterName)) != null)
-                        {
-                            "GetPropertyValue".Measure(() =>
-                            {
-                                value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, parameterValueExpression, propertyInfo.Property, styleSheet.Namespaces);
-
-                                if (value is DynamicResourceExtension)
-                                {
-                                    var dyn = value as DynamicResourceExtension;
-                                    serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current));
-                                    value = dyn.ProvideValue(serviceProvider);
-                                }
-                                else if (value is StaticResourceExtension)
-                                {
-                                    var dyn = value as StaticResourceExtension;
-                                    serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current));
-                                    value = dyn.ProvideValue(serviceProvider);
-                                }
-                            });
-                        }
-                        else
-                        {
-                            value = parameterValueExpression;
-                        }
-
-                        if (value is string valueString)
-                        {
-                            value = "GetConverter".Measure(() => TypeDescriptor.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? value);
-                        }
-
-                        if (value == null)
-                        {
-
-                        }
-                    });
-
-                    $"Set Property Value {parameterName} = {value}".Measure(() => dependencyService.SetValue(nativeTriggerAction, parameterName, value));
+                    value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces, false);
                 }
-            });
-            return nativeTriggerAction;
+                else if ((propertyInfo = typeNameResolver.GetDependencyPropertyInfo(styleSheet.Namespaces, actionType, parameterName)) != null)
+                {
+                    value = typeNameResolver.GetPropertyValue(propertyInfo.DeclaringType, styleResourceReferenceHolder, propertyInfo.Name, parameterValueExpression, propertyInfo.Property, styleSheet.Namespaces);
 
+                    if (value is DynamicResourceExtension)
+                    {
+                        var dyn = value as DynamicResourceExtension;
+                        serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current));
+                        value = dyn.ProvideValue(serviceProvider);
+                    }
+                    else if (value is StaticResourceExtension)
+                    {
+                        var dyn = value as StaticResourceExtension;
+                        serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current));
+                        value = dyn.ProvideValue(serviceProvider);
+                    }
+                }
+                else
+                {
+                    value = parameterValueExpression;
+                }
+
+                if (value is string valueString)
+                {
+                    value = TypeDescriptor.GetConverter(type)?.ConvertFromInvariantString(valueString) ?? value;
+                }
+
+                if (value == null)
+                {
+
+                }
+
+                dependencyService.SetValue(nativeTriggerAction, parameterName, value);
+            }
+
+            return nativeTriggerAction;
         }
 
         protected override void AddSetter(Style style, DependencyProperty property, object value)

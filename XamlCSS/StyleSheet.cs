@@ -145,7 +145,7 @@ namespace XamlCSS
             a = Errors;
             a = Warnings;
 
-            foreach(var rule in Rules)
+            foreach (var rule in Rules)
             {
                 CachedSelectorProvider.Instance.GetOrAdd(rule.SelectorString);
             }
@@ -221,7 +221,7 @@ namespace XamlCSS
                 Reset();
 
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("AttachedTo"));
-                
+
                 // EagerLoading();
             }
         }
@@ -415,25 +415,22 @@ namespace XamlCSS
 
         protected CssNamespaceCollection GetCombinedNamespaces()
         {
-            return "GetCombinedNamespaces".Measure(() =>
+            if (BaseStyleSheets.Count == 0 &&
+                InheritedStyleSheets.Count == 0)
             {
-                if (BaseStyleSheets.Count == 0 &&
-                    InheritedStyleSheets.Count == 0)
-                {
-                    return LocalNamespaces;
-                }
+                return LocalNamespaces;
+            }
 
-                var result = new CssNamespaceCollection(
-                    InheritedStyleSheets
-                    .Select(x => x.Namespaces)
-                    .Concat(BaseStyleSheets.Select(x => x.Namespaces))
-                    .Aggregate((a, b) => new CssNamespaceCollection(a.Concat(b)))
-                    .Concat(LocalNamespaces)
-                    .GroupBy(x => x.Alias)
-                    .Select(x => x.Last()));
+            var result = new CssNamespaceCollection(
+                InheritedStyleSheets
+                .Select(x => x.Namespaces)
+                .Concat(BaseStyleSheets.Select(x => x.Namespaces))
+                .Aggregate((a, b) => new CssNamespaceCollection(a.Concat(b)))
+                .Concat(LocalNamespaces)
+                .GroupBy(x => x.Alias)
+                .Select(x => x.Last()));
 
-                return result;
-            });
+            return result;
         }
 
         private void WarmupNamespaceResolution()

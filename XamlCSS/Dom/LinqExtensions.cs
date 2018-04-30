@@ -69,7 +69,7 @@ namespace XamlCSS.Dom
                 }
             }
         }
-        
+
         public static void GetElementsByTagName<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, string namespaceUri, string tagName, IList<IDomElement<TDependencyObject>> result)
             where TDependencyObject : class
         {
@@ -103,71 +103,62 @@ namespace XamlCSS.Dom
         public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, IList<IDomElement<TDependencyObject>> result, SelectorType type)
             where TDependencyObject : class
         {
-            $"QuerySelectorAll {selector.Value} ({elements.Count} elements [{string.Join(", ", elements.Select(x => x.Element.GetType().Name.ToString()))}])".Measure(() =>
+            var length = elements.Count;
+            var skipThisLevel = false;
+
+            for (int i = 0; i < length; i++)
             {
-                var length = elements.Count;
-                var skipThisLevel = false;
+                var element = elements[i];
+                var inTree = true;
 
-                for (int i = 0; i < length; i++)
+                if (type == SelectorType.LogicalTree &&
+                        !element.IsInLogicalTree)
                 {
-                    var element = elements[i];
-                    var inTree = true;
+                    inTree = false;
+                }
+                else if (type == SelectorType.VisualTree &&
+                    !element.IsInVisualTree)
+                {
+                    inTree = false;
+                }
 
-                    if (type == SelectorType.LogicalTree &&
-                            !element.IsInLogicalTree)
+                if (!skipThisLevel &&
+                    inTree)
+                {
+                    var shouldNotProcess =
+                        !object.ReferenceEquals(element.StyleInfo != null ? element.StyleInfo.CurrentStyleSheet : null, styleSheet) ||
+                        (element.StyleInfo.DoMatchCheck & type) != type;
+
+                    if (shouldNotProcess)
                     {
-                        inTree = false;
-                    }
-                    else if (type == SelectorType.VisualTree &&
-                        !element.IsInVisualTree)
-                    {
-                        inTree = false;
-                    }
-
-                    if (!skipThisLevel &&
-                        inTree)
-                    {
-                        var shouldNotProcess = "StyleInfo check".Measure(() =>
-                            !object.ReferenceEquals(element.StyleInfo != null ? element.StyleInfo.CurrentStyleSheet : null, styleSheet) ||
-                            (element.StyleInfo.DoMatchCheck & type) != type);
-
-                        if (shouldNotProcess)
-                        {
-                            continue;
-                        }
-
-                        $"match selector ({selector.Value})".Measure(() =>
-                        {
-                            var match = selector.Match(styleSheet, element);
-
-                            if (match.IsSuccess)
-                            {
-                                result.Add(element);
-                            }
-                            else if (match.HasGeneralParentFailed)
-                            {
-                                skipThisLevel = true;
-                            }
-                            else if (match.HasDirectParentFailed)
-                            {
-                                skipThisLevel = true;
-                            }
-                        });
+                        continue;
                     }
 
-                    if (inTree)
+                    var match = selector.Match(styleSheet, element);
+
+                    if (match.IsSuccess)
                     {
-                        "Check for ChildNodes".Measure(() =>
-                        {
-                            var children = type == SelectorType.LogicalTree ? element.LogicalChildNodes : element.ChildNodes;
-                            if (children.Count != 0)
-                            {
-                                children.QuerySelectorAll(styleSheet, selector, result, type);
-                            }
-                        });
+                        result.Add(element);
+                    }
+                    else if (match.HasGeneralParentFailed)
+                    {
+                        skipThisLevel = true;
+                    }
+                    else if (match.HasDirectParentFailed)
+                    {
+                        skipThisLevel = true;
                     }
                 }
-            });
+
+                if (inTree)
+                {
+                    var children = type == SelectorType.LogicalTree ? element.LogicalChildNodes : element.ChildNodes;
+                    if (children.Count != 0)
+                    {
+                        children.QuerySelectorAll(styleSheet, selector, result, type);
+                    }
+                }
+            }
         }
 
         public static IDomElement<TDependencyObject> QuerySelector<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, SelectorType type)

@@ -162,10 +162,10 @@ namespace XamlCSS.Dom
 
         protected virtual IList<IDomElement<TDependencyObject>> GetChildNodes(SelectorType type)
         {
-            return "GetChildNodes".Measure(() => treeNodeProvider
+            return treeNodeProvider
                 .GetChildren(dependencyObject, type)
                 .Select(x => treeNodeProvider.GetDomElement(x))
-                .ToList());
+                .ToList();
         }
 
         abstract protected IList<string> GetClassList(TDependencyObject dependencyObject);
@@ -318,17 +318,11 @@ namespace XamlCSS.Dom
         public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
-            var check = "StyleInfo check".Measure(() =>
+            if (!ReferenceEquals(StyleInfo.CurrentStyleSheet, styleSheet) ||
+                StyleInfo.DoMatchCheck == SelectorType.None)
             {
-                if (!ReferenceEquals(StyleInfo.CurrentStyleSheet, styleSheet) ||
-                    StyleInfo.DoMatchCheck == SelectorType.None)
-                {
-                    return new List<IDomElement<TDependencyObject>>();
-                }
-                return null;
-            });
-            if (check != null)
-                return check;
+                return new List<IDomElement<TDependencyObject>>();
+            }
 
             if (type == SelectorType.LogicalTree &&
                 !IsInLogicalTree)
@@ -341,16 +335,13 @@ namespace XamlCSS.Dom
                 return new List<IDomElement<TDependencyObject>>();
             }
 
-            var res = "ROOT QuerySelectorAll".Measure(() => (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelectorAll(styleSheet, selector, type));
+            var res = (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelectorAll(styleSheet, selector, type);
 
-            "match this".Measure(() =>
+            var match = Matches(styleSheet, selector);
+            if (match.IsSuccess)
             {
-                var match = Matches(styleSheet, selector);
-                if (match.IsSuccess)
-                {
-                    res.Add(this);
-                }
-            });
+                res.Add(this);
+            }
 
             return res;
         }

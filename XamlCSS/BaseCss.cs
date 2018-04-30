@@ -77,10 +77,7 @@ namespace XamlCSS
 
             var styleholder = copy.First().StyleSheetHolder;
 
-            "Render".Measure(() =>
-            {
-                Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
-            });
+            Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
 
             // Investigate.Print();
             // HierarchyDebugExtensions.PrintHerarchyDebugInfo(treeNodeProvider, dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder, SelectorType.LogicalTree);
@@ -114,20 +111,11 @@ namespace XamlCSS
         {
             try
             {
-                "BeginUpdate".Measure(() => applicationResourcesService.BeginUpdate());
+                applicationResourcesService.BeginUpdate();
 
-                "RemoveOldStyleObjects".Measure(() =>
-                {
-                    RemoveOldStyleObjects(copy, nativeStyleService, applicationResourcesService);
-                });
-                "SetAttachedToToNull".Measure(() =>
-                {
-                    SetAttachedToToNull(copy, dependencyPropertyService, treeNodeProvider, nativeStyleService);
-                });
-                "SetAttachedToToNewStyleSheet".Measure(() =>
-                {
-                    SetAttachedToToNewStyleSheet(copy, dependencyPropertyService, treeNodeProvider, nativeStyleService);
-                });
+                RemoveOldStyleObjects(copy, nativeStyleService, applicationResourcesService);
+                SetAttachedToToNull(copy, dependencyPropertyService, treeNodeProvider, nativeStyleService);
+                SetAttachedToToNewStyleSheet(copy, dependencyPropertyService, treeNodeProvider, nativeStyleService);
 
                 var styleUpdateInfos = new Dictionary<TDependencyObject, StyleUpdateInfo>();
 
@@ -147,52 +135,40 @@ namespace XamlCSS
                     .Distinct()
                     .ToList();
 
-                "SetupStyleInfo LOGICAL".Measure(() =>
+                foreach (var item in newOrUpdatedStyleHolders)
                 {
-                    foreach (var item in newOrUpdatedStyleHolders)
+                    var start = item.StartFrom ?? item.StyleSheetHolder;
+                    if (!treeNodeProvider.IsInTree(start, SelectorType.LogicalTree))
                     {
-                        var start = item.StartFrom ?? item.StyleSheetHolder;
-                        if (!treeNodeProvider.IsInTree(start, SelectorType.LogicalTree))
-                        {
-                            continue;
-                        }
-                        var domElement = treeNodeProvider.GetDomElement(start);
-
-                        "EnsureParents".Measure(() =>
-                        {
-                            EnsureParents(domElement, treeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos, SelectorType.LogicalTree);
-                        });
-
-                        var discardOldMatchingStyles = newOrUpdatedStyleSheets.Contains(item.StyleSheet);
-                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, treeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles, item.ChangeKind == ChangeKind.Remove, SelectorType.LogicalTree);
+                        continue;
                     }
-                });
+                    var domElement = treeNodeProvider.GetDomElement(start);
 
-                "SetupStyleInfo VisualTree".Measure(() =>
+                    EnsureParents(domElement, treeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos, SelectorType.LogicalTree);
+
+                    var discardOldMatchingStyles = newOrUpdatedStyleSheets.Contains(item.StyleSheet);
+                    SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, treeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles, item.ChangeKind == ChangeKind.Remove, SelectorType.LogicalTree);
+                }
+
+                foreach (var item in newOrUpdatedStyleHolders)
                 {
-                    foreach (var item in newOrUpdatedStyleHolders)
+                    var start = item.StartFrom ?? item.StyleSheetHolder;
+                    if (!treeNodeProvider.IsInTree(start, SelectorType.VisualTree))
                     {
-                        var start = item.StartFrom ?? item.StyleSheetHolder;
-                        if (!treeNodeProvider.IsInTree(start, SelectorType.VisualTree))
-                        {
-                            continue;
-                        }
-
-                        var domElement = treeNodeProvider.GetDomElement(start);
-
-                        "EnsureParents".Measure(() =>
-                        {
-                            EnsureParents(domElement, treeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos, SelectorType.VisualTree);
-                        });
-
-                        var discardOldMatchingStyles = newOrUpdatedStyleSheets.Contains(item.StyleSheet);
-                        SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, treeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles, item.ChangeKind == ChangeKind.Remove, SelectorType.VisualTree);
+                        continue;
                     }
-                });
+
+                    var domElement = treeNodeProvider.GetDomElement(start);
+
+                    EnsureParents(domElement, treeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos, SelectorType.VisualTree);
+
+                    var discardOldMatchingStyles = newOrUpdatedStyleSheets.Contains(item.StyleSheet);
+                    SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, treeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles, item.ChangeKind == ChangeKind.Remove, SelectorType.VisualTree);
+                }
 
                 var tasks = new List<Task<IList<IDomElement<TDependencyObject>>>>();
                 var distinctCopy = copy.Select(x => new { x.StartFrom, x.StyleSheetHolder, x.StyleSheet }).Distinct().ToList();
-                $"distinctCopy {distinctCopy.Count} items".Measure(() => { });
+
                 foreach (var item in distinctCopy)
                 {
                     var start = item.StartFrom ?? item.StyleSheetHolder;
@@ -212,74 +188,62 @@ namespace XamlCSS
                     //    visual = null;
                     //}
 
-                    "UpdateMatchingStyles".Measure(() =>
-                    {
-                        //var task = Task.Run(() =>
-                        //{
-                        tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
-                        //return UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService);
+                    //var task = Task.Run(() =>
+                    //{
+                    tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
+                    //return UpdateMatchingStyles(item.StyleSheet, logical, visual, styleUpdateInfos, dependencyPropertyService, nativeStyleService);
 
-                        //});
-                        //tasks.Add(task);
-                    });
+                    //});
+                    //tasks.Add(task);
                 }
 
                 //Task.WaitAll(tasks.ToArray());
                 var allFound = tasks.SelectMany(x => x.Result).ToList();
                 var allFoundElements = allFound.Select(x => x.Element).ToList();
-                "allNotFoundElements".Measure(() =>
+                var allNotFoundKeys = styleUpdateInfos
+                    .Where(x => !allFoundElements.Contains(x.Key))
+                    .ToList();
+
+                foreach (var item in allNotFoundKeys)
                 {
-                    var allNotFoundKeys = styleUpdateInfos
-                        .Where(x => !allFoundElements.Contains(x.Key))
-                        .ToList();
+                    var styleUpdateInfo = item.Value;
 
-                    foreach (var item in allNotFoundKeys)
-                    {
-                        var styleUpdateInfo = item.Value;
+                    // styleUpdateInfo.CurrentMatchedSelectors = new List<string>();
+                    styleUpdateInfo.OldMatchedSelectors = new List<string>();
+                    styleUpdateInfo.DoMatchCheck = SelectorType.None;
+                    // remove style
+                    nativeStyleService.SetStyle(item.Key, dependencyPropertyService.GetInitialStyle(item.Key));
+                }
 
-                        // styleUpdateInfo.CurrentMatchedSelectors = new List<string>();
-                        styleUpdateInfo.OldMatchedSelectors = new List<string>();
-                        styleUpdateInfo.DoMatchCheck = SelectorType.None;
-                        // remove style
-                        nativeStyleService.SetStyle(item.Key, dependencyPropertyService.GetInitialStyle(item.Key));
-                    }
-                });
-
-                "GenerateStyles".Measure(() =>
+                var groups = styleUpdateInfos.Where(x => allFoundElements.Contains(x.Key)).GroupBy(x => x.Value.CurrentStyleSheet).ToList();
+                foreach (var group in groups)
                 {
-                    var groups = styleUpdateInfos.Where(x => allFoundElements.Contains(x.Key)).GroupBy(x => x.Value.CurrentStyleSheet).ToList();
-                    foreach (var group in groups)
-                    {
-                        GenerateStyles(
-                            group.Key,
-                            group.ToDictionary(x => x.Key, x => x.Value),
-                            applicationResourcesService,
-                            dependencyPropertyService,
-                            nativeStyleService,
-                            cssTypeHelper);
-                    }
-                });
-                "ApplyMatchingStyles".Measure(() =>
+                    GenerateStyles(
+                        group.Key,
+                        group.ToDictionary(x => x.Key, x => x.Value),
+                        applicationResourcesService,
+                        dependencyPropertyService,
+                        nativeStyleService,
+                        cssTypeHelper);
+                }
+                //foreach (var item in copy.Select(x => new { x.StartFrom, x.StyleSheetHolder, x.StyleSheet }).Distinct().ToList())
+                //{
+                //    var start = item.StartFrom ?? item.StyleSheetHolder;
+
+                //    var domElement = treeNodeProvider.GetDomElement(start);
+
+                //ApplyMatchingStyles(domElement, item.StyleSheet, applicationResourcesService, nativeStyleService);
+                //}
+
+                foreach (var f in allFound)
                 {
-                    //foreach (var item in copy.Select(x => new { x.StartFrom, x.StyleSheetHolder, x.StyleSheet }).Distinct().ToList())
-                    //{
-                    //    var start = item.StartFrom ?? item.StyleSheetHolder;
-
-                    //    var domElement = treeNodeProvider.GetDomElement(start);
-
-                    //ApplyMatchingStyles(domElement, item.StyleSheet, applicationResourcesService, nativeStyleService);
-                    //}
-
-                    foreach (var f in allFound)
-                    {
-                        ApplyMatchingStylesNode(f, applicationResourcesService, nativeStyleService);
-                    }
-                });
+                    ApplyMatchingStylesNode(f, applicationResourcesService, nativeStyleService);
+                }
             }
             finally
             {
 
-                "EndUpdate".Measure(() => applicationResourcesService.EndUpdate());
+                applicationResourcesService.EndUpdate();
             }
 
         }
@@ -385,10 +349,10 @@ namespace XamlCSS
                 }
 
                 object a;
-                "ClassList".Measure(() => a = current.ClassList);
+                a = current.ClassList;
                 //"Id".Measure(() => a = current.Id);
-                "TagName".Measure(() => a = current.TagName);
-                "AssemblyQualifiedNamespaceName".Measure(() => a = current.AssemblyQualifiedNamespaceName);
+                a = current.TagName;
+                a = current.AssemblyQualifiedNamespaceName;
                 //"HasAttribute".Measure(() => a = current.HasAttribute("Name"));
                 /*// a = domElement.Parent;
                 */
@@ -416,7 +380,7 @@ namespace XamlCSS
                             );
         }
 
-        private static void ApplyMatchingStylesNode(IDomElement<TDependencyObject> domElement, 
+        private static void ApplyMatchingStylesNode(IDomElement<TDependencyObject> domElement,
            IStyleResourcesService applicationResourcesService,
            INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
@@ -517,7 +481,6 @@ namespace XamlCSS
 
             if (startFrom?.StyleInfo.DoMatchCheck == SelectorType.None)
             {
-                $"DoMatchCheck == None".Measure(() => { });
                 return new List<IDomElement<TDependencyObject>>();
             }
 
@@ -526,95 +489,78 @@ namespace XamlCSS
 
             var traversed = SelectorType.None;
 
-            return $"startFrom {startFrom?.GetPath(SelectorType.LogicalTree) ?? "NULL!?!"}".Measure(() =>
+            foreach (var rule in styleSheet.Rules)
             {
-                foreach (var rule in styleSheet.Rules)
+                // // Debug.WriteLine($"--- RULE {rule.SelectorString} ----");
+
+                // apply our selector
+
+                var type = SelectorType.LogicalTree;
+                if (rule.Selectors[0].StartOnVisualTree())
+                    type = SelectorType.VisualTree;
+
+                if ((type == SelectorType.LogicalTree && !startFrom.IsInLogicalTree) ||
+                    (type == SelectorType.VisualTree && !startFrom.IsInVisualTree)
+                )
                 {
-                    $"{rule.SelectorString}".Measure(() =>
-                    {
-                        // // Debug.WriteLine($"--- RULE {rule.SelectorString} ----");
-
-                        // apply our selector
-
-                        var type = SelectorType.LogicalTree;
-                        if (rule.Selectors[0].StartOnVisualTree())
-                            type = SelectorType.VisualTree;
-
-                        if ((type == SelectorType.LogicalTree && !startFrom.IsInLogicalTree) ||
-                            (type == SelectorType.VisualTree && !startFrom.IsInVisualTree)
-                        )
-                        {
-                            return;
-                            // continue;
-                        }
-
-                        traversed |= type;
-
-                        var matchedNodes = "QuerySelectorAllWithSelf".Measure(() => startFrom.QuerySelectorAllWithSelf(styleSheet, rule.Selectors[0], type)
-                                .Where(x => x != null)
-                                .Cast<IDomElement<TDependencyObject>>()
-                                .ToList());
-
-                        var matchedElementTypes = matchedNodes
-                            .Select(x => x.Element.GetType())
-                            .Distinct()
-                            .ToList();
-
-                        $"foreach {matchedNodes.Count}".Measure(() =>
-                        {
-                            foreach (var matchingNode in matchedNodes)
-                            {
-                                var element = matchingNode.Element;
-
-                                if (!found.Contains(matchingNode))
-                                {
-                                    found.Add(matchingNode);
-                                }
-
-                                var discriminator = "GetInitialStyle".Measure(() => dependencyPropertyService.GetInitialStyle(element) != null ? element.GetHashCode().ToString() : "");
-                                var resourceKey = "GetStyleResourceKey".Measure(() => nativeStyleService.GetStyleResourceKey(styleSheet.Id + discriminator, element.GetType(), rule.SelectorString));
-                                //var resourceKey = nativeStyleService.GetStyleResourceKey(rule.StyleSheetId, element.GetType(), rule.SelectorString);
-
-                                if (!matchingNode.StyleInfo.CurrentMatchedSelectors.Contains(resourceKey))
-                                {
-                                    matchingNode.StyleInfo.CurrentMatchedSelectors.Add(resourceKey);
-                                }
-                            }
-                        });
-                    });
+                    continue;
                 }
 
-                "found".Measure(() =>
-                {
-                    found = found.Distinct().ToList();
+                traversed |= type;
 
-                    foreach (var f in found)
+                var matchedNodes = startFrom.QuerySelectorAllWithSelf(styleSheet, rule.Selectors[0], type)
+                        .Where(x => x != null)
+                        .Cast<IDomElement<TDependencyObject>>()
+                        .ToList();
+
+                var matchedElementTypes = matchedNodes
+                    .Select(x => x.Element.GetType())
+                    .Distinct()
+                    .ToList();
+
+                foreach (var matchingNode in matchedNodes)
+                {
+                    var element = matchingNode.Element;
+
+                    if (!found.Contains(matchingNode))
                     {
-                        f.StyleInfo.DoMatchCheck = SelectorType.None;
-
-                        f.StyleInfo.CurrentMatchedSelectors = f.StyleInfo.CurrentMatchedSelectors.Distinct().Select(x => new
-                        {
-                            key = x,
-                            SpecificityResult = SpecificityCalculator.Calculate(x.Split('{')[1])
-                        })
-                                .OrderBy(x => x.SpecificityResult.IdSpecificity)
-                                .ThenBy(x => x.SpecificityResult.ClassSpecificity)
-                                .ThenBy(x => x.SpecificityResult.SimpleSpecificity)
-                                .ToList()
-                                .Select(x => x.key)
-                                .ToList();
+                        found.Add(matchingNode);
                     }
-                });
 
-                "SetDoMatchCheckToNoneInSubTree".Measure(() =>
+                    var discriminator = dependencyPropertyService.GetInitialStyle(element) != null ? element.GetHashCode().ToString() : "";
+                    var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id + discriminator, element.GetType(), rule.SelectorString);
+                    //var resourceKey = nativeStyleService.GetStyleResourceKey(rule.StyleSheetId, element.GetType(), rule.SelectorString);
+
+                    if (!matchingNode.StyleInfo.CurrentMatchedSelectors.Contains(resourceKey))
+                    {
+                        matchingNode.StyleInfo.CurrentMatchedSelectors.Add(resourceKey);
+                    }
+                }
+            }
+
+            found = found.Distinct().ToList();
+
+            foreach (var f in found)
+            {
+                f.StyleInfo.DoMatchCheck = SelectorType.None;
+
+                f.StyleInfo.CurrentMatchedSelectors = f.StyleInfo.CurrentMatchedSelectors.Distinct().Select(x => new
                 {
-                    if ((traversed & SelectorType.VisualTree) > 0)
-                        SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.VisualTree);
-                    if ((traversed & SelectorType.LogicalTree) > 0)
-                        SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.LogicalTree);
-                });
-                return found;
-            });
+                    key = x,
+                    SpecificityResult = SpecificityCalculator.Calculate(x.Split('{')[1])
+                })
+                        .OrderBy(x => x.SpecificityResult.IdSpecificity)
+                        .ThenBy(x => x.SpecificityResult.ClassSpecificity)
+                        .ThenBy(x => x.SpecificityResult.SimpleSpecificity)
+                        .ToList()
+                        .Select(x => x.key)
+                        .ToList();
+            }
+            if ((traversed & SelectorType.VisualTree) > 0)
+                SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.VisualTree);
+            if ((traversed & SelectorType.LogicalTree) > 0)
+                SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.LogicalTree);
+            return found;
         }
 
         private static void SetDoMatchCheckToNoneInSubTree(IDomElement<TDependencyObject> domElement, StyleSheet styleSheet, SelectorType type)
@@ -658,12 +604,12 @@ namespace XamlCSS
             bool styleChanged,
             bool styleSheetRemoved, SelectorType type)
         {
-            var styleUpdateInfo = "get styleUpdateInfo".Measure(() => domElement.StyleInfo = domElement.StyleInfo ?? (styleUpdateInfos.ContainsKey(domElement.Element) ? styleUpdateInfos[domElement.Element] :
-                GetNewStyleUpdateInfo(domElement, dependencyPropertyService, nativeStyleService)));
+            var styleUpdateInfo = domElement.StyleInfo = domElement.StyleInfo ?? (styleUpdateInfos.ContainsKey(domElement.Element) ? styleUpdateInfos[domElement.Element] :
+                GetNewStyleUpdateInfo(domElement, dependencyPropertyService, nativeStyleService));
 
             styleUpdateInfos[domElement.Element] = styleUpdateInfo;
 
-            var styleSheetFromDom = "GetStyleSheet".Measure(() => dependencyPropertyService.GetStyleSheet(domElement.Element));
+            var styleSheetFromDom = dependencyPropertyService.GetStyleSheet(domElement.Element);
             if (styleSheetFromDom != null &&
                 styleSheetFromDom != styleSheet)
             {
@@ -672,32 +618,18 @@ namespace XamlCSS
                 return;
             }
 
-            "set styleUpdateInfo values".Measure(() =>
+            if (!styleSheetRemoved)
             {
-                if (!styleSheetRemoved)
-                {
-                    styleUpdateInfo.CurrentStyleSheet = styleSheet;
-                }
+                styleUpdateInfo.CurrentStyleSheet = styleSheet;
+            }
 
-                if (styleChanged)
-                {
-                    styleUpdateInfo.OldMatchedSelectors = new List<string>();
-                }
-                styleUpdateInfo.CurrentMatchedSelectors.Clear();
-                styleUpdateInfo.DoMatchCheck |= type;
-            });
-
-            /*
-            "fill DomElement".Measure(() =>
+            if (styleChanged)
             {
-                object a;
-                "ClassList".Measure(() => a = domElement.ClassList);
-                "Id".Measure(() => a = domElement.Id);
-                "TagName".Measure(() => a = domElement.TagName);
-                "NamespaceUri".Measure(() => a = domElement.AssemblyQualifiedNamespaceName);
-                //"HasAttribute".Measure(() => a = domElement.HasAttribute("Name"));
-            });
-            */
+                styleUpdateInfo.OldMatchedSelectors = new List<string>();
+            }
+            styleUpdateInfo.CurrentMatchedSelectors.Clear();
+            styleUpdateInfo.DoMatchCheck |= type;
+
 
             var children = type == SelectorType.VisualTree ? domElement.ChildNodes : domElement.LogicalChildNodes;
             foreach (var child in children)
@@ -753,12 +685,12 @@ namespace XamlCSS
                     CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> result = null;
                     try
                     {
-                        result = "CreateStyleDictionaryFromDeclarationBlock".Measure(() => CreateStyleDictionaryFromDeclarationBlock(
+                        result = CreateStyleDictionaryFromDeclarationBlock(
                             styleSheet.Namespaces,
                             rule.DeclarationBlock,
                             matchedElementType,
                             (TDependencyObject)styleSheet.AttachedTo,
-                            cssTypeHelper));
+                            cssTypeHelper);
 
                         var propertyStyleValues = result.PropertyStyleValues;
 
@@ -768,9 +700,9 @@ namespace XamlCSS
                             styleSheet.AddError($@"ERROR in Selector ""{rule.SelectorString}"": {error}");
                         }
 
-                        var nativeTriggers = $"CreateTriggers ({rule.DeclarationBlock.Triggers.Count})".Measure(() => rule.DeclarationBlock.Triggers
+                        var nativeTriggers = rule.DeclarationBlock.Triggers
                             .Select(x => nativeStyleService.CreateTrigger(styleSheet, x, styleMatchInfo.MatchedType, (TDependencyObject)styleSheet.AttachedTo))
-                            .ToList());
+                            .ToList();
 
                         var initalStyle = dependencyPropertyService.GetInitialStyle(styleMatchInfoKeyValue.Key);
                         if (initalStyle != null)
@@ -790,7 +722,7 @@ namespace XamlCSS
                             nativeTriggers.InsertRange(0, triggers);
                         }
                         //Debug.WriteLine("    Values: " + string.Join(", ", propertyStyleValues.Select(x => ((dynamic)x.Key).PropertyName + ": " + x.Value.ToString())));
-                        var style = "    Create Style".Measure(() => nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType));
+                        var style = nativeStyleService.CreateFrom(propertyStyleValues, nativeTriggers, matchedElementType);
 
                         applicationResourcesService.SetResource(resourceKey, style);
 
