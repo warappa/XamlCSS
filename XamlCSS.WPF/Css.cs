@@ -92,7 +92,7 @@ namespace XamlCSS.WPF
             CompositionTarget.Rendering += RenderingHandler();
 
             // Warmup(markupExtensionParser, defaultCssNamespace);
-            Warm();
+            //Warm();
 
             LoadedDetectionHelper.Initialize();
         }

@@ -742,7 +742,7 @@ namespace XamlCSS
 
                     if (applicationResourcesService.Contains(resourceKey))
                     {
-                        Debug.WriteLine($"GenerateStyles: Already contains '{s}' ({matchedElementType.Name})");
+                        // Debug.WriteLine($"GenerateStyles: Already contains '{s}' ({matchedElementType.Name})");
                         continue;
                     }
 
@@ -798,7 +798,7 @@ namespace XamlCSS
                     }
                     catch (Exception e)
                     {
-                        Debug.WriteLine($@" ERROR (exception) in Selector ""{rule.SelectorString}"": {e.Message}");
+                        // Debug.WriteLine($@" ERROR (exception) in Selector ""{rule.SelectorString}"": {e.Message}");
                         styleSheet.AddError($@"ERROR in Selector ""{rule.SelectorString}"": {e.Message}");
                     }
                 }

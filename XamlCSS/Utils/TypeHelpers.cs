@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -463,11 +464,30 @@ namespace XamlCSS.Utils
                     }
                 }
 
-                namespaceFragments = namespaceUri.Split(separator, 2);
+                namespaceFragments = namespaceUri.Split(separator);
                 testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
-
+                Debug.WriteLine(testTypename);
                 string resolvedName = null;
                 var resolved = Type.GetType(testTypename, false);
+
+                if (resolved == null)
+                {
+                    var testNamespaceUri = namespaceMapping.Values
+                        .SelectMany(x => x)
+                        .FirstOrDefault(x => x.StartsWith(namespaceUri + ","));
+
+                    if (testNamespaceUri != null)
+                    {
+                        namespaceFragments = testNamespaceUri.Split(separator);
+
+                        testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
+                        if (testTypename != null)
+                        {
+                            resolved = Type.GetType(testTypename, false);
+                        }
+                    }
+                }
+
                 if (resolved != null)
                 {
                     t[shortTypename] = resolvedName = resolved.AssemblyQualifiedName.Replace($".{shortTypename},", ","); // convert simple qualified name to full qualified name

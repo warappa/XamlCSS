@@ -1,12 +1,6 @@
-﻿using FakeItEasy;
-using FluentAssertions;
+﻿using FluentAssertions;
 using NUnit.Framework;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
 using XamlCSS.Utils;
 
@@ -44,6 +38,19 @@ namespace XamlCSS.WPF.Tests
         public void Can_map_namespaceUri_to_assemblyqualifiedtypename()
         {
             var type = TypeHelpers.ResolveFullTypeName(namespaces, "Button");
+
+            type.Should().Be(typeof(Button).AssemblyQualifiedName);
+        }
+
+        [Test]
+        public void Can_map_namespaceUri_to_assemblyqualifiedtypename2()
+        {
+            var ns = new List<CssNamespace>
+            {
+                new CssNamespace("controlalias", "clr-namespace:System.Windows.Controls;assembly=PresentationFramework")
+            };
+
+            var type = TypeHelpers.ResolveFullTypeName(ns, "controlalias|Button");
 
             type.Should().Be(typeof(Button).AssemblyQualifiedName);
         }
