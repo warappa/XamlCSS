@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>XamlCSS.WPF</id>
-        <version>2.2.0-pre2</version>
+        <version>2.2.0-pre3</version>
         <title>XamlCSS.WPF</title>
         <authors>David Rettenbacher</authors>
         <owners></owners>
@@ -10,14 +10,19 @@
             Style WPF-apps with Css
         </description>
         <releaseNotes>
+            2.2.0-pre3
+            - #72 StyleSheet Should Update If SingleBaseStyleSheet Changes
+            - Removed Measure calls used for exact performance profiling
+            - Remove missed debug messages
+
             2.2.0-pre2
-            - new tree traversing (performance, optimization)
-            - :visualtree selector
-            - WPF: logical tree and visual tree
-            - WPF: Support ItemsControl
+            - #69 Support Selectors With Visual Tree Elements Like ScrollBar: :visualtree selector, logical tree and visual tree
+            - #70 WPF: ItemsControl Children Are Not Styled
+            - #71 Increase Performance Of Applying Styles: new tree traversing (performance, optimization)
+            - #73 Support AOT By Setting Preserve Attribute
             - Wrong universal-selector if not first selector-fragment
             - Pseudo-selector not parsed if combined with another selector (comma separated)
-            
+
             2.2.0-pre1
             - #52 Attributes Cannot Be Matched - One-Time Matching
             - #53 Asterisk Selector Has Wrong Specificity
@@ -121,7 +126,7 @@
         <copyright>© 2018 David Rettenbacher</copyright>
         <dependencies>
             <group>
-                <dependency id="XamlCSS" version="2.2.0-pre2" />
+                <dependency id="XamlCSS" version="2.2.0-pre3" />
             </group>
         </dependencies>
         <references></references>

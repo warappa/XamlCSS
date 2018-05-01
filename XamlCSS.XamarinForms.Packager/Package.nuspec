@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>XamlCSS.XamarinForms</id>
-        <version>2.2.0-pre2</version>
+        <version>2.2.0-pre3</version>
         <title>XamlCSS.XamarinForms</title>
         <authors>David Rettenbacher</authors>
         <owners></owners>
@@ -10,12 +10,18 @@
             Style XamarinForms-apps with Css
         </description>
         <releaseNotes>
+            2.2.0-pre3
+            - #72 StyleSheet Should Update If SingleBaseStyleSheet Changes
+            - Removed Measure calls used for exact performance profiling
+            - Remove missed debug messages
+
             2.2.0-pre2
-            - new tree traversing (performance, optimization)
-            - :visualtree selector
+            - #69 Support Selectors With Visual Tree Elements Like ScrollBar: :visualtree selector, logical tree and visual tree
+            - #71 Increase Performance Of Applying Styles: new tree traversing (performance, optimization)
+            - #73 Support AOT By Setting Preserve Attribute
             - Wrong universal-selector if not first selector-fragment
             - Pseudo-selector not parsed if combined with another selector (comma separated)
-            
+
             2.2.0-pre1
             - #52 Attributes Cannot Be Matched - One-Time Matching
             - #53 Asterisk Selector Has Wrong Specificity
@@ -129,32 +135,32 @@
         <copyright>© 2018 David Rettenbacher</copyright>
         <dependencies>
             <group>
-                <dependency id="XamlCSS" version="2.2.0-pre2" />
+                <dependency id="XamlCSS" version="2.2.0-pre3" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="Xamarin.iOS10">
-                <dependency id="XamlCSS" version="2.2.0-pre2" />
+                <dependency id="XamlCSS" version="2.2.0-pre3" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="MonoAndroid10">
-                <dependency id="XamlCSS" version="2.2.0-pre2" />
+                <dependency id="XamlCSS" version="2.2.0-pre3" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="wp8">
-                <dependency id="XamlCSS" version="2.2.0-pre2" />
+                <dependency id="XamlCSS" version="2.2.0-pre3" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="wpa81">
-                <dependency id="XamlCSS" version="2.2.0-pre2" />
+                <dependency id="XamlCSS" version="2.2.0-pre3" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
             <group targetFramework="uap10.0">
-                <dependency id="XamlCSS" version="2.2.0-pre2" />
+                <dependency id="XamlCSS" version="2.2.0-pre3" />
                 <dependency id="Xamarin.Forms" version="2.3.3.180" />
                 <dependency id="PCLStorage" version="1.0.2" />
             </group>
