@@ -63,7 +63,6 @@ namespace XamlCSS.Tests.Dom
             return dependencyObject.Class.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
-        IDomElement<UIElement> parent;
         public string ClassName => string.Join(" ", ClassList);
 
         public override IDomElement<UIElement> Parent

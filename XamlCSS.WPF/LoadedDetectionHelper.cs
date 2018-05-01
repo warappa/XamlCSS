@@ -8,8 +8,6 @@ namespace XamlCSS.WPF
 {
     public class LoadedDetectionHelper
     {
-        public static event EventHandler SubTreeAdded;
-        public static event EventHandler SubTreeRemoved;
         private static bool initialized = false;
         public static void Initialize()
         {
@@ -26,10 +24,6 @@ namespace XamlCSS.WPF
 
         private static void OnLoaded(object sender, RoutedEventArgs e)
         {
-            //if (Css.instance?.dependencyPropertyService.GetInitialStyle((DependencyObject)sender) == null)
-            //{
-            //    Css.instance?.dependencyPropertyService.SetInitialStyle((DependencyObject)sender, Css.instance?.nativeStyleService.GetStyle((DependencyObject)sender));
-            //}
             SetLoadDetection((DependencyObject)sender, true);
         }
 
@@ -104,14 +98,11 @@ namespace XamlCSS.WPF
 
         private static void FrameworkElement_Initialized(object sender, EventArgs e)
         {
-            //SubTreeAdded?.Invoke(sender, e);
-            //Css.instance?.NewElement(sender as DependencyObject);
         }
 
         private static readonly RoutedEventHandler UnloadedEventHandler = delegate (object sender, RoutedEventArgs e)
         {
             Css.instance?.RemoveElement(sender as DependencyObject);
-            //Css.instance?.treeNodeProvider.Switch(SelectorType.LogicalTree);
             var dom = Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject);
 
             var logicalParent = dom?.LogicalParent?.Element;
@@ -120,13 +111,10 @@ namespace XamlCSS.WPF
             if (logicalParent != visualParent)
                 Css.instance?.UpdateElement(visualParent);
             Css.instance?.UpdateElement(logicalParent);
-
-            //SubTreeRemoved?.Invoke(sender, e);
         };
 
         private static readonly RoutedEventHandler LoadedEventHandler = delegate (object sender, RoutedEventArgs e)
         {
-            //Css.instance.treeNodeProvider.Switch(SelectorType.LogicalTree);
             var dom = Css.instance?.treeNodeProvider.GetDomElement((DependencyObject)sender);
 
             //var visualPath = dom.GetPath(SelectorType.VisualTree);
@@ -139,7 +127,6 @@ namespace XamlCSS.WPF
             //var logicalElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.LogicalTree);
             //Debug.WriteLine("    " + logicalElementPath);
 
-            //SubTreeAdded?.Invoke(sender, e);
             Css.instance?.NewElement(sender as DependencyObject);
         };
 
