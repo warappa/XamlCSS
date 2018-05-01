@@ -108,7 +108,7 @@ namespace XamlCSS.UWP
             var element = dpo as FrameworkElement;
             if ((bool)ev.NewValue == true)
             {
-                Debug.WriteLine("Added (OnLoadDetectionChanged)");
+                // Debug.WriteLine("Added (OnLoadDetectionChanged)");
 
                 element.Loaded += Obj_Loaded;
                 element.Unloaded += LoadedDetectionHelper_Unloaded;

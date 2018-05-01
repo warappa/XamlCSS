@@ -72,7 +72,7 @@ namespace XamlCSS
                 copy = items.Distinct().ToList();
                 items.Clear();
             }
-            Debug.WriteLine("Noops: " + noopCount);
+
             noopCount = 0;
 
             var styleholder = copy.First().StyleSheetHolder;

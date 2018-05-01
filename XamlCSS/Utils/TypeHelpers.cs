@@ -439,7 +439,7 @@ namespace XamlCSS.Utils
 
             namespaceFragments = namespaceUri.Split(separator);
             testTypename = $"{namespaceFragments[0]}.{shortTypename},{string.Join(",", namespaceFragments.Skip(1))}";
-            Debug.WriteLine(testTypename);
+            
             string resolvedName = null;
             var resolved = Type.GetType(testTypename, false);
 
