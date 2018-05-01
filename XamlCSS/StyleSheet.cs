@@ -62,6 +62,10 @@ namespace XamlCSS
                 BaseStyleSheets.Clear();
                 BaseStyleSheets.Add(value);
                 InitializeBaseStyleSheet(BaseStyleSheets);
+
+                Invalidate();
+
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SingleBaseStyleSheet"));
             }
         }
 
