@@ -20,6 +20,7 @@ namespace XamlCSS.WPF
     public class Css
     {
         public static BaseCss<DependencyObject, Style, DependencyProperty> instance;
+        private static DispatcherTimer timer;
         public static readonly IDictionary<string, List<string>> DefaultCssNamespaceMapping = new Dictionary<string, List<string>>
         {
             {
@@ -38,12 +39,9 @@ namespace XamlCSS.WPF
             }
         };
 
-        private static EventHandler RenderingHandler()
+        private static void RenderingHandler(object sender, EventArgs e)
         {
-            return (sender, e) =>
-            {
-                instance?.ExecuteApplyStyles();
-            };
+            instance?.ExecuteApplyStyles();
         }
 
         static Css()
@@ -85,7 +83,17 @@ namespace XamlCSS.WPF
                 new CssFileProvider(cssTypeHelper)
                 );
 
-            CompositionTarget.Rendering += RenderingHandler();
+
+            // mix CompositionTarget.Rendering and DispatcherTimer for better UI responsiveness
+            CompositionTarget.Rendering += RenderingHandler;
+
+            timer = new DispatcherTimer(DispatcherPriority.Render);
+            timer.Interval = TimeSpan.FromMilliseconds(10);
+            timer.Tick += (s, e) =>
+            {
+                instance?.ExecuteApplyStyles();
+            };
+            timer.Start();
 
             // Warmup(markupExtensionParser, defaultCssNamespace);
             //Warm();
