@@ -51,7 +51,7 @@ namespace XamlCSS.Dom
             return target.Intersect(other).Count() == other.Count();
         }
 
-        public static void GetElementsByClassName<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, string[] classNames, IList<IDomElement<TDependencyObject>> result)
+        public static void GetElementsByClassName<TDependencyObject, TDependencyProperty>(this IList<IDomElement<TDependencyObject, TDependencyProperty>> elements, string[] classNames, IList<IDomElement<TDependencyObject, TDependencyProperty>> result)
             where TDependencyObject : class
         {
             var length = elements.Count;
@@ -70,7 +70,7 @@ namespace XamlCSS.Dom
             }
         }
 
-        public static void GetElementsByTagName<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, string namespaceUri, string tagName, IList<IDomElement<TDependencyObject>> result)
+        public static void GetElementsByTagName<TDependencyObject, TDependencyProperty>(this IList<IDomElement<TDependencyObject, TDependencyProperty>> elements, string namespaceUri, string tagName, IList<IDomElement<TDependencyObject, TDependencyProperty>> result)
             where TDependencyObject : class
         {
             var length = elements.Count;
@@ -90,17 +90,17 @@ namespace XamlCSS.Dom
             }
         }
 
-        public static IList<IDomElement<TDependencyObject>> QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, SelectorType type)
+        public static IList<IDomElement<TDependencyObject, TDependencyProperty>> QuerySelectorAll<TDependencyObject, TDependencyProperty>(this IList<IDomElement<TDependencyObject, TDependencyProperty>> elements, StyleSheet styleSheet, ISelector selector, SelectorType type)
             where TDependencyObject : class
         {
-            var list = new List<IDomElement<TDependencyObject>>(50);
+            var list = new List<IDomElement<TDependencyObject, TDependencyProperty>>(50);
 
             elements.QuerySelectorAll(styleSheet, selector, list, type);
 
             return list;
         }
 
-        public static void QuerySelectorAll<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, IList<IDomElement<TDependencyObject>> result, SelectorType type)
+        public static void QuerySelectorAll<TDependencyObject, TDependencyProperty>(this IList<IDomElement<TDependencyObject, TDependencyProperty>> elements, StyleSheet styleSheet, ISelector selector, IList<IDomElement<TDependencyObject, TDependencyProperty>> result, SelectorType type)
             where TDependencyObject : class
         {
             var length = elements.Count;
@@ -166,7 +166,7 @@ namespace XamlCSS.Dom
             }
         }
 
-        public static IDomElement<TDependencyObject> QuerySelector<TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selector, SelectorType type)
+        public static IDomElement<TDependencyObject, TDependencyProperty> QuerySelector<TDependencyObject, TDependencyProperty>(this IList<IDomElement<TDependencyObject, TDependencyProperty>> elements, StyleSheet styleSheet, ISelector selector, SelectorType type)
             where TDependencyObject : class
         {
             var length = elements.Count;
@@ -208,9 +208,9 @@ namespace XamlCSS.Dom
             return null;
         }
 
-        public static T QuerySelector<T, TDependencyObject>(this IList<IDomElement<TDependencyObject>> elements, StyleSheet styleSheet, ISelector selectors, SelectorType type)
+        public static T QuerySelector<T, TDependencyObject, TDependencyProperty>(this IList<IDomElement<TDependencyObject, TDependencyProperty>> elements, StyleSheet styleSheet, ISelector selectors, SelectorType type)
             where TDependencyObject : class
-            where T : class, IDomElement<TDependencyObject>
+            where T : class, IDomElement<TDependencyObject, TDependencyProperty>
         {
             return elements.QuerySelector(styleSheet, selectors, type) as T;
         }

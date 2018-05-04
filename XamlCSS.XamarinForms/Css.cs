@@ -235,15 +235,15 @@ namespace XamlCSS.XamarinForms
         public static readonly BindableProperty DomElementProperty =
             BindableProperty.CreateAttached(
                 "DomElement",
-                typeof(IDomElement<BindableObject>),
+                typeof(IDomElement<BindableObject, BindableProperty>),
                 typeof(Css),
                 null,
                 BindingMode.TwoWay);
-        public static IDomElement<BindableObject> GetDomElement(BindableObject obj)
+        public static IDomElement<BindableObject, BindableProperty> GetDomElement(BindableObject obj)
         {
-            return obj?.GetValue(DomElementProperty) as IDomElement<BindableObject>;
+            return obj?.GetValue(DomElementProperty) as IDomElement<BindableObject, BindableProperty>;
         }
-        public static void SetDomElement(BindableObject obj, IDomElement<BindableObject> value)
+        public static void SetDomElement(BindableObject obj, IDomElement<BindableObject, BindableProperty> value)
         {
             obj?.SetValue(DomElementProperty, value);
         }

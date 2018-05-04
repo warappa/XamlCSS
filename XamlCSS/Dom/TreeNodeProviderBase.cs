@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace XamlCSS.Dom
 {
-    public abstract class TreeNodeProviderBase<TDependencyObject, TStyle, TDependencyProperty> : ITreeNodeProvider<TDependencyObject>
+    public abstract class TreeNodeProviderBase<TDependencyObject, TStyle, TDependencyProperty> : ITreeNodeProvider<TDependencyObject, TDependencyProperty>
         where TDependencyObject : class
         where TStyle : class
         where TDependencyProperty : class
@@ -15,13 +15,13 @@ namespace XamlCSS.Dom
             this.dependencyPropertyService = dependencyPropertyService;
         }
 
-        public abstract IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
+        public abstract IDomElement<TDependencyObject, TDependencyProperty> CreateTreeNode(TDependencyObject dependencyObject);
 
         public abstract TDependencyObject GetParent(TDependencyObject dependencyObject, SelectorType type);
 
         public abstract IEnumerable<TDependencyObject> GetChildren(TDependencyObject element, SelectorType type);
 
-        public IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node, SelectorType type)
+        public IEnumerable<IDomElement<TDependencyObject, TDependencyProperty>> GetDomElementChildren(IDomElement<TDependencyObject, TDependencyProperty> node, SelectorType type)
         {
             if (node == null) throw new ArgumentNullException(nameof(node));
             if (node.Element == null) throw new ArgumentNullException(nameof(node.Element));
@@ -38,7 +38,7 @@ namespace XamlCSS.Dom
             throw new Exception("Invalid SelectorType " + type.ToString());
         }
 
-        public IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj)
+        public IDomElement<TDependencyObject, TDependencyProperty> GetDomElement(TDependencyObject obj)
         {
             if (obj == null)
             {
@@ -60,7 +60,7 @@ namespace XamlCSS.Dom
 
         public abstract bool IsInTree(TDependencyObject dependencyObject, SelectorType type);
 
-        private IDomElement<TDependencyObject> GetFromDependencyObject(TDependencyObject obj)
+        private IDomElement<TDependencyObject, TDependencyProperty> GetFromDependencyObject(TDependencyObject obj)
         {
             return dependencyPropertyService.GetDomElement(obj);
         }

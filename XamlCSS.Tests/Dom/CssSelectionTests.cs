@@ -1,5 +1,6 @@
 ﻿using NUnit.Framework;
 using System.Linq;
+using System.Reflection;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 
@@ -70,7 +71,7 @@ ui|Grid
             Assert.AreEqual(div, label2.Parent);
         }
 
-        private void SetCurrentStyleSheet(IDomElement<UIElement> domElement, StyleSheet styleSheet)
+        private void SetCurrentStyleSheet(IDomElement<UIElement, PropertyInfo> domElement, StyleSheet styleSheet)
         {
             domElement.StyleInfo.CurrentStyleSheet = styleSheet;
             domElement.StyleInfo.DoMatchCheck = SelectorType.LogicalTree | SelectorType.VisualTree;

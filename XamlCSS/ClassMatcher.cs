@@ -10,7 +10,7 @@ namespace XamlCSS
             Text = text?.Substring(1);
         }
 
-        public override MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
+        public override MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, ref IDomElement<TDependencyObject, TDependencyProperty> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             return domElement.ClassList.Contains(Text) ? MatchResult.Success : MatchResult.ItemFailed;
         }

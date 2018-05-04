@@ -15,7 +15,7 @@ namespace XamlCSS
         where TDependencyProperty : class
     {
         public readonly IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService;
-        public readonly ITreeNodeProvider<TDependencyObject> treeNodeProvider;
+        public readonly ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider;
         public readonly IStyleResourcesService applicationResourcesService;
         public readonly INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService;
 
@@ -28,7 +28,7 @@ namespace XamlCSS
         private int noopCount = 0;
 
         public BaseCss(IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
-            ITreeNodeProvider<TDependencyObject> treeNodeProvider,
+            ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
             IStyleResourcesService applicationResourcesService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             string defaultCssNamespace,
@@ -104,7 +104,7 @@ namespace XamlCSS
 
         public static void Render(
             List<RenderInfo<TDependencyObject>> copy,
-            ITreeNodeProvider<TDependencyObject> treeNodeProvider,
+            ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             IStyleResourcesService applicationResourcesService,
@@ -167,7 +167,7 @@ namespace XamlCSS
                     SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, treeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles, item.ChangeKind == ChangeKind.Remove, SelectorType.VisualTree);
                 }
 
-                var tasks = new List<Task<IList<IDomElement<TDependencyObject>>>>();
+                var tasks = new List<Task<IList<IDomElement<TDependencyObject, TDependencyProperty>>>>();
                 var distinctCopy = copy.Select(x => new { x.StartFrom, x.StyleSheetHolder, x.StyleSheet }).Distinct().ToList();
 
                 foreach (var item in distinctCopy)
@@ -235,7 +235,7 @@ namespace XamlCSS
             }
 
         }
-        private static void ReevaluateStylesheetInSubTree(IDomElement<TDependencyObject> domElement, StyleSheet oldStyleSheet,
+        private static void ReevaluateStylesheetInSubTree(IDomElement<TDependencyObject, TDependencyProperty> domElement, StyleSheet oldStyleSheet,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
@@ -251,8 +251,9 @@ namespace XamlCSS
             }
 
             domElement.StyleInfo.CurrentStyleSheet = GetStyleSheetFromTree(domElement, dependencyPropertyService);
+            domElement.ClearAttributeWatcher();
 
-            foreach (var child in domElement.LogicalChildNodes)
+            foreach (var child in domElement.LogicalChildNodes.Concat(domElement.ChildNodes).Distinct().ToList())
             {
                 ReevaluateStylesheetInSubTree(child, oldStyleSheet, dependencyPropertyService, nativeStyleService);
             }
@@ -260,7 +261,7 @@ namespace XamlCSS
 
         private static void SetAttachedToToNewStyleSheet(List<RenderInfo<TDependencyObject>> copy,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
-            ITreeNodeProvider<TDependencyObject> treeNodeProvider,
+            ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             var addedStyleSheets = copy
@@ -282,7 +283,7 @@ namespace XamlCSS
 
         private static void SetAttachedToToNull(List<RenderInfo<TDependencyObject>> copy,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
-            ITreeNodeProvider<TDependencyObject> treeNodeProvider,
+            ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             var removedStyleSheets = copy
@@ -320,7 +321,7 @@ namespace XamlCSS
             }
         }
 
-        private static void EnsureParents(IDomElement<TDependencyObject> domElement, ITreeNodeProvider<TDependencyObject> treeNodeProvider,
+        private static void EnsureParents(IDomElement<TDependencyObject, TDependencyProperty> domElement, ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             IDictionary<TDependencyObject, StyleUpdateInfo> styleUpdateInfos, SelectorType type)
@@ -369,7 +370,7 @@ namespace XamlCSS
                             );
         }
 
-        private static void ApplyMatchingStylesNode(IDomElement<TDependencyObject> domElement,
+        private static void ApplyMatchingStylesNode(IDomElement<TDependencyObject, TDependencyProperty> domElement,
            IStyleResourcesService applicationResourcesService,
            INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
@@ -454,15 +455,15 @@ namespace XamlCSS
             }
         }
 
-        private static IList<IDomElement<TDependencyObject>> UpdateMatchingStyles(
+        private static IList<IDomElement<TDependencyObject, TDependencyProperty>> UpdateMatchingStyles(
             StyleSheet styleSheet,
-            IDomElement<TDependencyObject> startFrom,
+            IDomElement<TDependencyObject, TDependencyProperty> startFrom,
             Dictionary<TDependencyObject, StyleUpdateInfo> styleUpdateInfos,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             // var requiredStyleInfos = new List<StyleMatchInfo>();
-            var found = new List<IDomElement<TDependencyObject>>();
+            var found = new List<IDomElement<TDependencyObject, TDependencyProperty>>();
             if (startFrom == null ||
                 !startFrom.IsReady)
             {
@@ -471,7 +472,7 @@ namespace XamlCSS
 
             if (startFrom?.StyleInfo.DoMatchCheck == SelectorType.None)
             {
-                return new List<IDomElement<TDependencyObject>>();
+                return new List<IDomElement<TDependencyObject, TDependencyProperty>>();
             }
 
             startFrom?.XamlCssStyleSheets.Clear();
@@ -500,7 +501,7 @@ namespace XamlCSS
 
                 var matchedNodes = startFrom.QuerySelectorAllWithSelf(styleSheet, rule.Selectors[0], type)
                         .Where(x => x != null)
-                        .Cast<IDomElement<TDependencyObject>>()
+                        .Cast<IDomElement<TDependencyObject, TDependencyProperty>>()
                         .ToList();
 
                 var matchedElementTypes = matchedNodes
@@ -554,7 +555,7 @@ namespace XamlCSS
             return found;
         }
 
-        private static void SetDoMatchCheckToNoneInSubTree(IDomElement<TDependencyObject> domElement, StyleSheet styleSheet, SelectorType type)
+        private static void SetDoMatchCheckToNoneInSubTree(IDomElement<TDependencyObject, TDependencyProperty> domElement, StyleSheet styleSheet, SelectorType type)
         {
             if (domElement == null ||
                 !domElement.IsReady ||
@@ -572,7 +573,7 @@ namespace XamlCSS
             }
         }
 
-        private static StyleSheet GetStyleSheetFromTree(IDomElement<TDependencyObject> domElement,
+        private static StyleSheet GetStyleSheetFromTree(IDomElement<TDependencyObject, TDependencyProperty> domElement,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService)
         {
             var current = domElement;
@@ -587,10 +588,10 @@ namespace XamlCSS
         }
 
         private static void SetupStyleInfo(
-            IDomElement<TDependencyObject> domElement,
+            IDomElement<TDependencyObject, TDependencyProperty> domElement,
             StyleSheet styleSheet,
             Dictionary<TDependencyObject, StyleUpdateInfo> styleUpdateInfos,
-            ITreeNodeProvider<TDependencyObject> treeNodeProvider,
+            ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService,
             bool styleChanged,
@@ -634,7 +635,7 @@ namespace XamlCSS
             }
         }
 
-        private static StyleUpdateInfo GetNewStyleUpdateInfo(IDomElement<TDependencyObject> domElement,
+        private static StyleUpdateInfo GetNewStyleUpdateInfo(IDomElement<TDependencyObject, TDependencyProperty> domElement,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
@@ -954,7 +955,7 @@ namespace XamlCSS
             }
         }
 
-        private StyleSheet GetStyleSheetFromTree(IDomElement<TDependencyObject> domElement)
+        private StyleSheet GetStyleSheetFromTree(IDomElement<TDependencyObject, TDependencyProperty> domElement)
         {
             var current = domElement;
             StyleSheet styleSheet = null;

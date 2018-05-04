@@ -2,6 +2,5 @@
   <Settings>
     <AnalyseExecutionTimes>False</AnalyseExecutionTimes>
     <DetectStackOverflow>False</DetectStackOverflow>
-    <InstrumentOutputAssembly>False</InstrumentOutputAssembly>
   </Settings>
 </ProjectConfiguration>

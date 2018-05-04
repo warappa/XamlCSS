@@ -191,14 +191,14 @@ namespace XamlCSS.UWP
             DependencyProperty.RegisterAttached("DomElement", typeof(bool),
             typeof(Css), new PropertyMetadata(null, null));
 
-        public static IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
+        public static IDomElement<DependencyObject, DependencyProperty> GetDomElement(DependencyObject obj)
         {
             var res = obj.ReadLocalValue(DomElementProperty);
             if (res == DependencyProperty.UnsetValue)
                 return null;
-            return res as IDomElement<DependencyObject>;
+            return res as IDomElement<DependencyObject, DependencyProperty>;
         }
-        public static void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        public static void SetDomElement(DependencyObject obj, IDomElement<DependencyObject, DependencyProperty> value)
         {
             obj.SetValue(DomElementProperty, value ?? DependencyProperty.UnsetValue);
         }

@@ -2,20 +2,14 @@
 
 namespace XamlCSS.Dom
 {
-    public interface ITreeNodeProvider<TDependencyObject>
+    public interface ITreeNodeProvider<TDependencyObject, TDependencyProperty>
         where TDependencyObject : class
     {
-        IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj);
-        IEnumerable<IDomElement<TDependencyObject>> GetDomElementChildren(IDomElement<TDependencyObject> node, SelectorType type);
+        IDomElement<TDependencyObject, TDependencyProperty> GetDomElement(TDependencyObject obj);
+        IEnumerable<IDomElement<TDependencyObject, TDependencyProperty>> GetDomElementChildren(IDomElement<TDependencyObject, TDependencyProperty> node, SelectorType type);
         IEnumerable<TDependencyObject> GetChildren(TDependencyObject element, SelectorType type);
         TDependencyObject GetParent(TDependencyObject dependencyObject, SelectorType type);
         bool IsInTree(TDependencyObject dependencyObject, SelectorType type);
-        IDomElement<TDependencyObject> CreateTreeNode(TDependencyObject dependencyObject);
-    }
-    public interface ISwitchableTreeNodeProvider<TDependencyObject> : ITreeNodeProvider<TDependencyObject>
-        where TDependencyObject : class
-    {
-        void Switch(SelectorType type);
-        SelectorType CurrentSelectorType { get; }
+        IDomElement<TDependencyObject, TDependencyProperty> CreateTreeNode(TDependencyObject dependencyObject);
     }
 }

@@ -8,7 +8,7 @@ namespace XamlCSS.Utils
 {
     public static class HierarchyDebugExtensions
     {
-        public static string GetPath<TDependencyObject>(this IDomElement<TDependencyObject> matchingNode, SelectorType type)
+        public static string GetPath<TDependencyObject, TDependencyProperty>(this IDomElement<TDependencyObject, TDependencyProperty> matchingNode, SelectorType type)
             where TDependencyObject : class
         {
             var sb = new List<string>();
@@ -22,7 +22,7 @@ namespace XamlCSS.Utils
             return string.Join("->", sb);
         }
 
-        public static string GetElementPath<TDependencyObject>(this TDependencyObject element, ITreeNodeProvider<TDependencyObject> treeNodeProvider, SelectorType type)
+        public static string GetElementPath<TDependencyObject, TDependencyProperty>(this TDependencyObject element, ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider, SelectorType type)
             where TDependencyObject : class
         {
             var sb = new List<string>();
@@ -37,7 +37,7 @@ namespace XamlCSS.Utils
         }
 
         public static void PrintHerarchyDebugInfo<TDependencyObject, TStyle, TDependencyProperty>(
-            this ITreeNodeProvider<TDependencyObject> treeNodeProvider,
+            this ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             TDependencyObject styleResourceReferenceHolder,
             TDependencyObject startFrom,
@@ -68,7 +68,7 @@ namespace XamlCSS.Utils
         }
 
         public static void Recursive<TDependencyObject, TStyle, TDependencyProperty>(
-            this ITreeNodeProvider<TDependencyObject> treeNodeProvider,
+            this ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
             IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             TDependencyObject element,
             int level,
@@ -100,9 +100,9 @@ namespace XamlCSS.Utils
             }
         }
 
-        public static void RecursiveDom<TDependencyObject>(
-            this ITreeNodeProvider<TDependencyObject> treeNodeProvider,
-            IDomElement<TDependencyObject> domElement, int level, IDomElement<TDependencyObject> expectedParent,
+        public static void RecursiveDom<TDependencyObject, TDependencyProperty>(
+            this ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
+            IDomElement<TDependencyObject, TDependencyProperty> domElement, int level, IDomElement<TDependencyObject, TDependencyProperty> expectedParent,
             SelectorType type)
             where TDependencyObject : class
         {

@@ -15,7 +15,7 @@ namespace XamlCSS
             Text = text;
         }
 
-        virtual public MatchResult Match<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
+        virtual public MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, ref IDomElement<TDependencyObject, TDependencyProperty> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             if (Type == CssNodeType.GeneralDescendantCombinator)
             {
@@ -112,7 +112,7 @@ namespace XamlCSS
             return MatchResult.ItemFailed;
         }
 
-        private static MatchResult GeneralVisualDescendantCombinator<TDependencyObject>(StyleSheet styleSheet, ref IDomElement<TDependencyObject> domElement, SelectorMatcher[] fragments, ref int currentIndex)
+        private static MatchResult GeneralVisualDescendantCombinator<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, ref IDomElement<TDependencyObject, TDependencyProperty> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             currentIndex--;
             var fragment = fragments[currentIndex];

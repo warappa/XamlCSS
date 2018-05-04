@@ -32,8 +32,8 @@ namespace XamlCSS
         TDependencyProperty GetDependencyProperty(TDependencyObject frameworkElement, string propertyName);
         TDependencyProperty GetDependencyProperty(Type uiElementType, string propertyName);
 
-        IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj);
-        void SetDomElement(TDependencyObject obj, IDomElement<TDependencyObject> value);
+        IDomElement<TDependencyObject, TDependencyProperty> GetDomElement(TDependencyObject obj);
+        void SetDomElement(TDependencyObject obj, IDomElement<TDependencyObject, TDependencyProperty> value);
 
         object GetValue(TDependencyObject obj, string propertyName);
         void SetValue(TDependencyObject obj, string propertyName, object value);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Windows;
 using XamlCSS.Dom;
@@ -9,7 +10,9 @@ namespace XamlCSS.WPF.Dom
     [DebuggerDisplay("{IsInLogicalTree ? \"L\" : \" \"}{IsInVisualTree ? \"V\" : \" \"} {Element.GetType().Name} {(Element as System.Windows.Controls.TextBlock)?.Text} Id={Id} Class={string.Join(\", \", this.ClassList)}")]
     public class DomElement : DomElementBase<DependencyObject, DependencyProperty>
     {
-        public DomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent, IDomElement<DependencyObject> logicalParent, ITreeNodeProvider<DependencyObject> treeNodeProvider)
+        private IDictionary<DependencyProperty, Action<object, EventArgs>> watchers = new Dictionary<DependencyProperty, Action<object, EventArgs>>();
+
+        public DomElement(DependencyObject dependencyObject, IDomElement<DependencyObject, DependencyProperty> parent, IDomElement<DependencyObject, DependencyProperty> logicalParent, ITreeNodeProvider<DependencyObject, DependencyProperty> treeNodeProvider)
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
@@ -58,6 +61,35 @@ namespace XamlCSS.WPF.Dom
                 fc.Loaded -= DomElement_Loaded;
                 fc.Unloaded -= DomElement_Unloaded;
             }
+        }
+
+        public override void EnsureAttributeWatcher(DependencyProperty dependencyProperty)
+        {
+            if (!watchers.ContainsKey(dependencyProperty))
+            {                
+                DependencyPropertyDescriptor.FromProperty(dependencyProperty, dependencyObject.GetType()).AddValueChanged(dependencyObject, PropertyUpdated);
+                watchers[dependencyProperty] = PropertyUpdated;
+            }
+        }
+
+        public override void ClearAttributeWatcher()
+        {
+            foreach (var item in watchers)
+            {
+                DependencyPropertyDescriptor.FromProperty(item.Key, dependencyObject.GetType()).RemoveValueChanged(dependencyObject, PropertyUpdated);
+            }
+
+            watchers.Clear();
+        }
+
+        private void PropertyUpdated(object sender, EventArgs e)
+        {
+            Css.instance?.UpdateElement(dependencyObject);
+        }
+
+        public override object GetAttributeValue(DependencyProperty dependencyProperty)
+        {
+            return dependencyObject.GetValue(dependencyProperty);
         }
 
         protected override IList<string> GetClassList(DependencyObject dependencyObject)

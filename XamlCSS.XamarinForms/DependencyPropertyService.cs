@@ -161,12 +161,12 @@ namespace XamlCSS.XamarinForms
             frameworkElement.BindingContextChanged += handler;
         }
 
-        public IDomElement<BindableObject> GetDomElement(BindableObject obj)
+        public IDomElement<BindableObject, BindableProperty> GetDomElement(BindableObject obj)
         {
-            return Css.GetDomElement(obj) as IDomElement<BindableObject>;
+            return Css.GetDomElement(obj) as IDomElement<BindableObject, BindableProperty>;
         }
 
-        public void SetDomElement(BindableObject obj, IDomElement<BindableObject> value)
+        public void SetDomElement(BindableObject obj, IDomElement<BindableObject, BindableProperty> value)
         {
             Css.SetDomElement(obj, value);
         }

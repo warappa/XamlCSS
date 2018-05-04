@@ -113,9 +113,9 @@ namespace XamlCSS.WPF
             return (StyleSheet)ReadSafe(obj, Css.StyleSheetProperty);
         }
         
-        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
+        public IDomElement<DependencyObject, DependencyProperty> GetDomElement(DependencyObject obj)
         {
-            return ReadSafe(obj, Css.DomElementProperty) as IDomElement<DependencyObject>;
+            return ReadSafe(obj, Css.DomElementProperty) as IDomElement<DependencyObject, DependencyProperty>;
         }
         
         public void SetClass(DependencyObject obj, string value)
@@ -150,7 +150,7 @@ namespace XamlCSS.WPF
             obj.SetValue(Css.StyleSheetProperty, value);
         }
         
-        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject, DependencyProperty> value)
         {
             Css.SetDomElement(obj, value);
         }

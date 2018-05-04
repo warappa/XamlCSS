@@ -3,6 +3,7 @@ using NUnit.Framework;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 
@@ -614,7 +615,7 @@ namespace XamlCSS.Tests.Dom
             selector.Match(defaultStyleSheet, sibling2).IsSuccess.Should().Be(true);
         }
 
-        public TestNode GetDomElement(string tagname, string id, string classes = "", IEnumerable<IDomElement<UIElement>> children = null, UIElement uiElement = null)
+        public TestNode GetDomElement(string tagname, string id, string classes = "", IEnumerable<IDomElement<UIElement, PropertyInfo>> children = null, UIElement uiElement = null)
         {
             var node = new TestNode(uiElement ?? GetUiElement(), null, tagname, children, null, id, classes);
 

@@ -3,13 +3,16 @@ using XamlCSS.Dom;
 using Xamarin.Forms;
 using System;
 using System.Diagnostics;
+using System.ComponentModel;
 
 namespace XamlCSS.XamarinForms.Dom
 {
     [DebuggerDisplay("{dependencyObject.GetType().Name} Id={Id} Class={string.Join(\", \", ClassList)}")]
     public class DomElement : DomElementBase<BindableObject, BindableProperty>, IDisposable
     {
-        public DomElement(BindableObject dependencyObject, IDomElement<BindableObject> parent, IDomElement<BindableObject> logicalParent, ITreeNodeProvider<BindableObject> treeNodeProvider)
+        private IDictionary<string, bool> watchers = new Dictionary<string, bool>();
+
+        public DomElement(BindableObject dependencyObject, IDomElement<BindableObject, BindableProperty> parent, IDomElement<BindableObject, BindableProperty> logicalParent, ITreeNodeProvider<BindableObject, BindableProperty> treeNodeProvider)
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
@@ -49,6 +52,39 @@ namespace XamlCSS.XamarinForms.Dom
         public override void UpdateIsReady()
         {
             IsReady = true;
+        }
+
+        public override void EnsureAttributeWatcher(BindableProperty dependencyProperty)
+        {
+            if (!watchers.ContainsKey(dependencyProperty.PropertyName))
+            {
+                if (watchers.Count == 0)
+                {
+                    dependencyObject.PropertyChanged += DependencyObject_PropertyChanged;
+                }
+
+                watchers.Add(dependencyProperty.PropertyName, true);
+            }
+        }
+
+        public override void ClearAttributeWatcher()
+        {
+            dependencyObject.PropertyChanged -= DependencyObject_PropertyChanged;
+
+            watchers.Clear();
+        }
+
+        private void DependencyObject_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (watchers.ContainsKey(e.PropertyName))
+            {
+                Css.instance?.UpdateElement(dependencyObject);
+            }
+        }
+
+        public override object GetAttributeValue(BindableProperty dependencyProperty)
+        {
+            return dependencyObject.GetValue(dependencyProperty);
         }
 
         protected override IList<string> GetClassList(BindableObject dependencyObject)

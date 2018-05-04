@@ -316,16 +316,16 @@ namespace XamlCSS.WPF
         public static readonly DependencyProperty DomElementProperty =
             DependencyProperty.RegisterAttached(
                 "DomElement",
-                typeof(IDomElement<DependencyObject>),
+                typeof(IDomElement<DependencyObject, DependencyProperty>),
                 typeof(Css),
                 new PropertyMetadata(null));
         private static bool initialized;
 
-        public static IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
+        public static IDomElement<DependencyObject, DependencyProperty> GetDomElement(DependencyObject obj)
         {
-            return ReadSafe<IDomElement<DependencyObject>>(obj, DomElementProperty);
+            return ReadSafe<IDomElement<DependencyObject, DependencyProperty>>(obj, DomElementProperty);
         }
-        public static void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        public static void SetDomElement(DependencyObject obj, IDomElement<DependencyObject, DependencyProperty> value)
         {
             obj.SetValue(DomElementProperty, value);
         }

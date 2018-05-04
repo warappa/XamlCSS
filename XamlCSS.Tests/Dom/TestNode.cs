@@ -2,18 +2,19 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reflection;
 using XamlCSS.Dom;
 
 namespace XamlCSS.Tests.Dom
 {
     [DebuggerDisplay("{TagName} #{Id} .{ClassName}")]
-    public class TestNode : DomElementBase<UIElement, IDictionary<object, object>>
+    public class TestNode : DomElementBase<UIElement, PropertyInfo>
     {
-        public TestNode(UIElement dependencyObject, IDomElement<UIElement> parent, string tagname, IEnumerable<IDomElement<UIElement>> children = null,
-            IDictionary<string, IDictionary<object, object>> attributes = null, string id = null, string @class = null)
+        public TestNode(UIElement dependencyObject, IDomElement<UIElement, PropertyInfo> parent, string tagname, IEnumerable<IDomElement<UIElement, PropertyInfo>> children = null,
+            IDictionary<string, PropertyInfo> attributes = null, string id = null, string @class = null)
             : base(dependencyObject ?? new UIElement(), parent, parent, TestTreeNodeProvider.Instance)
         {
-            this.childNodes = this.logicalChildNodes = children?.ToList() ?? new List<IDomElement<UIElement>>();
+            this.childNodes = this.logicalChildNodes = children?.ToList() ?? new List<IDomElement<UIElement, PropertyInfo>>();
             foreach (TestNode c in ChildNodes)
             {
                 c.parent = this;
@@ -41,7 +42,7 @@ namespace XamlCSS.Tests.Dom
                 this.assemblyQualifiedNamespaceName = TestNode.GetAssemblyQualifiedNamespaceName(GetType());
             }
 
-            this.attributes = attributes ?? new Dictionary<string, IDictionary<object, object>>();
+            this.attributes = attributes ?? new Dictionary<string, PropertyInfo>();
 
             this.StyleInfo = new StyleUpdateInfo
             {
@@ -49,19 +50,33 @@ namespace XamlCSS.Tests.Dom
             };
         }
 
+        public override void EnsureAttributeWatcher(PropertyInfo dependencyProperty)
+        {
+            
+        }
+        public override void ClearAttributeWatcher()
+        {
+            
+        }
+
+        public override object GetAttributeValue(PropertyInfo dependencyProperty)
+        {
+            return dependencyProperty.GetValue(dependencyObject);
+        }
+
         public override void UpdateIsReady()
         {
             IsReady = true;
         }
 
-        protected override IList<IDomElement<UIElement>> GetChildNodes(SelectorType type)
+        protected override IList<IDomElement<UIElement, PropertyInfo>> GetChildNodes(SelectorType type)
         {
             return childNodes;
         }
-
-        protected override IDictionary<string, IDictionary<object, object>> CreateNamedNodeMap(UIElement dependencyObject)
+        
+        protected override IDictionary<string, PropertyInfo> CreateNamedNodeMap(UIElement dependencyObject)
         {
-            return (IDictionary<string, IDictionary<object, object>>)new Dictionary<string, Dictionary<object, object>>();
+            return new Dictionary<string, PropertyInfo>();
         }
         protected override IList<string> GetClassList(UIElement dependencyObject)
         {
@@ -70,7 +85,7 @@ namespace XamlCSS.Tests.Dom
 
         public string ClassName => string.Join(" ", ClassList);
 
-        public override IDomElement<UIElement> Parent
+        public override IDomElement<UIElement, PropertyInfo> Parent
         {
             get
             {

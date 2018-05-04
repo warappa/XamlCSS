@@ -14,7 +14,7 @@ namespace XamlCSS.XamarinForms.Dom
         {
         }
 
-        public override IDomElement<BindableObject> CreateTreeNode(BindableObject BindableObject)
+        public override IDomElement<BindableObject, BindableProperty> CreateTreeNode(BindableObject BindableObject)
         {
             return new DomElement(BindableObject, GetDomElement(GetParent(BindableObject, SelectorType.VisualTree)), GetDomElement(GetParent(BindableObject, SelectorType.LogicalTree)), this);
         }

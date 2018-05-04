@@ -26,6 +26,11 @@ namespace XamlCSS.Dom
             }
         }
 
+        bool IDictionary<string, TDependencyProperty>.ContainsKey(string key)
+        {
+            return TypeHelpers.GetDependencyPropertyInfo<TDependencyProperty>(type, key) != null;
+        }
+
         public new TDependencyProperty this[string key]
         {
             get

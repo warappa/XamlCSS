@@ -15,7 +15,7 @@ namespace XamlCSS.WPF.Dom
         {
         }
 
-        public override IDomElement<DependencyObject> CreateTreeNode(DependencyObject dependencyObject)
+        public override IDomElement<DependencyObject, DependencyProperty> CreateTreeNode(DependencyObject dependencyObject)
         {
             return new DomElement(dependencyObject, GetDomElement(GetParent(dependencyObject, SelectorType.VisualTree)), GetDomElement(GetParent(dependencyObject, SelectorType.LogicalTree)), this);
         }

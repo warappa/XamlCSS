@@ -93,6 +93,7 @@
       <Link>Properties\SharedAssemblyInfo.cs</Link>
     </Compile>
     <Compile Include="ActionParameter.cs" />
+    <Compile Include="AttributeMatcher.cs" />
     <Compile Include="BaseCss.cs" />
     <Compile Include="ChangeKind.cs" />
     <Compile Include="ClassMatcher.cs" />

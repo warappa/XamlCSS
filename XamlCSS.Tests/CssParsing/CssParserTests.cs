@@ -430,6 +430,75 @@ Grid {
         }
 
         [Test]
+        public void Can_parse_attribute_with_any_value()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"
+[text] { 
+    Background: Red;
+}");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(0);
+            styleSheet.Rules.Count.Should().Be(1);
+
+            var selector = styleSheet.Rules[0].Selectors.First() as Selector;
+            selector.Value.Should().Be(@"[text]");
+            selector.fragments.Count().Should().Be(1);
+
+            var attributeMatcher = selector.fragments[0] as AttributeMatcher;
+            attributeMatcher.PropertyName.Should().Be("text");
+            attributeMatcher.Operator.Should().Be(null);
+            attributeMatcher.Value.Should().Be(null);
+        }
+
+        [Test]
+        public void Can_parse_attribute_with_exact_value()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"
+[text=""hello world""] { 
+    Background: Red;
+}");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(0);
+            styleSheet.Rules.Count.Should().Be(1);
+
+            var selector = styleSheet.Rules[0].Selectors.First() as Selector;
+            selector.Value.Should().Be(@"[text=""hello world""]");
+            selector.fragments.Count().Should().Be(1);
+
+            var attributeMatcher = selector.fragments[0] as AttributeMatcher;
+            attributeMatcher.PropertyName.Should().Be("text");
+            attributeMatcher.Operator.Should().Be("=");
+            attributeMatcher.Value.Should().Be("hello world");
+        }
+
+        [Test]
+        public void Can_parse_attribute()
+        {
+            StyleSheet styleSheet = null;
+            Action action = () => styleSheet = CssParser.Parse(@"
+[text=""hello world""] { 
+    Background: Red;
+}");
+
+            action.ShouldNotThrow();
+            styleSheet.Errors.Count.Should().Be(0);
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(@"[text=""hello world""]");
+            var selector = styleSheet.Rules[0].Selectors.First() as Selector;
+            selector.fragments.Count().Should().Be(1);
+
+            var attributeMatcher = selector.fragments[0] as AttributeMatcher;
+            attributeMatcher.PropertyName.Should().Be("text");
+            attributeMatcher.Operator.Should().Be("=");
+            attributeMatcher.Value.Should().Be(@"hello world");
+        }
+
+        [Test]
         public void Can_parse_class_after_pseudo_selector()
         {
             StyleSheet styleSheet = null;

@@ -7,7 +7,7 @@ using XamlCSS.Utils;
 namespace XamlCSS.Dom
 {
     [DebuggerDisplay("{dependencyObject.GetType().Name} Id={Id} Class={string.Join(\", \", ClassList)}")]
-    public abstract class DomElementBase<TDependencyObject, TDependencyProperty> : IDomElement<TDependencyObject>
+    public abstract class DomElementBase<TDependencyObject, TDependencyProperty> : IDomElement<TDependencyObject, TDependencyProperty>
         where TDependencyObject : class
         where TDependencyProperty : class
     {
@@ -22,20 +22,20 @@ namespace XamlCSS.Dom
 
         protected readonly static char[] classSplitter = { ' ' };
         protected readonly TDependencyObject dependencyObject;
-        protected ITreeNodeProvider<TDependencyObject> treeNodeProvider;
+        protected ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider;
 
         protected string id;
         protected string assemblyQualifiedNamespaceName = Undefined;
-        protected IList<IDomElement<TDependencyObject>> childNodes = null;
-        protected IList<IDomElement<TDependencyObject>> logicalChildNodes = null;
+        protected IList<IDomElement<TDependencyObject, TDependencyProperty>> childNodes = null;
+        protected IList<IDomElement<TDependencyObject, TDependencyProperty>> logicalChildNodes = null;
         protected IDictionary<string, TDependencyProperty> attributes = null;
         protected IList<string> classList = null;
 
         public DomElementBase(
             TDependencyObject dependencyObject,
-            IDomElement<TDependencyObject> parent,
-            IDomElement<TDependencyObject> logicalParent,
-            ITreeNodeProvider<TDependencyObject> treeNodeProvider
+            IDomElement<TDependencyObject, TDependencyProperty> parent,
+            IDomElement<TDependencyObject, TDependencyProperty> logicalParent,
+            ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider
             )
         {
             if (dependencyObject == null)
@@ -159,9 +159,11 @@ namespace XamlCSS.Dom
 
         public TDependencyObject Element { get { return dependencyObject; } }
 
+        abstract public void EnsureAttributeWatcher(TDependencyProperty dependencyProperty);
+        abstract public void ClearAttributeWatcher();
         abstract protected IDictionary<string, TDependencyProperty> CreateNamedNodeMap(TDependencyObject dependencyObject);
 
-        protected virtual IList<IDomElement<TDependencyObject>> GetChildNodes(SelectorType type)
+        protected virtual IList<IDomElement<TDependencyObject, TDependencyProperty>> GetChildNodes(SelectorType type)
         {
             return treeNodeProvider
                 .GetChildren(dependencyObject, type)
@@ -176,9 +178,10 @@ namespace XamlCSS.Dom
         abstract public void UpdateIsReady();
 
         public IDictionary<string, TDependencyProperty> Attributes => attributes ?? (attributes = CreateNamedNodeMap(dependencyObject));
+        public abstract object GetAttributeValue(TDependencyProperty dependencyProperty);
 
-        public IList<IDomElement<TDependencyObject>> ChildNodes => childNodes ?? (childNodes = GetChildNodes(SelectorType.VisualTree));
-        public IList<IDomElement<TDependencyObject>> LogicalChildNodes => logicalChildNodes ?? (logicalChildNodes = GetChildNodes(SelectorType.LogicalTree));
+        public IList<IDomElement<TDependencyObject, TDependencyProperty>> ChildNodes => childNodes ?? (childNodes = GetChildNodes(SelectorType.VisualTree));
+        public IList<IDomElement<TDependencyObject, TDependencyProperty>> LogicalChildNodes => logicalChildNodes ?? (logicalChildNodes = GetChildNodes(SelectorType.LogicalTree));
 
         public IList<string> ClassList => classList ?? (classList = GetClassList(dependencyObject));
 
@@ -192,11 +195,11 @@ namespace XamlCSS.Dom
         public string TagName { get; protected set; }
         public bool IsReady { get; protected set; }
 
-        public IDomElement<TDependencyObject> Owner
+        public IDomElement<TDependencyObject, TDependencyProperty> Owner
         {
             get
             {
-                IDomElement<TDependencyObject> currentNode = this;
+                IDomElement<TDependencyObject, TDependencyProperty> currentNode = this;
                 while (true)
                 {
                     if (currentNode.Parent == null)
@@ -211,10 +214,10 @@ namespace XamlCSS.Dom
             }
         }
 
-        protected IDomElement<TDependencyObject> parent = null;
-        protected IDomElement<TDependencyObject> logicalParent;
+        protected IDomElement<TDependencyObject, TDependencyProperty> parent = null;
+        protected IDomElement<TDependencyObject, TDependencyProperty> logicalParent;
 
-        public virtual IDomElement<TDependencyObject> Parent
+        public virtual IDomElement<TDependencyObject, TDependencyProperty> Parent
         {
             get
             {
@@ -226,7 +229,7 @@ namespace XamlCSS.Dom
             }
         }
 
-        public virtual IDomElement<TDependencyObject> LogicalParent
+        public virtual IDomElement<TDependencyObject, TDependencyProperty> LogicalParent
         {
             get
             {
@@ -248,12 +251,12 @@ namespace XamlCSS.Dom
 
         public StyleUpdateInfo StyleInfo { get; set; }
 
-        public bool Contains(IDomElement<TDependencyObject> otherNode, SelectorType type)
+        public bool Contains(IDomElement<TDependencyObject, TDependencyProperty> otherNode, SelectorType type)
         {
             return type == SelectorType.VisualTree ? ChildNodes.Contains(otherNode) : LogicalChildNodes.Contains(otherNode);
         }
 
-        public bool Equals(IDomElement<TDependencyObject> otherNode)
+        public bool Equals(IDomElement<TDependencyObject, TDependencyProperty> otherNode)
         {
             if (otherNode == null)
             {
@@ -288,14 +291,14 @@ namespace XamlCSS.Dom
             return selector.Match(styleSheet, this);
         }
 
-        public IDomElement<TDependencyObject> QuerySelector(StyleSheet styleSheet, ISelector selector, SelectorType type)
+        public IDomElement<TDependencyObject, TDependencyProperty> QuerySelector(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
             return (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelector(styleSheet, selector, type);
         }
 
-        public IDomElement<TDependencyObject> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
+        public IDomElement<TDependencyObject, TDependencyProperty> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             var match = Matches(styleSheet, selector);
             if (match.IsSuccess)
@@ -312,32 +315,32 @@ namespace XamlCSS.Dom
             return (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelector(styleSheet, selector, type);
         }
 
-        public IList<IDomElement<TDependencyObject>> QuerySelectorAll(StyleSheet styleSheet, ISelector selector, SelectorType type)
+        public IList<IDomElement<TDependencyObject, TDependencyProperty>> QuerySelectorAll(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
 
             return LogicalChildNodes.QuerySelectorAll(styleSheet, selector, type);
         }
 
-        public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
+        public IList<IDomElement<TDependencyObject, TDependencyProperty>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
             if (!IsReady ||
                 !ReferenceEquals(StyleInfo.CurrentStyleSheet, styleSheet) ||
                 StyleInfo.DoMatchCheck == SelectorType.None)
             {
-                return new List<IDomElement<TDependencyObject>>();
+                return new List<IDomElement<TDependencyObject, TDependencyProperty>>();
             }
 
             if (type == SelectorType.LogicalTree &&
                 !IsInLogicalTree)
             {
-                return new List<IDomElement<TDependencyObject>>();
+                return new List<IDomElement<TDependencyObject, TDependencyProperty>>();
             }
             else if (type == SelectorType.VisualTree &&
                 !IsInVisualTree)
             {
-                return new List<IDomElement<TDependencyObject>>();
+                return new List<IDomElement<TDependencyObject, TDependencyProperty>>();
             }
 
             var res = (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelectorAll(styleSheet, selector, type);
@@ -411,6 +414,8 @@ namespace XamlCSS.Dom
         // This code added to correctly implement the disposable pattern.
         public void Dispose()
         {
+            ClearAttributeWatcher();
+
             // Do not change this code. Put cleanup code in Dispose(bool disposing) above.
             Dispose(true);
             // TODO: uncomment the following line if the finalizer is overridden above.

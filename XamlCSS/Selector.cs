@@ -140,7 +140,7 @@ namespace XamlCSS
             return false;
         }
 
-        public MatchResult Match<TDependencyObject>(StyleSheet styleSheet, IDomElement<TDependencyObject> domElement)
+        public MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, IDomElement<TDependencyObject, TDependencyProperty> domElement)
             where TDependencyObject : class
         {
             for (var i = fragmentLength - 1; i >= 0; i--)

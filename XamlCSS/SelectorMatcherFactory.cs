@@ -66,6 +66,10 @@ namespace XamlCSS
             {
                 return new InheritedTypeMatcher(type, text);
             }
+            else if (type == CssNodeType.AttributeSelector)
+            {
+                return new AttributeMatcher(CssNodeType.AttributeSelector, text);
+            }
 
             return new SelectorMatcher(type, text);
         }

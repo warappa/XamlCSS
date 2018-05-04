@@ -10,7 +10,7 @@ namespace XamlCSS
         int ClassSpecificity { get; }
         int SimpleSpecificity { get; }
 
-        MatchResult Match<TDependencyObject>(StyleSheet styleSheet, IDomElement<TDependencyObject> domElement)
+        MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, IDomElement<TDependencyObject, TDependencyProperty> domElement)
             where TDependencyObject : class;
 
         bool StartOnVisualTree();

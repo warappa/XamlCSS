@@ -9,7 +9,9 @@ namespace XamlCSS.UWP.Dom
     [DebuggerDisplay("Id={Id} Class={Class}")]
     public class DomElement : DomElementBase<DependencyObject, DependencyProperty>, IDisposable
     {
-        public DomElement(DependencyObject dependencyObject, IDomElement<DependencyObject> parent, IDomElement<DependencyObject> logicalParent, ITreeNodeProvider<DependencyObject> treeNodeProvider)
+        private IDictionary<DependencyProperty, long> watchers = new Dictionary<DependencyProperty, long>();
+
+        public DomElement(DependencyObject dependencyObject, IDomElement<DependencyObject, DependencyProperty> parent, IDomElement<DependencyObject, DependencyProperty> logicalParent, ITreeNodeProvider<DependencyObject, DependencyProperty> treeNodeProvider)
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
@@ -29,6 +31,36 @@ namespace XamlCSS.UWP.Dom
         private void VisualTreeHelper_SubTreeAdded(object sender, EventArgs e)
         {
             ElementLoaded(sender as DependencyObject);
+        }
+
+        public override void EnsureAttributeWatcher(DependencyProperty dependencyProperty)
+        {
+            if (!watchers.ContainsKey(dependencyProperty))
+            {
+                var token = dependencyObject.RegisterPropertyChangedCallback(dependencyProperty, DependencyPropertyChangedCallback);
+
+                watchers.Add(dependencyProperty, token);
+            }
+        }
+
+        public override void ClearAttributeWatcher()
+        {
+            foreach (var item in watchers)
+            {
+                dependencyObject.UnregisterPropertyChangedCallback(item.Key, item.Value);
+            }
+
+            watchers.Clear();
+        }
+
+        private void DependencyPropertyChangedCallback(DependencyObject sender, DependencyProperty dependencyProperty)
+        {
+            Css.instance?.UpdateElement(dependencyObject);
+        }
+
+        public override object GetAttributeValue(DependencyProperty dependencyProperty)
+        {
+            return dependencyObject.GetValue(dependencyProperty);
         }
 
         void IDisposable.Dispose()

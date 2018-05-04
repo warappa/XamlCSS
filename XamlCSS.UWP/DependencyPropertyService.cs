@@ -142,12 +142,12 @@ namespace XamlCSS.UWP
             frameworkElement.Loaded += handler;
         }
         
-        public IDomElement<DependencyObject> GetDomElement(DependencyObject obj)
+        public IDomElement<DependencyObject, DependencyProperty> GetDomElement(DependencyObject obj)
         {
             return Css.GetDomElement(obj);
         }
 
-        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject> value)
+        public void SetDomElement(DependencyObject obj, IDomElement<DependencyObject, DependencyProperty> value)
         {
             Css.SetDomElement(obj, value);
         }
