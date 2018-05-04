@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using XamlCSS.Utils;
 
 namespace XamlCSS.Dom
 {
@@ -28,10 +26,6 @@ namespace XamlCSS.Dom
             if (node == null) throw new ArgumentNullException(nameof(node));
             if (node.Element == null) throw new ArgumentNullException(nameof(node.Element));
 
-            //return this.GetChildren(node.Element as TDependencyObject)
-            //    .Select(x => this.GetDomElement(x))
-            //    .ToList();
-
             if (type == SelectorType.LogicalTree)
             {
                 return node.LogicalChildNodes;
@@ -43,11 +37,6 @@ namespace XamlCSS.Dom
 
             throw new Exception("Invalid SelectorType " + type.ToString());
         }
-
-        //public IDomElement<TDependencyObject> GetTreeParentNode(TDependencyObject obj)
-        //{
-        //    return GetDomElement(GetParent(obj));
-        //}
 
         public IDomElement<TDependencyObject> GetDomElement(TDependencyObject obj)
         {

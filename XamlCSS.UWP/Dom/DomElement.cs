@@ -38,9 +38,14 @@ namespace XamlCSS.UWP.Dom
             base.Dispose();
         }
 
+        public override void UpdateIsReady()
+        {
+            IsReady = true;
+        }
+
         private void UnregisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded -= VisualTreeHelper_SubTreeAdded; ;
+            LoadedDetectionHelper.SubTreeAdded -= VisualTreeHelper_SubTreeAdded;
             LoadedDetectionHelper.SubTreeRemoved -= VisualTreeHelper_SubTreeRemoved;
         }
 

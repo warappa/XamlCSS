@@ -13,33 +13,11 @@ namespace XamlCSS.WPF
 {
     public class MarkupExtensionParser : IMarkupExtensionParser
     {
-        private static MethodInfo addLogicalChild;
-        private static MethodInfo removeLogicalChild;
         public const string MarkupParserHelperId = "__markupParserHelper";
 
         static MarkupExtensionParser()
         {
-            addLogicalChild = typeof(LogicalTreeHelper).GetMethods(BindingFlags.Static | BindingFlags.NonPublic |
-                 BindingFlags.FlattenHierarchy)
-                .Where(x => x.Name == "AddLogicalChild" && x.GetParameters().Length == 2)
-                .First();
-
-            removeLogicalChild = typeof(LogicalTreeHelper).GetMethods(BindingFlags.Static | BindingFlags.NonPublic |
-                 BindingFlags.FlattenHierarchy)
-                .Where(x => x.Name == "RemoveLogicalChild" && x.GetParameters().Length == 2)
-                .First();
-
-            dynamicOrStaticResource.Match("{StaticResource abc}");
-        }
-
-        private void AddLogicalChild(DependencyObject parent, object child)
-        {
-            addLogicalChild.Invoke(null, new object[] { parent, child });
-        }
-
-        private void RemoveLogicalChild(DependencyObject parent, object child)
-        {
-            removeLogicalChild.Invoke(null, new object[] { parent, child });
+            
         }
 
         private static Regex dynamicOrStaticResource = new Regex(@"{\s*(?<ext>StaticResource|DynamicResource)\s*(?<key>[a-zA-Z_0-9]+)\s*}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
@@ -72,33 +50,16 @@ namespace XamlCSS.WPF
                     }
                 }));
 
-            //                var test = $@"
-            //<DataTemplate
-            //xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
-            //xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
-            //{xmlnamespaces}><FrameworkElement x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" /></DataTemplate>";
-
             var test = $@"<FrameworkElement xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"" {xmlnamespaces} x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />";
-
-            /*
-            var pc = new ParserContext();
-            pc.XmlnsDictionary.Add("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation");
-            pc.XmlnsDictionary.Add("x", "http://schemas.microsoft.com/winfx/2006/xaml");*/
-            //var dataTemplate = (XamlReader.Parse(test) as DataTemplate);
-
 
             try
             {
-                //textBlock = (FrameworkElement)dataTemplate.LoadContent();
                 textBlock = (FrameworkElement)XamlReader.Parse(test);
             }
             catch (Exception e)
             {
                 throw new Exception($@"Cannot evaluate markup-expression ""{expression}""!");
             }
-            // AddLogicalChild(obj, textBlock);
-
-
 
             try
             {
@@ -106,7 +67,6 @@ namespace XamlCSS.WPF
             }
             finally
             {
-                // RemoveLogicalChild(obj, textBlock);
             }
 
             if (localValue is BindingExpression)

@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows;
-using System.Windows.Controls;
-using XamlCSS.Utils;
+using XamlCSS.WPF.Dom;
 
 namespace XamlCSS.WPF
 {
@@ -49,12 +47,6 @@ namespace XamlCSS.WPF
 
         private static void OnLoadDetectionChanged(DependencyObject dpo, DependencyPropertyChangedEventArgs ev)
         {
-            if ((dpo is TextBlock t) &&
-                t.Name == MarkupExtensionParser.MarkupParserHelperId)
-            {
-                return;
-            }
-
             if ((bool)ev.NewValue == true)
             {
                 if (dpo is FrameworkElement frameworkElement)
@@ -62,7 +54,7 @@ namespace XamlCSS.WPF
 
                     frameworkElement.Loaded += LoadedEventHandler;
                     frameworkElement.Unloaded += UnloadedEventHandler;
-                    frameworkElement.Initialized += FrameworkElement_Initialized;
+                    //frameworkElement.Initialized += FrameworkElement_Initialized;
                     if (frameworkElement.IsLoaded)
                     {
                         LoadedEventHandler.Invoke(frameworkElement, new RoutedEventArgs());
@@ -72,7 +64,7 @@ namespace XamlCSS.WPF
                 {
                     frameworkContentElement.Loaded += LoadedEventHandler;
                     frameworkContentElement.Unloaded += UnloadedEventHandler;
-                    frameworkContentElement.Initialized += FrameworkElement_Initialized;
+                    //frameworkContentElement.Initialized += FrameworkElement_Initialized;
                     if (frameworkContentElement.IsLoaded)
                     {
                         LoadedEventHandler.Invoke(frameworkContentElement, new RoutedEventArgs());
@@ -98,24 +90,41 @@ namespace XamlCSS.WPF
 
         private static void FrameworkElement_Initialized(object sender, EventArgs e)
         {
+            var dom = Css.instance?.treeNodeProvider.GetDomElement((DependencyObject)sender) as DomElement;
+            dom?.UpdateIsReady();
         }
 
         private static readonly RoutedEventHandler UnloadedEventHandler = delegate (object sender, RoutedEventArgs e)
         {
-            Css.instance?.RemoveElement(sender as DependencyObject);
-            var dom = Css.instance?.treeNodeProvider.GetDomElement(sender as DependencyObject);
+            if (Css.instance == null)
+            {
+                return;
+            }
 
-            var logicalParent = dom?.LogicalParent?.Element;
-            var visualParent = dom?.Parent?.Element;
+            Css.instance.RemoveElement(sender as DependencyObject);
+            var dom = Css.instance.treeNodeProvider.GetDomElement(sender as DependencyObject) as DomElement;
+            dom?.UpdateIsReady();
+
+            var logicalParent = dom.LogicalParent?.Element;
+            var visualParent = dom.Parent?.Element;
 
             if (logicalParent != visualParent)
-                Css.instance?.UpdateElement(visualParent);
-            Css.instance?.UpdateElement(logicalParent);
+                Css.instance.UpdateElement(visualParent);
+            Css.instance.UpdateElement(logicalParent);
         };
 
         private static readonly RoutedEventHandler LoadedEventHandler = delegate (object sender, RoutedEventArgs e)
         {
-            var dom = Css.instance?.treeNodeProvider.GetDomElement((DependencyObject)sender);
+            if (Css.instance == null)
+            {
+                return;
+            }
+            var dom = Css.instance.treeNodeProvider.GetDomElement((DependencyObject)sender) as DomElement;
+            dom.UpdateIsReady();
+
+
+
+            Css.instance.NewElement(sender as DependencyObject);
 
             //var visualPath = dom.GetPath(SelectorType.VisualTree);
             //Debug.WriteLine("new dom:\n    " + visualPath);
@@ -127,7 +136,7 @@ namespace XamlCSS.WPF
             //var logicalElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.LogicalTree);
             //Debug.WriteLine("    " + logicalElementPath);
 
-            Css.instance?.NewElement(sender as DependencyObject);
+
         };
 
         #endregion

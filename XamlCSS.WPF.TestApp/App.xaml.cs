@@ -96,9 +96,10 @@ Grid Grid
         public App()
         {
 
-            dynamic t = this;
-            var u = t.Resources;
+            //dynamic t = this;
+            //var u = t.Resources;
 
+            
             Css.Initialize();
             InitializeComponent();
         }

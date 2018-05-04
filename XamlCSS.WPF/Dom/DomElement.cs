@@ -100,6 +100,23 @@ namespace XamlCSS.WPF.Dom
             return new LazyDependencyPropertyDictionary<DependencyProperty>(dependencyObject.GetType());
         }
 
+        public override void UpdateIsReady()
+        {
+            if (dependencyObject is FrameworkElement f)
+            {
+                IsReady = f.IsLoaded;
+            }
+            else if (dependencyObject is FrameworkContentElement fc)
+            {
+                IsReady = fc.IsLoaded;
+            }
+            else
+            {
+                IsReady = true;
+            }
+
+        }
+
         public override bool Equals(object obj)
         {
             var other = obj as DomElement;

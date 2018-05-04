@@ -46,6 +46,11 @@ namespace XamlCSS.XamarinForms.Dom
             base.Dispose();
         }
 
+        public override void UpdateIsReady()
+        {
+            IsReady = true;
+        }
+
         protected override IList<string> GetClassList(BindableObject dependencyObject)
         {
             var list = new List<string>();

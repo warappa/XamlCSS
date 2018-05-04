@@ -121,6 +121,11 @@ namespace XamlCSS.Dom
                 {
                     inTree = false;
                 }
+                else if (!element.IsReady)
+                {
+                    inTree = false;
+                }
+                
 
                 if (!skipThisLevel &&
                     inTree)

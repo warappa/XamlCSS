@@ -35,7 +35,7 @@ namespace XamlCSS.WPF
                     typeof(System.Windows.Controls.Primitives.ScrollBar).AssemblyQualifiedName.Replace(".ScrollBar,", ","),
                     typeof(System.Windows.Media.TextOptions).AssemblyQualifiedName.Replace(".TextOptions,", ",")
                 }
-}
+            }
         };
 
         private static EventHandler RenderingHandler()
@@ -69,14 +69,10 @@ namespace XamlCSS.WPF
 
             var defaultCssNamespace = cssNamespaceMapping.Keys.First();
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;
-            IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService =
-                new DependencyPropertyService();
-            //var visualTreeNodeProvider = new VisualTreeNodeProvider(dependencyPropertyService);
-            //var logicalTreeNodeProvider = new LogicalTreeNodeProvider(dependencyPropertyService);
+            var dependencyPropertyService = new DependencyPropertyService();
             var visualTreeNodeWithLogicalFallbackProvider = new TreeNodeProvider(dependencyPropertyService);
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
-            //var switchableTreeNodeProvider = new SwitchableTreeNodeProvider(dependencyPropertyService, visualTreeNodeWithLogicalFallbackProvider, logicalTreeNodeProvider);
 
             instance = new BaseCss<DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
@@ -218,9 +214,12 @@ namespace XamlCSS.WPF
                 typeof(StyleDeclarationBlock),
                 typeof(Css),
                 new PropertyMetadata(null, Css.StylePropertyAttached));
-        private static void StylePropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void StylePropertyAttached(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
         {
-            instance?.UpdateElement(d);
+            if (instance?.treeNodeProvider.GetDomElement(dependencyObject)?.IsReady == true)
+            {
+                instance?.UpdateElement(dependencyObject);
+            }
         }
         public static StyleDeclarationBlock GetStyle(DependencyObject obj)
         {
@@ -300,12 +299,18 @@ namespace XamlCSS.WPF
 
         private static void ClassPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
-            //var domElement = instance?.treeNodeProvider.GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
-            var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
-            var read = GetClass(element);
-            domElement?.ResetClassList();
+            var domElement = instance?.treeNodeProvider.GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
+            //var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
 
-            instance?.UpdateElement(element);
+            domElement?.ResetClassList();
+            if (domElement?.IsReady == true)
+            {
+                instance?.UpdateElement(element);
+            }
+            else
+            {
+
+            }
         }
 
         public static readonly DependencyProperty DomElementProperty =

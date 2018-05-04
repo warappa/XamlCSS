@@ -75,8 +75,7 @@ namespace XamlCSS.WPF.Dom
 
             if (element is ItemsPresenter itemsPresenter)
             {
-                //a = GetChildrenOfLogicalParent(element, GetVisualChildren(element));
-                Panel itemshost = itemsPresenter != null ? VisualTreeHelper.GetChild(itemsPresenter, 0) as Panel : null;
+                var itemshost = itemsPresenter != null ? VisualTreeHelper.GetChild(itemsPresenter, 0) as Panel : null;
 
                 if (itemshost == null)
                 {
@@ -99,16 +98,12 @@ namespace XamlCSS.WPF.Dom
                 return new[] { content };
             }
 
-            var a = LogicalTreeHelper.GetChildren(element)
+            var children = LogicalTreeHelper.GetChildren(element)
                 .Cast<object>()
                 .OfType<DependencyObject>()
                 .ToList();
 
-
-            
-
-
-            return a;
+            return children;
         }
 
         private List<DependencyObject> GetChildrenOfLogicalParent(DependencyObject searchParent, IEnumerable<DependencyObject> elements)

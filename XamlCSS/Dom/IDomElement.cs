@@ -21,6 +21,7 @@ namespace XamlCSS.Dom
 
         bool IsInLogicalTree { get; }
         bool IsInVisualTree { get; }
+        bool IsReady { get; }
 
         StyleUpdateInfo StyleInfo { get; set; }
     }

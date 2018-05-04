@@ -47,6 +47,7 @@ namespace XamlCSS.Dom
             this.treeNodeProvider = treeNodeProvider;
 
             UpdateTreeAssociation();
+            UpdateIsReady();
 
             this.id = GetId(dependencyObject);
             this.TagName = dependencyObject.GetType().Name;
@@ -172,6 +173,8 @@ namespace XamlCSS.Dom
 
         abstract protected string GetId(TDependencyObject dependencyObject);
 
+        abstract public void UpdateIsReady();
+
         public IDictionary<string, TDependencyProperty> Attributes => attributes ?? (attributes = CreateNamedNodeMap(dependencyObject));
 
         public IList<IDomElement<TDependencyObject>> ChildNodes => childNodes ?? (childNodes = GetChildNodes(SelectorType.VisualTree));
@@ -187,6 +190,7 @@ namespace XamlCSS.Dom
         public bool IsFocused { get { return false; } }
 
         public string TagName { get; protected set; }
+        public bool IsReady { get; protected set; }
 
         public IDomElement<TDependencyObject> Owner
         {
@@ -318,7 +322,8 @@ namespace XamlCSS.Dom
         public IList<IDomElement<TDependencyObject>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
-            if (!ReferenceEquals(StyleInfo.CurrentStyleSheet, styleSheet) ||
+            if (!IsReady ||
+                !ReferenceEquals(StyleInfo.CurrentStyleSheet, styleSheet) ||
                 StyleInfo.DoMatchCheck == SelectorType.None)
             {
                 return new List<IDomElement<TDependencyObject>>();

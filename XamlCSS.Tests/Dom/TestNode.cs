@@ -49,6 +49,11 @@ namespace XamlCSS.Tests.Dom
             };
         }
 
+        public override void UpdateIsReady()
+        {
+            IsReady = true;
+        }
+
         protected override IList<IDomElement<UIElement>> GetChildNodes(SelectorType type)
         {
             return childNodes;
