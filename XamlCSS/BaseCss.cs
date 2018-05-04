@@ -517,7 +517,8 @@ namespace XamlCSS
                         found.Add(matchingNode);
                     }
 
-                    var discriminator = dependencyPropertyService.GetInitialStyle(element) != null ? element.GetHashCode().ToString() : "";
+                    var initialStyle = dependencyPropertyService.GetInitialStyle(element);
+                    var discriminator = initialStyle != null ? initialStyle.GetHashCode().ToString() : "";
                     var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id + discriminator, element.GetType(), rule.SelectorString);
                     //var resourceKey = nativeStyleService.GetStyleResourceKey(rule.StyleSheetId, element.GetType(), rule.SelectorString);
 
