@@ -293,14 +293,13 @@ namespace XamlCSS.Dom
 
         public IList<IDomElement<TDependencyObject, TDependencyProperty>> QuerySelectorAll(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
-            // var selector = cachedSelectorProvider.GetOrAdd(selectors);
+            var children = (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes);
 
-            return LogicalChildNodes.QuerySelectorAll(styleSheet, selector, type);
+            return children.QuerySelectorAll(styleSheet, selector, type);
         }
 
         public IList<IDomElement<TDependencyObject, TDependencyProperty>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
-            // var selector = cachedSelectorProvider.GetOrAdd(selectors);
             if (!IsReady ||
                 !ReferenceEquals(StyleInfo.CurrentStyleSheet, styleSheet) ||
                 StyleInfo.DoMatchCheck == SelectorType.None)

@@ -476,11 +476,11 @@ Grid {
         }
 
         [Test]
-        public void Can_parse_attribute()
+        public void Can_parse_attribute_with_pseudo_selector()
         {
             StyleSheet styleSheet = null;
             Action action = () => styleSheet = CssParser.Parse(@"
-[text=""hello world""] { 
+[text=""hello world""]:hover { 
     Background: Red;
 }");
 
@@ -488,14 +488,17 @@ Grid {
             styleSheet.Errors.Count.Should().Be(0);
             styleSheet.Rules.Count.Should().Be(1);
 
-            styleSheet.Rules[0].SelectorString.Should().Be(@"[text=""hello world""]");
+            styleSheet.Rules[0].SelectorString.Should().Be(@"[text=""hello world""]:hover");
             var selector = styleSheet.Rules[0].Selectors.First() as Selector;
-            selector.fragments.Count().Should().Be(1);
+            selector.fragments.Count().Should().Be(2);
 
             var attributeMatcher = selector.fragments[0] as AttributeMatcher;
             attributeMatcher.PropertyName.Should().Be("text");
             attributeMatcher.Operator.Should().Be("=");
             attributeMatcher.Value.Should().Be(@"hello world");
+
+            var pseudoMatche = selector.fragments[1] as SelectorMatcher;
+            pseudoMatche.Text.Should().Be(":hover");
         }
 
         [Test]
