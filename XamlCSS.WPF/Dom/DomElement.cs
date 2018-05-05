@@ -66,7 +66,7 @@ namespace XamlCSS.WPF.Dom
         public override void EnsureAttributeWatcher(DependencyProperty dependencyProperty)
         {
             if (!watchers.ContainsKey(dependencyProperty))
-            {                
+            {
                 DependencyPropertyDescriptor.FromProperty(dependencyProperty, dependencyObject.GetType()).AddValueChanged(dependencyObject, PropertyUpdated);
                 watchers[dependencyProperty] = PropertyUpdated;
             }
@@ -134,7 +134,11 @@ namespace XamlCSS.WPF.Dom
 
         public override void UpdateIsReady()
         {
-            if (dependencyObject is FrameworkElement f)
+            if (dependencyObject is ApplicationDependencyObject)
+            {
+                IsReady = true;
+            }
+            else if (dependencyObject is FrameworkElement f)
             {
                 IsReady = f.IsLoaded;
             }
@@ -146,7 +150,6 @@ namespace XamlCSS.WPF.Dom
             {
                 IsReady = true;
             }
-
         }
 
         public override bool Equals(object obj)

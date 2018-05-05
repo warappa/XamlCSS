@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
 using XamlCSS.Utils;
+using XamlCSS.WPF.Dom;
 
 namespace XamlCSS.WPF
 {
@@ -22,7 +23,7 @@ namespace XamlCSS.WPF
 
         private static Regex dynamicOrStaticResource = new Regex(@"{\s*(?<ext>StaticResource|DynamicResource)\s*(?<key>[a-zA-Z_0-9]+)\s*}", RegexOptions.Compiled | RegexOptions.CultureInvariant | RegexOptions.ExplicitCapture);
 
-        public object Parse(string expression, FrameworkElement obj, IEnumerable<CssNamespace> namespaces)
+        public object Parse(string expression, DependencyObject obj, IEnumerable<CssNamespace> namespaces)
         {
             FrameworkElement textBlock = null;
             object localValue = null;
@@ -83,7 +84,7 @@ namespace XamlCSS.WPF
 
         public object ProvideValue(string expression, object obj, IEnumerable<CssNamespace> namespaces, bool unwrap = true)
         {
-            object parseResult = Parse(expression, (FrameworkElement)obj, namespaces);
+            object parseResult = Parse(expression, (DependencyObject)obj, namespaces);
 
             if (parseResult is Binding binding)
             {
@@ -102,7 +103,11 @@ namespace XamlCSS.WPF
 
         internal static object GetDynamicResourceValue(object resourceKey, object element)
         {
-            if (element is FrameworkElement)
+            if (element is ApplicationDependencyObject)
+            {
+                Application.Current.TryFindResource(resourceKey);
+            }
+            else if (element is FrameworkElement)
             {
                 return ((FrameworkElement)element).TryFindResource(resourceKey);
             }

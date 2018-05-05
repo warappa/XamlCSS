@@ -10,9 +10,12 @@ namespace XamlCSS.WPF.Dom
 {
     public class TreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
+        private ApplicationDependencyObject applicationDependencyObject;
+
         public TreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)
         {
+            this.applicationDependencyObject = new ApplicationDependencyObject(Application.Current);
         }
 
         public override IDomElement<DependencyObject, DependencyProperty> CreateTreeNode(DependencyObject dependencyObject)
@@ -27,6 +30,11 @@ namespace XamlCSS.WPF.Dom
             if (element == null)
             {
                 return list;
+            }
+
+            if (element == applicationDependencyObject)
+            {
+                return Application.Current.Windows.Cast<Window>().ToList();
             }
 
             if (type == SelectorType.VisualTree)
@@ -51,7 +59,7 @@ namespace XamlCSS.WPF.Dom
                 return new List<DependencyObject>();
             }
 
-            if(element is ItemsControl ic)
+            if (element is ItemsControl ic)
             {
                 var list = new List<DependencyObject>();
                 for (int i = 0; i < ic.Items.Count; i++)
@@ -61,7 +69,7 @@ namespace XamlCSS.WPF.Dom
                     if (uiElement != null)
                     {
                         var found = GetLogicalChildren(uiElement).FirstOrDefault();
-                        if(found == null)
+                        if (found == null)
                             list.Add(uiElement);
                         else
                         {
@@ -92,7 +100,7 @@ namespace XamlCSS.WPF.Dom
             {
                 return GetChildrenOfLogicalParent(element, GetVisualChildren(element));
             }
-            else if(element is Frame frame)
+            else if (element is Frame frame)
             {
                 var content = frame.Content as DependencyObject;
                 return new[] { content };
@@ -184,7 +192,7 @@ namespace XamlCSS.WPF.Dom
         {
             var p = GetVisualParent(element);
             if (p == null)
-                return element is Window;// LogicalTreeHelper.GetParent(element) != null;
+                return element is Window || element == applicationDependencyObject;// LogicalTreeHelper.GetParent(element) != null;
 
             return GetChildren(p, SelectorType.VisualTree).Contains(element);
         }
@@ -192,7 +200,7 @@ namespace XamlCSS.WPF.Dom
         {
             var p = GetLogicalParent(dependencyObject);
             if (p == null)
-                return dependencyObject is Window;
+                return dependencyObject is Window || dependencyObject == applicationDependencyObject;
 
             return GetChildren(p, SelectorType.LogicalTree).Contains(dependencyObject);
         }
@@ -202,6 +210,11 @@ namespace XamlCSS.WPF.Dom
             if (element == null)
             {
                 return null;
+            }
+
+            if (element is Window)
+            {
+                return applicationDependencyObject;
             }
 
             if (type == SelectorType.VisualTree)
@@ -242,8 +255,7 @@ namespace XamlCSS.WPF.Dom
         }
         private DependencyObject GetLogicalParent(DependencyObject element)
         {
-            if (element == null ||
-                element is Window)
+            if (element == null)
             {
                 return null;
             }

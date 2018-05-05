@@ -411,6 +411,10 @@ namespace XamlCSS
                 {
                     styleSheets.Add(styleSheet);
                 }
+                else if (current is IStyleSheetHolder styleSheetHolder)
+                {
+                    styleSheets.Add(styleSheet);
+                }
                 current = GetParent(current);
             }
 

@@ -127,6 +127,7 @@
     <Compile Include="IdMatcher.cs" />
     <Compile Include="InheritedTypeMatcher.cs" />
     <Compile Include="ISelector.cs" />
+    <Compile Include="IStyleSheetHolder.cs" />
     <Compile Include="ITrigger.cs" />
     <Compile Include="LastChildMatcher.cs" />
     <Compile Include="LastOfTypeMatcher.cs" />

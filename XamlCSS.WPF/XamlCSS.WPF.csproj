@@ -86,6 +86,7 @@
     </Compile>
     <Compile Include="ClassExtensions.cs" />
     <Compile Include="CssParsing\CssFileProvider.cs" />
+    <Compile Include="Dom\ApplicationDependencyObject.cs" />
     <Compile Include="Dom\DomElement.cs" />
     <Compile Include="Css.cs" />
     <Compile Include="Dom\TreeNodeProvider.cs" />
