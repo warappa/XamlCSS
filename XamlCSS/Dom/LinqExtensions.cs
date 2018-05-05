@@ -165,54 +165,5 @@ namespace XamlCSS.Dom
                 }
             }
         }
-
-        public static IDomElement<TDependencyObject, TDependencyProperty> QuerySelector<TDependencyObject, TDependencyProperty>(this IList<IDomElement<TDependencyObject, TDependencyProperty>> elements, StyleSheet styleSheet, ISelector selector, SelectorType type)
-            where TDependencyObject : class
-        {
-            var length = elements.Count;
-            var skipThisLevel = false;
-
-            for (int i = 0; i < length; i++)
-            {
-                var element = elements[i];
-                if (!skipThisLevel)
-                {
-                    var match = selector.Match(styleSheet, element);
-                    if (match.IsSuccess)
-                    {
-                        return element;
-                    }
-                    else if (match.HasGeneralParentFailed)
-                    {
-                        //return null;
-                        skipThisLevel = true;
-                    }
-                    else if (match.HasDirectParentFailed)
-                    {
-                        skipThisLevel = true;
-                    }
-                }
-
-                var children = (type == SelectorType.LogicalTree ? element.LogicalChildNodes : element.ChildNodes);
-                if (children.Count != 0)
-                {
-                    element = children.QuerySelector(styleSheet, selector, type);
-
-                    if (element != null)
-                    {
-                        return element;
-                    }
-                }
-            }
-
-            return null;
-        }
-
-        public static T QuerySelector<T, TDependencyObject, TDependencyProperty>(this IList<IDomElement<TDependencyObject, TDependencyProperty>> elements, StyleSheet styleSheet, ISelector selectors, SelectorType type)
-            where TDependencyObject : class
-            where T : class, IDomElement<TDependencyObject, TDependencyProperty>
-        {
-            return elements.QuerySelector(styleSheet, selectors, type) as T;
-        }
     }
 }

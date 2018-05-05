@@ -291,30 +291,6 @@ namespace XamlCSS.Dom
             return selector.Match(styleSheet, this);
         }
 
-        public IDomElement<TDependencyObject, TDependencyProperty> QuerySelector(StyleSheet styleSheet, ISelector selector, SelectorType type)
-        {
-            // var selector = cachedSelectorProvider.GetOrAdd(selectors);
-
-            return (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelector(styleSheet, selector, type);
-        }
-
-        public IDomElement<TDependencyObject, TDependencyProperty> QuerySelectorWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
-        {
-            var match = Matches(styleSheet, selector);
-            if (match.IsSuccess)
-            {
-                return this;
-            }
-            else if (match.HasGeneralParentFailed)
-            {
-                // return null;
-            }
-
-            //var selector = cachedSelectorProvider.GetOrAdd(selectors);
-
-            return (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelector(styleSheet, selector, type);
-        }
-
         public IList<IDomElement<TDependencyObject, TDependencyProperty>> QuerySelectorAll(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             // var selector = cachedSelectorProvider.GetOrAdd(selectors);
