@@ -3,6 +3,7 @@ using XamlCSS.Dom;
 using Windows.UI.Xaml;
 using System;
 using System.Diagnostics;
+using System.Linq;
 
 namespace XamlCSS.UWP.Dom
 {
@@ -81,14 +82,17 @@ namespace XamlCSS.UWP.Dom
             LoadedDetectionHelper.SubTreeRemoved -= VisualTreeHelper_SubTreeRemoved;
         }
 
-        protected override IList<string> GetClassList(DependencyObject dependencyObject)
+        protected override HashSet<string> GetClassList(DependencyObject dependencyObject)
         {
-            var list = new List<string>();
+            var list = new HashSet<string>();
             var classNames = Css.GetClass(dependencyObject)?.Split(' ');
 
-            if (classNames != null)
+            if (classNames?.Length > 0)
             {
-                list.AddRange(classNames);
+                foreach (var classname in classNames.Distinct())
+                {
+                    list.Add(classname);
+                }
             }
 
             return list;

@@ -11,7 +11,7 @@ namespace XamlCSS.Dom
         IDomElement<TDependencyObject, TDependencyProperty> LogicalParent { get; }
         IDomElement<TDependencyObject, TDependencyProperty> Parent { get; }
         string Id { get; }
-        IList<string> ClassList { get; }
+        HashSet<string> ClassList { get; }
         IList<IDomElement<TDependencyObject, TDependencyProperty>> LogicalChildNodes { get; }
         IList<IDomElement<TDependencyObject, TDependencyProperty>> ChildNodes { get; }
         string AssemblyQualifiedNamespaceName { get; }

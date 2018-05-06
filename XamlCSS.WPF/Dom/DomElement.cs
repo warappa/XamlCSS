@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using XamlCSS.Dom;
 
@@ -92,14 +93,17 @@ namespace XamlCSS.WPF.Dom
             return dependencyObject.GetValue(dependencyProperty);
         }
 
-        protected override IList<string> GetClassList(DependencyObject dependencyObject)
+        protected override HashSet<string> GetClassList(DependencyObject dependencyObject)
         {
-            var list = new List<string>();
+            var list = new HashSet<string>();
 
             var classNames = Css.GetClass(dependencyObject)?.Split(classSplitter, StringSplitOptions.RemoveEmptyEntries);
             if (classNames?.Length > 0)
             {
-                list.AddRange(classNames);
+                foreach (var classname in classNames.Distinct())
+                {
+                    list.Add(classname);
+                }
             }
 
             return list;

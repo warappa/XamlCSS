@@ -125,7 +125,7 @@ namespace XamlCSS
                    x.RenderTargetKind == RenderTargetKind.Stylesheet)
                    .Select(x => x.StyleSheet)
                    .Distinct()
-                   .ToList();
+                   .ToHashSet();
 
                 var newOrUpdatedStyleHolders = copy
                     .Where(x =>
@@ -134,7 +134,7 @@ namespace XamlCSS
                         x.ChangeKind == ChangeKind.Remove)
                     .Select(x => new { x.ChangeKind, x.StartFrom, x.StyleSheet, x.StyleSheetHolder })
                     .Distinct()
-                    .ToList();
+                    .ToHashSet();
 
                 foreach (var item in newOrUpdatedStyleHolders)
                 {
@@ -196,7 +196,7 @@ namespace XamlCSS
 
                 //Task.WaitAll(tasks.ToArray());
                 var allFound = tasks.SelectMany(x => x.Result).ToList();
-                var allFoundElements = allFound.Select(x => x.Element).ToList();
+                var allFoundElements = allFound.Select(x => x.Element).ToHashSet();
                 var allNotFoundKeys = styleUpdateInfos
                     .Where(x => !allFoundElements.Contains(x.Key))
                     .ToList();
@@ -206,7 +206,7 @@ namespace XamlCSS
                     var styleUpdateInfo = item.Value;
 
                     // styleUpdateInfo.CurrentMatchedSelectors = new List<string>();
-                    styleUpdateInfo.OldMatchedSelectors = new List<string>();
+                    styleUpdateInfo.OldMatchedSelectors = new LinkedHashSet<ISelector>();
                     styleUpdateInfo.DoMatchCheck = SelectorType.None;
                     // remove style
                     nativeStyleService.SetStyle(item.Key, dependencyPropertyService.GetInitialStyle(item.Key));
@@ -360,7 +360,7 @@ namespace XamlCSS
             }
         }
 
-        private static bool AppliedStyleIdsAreMatchedStyleIds(List<string> appliedMatchingStyles, List<string> matchingStyles)
+        private static bool AppliedStyleIdsAreMatchedStyleIds(LinkedHashSet<ISelector> appliedMatchingStyles, LinkedHashSet<ISelector> matchingStyles)
         {
             return matchingStyles == appliedMatchingStyles ||
                             (
@@ -378,20 +378,21 @@ namespace XamlCSS
 
             var matchingStyles = domElement.StyleInfo.CurrentMatchedSelectors;
             var appliedMatchingStyles = domElement.StyleInfo.OldMatchedSelectors;
+            var matchingResourceKeys = domElement.StyleInfo.CurrentMatchedResourceKeys;
 
             if (!AppliedStyleIdsAreMatchedStyleIds(appliedMatchingStyles, matchingStyles))
             {
                 object styleToApply = null;
 
-                if (matchingStyles == null)
+                if (matchingResourceKeys == null)
                 {
                     // RemoveOutdatedStylesFromElementInternal(visualElement, styleSheet, true, true);
                 }
-                else if (matchingStyles?.Count == 1)
+                else if (matchingResourceKeys?.Count == 1)
                 {
-                    if (applicationResourcesService.Contains(matchingStyles[0]) == true)
+                    if (applicationResourcesService.Contains(matchingResourceKeys.First()) == true)
                     {
-                        styleToApply = applicationResourcesService.GetResource(matchingStyles[0]);
+                        styleToApply = applicationResourcesService.GetResource(matchingResourceKeys.First());
                     }
 
                     if (styleToApply != null)
@@ -401,20 +402,20 @@ namespace XamlCSS
                     else
                     {
                         nativeStyleService.SetStyle(visualElement, null);
-                        // Debug.WriteLine("    Style not found! " + matchingStyles[0]);
+                        // Debug.WriteLine("    Style not found! " + matchingResourceKeys[0]);
                     }
                 }
-                else if (matchingStyles?.Count > 1)
+                else if (matchingResourceKeys?.Count > 1)
                 {
                     var dict = new Dictionary<TDependencyProperty, object>();
                     var listTriggers = new List<TDependencyObject>();
 
-                    foreach (var matchingStyle in matchingStyles)
+                        foreach (var matchingResourceKey in matchingResourceKeys)
                     {
                         TStyle s = null;
-                        if (applicationResourcesService.Contains(matchingStyle) == true)
+                            if (applicationResourcesService.Contains(matchingResourceKey) == true)
                         {
-                            s = (TStyle)applicationResourcesService.GetResource(matchingStyle);
+                                s = (TStyle)applicationResourcesService.GetResource(matchingResourceKey);
                         }
                         else
                         {
@@ -451,7 +452,7 @@ namespace XamlCSS
                     }
                 }
 
-                domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToList();
+                domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToLinkedHashSet();
             }
         }
 
@@ -463,11 +464,11 @@ namespace XamlCSS
             INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             // var requiredStyleInfos = new List<StyleMatchInfo>();
-            var found = new List<IDomElement<TDependencyObject, TDependencyProperty>>();
+            var found = new HashSet<IDomElement<TDependencyObject, TDependencyProperty>>();
             if (startFrom == null ||
                 !startFrom.IsReady)
             {
-                return found;
+                return found.ToList();
             }
 
             if (startFrom?.StyleInfo.DoMatchCheck == SelectorType.None)
@@ -518,41 +519,37 @@ namespace XamlCSS
                         found.Add(matchingNode);
                     }
 
+                    matchingNode.StyleInfo.CurrentMatchedSelectors.Add(rule.Selectors[0]);
+
                     var initialStyle = dependencyPropertyService.GetInitialStyle(element);
                     var discriminator = initialStyle != null ? initialStyle.GetHashCode().ToString() : "";
                     var resourceKey = nativeStyleService.GetStyleResourceKey(styleSheet.Id + discriminator, element.GetType(), rule.SelectorString);
                     //var resourceKey = nativeStyleService.GetStyleResourceKey(rule.StyleSheetId, element.GetType(), rule.SelectorString);
 
-                    if (!matchingNode.StyleInfo.CurrentMatchedSelectors.Contains(resourceKey))
+                    if (!matchingNode.StyleInfo.CurrentMatchedResourceKeys.Contains(resourceKey))
                     {
-                        matchingNode.StyleInfo.CurrentMatchedSelectors.Add(resourceKey);
+                        matchingNode.StyleInfo.CurrentMatchedResourceKeys.Add(resourceKey);
                     }
                 }
             }
-
-            found = found.Distinct().ToList();
 
             foreach (var f in found)
             {
                 f.StyleInfo.DoMatchCheck = SelectorType.None;
 
-                f.StyleInfo.CurrentMatchedSelectors = f.StyleInfo.CurrentMatchedSelectors.Distinct().Select(x => new
-                {
-                    key = x,
-                    SpecificityResult = SpecificityCalculator.Calculate(x.Split('{')[1])
-                })
-                        .OrderBy(x => x.SpecificityResult.IdSpecificity)
-                        .ThenBy(x => x.SpecificityResult.ClassSpecificity)
-                        .ThenBy(x => x.SpecificityResult.SimpleSpecificity)
+                f.StyleInfo.CurrentMatchedSelectors = f.StyleInfo.CurrentMatchedSelectors.Distinct()
+                        .OrderBy(x => x.IdSpecificity)
+                        .ThenBy(x => x.ClassSpecificity)
+                        .ThenBy(x => x.SimpleSpecificity)
                         .ToList()
-                        .Select(x => x.key)
-                        .ToList();
+                        .ToLinkedHashSet();
             }
+
             if ((traversed & SelectorType.VisualTree) > 0)
                 SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.VisualTree);
             if ((traversed & SelectorType.LogicalTree) > 0)
                 SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.LogicalTree);
-            return found;
+            return found.ToList();
         }
 
         private static void SetDoMatchCheckToNoneInSubTree(IDomElement<TDependencyObject, TDependencyProperty> domElement, StyleSheet styleSheet, SelectorType type)
@@ -623,9 +620,10 @@ namespace XamlCSS
 
             if (styleChanged)
             {
-                styleUpdateInfo.OldMatchedSelectors = new List<string>();
+                styleUpdateInfo.OldMatchedSelectors = new LinkedHashSet<ISelector>();
             }
             styleUpdateInfo.CurrentMatchedSelectors.Clear();
+            styleUpdateInfo.CurrentMatchedResourceKeys.Clear();
             styleUpdateInfo.DoMatchCheck |= type;
 
             var children = type == SelectorType.VisualTree ? domElement.ChildNodes : domElement.LogicalChildNodes;
@@ -666,9 +664,10 @@ namespace XamlCSS
 
                 var matchedElementType = styleMatchInfo.MatchedType;
 
-                foreach (var resourceKey in styleMatchInfo.CurrentMatchedSelectors)
+                for (var i = 0; i < styleMatchInfo.CurrentMatchedSelectors.Count; i++)
                 {
-                    var s = resourceKey.Split('{')[1];
+                    var selector = styleMatchInfo.CurrentMatchedSelectors.ElementAt(i);
+                    var resourceKey = styleMatchInfo.CurrentMatchedResourceKeys.ElementAt(i);
 
                     if (applicationResourcesService.Contains(resourceKey))
                     {
@@ -678,7 +677,7 @@ namespace XamlCSS
 
                     // Debug.WriteLine($"GenerateStyles: Generating '{s}' ({matchedElementType.Name})");
 
-                    var rule = styleMatchInfo.CurrentStyleSheet.Rules.Where(x => x.SelectorString == s).First();
+                    var rule = styleMatchInfo.CurrentStyleSheet.Rules.Where(x => x.SelectorString == selector.Value).First();
 
                     CreateStyleDictionaryFromDeclarationBlockResult<TDependencyProperty> result = null;
                     try
@@ -707,12 +706,12 @@ namespace XamlCSS
                         {
                             var subDict = nativeStyleService.GetStyleAsDictionary(initalStyle as TStyle);
 
-                            foreach (var i in subDict)
+                            foreach (var item in subDict)
                             {
                                 // only set not-overridden properties
-                                if (!propertyStyleValues.ContainsKey(i.Key))
+                                if (!propertyStyleValues.ContainsKey(item.Key))
                                 {
-                                    propertyStyleValues[i.Key] = i.Value;
+                                    propertyStyleValues[item.Key] = item.Value;
                                 }
                             }
 

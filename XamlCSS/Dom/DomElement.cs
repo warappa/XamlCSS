@@ -29,7 +29,7 @@ namespace XamlCSS.Dom
         protected IList<IDomElement<TDependencyObject, TDependencyProperty>> childNodes = null;
         protected IList<IDomElement<TDependencyObject, TDependencyProperty>> logicalChildNodes = null;
         protected IDictionary<string, TDependencyProperty> attributes = null;
-        protected IList<string> classList = null;
+        protected HashSet<string> classList = null;
 
         public DomElementBase(
             TDependencyObject dependencyObject,
@@ -171,7 +171,7 @@ namespace XamlCSS.Dom
                 .ToList();
         }
 
-        abstract protected IList<string> GetClassList(TDependencyObject dependencyObject);
+        abstract protected HashSet<string> GetClassList(TDependencyObject dependencyObject);
 
         abstract protected string GetId(TDependencyObject dependencyObject);
 
@@ -183,7 +183,7 @@ namespace XamlCSS.Dom
         public IList<IDomElement<TDependencyObject, TDependencyProperty>> ChildNodes => childNodes ?? (childNodes = GetChildNodes(SelectorType.VisualTree));
         public IList<IDomElement<TDependencyObject, TDependencyProperty>> LogicalChildNodes => logicalChildNodes ?? (logicalChildNodes = GetChildNodes(SelectorType.LogicalTree));
 
-        public IList<string> ClassList => classList ?? (classList = GetClassList(dependencyObject));
+        public HashSet<string> ClassList => classList ?? (classList = GetClassList(dependencyObject));
 
         public bool HasChildNodes { get { return ChildNodes.Any(); } }
         public bool HasLogicalChildNodes { get { return LogicalChildNodes.Any(); } }

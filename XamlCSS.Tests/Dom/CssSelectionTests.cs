@@ -29,6 +29,7 @@ ui|Grid
         private TestNode dom;
         private TestNode body;
         private TestNode div;
+        private TestNode div1;
         private TestNode label1;
         private TestNode label2;
         private TestNode label3;
@@ -51,6 +52,7 @@ ui|Grid
             dom = (body = new TestNode(new UIElement(), null, "body",
                 new[] {(section = new TestNode(new UIElement(), null, "section", new[]
                 {
+                    (div1 = new TestNode(new UIElement(), null, "div", new[]{
                 (div = new TestNode(new UIElement(), null, "div", new[]
                 {
                     (label1 = new TestNode(new UIElement(), null, "label")),
@@ -58,7 +60,7 @@ ui|Grid
                     (label3 = new TestNode(new UIElement(), null, "label", null,null, null, "required")),
                     (grid = new TestNode(new UIElement(), null, "Grid", null,null, null)),
                     (gridSpecial = new TestNode(new UIElement(), null, "special|Grid", null,null, null))
-                }))
+                })) }))
                 }))
             }));
 
@@ -93,6 +95,32 @@ ui|Grid
             Assert.AreEqual(3, nodes.Count());
         }
 
+
+        [Test]
+        public void Select_on_root_node_with_repeating_general_parents2()
+        {
+            var styleSheet = CssParser.Parse(test1);
+            SetCurrentStyleSheet(dom, styleSheet);
+
+            var nodes = div.QuerySelectorAllWithSelf(styleSheet, new Selector("div div label.required"), SelectorType.LogicalTree);
+
+            Assert.AreEqual(1, nodes.Count());
+            Assert.AreEqual(label3, nodes.First());
+        }
+
+
+        [Test]
+        public void Select_on_root_node_with_repeating_general_parents()
+        {
+            var styleSheet = CssParser.Parse(test1);
+            SetCurrentStyleSheet(dom, styleSheet);
+
+            var nodes = dom.QuerySelectorAllWithSelf(styleSheet, new Selector("div div label.required"), SelectorType.LogicalTree);
+
+            Assert.AreEqual(1, nodes.Count());
+            Assert.AreEqual(label3, nodes.First());
+        }
+
         [Test]
         public void Select_on_root_node_descending_node_with_tag_and_class()
         {
@@ -100,6 +128,18 @@ ui|Grid
             SetCurrentStyleSheet(dom, styleSheet);
 
             var nodes = dom.QuerySelectorAllWithSelf(styleSheet, new Selector("body label.required"), SelectorType.LogicalTree);
+
+            Assert.AreEqual(1, nodes.Count());
+            Assert.AreEqual(label3, nodes.First());
+        }
+
+        [Test]
+        public void Select_on_root_node_intermediate_node_and_descending_node_with_tag_and_class()
+        {
+            var styleSheet = CssParser.Parse(test1);
+            SetCurrentStyleSheet(dom, styleSheet);
+
+            var nodes = dom.QuerySelectorAllWithSelf(styleSheet, new Selector("body div label.required"), SelectorType.LogicalTree);
 
             Assert.AreEqual(1, nodes.Count());
             Assert.AreEqual(label3, nodes.First());

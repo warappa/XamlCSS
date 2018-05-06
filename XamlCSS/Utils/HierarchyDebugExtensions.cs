@@ -125,7 +125,7 @@ namespace XamlCSS.Utils
                 Debug.WriteLine("XXXXX");
             }
 
-            Debug.WriteLine(new String(' ', level * 2) + domElement.Element.GetType().Name + "#" + domElement.Id + " | " + string.Join(", ", domElement.StyleInfo.CurrentMatchedSelectors.Select(x => x.Split('{')[1])));
+            Debug.WriteLine(new String(' ', level * 2) + domElement.Element.GetType().Name + "#" + domElement.Id + " | " + string.Join(", ", domElement.StyleInfo.CurrentMatchedSelectors.Select(x => x.Value.Split('{')[1])));
 
             var children = treeNodeProvider.GetDomElementChildren(domElement, type);
             foreach (var child in children)

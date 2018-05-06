@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
@@ -31,6 +32,12 @@ namespace XamlCSS
             {
                 this.Value = selectorString;
             }
+        }
+
+        internal Selector(IEnumerable<SelectorMatcher> fragments)
+        {
+            this.fragments = fragments.ToArray();
+            this.fragmentLength = this.fragments.Length;
         }
 
         protected string val;
@@ -159,12 +166,32 @@ namespace XamlCSS
 
         public bool StartOnVisualTree()
         {
-            if(fragments[fragmentLength-1].Type == CssNodeType.PseudoSelector &&
+            if (fragments[fragmentLength - 1].Type == CssNodeType.PseudoSelector &&
                 fragments[fragmentLength - 1].Text == ":visualtree")
             {
                 return true;
             }
             return false;
-        } 
+        }
+
+        public override bool Equals(object obj)
+        {
+            var other = obj as Selector;
+            if (ReferenceEquals(other, null))
+            {
+                return false;
+            }
+            if (ReferenceEquals(obj, this))
+            {
+                return true;
+            }
+
+            return other.Value == this.Value;
+        }
+
+        public override int GetHashCode()
+        {
+            return Value?.GetHashCode() ?? 0;
+        }
     }
 }

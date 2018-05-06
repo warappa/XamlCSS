@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using XamlCSS.Dom;
+using XamlCSS.Utils;
 
 namespace XamlCSS.Tests.Dom
 {
@@ -23,7 +24,7 @@ namespace XamlCSS.Tests.Dom
 
             dependencyObject.Children = this.ChildNodes.Select(x => x.Element).ToList();
 
-            this.classList = new List<string>();
+            this.classList = new HashSet<string>();
             foreach (var item in (@class ?? "").Split(classSplitter, StringSplitOptions.RemoveEmptyEntries))
             {
                 this.ClassList.Add(item);
@@ -78,9 +79,9 @@ namespace XamlCSS.Tests.Dom
         {
             return new Dictionary<string, PropertyInfo>();
         }
-        protected override IList<string> GetClassList(UIElement dependencyObject)
+        protected override HashSet<string> GetClassList(UIElement dependencyObject)
         {
-            return dependencyObject.Class.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            return dependencyObject.Class.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries).ToHashSet();
         }
 
         public string ClassName => string.Join(" ", ClassList);

@@ -4,6 +4,7 @@ using Xamarin.Forms;
 using System;
 using System.Diagnostics;
 using System.ComponentModel;
+using System.Linq;
 
 namespace XamlCSS.XamarinForms.Dom
 {
@@ -87,14 +88,17 @@ namespace XamlCSS.XamarinForms.Dom
             return dependencyObject.GetValue(dependencyProperty);
         }
 
-        protected override IList<string> GetClassList(BindableObject dependencyObject)
+        protected override HashSet<string> GetClassList(BindableObject dependencyObject)
         {
-            var list = new List<string>();
+            var list = new HashSet<string>();
 
             var classNames = Css.GetClass(dependencyObject)?.Split(classSplitter, StringSplitOptions.RemoveEmptyEntries);
             if (classNames?.Length > 0)
             {
-                list.AddRange(classNames);
+                foreach (var classname in classNames.Distinct())
+                {
+                    list.Add(classname);
+                }
             }
 
             return list;

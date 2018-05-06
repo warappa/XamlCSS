@@ -88,7 +88,7 @@ namespace XamlCSS.WPF
             CompositionTarget.Rendering += RenderingHandler;
 
             timer = new DispatcherTimer(DispatcherPriority.Render);
-            timer.Interval = TimeSpan.FromMilliseconds(10);
+            timer.Interval = TimeSpan.FromMilliseconds(5);
             timer.Tick += (s, e) =>
             {
                 instance?.ExecuteApplyStyles();

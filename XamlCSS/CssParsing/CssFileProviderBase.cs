@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using XamlCSS.Utils;
 
 namespace XamlCSS.CssParsing
 {
@@ -59,7 +60,7 @@ namespace XamlCSS.CssParsing
                 var resourceName = GetEmbeddedResourceName(source, assembly);
                 try
                 {
-                    if (assembly.GetManifestResourceNames().ToList().Contains(resourceName))
+                    if (assembly.GetManifestResourceNames().ToHashSet().Contains(resourceName))
                     {
                         stream = assembly.GetManifestResourceStream(resourceName);
                         break;
