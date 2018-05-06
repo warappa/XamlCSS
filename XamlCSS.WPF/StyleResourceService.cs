@@ -1,52 +1,53 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Windows;
 
 namespace XamlCSS.WPF
 {
     public class StyleResourceService : IStyleResourcesService
     {
+        private Dictionary<object, object> resources = new Dictionary<object, object>();
+
+        public StyleResourceService()
+        {
+
+        }
+
         public void BeginUpdate()
         {
-            Application.Current.Resources.BeginInit();
         }
 
         public bool Contains(object key)
         {
-            return Application.Current.Resources.Contains(key);
+            return resources.ContainsKey(key);
         }
 
         public void EndUpdate()
         {
-            Application.Current.Resources.EndInit();
         }
 
         public void EnsureResources()
         {
-            if (Application.Current.Resources == null)
-            {
-                Application.Current.Resources = new ResourceDictionary();
-            }
+            
         }
 
         public IEnumerable<object> GetKeys()
         {
-            return Application.Current.Resources.Keys.Cast<object>();
+            return resources.Keys;
         }
 
         public object GetResource(object key)
         {
-            return Application.Current.Resources[key];
+            resources.TryGetValue(key, out object value);
+            return value;
         }
 
         public void RemoveResource(object key)
         {
-            Application.Current.Resources.Remove(key);
+            resources.Remove(key);
         }
 
         public void SetResource(object key, object value)
         {
-            Application.Current.Resources[key] = value;
+            resources[key] = value;
         }
     }
 }

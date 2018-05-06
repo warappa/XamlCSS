@@ -1,53 +1,53 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Xamarin.Forms;
-using XamlCSS.Dom;
 
 namespace XamlCSS.XamarinForms
 {
-	public class StyleResourceService : IStyleResourcesService
-	{
+    public class StyleResourceService : IStyleResourcesService
+    {
+        private Dictionary<object, object> resources = new Dictionary<object, object>();
+
+        public StyleResourceService()
+        {
+
+        }
+
         public void BeginUpdate()
         {
-            
         }
 
         public bool Contains(object key)
-		{
-			return Application.Current.Resources.Keys.Contains(key);
-		}
+        {
+            return resources.ContainsKey(key);
+        }
 
         public void EndUpdate()
         {
-            
         }
 
         public void EnsureResources()
-		{
-            if (Application.Current.Resources == null)
-            {
-                Application.Current.Resources = new ResourceDictionary();
-            }
-		}
+        {
 
-		public IEnumerable<object> GetKeys()
-		{
-			return Application.Current.Resources?.Keys.Cast<object>() ?? Enumerable.Empty<object>();
-		}
+        }
 
-		public object GetResource(object key)
-		{
-			return Application.Current.Resources[key as string];
-		}
+        public IEnumerable<object> GetKeys()
+        {
+            return resources.Keys;
+        }
 
-		public void RemoveResource(object key)
-		{
-			Application.Current.Resources.Remove(key as string);
-		}
+        public object GetResource(object key)
+        {
+            resources.TryGetValue(key, out object value);
+            return value;
+        }
 
-		public void SetResource(object key, object value)
-		{
-			Application.Current.Resources[key as string] = value;
-		}
-	}
+        public void RemoveResource(object key)
+        {
+            resources.Remove(key);
+        }
+
+        public void SetResource(object key, object value)
+        {
+            resources[key] = value;
+        }
+    }
 }
