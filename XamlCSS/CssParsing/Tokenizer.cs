@@ -135,7 +135,8 @@ namespace XamlCSS.CssParsing
             {
                 var token = tokens[j];
                 var currentTokenType = token.Type;
-                if (previousToken?.Type == CssTokenType.Identifier &&
+                if (previousToken != null &&
+                    previousToken.Type == CssTokenType.Identifier &&
                     currentTokenType == CssTokenType.Identifier)
                 {
                     previousToken.Text += token.Text;

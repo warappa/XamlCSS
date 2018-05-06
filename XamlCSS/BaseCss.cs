@@ -388,7 +388,7 @@ namespace XamlCSS
                 {
                     // RemoveOutdatedStylesFromElementInternal(visualElement, styleSheet, true, true);
                 }
-                else if (matchingResourceKeys?.Count == 1)
+                else if (matchingResourceKeys.Count == 1)
                 {
                     if (applicationResourcesService.Contains(matchingResourceKeys.First()) == true)
                     {
@@ -405,7 +405,7 @@ namespace XamlCSS
                         // Debug.WriteLine("    Style not found! " + matchingResourceKeys[0]);
                     }
                 }
-                else if (matchingResourceKeys?.Count > 1)
+                else if (matchingResourceKeys.Count > 1)
                 {
                     var resourceKey = string.Join(", ", matchingResourceKeys);
                     if (applicationResourcesService.Contains(resourceKey))
@@ -480,13 +480,13 @@ namespace XamlCSS
                 return found.ToList();
             }
 
-            if (startFrom?.StyleInfo.DoMatchCheck == SelectorType.None)
+            if (startFrom.StyleInfo.DoMatchCheck == SelectorType.None)
             {
                 return new List<IDomElement<TDependencyObject, TDependencyProperty>>();
             }
 
-            startFrom?.XamlCssStyleSheets.Clear();
-            startFrom?.XamlCssStyleSheets.Add(styleSheet);
+            startFrom.XamlCssStyleSheets.Clear();
+            startFrom.XamlCssStyleSheets.Add(styleSheet);
 
             var traversed = SelectorType.None;
 

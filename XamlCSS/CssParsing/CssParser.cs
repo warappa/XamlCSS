@@ -429,8 +429,7 @@ namespace XamlCSS.CssParsing
             var triggers = propertyTriggers.Concat(dataTriggers).Concat(eventTriggers).ToList();
 
             var parentSelectorList = GetParentsSelectorAsts(astRule);
-            var parentSelectors = (parentSelectorList?.Select(x => GetSelectorStringsFromSelectorsCssNode(x)) ?? new List<List<string>>()).ToList();
-
+            var parentSelectors = (parentSelectorList.Select(x => GetSelectorStringsFromSelectorsCssNode(x)) ?? new List<List<string>>()).ToList();
 
             var currentLevelSelectors = astRule.Children
                .Single(x => x.Type == CssNodeType.Selectors);

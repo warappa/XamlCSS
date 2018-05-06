@@ -7,14 +7,14 @@ namespace XamlCSS
     {
         public NthLastChildMatcher(CssNodeType type, string text) : base(type, text)
         {
-            Text = text?.Substring(11).Replace(")", "");
+            Text = text.Substring(11).Replace(")", "");
         }
 
         protected override string GetParameterExpression(string expression)
         {
-            if (expression?.Length >= 16 == true)
+            if (expression.Length >= 16)
             {
-                return expression?.Substring(16).Replace(")", "");
+                return expression.Substring(16).Replace(")", "");
             }
 
             return null;

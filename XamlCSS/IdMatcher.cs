@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using XamlCSS.CssParsing;
+﻿using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 
 namespace XamlCSS
@@ -8,7 +7,7 @@ namespace XamlCSS
     {
         public IdMatcher(CssNodeType type, string text) : base(type, text)
         {
-            Text = text?.Substring(1);
+            Text = text.Substring(1);
         }
 
         

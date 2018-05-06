@@ -13,9 +13,9 @@ namespace XamlCSS
 
         protected override string GetParameterExpression(string expression)
         {
-            if (expression?.Length >= 18 == true)
+            if (expression.Length >= 18)
             {
-                return expression?.Substring(18).Replace(")", "");
+                return expression.Substring(18).Replace(")", "");
             }
 
             return null;

@@ -7,7 +7,7 @@ namespace XamlCSS
     {
         public ClassMatcher(CssNodeType type, string text) : base(type, text)
         {
-            Text = text?.Substring(1);
+            Text = text.Substring(1);
         }
 
         public override MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, ref IDomElement<TDependencyObject, TDependencyProperty> domElement, SelectorMatcher[] fragments, ref int currentIndex)
