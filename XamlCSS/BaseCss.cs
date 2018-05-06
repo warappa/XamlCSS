@@ -407,6 +407,13 @@ namespace XamlCSS
                 }
                 else if (matchingResourceKeys?.Count > 1)
                 {
+                    var resourceKey = string.Join(", ", matchingResourceKeys);
+                    if (applicationResourcesService.Contains(resourceKey))
+                    {
+                        nativeStyleService.SetStyle(visualElement, (TStyle)applicationResourcesService.GetResource(resourceKey));
+                    }
+                    else
+                    {
                     var dict = new Dictionary<TDependencyProperty, object>();
                     var listTriggers = new List<TDependencyObject>();
 
@@ -444,12 +451,14 @@ namespace XamlCSS
 
                     if (styleToApply != null)
                     {
+                            applicationResourcesService.SetResource(resourceKey, styleToApply);
                         nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
                     }
                     else
                     {
                         nativeStyleService.SetStyle(visualElement, null);
                     }
+                }
                 }
 
                 domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToLinkedHashSet();
