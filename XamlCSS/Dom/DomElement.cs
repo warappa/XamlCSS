@@ -68,22 +68,6 @@ namespace XamlCSS.Dom
             ReevaluateParent();
 
             AddIfNotAdded();
-
-            if (IsInLogicalTree)
-            {
-                if (((DomElementBase<TDependencyObject, TDependencyProperty>)logicalParent)?.logicalChildNodes?.Contains(this) == false)
-                {
-                    // should not happen - bug
-                }
-            }
-
-            if (IsInVisualTree)
-            {
-                if (((DomElementBase<TDependencyObject, TDependencyProperty>)parent)?.childNodes?.Contains(this) == false)
-                {
-                    // should not happen - bug
-                }
-            }
         }
 
         protected void ElementUnloaded(TDependencyObject element)
