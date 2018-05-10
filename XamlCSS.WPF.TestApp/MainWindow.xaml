@@ -146,61 +146,67 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <FlowDocumentScrollViewer>
-                <FlowDocument>
-                    <Paragraph>
-                        <Run cssWPF:Css.Class="header" Text="asdfasdfasdf"></Run>
-                    </Paragraph>
-
-                    <Paragraph>
-                        <Run Text="asdfasdfadsf"></Run>
-                    </Paragraph>
-                    <List cssWPF:Css.Class="list">
-                        <ListItem>
+            <Frame>
+                <Frame.Content>
+                    <FlowDocumentScrollViewer>
+                        <FlowDocument>
                             <Paragraph>
-                                <Run cssWPF:Css.Class="fa fa-graduation-cap"></Run> &#160;
-                                <Hyperlink NavigateUri="https://aka.ms/willowlearn" >
-                                    <Run cssWPF:Css.Class="subheader important" Text="asdfasdfasdf"></Run>
-                                </Hyperlink>
+                                <Run cssWPF:Css.Class="header" Text="asdfasdfasdf"></Run>
                             </Paragraph>
-                            <Paragraph Margin="21,10,0,0">
-                                <Run Text="asdfasfasdf"></Run>
-                            </Paragraph>
-                        </ListItem>
-                    </List>
 
-                    <List cssWPF:Css.Class="list">
-                        <ListItem>
                             <Paragraph>
-                                <Run cssWPF:Css.Class="fa fa-shoping-bag"></Run> &#160;
-                                <Hyperlink NavigateUri="https://aka.ms/willowmarketplace" >
-                                    <Run cssWPF:Css.Class="subheader important" Text="asdfasdfasfd"></Run>
+                                <Run Text="asdfasdfadsf"></Run>
+                            </Paragraph>
+                            <List cssWPF:Css.Class="list">
+                                <ListItem>
+                                    <Paragraph>
+                                        <Run cssWPF:Css.Class="fa fa-graduation-cap"></Run> &#160;
+                                        <Hyperlink NavigateUri="https://aka.ms/willowlearn" >
+                                            <Run cssWPF:Css.Class="subheader important" Text="asdfasdfasdf"></Run>
+                                        </Hyperlink>
+                                    </Paragraph>
+                                    <Paragraph Margin="21,10,0,0">
+                                        <Run Text="asdfasfasdf"></Run>
+                                    </Paragraph>
+                                </ListItem>
+                            </List>
+
+                            <List cssWPF:Css.Class="list">
+                                <ListItem>
+                                    <Paragraph>
+                                        <Run cssWPF:Css.Class="fa fa-shoping-bag"></Run> &#160;
+                                        <Hyperlink NavigateUri="https://aka.ms/willowmarketplace" >
+                                            <Run cssWPF:Css.Class="subheader important" Text="asdfasdfasfd"></Run>
+                                        </Hyperlink>
+                                    </Paragraph>
+                                    <Paragraph Margin="21,10,0,0">
+                                        <Run TextBlock.TextAlignment="Center" Text="adsfasdfasdf"></Run>
+                                    </Paragraph>
+                                </ListItem>
+                            </List>
+                            <Paragraph  Margin="0,21,0,5">
+                                <Run cssWPF:Css.Class="subheader" Text="asdfasdfasf"></Run>
+                            </Paragraph>
+                            <Paragraph  Margin="0,0,0,0">
+                                <Run Text="asdfasdfasdf"></Run>
+                                <Hyperlink NavigateUri="https://go.microsoft.com/fwlink/?linkid=834731" >
+                                    <Run Text="asdfasdfasf"></Run>
                                 </Hyperlink>
+                                <Run Text="asdfasdasdf"></Run>
                             </Paragraph>
-                            <Paragraph Margin="21,10,0,0">
-                                <Run TextBlock.TextAlignment="Center" Text="adsfasdfasdf"></Run>
+                            <Paragraph>
+                                <Run Text="asdfasdfasdf"></Run>
+                                <Hyperlink NavigateUri="https://go.microsoft.com/fwlink/?linkid=834732" >
+                                    <Run Text="asdfasdfasf"></Run>
+                                </Hyperlink>
+                                <Run Text="asdfasdfasdfas"></Run>
                             </Paragraph>
-                        </ListItem>
-                    </List>
-                    <Paragraph  Margin="0,21,0,5">
-                        <Run cssWPF:Css.Class="subheader" Text="asdfasdfasf"></Run>
-                    </Paragraph>
-                    <Paragraph  Margin="0,0,0,0">
-                        <Run Text="asdfasdfasdf"></Run>
-                        <Hyperlink NavigateUri="https://go.microsoft.com/fwlink/?linkid=834731" >
-                            <Run Text="asdfasdfasf"></Run>
-                        </Hyperlink>
-                        <Run Text="asdfasdasdf"></Run>
-                    </Paragraph>
-                    <Paragraph>
-                        <Run Text="asdfasdfasdf"></Run>
-                        <Hyperlink NavigateUri="https://go.microsoft.com/fwlink/?linkid=834732" >
-                            <Run Text="asdfasdfasf"></Run>
-                        </Hyperlink>
-                        <Run Text="asdfasdfasdfas"></Run>
-                    </Paragraph>
-                </FlowDocument>
-            </FlowDocumentScrollViewer>
+                        </FlowDocument>
+                    </FlowDocumentScrollViewer>
+                </Frame.Content>
+            </Frame>
+
+            
         </StackPanel>
     </Grid>
 </Window>

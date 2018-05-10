@@ -103,7 +103,11 @@ namespace XamlCSS.WPF.Dom
             else if (element is Frame frame)
             {
                 var content = frame.Content as DependencyObject;
-                return new[] { content };
+                if (content != null)
+                {
+                    return new[] { content };
+                }
+                return new DependencyObject[0];
             }
 
             var children = LogicalTreeHelper.GetChildren(element)
@@ -279,6 +283,12 @@ namespace XamlCSS.WPF.Dom
                     {
                         p = cc.TemplatedParent ?? GetVisualParent(cc);
                     }
+                }
+
+
+                if (p == null)
+                {
+                    p = GetVisualParent(element);
                 }
 
                 if (p is ContentPresenter cp)

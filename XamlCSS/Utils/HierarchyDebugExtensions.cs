@@ -88,7 +88,8 @@ namespace XamlCSS.Utils
             {
                 Debug.WriteLine("!!!!!");
                 Debug.WriteLine($"Expected parent: { dependencyPropertyService.GetName(expectedParent) } {expectedParent.GetType().Name}");
-                Debug.WriteLine($"Provider parent:   { dependencyPropertyService.GetName(treeNodeProvider.GetParent(element, type)) } {treeNodeProvider.GetParent(element, type).GetType().Name}");
+                var providerParent = treeNodeProvider.GetParent(element, type);
+                Debug.WriteLine($"Provider parent:   { (providerParent != null ? dependencyPropertyService.GetName(providerParent) : "NULL!") } {(providerParent != null ? treeNodeProvider.GetParent(element, type).GetType().Name : "NULL!")}");
                 Debug.WriteLine("!!!!!");
             }
 
@@ -125,7 +126,7 @@ namespace XamlCSS.Utils
                 Debug.WriteLine("XXXXX");
             }
 
-            Debug.WriteLine(new String(' ', level * 2) + domElement.Element.GetType().Name + "#" + domElement.Id + " | " + string.Join(", ", domElement.StyleInfo.CurrentMatchedSelectors.Select(x => x.Value.Split('{')[1])));
+            Debug.WriteLine(new String(' ', level * 2) + domElement.Element.GetType().Name + "#" + domElement.Id + " | " + string.Join(", ", domElement.StyleInfo?.CurrentMatchedSelectors.Select(x => x.Value) ?? new string[0]));
 
             var children = treeNodeProvider.GetDomElementChildren(domElement, type);
             foreach (var child in children)
