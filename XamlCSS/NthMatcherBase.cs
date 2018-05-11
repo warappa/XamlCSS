@@ -5,7 +5,7 @@ namespace XamlCSS
 {
     public abstract class NthMatcherBase : SelectorMatcher
     {
-        private static Regex nthRegex = new Regex(@"((?<factor>[0-9]+)?(?<n>n))?(?<distance>([\+\-]?[0-9]+))?");
+        private static Regex nthRegex = new Regex(@"((?<factor>[\-0-9]+)?(?<n>n))?(?<distance>([\+\-]?[0-9]+))?");
 
         protected int factor;
         protected int distance;
@@ -24,9 +24,21 @@ namespace XamlCSS
         {
             thisPosition = thisPosition - distance;
 
-            if (thisPosition < 0)
+            if (factor >= 0)
             {
-                return false;
+                if (thisPosition < 0)
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                if (thisPosition > 0)
+                {
+                    return false;
+                }
+                thisPosition *= -1;
+                factor *= -1;
             }
 
             return (factor != 0 ? thisPosition % factor : thisPosition) == 0;
@@ -55,7 +67,15 @@ namespace XamlCSS
             {
                 var matchResult = nthRegex.Match(expression);
 
-                int.TryParse(matchResult.Groups["factor"]?.Value ?? "", out factor);
+                if (matchResult.Groups["factor"]?.Value == "-")
+                {
+                    factor = -1;
+                }
+                else
+                {
+                    int.TryParse(matchResult.Groups["factor"]?.Value ?? "", out factor);
+                }
+
                 int.TryParse(matchResult.Groups["distance"]?.Value ?? "", out distance);
 
                 if (factor == 0 &&
