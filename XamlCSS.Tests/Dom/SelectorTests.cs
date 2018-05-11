@@ -357,6 +357,42 @@ namespace XamlCSS.Tests.Dom
         }
 
         [Test]
+        public void Can_match_nth_child_minus_n_plus_2()
+        {
+            var selector = new Selector(":nth-child(-n+2)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling3 = GetDomElement("button", "bbb", "some important stuff");
+            var sibling4 = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { tag, sibling, sibling3, sibling4 });
+
+            selector.Match(defaultStyleSheet, tag).IsSuccess.Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling).IsSuccess.Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling3).IsSuccess.Should().Be(false);
+            selector.Match(defaultStyleSheet, sibling4).IsSuccess.Should().Be(false);
+        }
+
+        [Test]
+        public void Can_match_nth_child_minus_2n_plus_3()
+        {
+            var selector = new Selector(":nth-child(-2n+3)");
+
+            var tag = GetDomElement("button", "bbb", "some important stuff");
+            var sibling = GetDomElement("button", "bbb", "some important stuff");
+            var sibling3 = GetDomElement("button", "bbb", "some important stuff");
+            var sibling4 = GetDomElement("button", "bbb", "some important stuff");
+
+            var parent = GetDomElement("a", null, "", new[] { tag, sibling, sibling3, sibling4 });
+
+            selector.Match(defaultStyleSheet, tag).IsSuccess.Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling).IsSuccess.Should().Be(false);
+            selector.Match(defaultStyleSheet, sibling3).IsSuccess.Should().Be(true);
+            selector.Match(defaultStyleSheet, sibling4).IsSuccess.Should().Be(false);
+        }
+
+        [Test]
         public void Can_match_nth_of_type()
         {
             var selector = new Selector(":nth-of-type(2)");

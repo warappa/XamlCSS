@@ -30,9 +30,9 @@ namespace XamlCSS
 
             var tagName = domElement.TagName;
 
-            var thisPosition = domElement.Parent?.ChildNodes.Where(x => x.TagName == tagName).IndexOf(domElement) ?? -1;
+            var thisPosition = domElement.LogicalParent?.LogicalChildNodes.Where(x => x.TagName == tagName).IndexOf(domElement) ?? -1;
 
-            thisPosition = (domElement.Parent?.ChildNodes.Where(x => x.TagName == tagName).Count() ?? 0) - thisPosition;
+            thisPosition = (domElement.LogicalParent?.LogicalChildNodes.Where(x => x.TagName == tagName).Count() ?? 0) - thisPosition;
 
             return CalcIsNth(factor, distance, ref thisPosition) ? MatchResult.Success : MatchResult.ItemFailed;
         }

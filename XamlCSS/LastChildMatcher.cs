@@ -12,7 +12,7 @@ namespace XamlCSS
 
         public override MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, ref IDomElement<TDependencyObject, TDependencyProperty> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
-            return domElement.Parent?.ChildNodes.IndexOf(domElement) == (domElement.Parent?.ChildNodes.Count()) - 1 ? MatchResult.Success : MatchResult.ItemFailed;
+            return domElement.LogicalParent?.LogicalChildNodes.IndexOf(domElement) == (domElement.LogicalParent?.LogicalChildNodes.Count()) - 1 ? MatchResult.Success : MatchResult.ItemFailed;
         }
     }
 }

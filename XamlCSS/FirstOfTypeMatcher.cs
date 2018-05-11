@@ -15,7 +15,7 @@ namespace XamlCSS
             var tagName = domElement.TagName;
             var namespaceUri = domElement.AssemblyQualifiedNamespaceName;
 
-            var children = domElement.Parent?.ChildNodes
+            var children = domElement.LogicalParent?.LogicalChildNodes
                 .Where(x => x.TagName == tagName && x.AssemblyQualifiedNamespaceName == namespaceUri)
                 .ToList();
 
