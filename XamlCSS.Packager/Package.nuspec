@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XamlCSS</id>
-    <version>2.2.0-pre4</version>
+    <version>2.2.0-pre5</version>
     <title>XamlCSS</title>
     <authors>David Rettenbacher</authors>
     <owners></owners>
@@ -10,6 +10,10 @@
       Style Xaml-apps with Css
     </description>
     <releaseNotes>
+        2.2.0-pre5
+        - #78 WPF: Children Of Frame Don't See Parent
+        - #79 Nth-Selectors With Negative Factor Are Not Handled Correctly
+        
         2.2.0-pre4
         - Major performance enhancements
         - #75 WPF: Setting Class On Window Chrome Element Causes Exception

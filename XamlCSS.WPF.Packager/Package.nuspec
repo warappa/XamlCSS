@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>XamlCSS.WPF</id>
-        <version>2.2.0-pre4</version>
+        <version>2.2.0-pre5</version>
         <title>XamlCSS.WPF</title>
         <authors>David Rettenbacher</authors>
         <owners></owners>
@@ -10,12 +10,16 @@
             Style WPF-apps with Css
         </description>
         <releaseNotes>
+            2.2.0-pre5
+            - #78 WPF: Children Of Frame Don't See Parent
+            - #79 Nth-Selectors With Negative Factor Are Not Handled Correctly
+            
             2.2.0-pre4
             - Major performance enhancements
             - #75 WPF: Setting Class On Window Chrome Element Causes Exception
             - #76 Support Attribute Selectors With Change-Tracking
             - #77 WPF: Support One StyleSheet For Multiple Windows
-            
+
             2.2.0-pre3
             - #72 StyleSheet Should Update If SingleBaseStyleSheet Changes
             - Removed Measure calls used for exact performance profiling
@@ -132,7 +136,7 @@
         <copyright>© 2018 David Rettenbacher</copyright>
         <dependencies>
             <group>
-                <dependency id="XamlCSS" version="2.2.0-pre4" />
+                <dependency id="XamlCSS" version="2.2.0-pre5" />
             </group>
         </dependencies>
         <references></references>
