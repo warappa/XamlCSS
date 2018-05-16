@@ -414,51 +414,51 @@ namespace XamlCSS
                     }
                     else
                     {
-                    var dict = new Dictionary<TDependencyProperty, object>();
-                    var listTriggers = new List<TDependencyObject>();
+                        var dict = new Dictionary<TDependencyProperty, object>();
+                        var listTriggers = new List<TDependencyObject>();
 
                         foreach (var matchingResourceKey in matchingResourceKeys)
-                    {
-                        TStyle s = null;
-                            if (applicationResourcesService.Contains(matchingResourceKey) == true)
                         {
+                            TStyle s = null;
+                            if (applicationResourcesService.Contains(matchingResourceKey) == true)
+                            {
                                 s = (TStyle)applicationResourcesService.GetResource(matchingResourceKey);
+                            }
+                            else
+                            {
+                                // Debug.WriteLine("    Style not found! " + matchingStyle);
+                            }
+
+                            if (s != null)
+                            {
+                                var subDict = nativeStyleService.GetStyleAsDictionary(s as TStyle);
+
+                                foreach (var i in subDict)
+                                {
+                                    dict[i.Key] = i.Value;
+                                }
+
+                                var triggers = nativeStyleService.GetTriggersAsList(s as TStyle);
+                                listTriggers.AddRange(triggers);
+                            }
+                        }
+
+                        if (dict.Keys.Count > 0 ||
+                            listTriggers.Count > 0)
+                        {
+                            styleToApply = nativeStyleService.CreateFrom(dict, listTriggers, visualElement.GetType());
+                        }
+
+                        if (styleToApply != null)
+                        {
+                            applicationResourcesService.SetResource(resourceKey, styleToApply);
+                            nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
                         }
                         else
                         {
-                            // Debug.WriteLine("    Style not found! " + matchingStyle);
-                        }
-
-                        if (s != null)
-                        {
-                            var subDict = nativeStyleService.GetStyleAsDictionary(s as TStyle);
-
-                            foreach (var i in subDict)
-                            {
-                                dict[i.Key] = i.Value;
-                            }
-
-                            var triggers = nativeStyleService.GetTriggersAsList(s as TStyle);
-                            listTriggers.AddRange(triggers);
+                            nativeStyleService.SetStyle(visualElement, null);
                         }
                     }
-
-                    if (dict.Keys.Count > 0 ||
-                        listTriggers.Count > 0)
-                    {
-                        styleToApply = nativeStyleService.CreateFrom(dict, listTriggers, visualElement.GetType());
-                    }
-
-                    if (styleToApply != null)
-                    {
-                            applicationResourcesService.SetResource(resourceKey, styleToApply);
-                        nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
-                    }
-                    else
-                    {
-                        nativeStyleService.SetStyle(visualElement, null);
-                    }
-                }
                 }
 
                 domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToLinkedHashSet();
