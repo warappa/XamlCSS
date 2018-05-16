@@ -5,14 +5,12 @@ using System.Linq;
 using System.Reflection;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using XamlCSS.UWP.Dom;
 
 namespace XamlCSS.UWP
 {
     public static class LoadedDetectionHelper
     {
-        public static event EventHandler SubTreeAdded;
-        public static event EventHandler SubTreeRemoved;
-
         public static IEnumerable<Type> GetUITypesFromAssemblyByType(Type type)
         {
             if (type == null)
@@ -123,15 +121,26 @@ namespace XamlCSS.UWP
         {
             var element = sender as FrameworkElement;
 
-            SubTreeAdded?.Invoke(sender, new EventArgs());
+            var dom = Css.instance.treeNodeProvider.GetDomElement(element) as DomElement;
+            dom.ElementLoaded();
+
             Css.instance?.NewElement(sender as DependencyObject);
         }
 
         private static void LoadedDetectionHelper_Unloaded(object sender, RoutedEventArgs e)
         {
-            SubTreeRemoved?.Invoke(sender, new EventArgs());
+            var dependencyObject = sender as DependencyObject;
+            Css.instance?.RemoveElement(dependencyObject);
+            var dom = Css.instance?.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
 
-            Css.instance?.RemoveElement(sender as DependencyObject);
+            dom.ElementUnloaded();
+
+            var logicalParent = dom?.LogicalParent?.Element;
+            var visualParent = dom?.Parent?.Element;
+
+            if (logicalParent != visualParent)
+                Css.instance?.UpdateElement(visualParent);
+            Css.instance?.UpdateElement(logicalParent);
         }
 
         #endregion

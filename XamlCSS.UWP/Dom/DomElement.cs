@@ -20,18 +20,16 @@ namespace XamlCSS.UWP.Dom
 
         private void RegisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded += VisualTreeHelper_SubTreeAdded; ;
-            LoadedDetectionHelper.SubTreeRemoved += VisualTreeHelper_SubTreeRemoved;
         }
 
-        private void VisualTreeHelper_SubTreeRemoved(object sender, EventArgs e)
+        public void ElementLoaded()
         {
-            ElementUnloaded(sender as DependencyObject);
+            ElementLoaded(dependencyObject);
         }
 
-        private void VisualTreeHelper_SubTreeAdded(object sender, EventArgs e)
+        public void ElementUnloaded()
         {
-            ElementLoaded(sender as DependencyObject);
+            ElementUnloaded(dependencyObject);
         }
 
         public override void EnsureAttributeWatcher(DependencyProperty dependencyProperty)
@@ -78,8 +76,6 @@ namespace XamlCSS.UWP.Dom
 
         private void UnregisterChildrenChangeHandler()
         {
-            LoadedDetectionHelper.SubTreeAdded -= VisualTreeHelper_SubTreeAdded;
-            LoadedDetectionHelper.SubTreeRemoved -= VisualTreeHelper_SubTreeRemoved;
         }
 
         protected override HashSet<string> GetClassList(DependencyObject dependencyObject)
