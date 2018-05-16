@@ -51,13 +51,15 @@ namespace XamlCSS.Tests.Dom
             };
         }
 
+        public override bool ApplyStyleImmediately { get; }
+
         public override void EnsureAttributeWatcher(PropertyInfo dependencyProperty)
         {
-            
+
         }
         public override void ClearAttributeWatcher()
         {
-            
+
         }
 
         public override object GetAttributeValue(PropertyInfo dependencyProperty)
@@ -74,7 +76,7 @@ namespace XamlCSS.Tests.Dom
         {
             return childNodes;
         }
-        
+
         protected override IDictionary<string, PropertyInfo> CreateNamedNodeMap(UIElement dependencyObject)
         {
             return new Dictionary<string, PropertyInfo>();

@@ -122,21 +122,12 @@ namespace XamlCSS.WPF
             var dom = Css.instance.treeNodeProvider.GetDomElement((DependencyObject)sender) as DomElement;
             dom.UpdateIsReady();
 
-
-
             Css.instance.NewElement(sender as DependencyObject);
 
-            //var visualPath = dom.GetPath(SelectorType.VisualTree);
-            //Debug.WriteLine("new dom:\n    " + visualPath);
-            //var logicalPath = dom.GetPath(SelectorType.LogicalTree);
-            //Debug.WriteLine("    " + logicalPath);
-
-            //var visualElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.VisualTree);
-            //Debug.WriteLine("  element:\n    " + visualElementPath);
-            //var logicalElementPath = ((DependencyObject)sender).GetElementPath(Css.instance?.treeNodeProvider, SelectorType.LogicalTree);
-            //Debug.WriteLine("    " + logicalElementPath);
-
-
+            if (dom.ApplyStyleImmediately)
+            {
+                Css.instance?.ExecuteApplyStyles();
+            }
         };
 
         #endregion

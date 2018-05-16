@@ -17,6 +17,8 @@ namespace XamlCSS.WPF.Dom
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
+
+            ApplyStyleImmediately = Css.GetApplyStyleImmediately(dependencyObject);
         }
 
         private void RegisterChildrenChangeHandler()
@@ -135,6 +137,8 @@ namespace XamlCSS.WPF.Dom
         {
             return new LazyDependencyPropertyDictionary<DependencyProperty>(dependencyObject.GetType());
         }
+
+        public override bool ApplyStyleImmediately { get; }
 
         public override void UpdateIsReady()
         {

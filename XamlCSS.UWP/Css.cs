@@ -203,6 +203,21 @@ namespace XamlCSS.UWP
             obj.SetValue(DomElementProperty, value ?? DependencyProperty.UnsetValue);
         }
 
+        public static readonly DependencyProperty ApplyStyleImmediatelyProperty =
+            DependencyProperty.RegisterAttached(
+                "ApplyStyleImmediately",
+                typeof(bool),
+                typeof(Css),
+                new PropertyMetadata(false));
+        public static bool GetApplyStyleImmediately(DependencyObject obj)
+        {
+            return (bool)obj?.GetValue(ApplyStyleImmediatelyProperty);
+        }
+        public static void SetApplyStyleImmediately(DependencyObject obj, bool value)
+        {
+            obj?.SetValue(ApplyStyleImmediatelyProperty, value);
+        }
+
         #endregion
 
         #region attached behaviours

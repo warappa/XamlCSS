@@ -248,15 +248,21 @@ namespace XamlCSS.XamarinForms
             obj?.SetValue(DomElementProperty, value);
         }
 
-        //private static void VisualTreeHelper_ChildAdded(object sender, EventArgs e)
-        //{
-        //    //Debug.WriteLine("A");
-        //    instance?.NewElement(sender as BindableObject);
-        //}
-        //private static void VisualTreeHelper_ChildRemoved(object sender, EventArgs e)
-        //{
-        //    Css.instance?.RemoveElement(sender as BindableObject);
-        //}
+        public static readonly BindableProperty ApplyStyleImmediatelyProperty =
+            BindableProperty.CreateAttached(
+                "ApplyStyleImmediately",
+                typeof(bool),
+                typeof(Css),
+                false,
+                BindingMode.TwoWay);
+        public static bool GetApplyStyleImmediately(BindableObject obj)
+        {
+            return (bool)obj?.GetValue(ApplyStyleImmediatelyProperty);
+        }
+        public static void SetApplyStyleImmediately(BindableObject obj, bool value)
+        {
+            obj?.SetValue(ApplyStyleImmediatelyProperty, value);
+        }
 
         private static void StyleSheetPropertyChanged(BindableObject bindableObject, object oldValue, object newValue)
         {

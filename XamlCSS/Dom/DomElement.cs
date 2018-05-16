@@ -146,6 +146,7 @@ namespace XamlCSS.Dom
         abstract public void EnsureAttributeWatcher(TDependencyProperty dependencyProperty);
         abstract public void ClearAttributeWatcher();
         abstract protected IDictionary<string, TDependencyProperty> CreateNamedNodeMap(TDependencyObject dependencyObject);
+        abstract public bool ApplyStyleImmediately { get; }
 
         protected virtual IList<IDomElement<TDependencyObject, TDependencyProperty>> GetChildNodes(SelectorType type)
         {

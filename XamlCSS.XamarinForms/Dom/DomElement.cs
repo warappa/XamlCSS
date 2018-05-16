@@ -17,6 +17,8 @@ namespace XamlCSS.XamarinForms.Dom
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
+
+            ApplyStyleImmediately = Css.GetApplyStyleImmediately(dependencyObject);
         }
 
         private void RegisterChildrenChangeHandler()
@@ -87,6 +89,8 @@ namespace XamlCSS.XamarinForms.Dom
         {
             return dependencyObject.GetValue(dependencyProperty);
         }
+
+        public override bool ApplyStyleImmediately { get; }
 
         protected override HashSet<string> GetClassList(BindableObject dependencyObject)
         {

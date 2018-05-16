@@ -28,5 +28,7 @@ namespace XamlCSS.Dom
 
         void EnsureAttributeWatcher(TDependencyProperty dependencyProperty);
         void ClearAttributeWatcher();
+
+        bool ApplyStyleImmediately { get; }
     }
 }

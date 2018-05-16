@@ -125,6 +125,11 @@ namespace XamlCSS.UWP
             dom.ElementLoaded();
 
             Css.instance?.NewElement(sender as DependencyObject);
+
+            if (dom.ApplyStyleImmediately)
+            {
+                Css.instance?.ExecuteApplyStyles();
+            }
         }
 
         private static void LoadedDetectionHelper_Unloaded(object sender, RoutedEventArgs e)

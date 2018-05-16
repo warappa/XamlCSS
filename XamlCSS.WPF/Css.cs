@@ -308,16 +308,11 @@ namespace XamlCSS.WPF
         private static void ClassPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
             var domElement = instance?.treeNodeProvider.GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
-            //var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
 
             domElement?.ResetClassList();
             if (domElement?.IsReady == true)
             {
                 instance?.UpdateElement(element);
-            }
-            else
-            {
-
             }
         }
 
@@ -338,6 +333,21 @@ namespace XamlCSS.WPF
             obj.SetValue(DomElementProperty, value);
         }
 
+        public static readonly DependencyProperty ApplyStyleImmediatelyProperty =
+            DependencyProperty.RegisterAttached(
+                "ApplyStyleImmediately",
+                typeof(bool),
+                typeof(Css), 
+                new PropertyMetadata(false));
+        public static bool GetApplyStyleImmediately(DependencyObject obj)
+        {
+            return (bool)obj?.GetValue(ApplyStyleImmediatelyProperty);
+        }
+        public static void SetApplyStyleImmediately(DependencyObject obj, bool value)
+        {
+            obj?.SetValue(ApplyStyleImmediatelyProperty, value);
+        }
+
         private static T ReadSafe<T>(DependencyObject obj, DependencyProperty property)
         {
             var val = obj.GetValue(property);
@@ -348,6 +358,5 @@ namespace XamlCSS.WPF
 
             return (T)val;
         }
-
     }
 }

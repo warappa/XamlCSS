@@ -16,6 +16,8 @@ namespace XamlCSS.UWP.Dom
             : base(dependencyObject, parent, logicalParent, treeNodeProvider)
         {
             RegisterChildrenChangeHandler();
+
+            ApplyStyleImmediately = Css.GetApplyStyleImmediately(dependencyObject);
         }
 
         private void RegisterChildrenChangeHandler()
@@ -61,6 +63,8 @@ namespace XamlCSS.UWP.Dom
         {
             return dependencyObject.GetValue(dependencyProperty);
         }
+
+        public override bool ApplyStyleImmediately { get; }
 
         void IDisposable.Dispose()
         {

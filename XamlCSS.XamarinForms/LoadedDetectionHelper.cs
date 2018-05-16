@@ -21,7 +21,7 @@ namespace XamlCSS.XamarinForms
                 Reset();
 
                 rootElement = root;
-                
+
                 rootElement.DescendantAdded += RootElement_DescendantAdded;
                 rootElement.DescendantRemoved += RootElement_DescendantRemoved;
 
@@ -82,7 +82,6 @@ namespace XamlCSS.XamarinForms
         private static void ElementRemoved(Element dependencyObject)
         {
             Css.instance?.RemoveElement(dependencyObject);
-            //Css.instance?.treeNodeProvider.Switch(SelectorType.LogicalTree);
             var dom = Css.instance?.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
 
             dom.ElementUnloaded();
@@ -97,10 +96,20 @@ namespace XamlCSS.XamarinForms
 
         private static void ElementAdded(Element dependencyObject)
         {
-            var dom = Css.instance?.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
+            if (Css.instance == null)
+            {
+                return;
+            }
+
+            var dom = Css.instance.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
             dom.ElementLoaded();
 
-            Css.instance?.NewElement(dependencyObject);
+            Css.instance.NewElement(dependencyObject);
+
+            if (dom.ApplyStyleImmediately)
+            {
+                Css.instance.ExecuteApplyStyles();
+            }
         }
     }
 }
