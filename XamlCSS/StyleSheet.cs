@@ -512,6 +512,11 @@ namespace XamlCSS
                 return LocalRules;
             }
 
+            if (InheritedStyleSheets.Contains(this))
+            {
+                throw new InvalidOperationException("A stylesheet cannot be attached to multiple elements at the same time!");
+            }
+
             return InheritedStyleSheets
                     .SelectMany(x => x.Rules.ToList())
                     .Concat(BaseStyleSheets.SelectMany(x => x.Rules.ToList()))
