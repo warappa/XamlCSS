@@ -139,11 +139,12 @@ namespace XamlCSS
                 foreach (var item in newOrUpdatedStyleHolders)
                 {
                     var start = item.StartFrom ?? item.StyleSheetHolder;
-                    if (!treeNodeProvider.IsInTree(start, SelectorType.LogicalTree))
+                    
+                    var domElement = treeNodeProvider.GetDomElement(start);
+                    if (!domElement.IsInLogicalTree)
                     {
                         continue;
                     }
-                    var domElement = treeNodeProvider.GetDomElement(start);
 
                     EnsureParents(domElement, treeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos, SelectorType.LogicalTree);
 
@@ -154,12 +155,12 @@ namespace XamlCSS
                 foreach (var item in newOrUpdatedStyleHolders)
                 {
                     var start = item.StartFrom ?? item.StyleSheetHolder;
-                    if (!treeNodeProvider.IsInTree(start, SelectorType.VisualTree))
+
+                    var domElement = treeNodeProvider.GetDomElement(start);
+                    if (!domElement.IsInVisualTree)
                     {
                         continue;
                     }
-
-                    var domElement = treeNodeProvider.GetDomElement(start);
 
                     EnsureParents(domElement, treeNodeProvider, dependencyPropertyService, nativeStyleService, styleUpdateInfos, SelectorType.VisualTree);
 
