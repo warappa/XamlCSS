@@ -198,7 +198,7 @@ namespace XamlCSS.WPF.Dom
             if (p == null)
                 return element is Window || element == applicationDependencyObject;// LogicalTreeHelper.GetParent(element) != null;
 
-            return GetChildren(p, SelectorType.VisualTree).Contains(element);
+            return IsInVisualTree(p) && GetChildren(p, SelectorType.VisualTree).Contains(element);
         }
         private bool IsInLogicalTree(DependencyObject dependencyObject)
         {
@@ -206,7 +206,8 @@ namespace XamlCSS.WPF.Dom
             if (p == null)
                 return dependencyObject is Window || dependencyObject == applicationDependencyObject;
 
-            return GetChildren(p, SelectorType.LogicalTree).Contains(dependencyObject);
+            var res = IsInLogicalTree(p) && GetChildren(p, SelectorType.LogicalTree).Contains(dependencyObject);
+            return res;
         }
 
         public override DependencyObject GetParent(DependencyObject element, SelectorType type)
