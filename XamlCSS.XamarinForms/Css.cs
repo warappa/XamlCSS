@@ -36,16 +36,11 @@ namespace XamlCSS.XamarinForms
 
         private static void StartUiTimer()
         {
-            uiTimer = new Timer(TimeSpan.FromMilliseconds(16), (state) =>
+            Device.StartTimer(TimeSpan.FromMilliseconds(5), () =>
             {
-                var tcs = new TaskCompletionSource<object>();
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    instance?.ExecuteApplyStyles();
-                    tcs.SetResult(0);
-                });
-                tcs.Task.Wait();
-            }, null);
+                instance?.ExecuteApplyStyles();
+                return initialized;
+            });
         }
 
         public static void Reset()
@@ -84,6 +79,8 @@ namespace XamlCSS.XamarinForms
                 }
 
                 Reset();
+
+                initialized = true;
 
                 cssNamespaceMapping = cssNamespaceMapping ?? DefaultCssNamespaceMapping;
 
@@ -133,8 +130,6 @@ namespace XamlCSS.XamarinForms
                 }
 
                 StartUiTimer();
-
-                initialized = true;
             }
         }
 
