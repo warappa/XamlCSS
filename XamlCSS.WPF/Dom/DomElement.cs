@@ -112,12 +112,16 @@ namespace XamlCSS.WPF.Dom
         }
         protected override string GetId(DependencyObject dependencyObject)
         {
-            if (dependencyObject is FrameworkElement)
+            if (dependencyObject is FrameworkElement fe)
             {
-                return dependencyObject.ReadLocalValue(FrameworkElement.NameProperty) as string;
+                return fe.Name;
+            }
+            else if (dependencyObject is FrameworkContentElement fce)
+            {
+                return fce.Name;
             }
 
-            return dependencyObject.ReadLocalValue(FrameworkContentElement.NameProperty) as string;
+            return null;
         }
 
         public static bool operator ==(DomElement a, DomElement b)
@@ -158,6 +162,8 @@ namespace XamlCSS.WPF.Dom
             {
                 IsReady = true;
             }
+
+            id = GetId(dependencyObject);
         }
 
         public override bool Equals(object obj)

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -11,11 +13,13 @@ namespace XamlCSS.WPF.Dom
     public class TreeNodeProvider : TreeNodeProviderBase<DependencyObject, Style, DependencyProperty>
     {
         private ApplicationDependencyObject applicationDependencyObject;
+        private readonly bool isInDesigner;
 
         public TreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)
         {
             this.applicationDependencyObject = new ApplicationDependencyObject(Application.Current);
+            this.isInDesigner = DesignerProperties.GetIsInDesignMode(new DependencyObject());
         }
 
         public override IDomElement<DependencyObject, DependencyProperty> CreateTreeNode(DependencyObject dependencyObject)
@@ -25,6 +29,7 @@ namespace XamlCSS.WPF.Dom
 
         public override IEnumerable<DependencyObject> GetChildren(DependencyObject element, SelectorType type)
         {
+
             var list = new List<DependencyObject>();
 
             if (element == null)
@@ -49,6 +54,7 @@ namespace XamlCSS.WPF.Dom
             {
                 list = GetLogicalChildren(element).ToList();
             }
+
             return list;
         }
 
@@ -100,7 +106,7 @@ namespace XamlCSS.WPF.Dom
             {
                 return GetChildrenOfLogicalParent(element, GetVisualChildren(element));
             }
-            else if (element is Frame frame)
+            else if (element is ContentControl frame)
             {
                 var content = frame.Content as DependencyObject;
                 if (content != null)
@@ -196,17 +202,34 @@ namespace XamlCSS.WPF.Dom
         {
             var p = GetVisualParent(element);
             if (p == null)
-                return element is Window || element == applicationDependencyObject;// LogicalTreeHelper.GetParent(element) != null;
+                return element is Window || element == applicationDependencyObject;
 
-            return IsInVisualTree(p) && GetChildren(p, SelectorType.VisualTree).Contains(element);
+            if (isInDesigner &&
+                element.GetType().Name == "WindowInstance")
+                return true;
+
+            var isParentInVisualTree = IsInVisualTree(p);
+            var isElementInParentsChildren = GetChildren(p, SelectorType.VisualTree).Contains(element);
+
+            var res = isParentInVisualTree && isElementInParentsChildren;
+
+            return res;
         }
-        private bool IsInLogicalTree(DependencyObject dependencyObject)
+        private bool IsInLogicalTree(DependencyObject element)
         {
-            var p = GetLogicalParent(dependencyObject);
+            var p = GetLogicalParent(element);
             if (p == null)
-                return dependencyObject is Window || dependencyObject == applicationDependencyObject;
+                return element is Window || element == applicationDependencyObject;
 
-            var res = IsInLogicalTree(p) && GetChildren(p, SelectorType.LogicalTree).Contains(dependencyObject);
+            if (isInDesigner &&
+                element.GetType().Name == "WindowInstance")
+                return true;
+
+            var isParentInLogicalTree = IsInLogicalTree(p);
+            var isElementInParentsChildren = GetChildren(p, SelectorType.LogicalTree).Contains(element);
+
+            var res = isParentInLogicalTree && isElementInParentsChildren;
+
             return res;
         }
 
@@ -217,7 +240,10 @@ namespace XamlCSS.WPF.Dom
                 return null;
             }
 
-            if (element is Window)
+            DependencyObject parent = null;
+
+            if (element is Window ||
+                (isInDesigner && element.GetType().Name == "WindowInstance"))
             {
                 return applicationDependencyObject;
             }
@@ -227,19 +253,19 @@ namespace XamlCSS.WPF.Dom
                 if (element is Visual ||
                     element is Visual3D)
                 {
-                    return GetVisualParent(element);
+                    parent = GetVisualParent(element);
                 }
                 else if (element is FrameworkContentElement)
                 {
-                    return GetLogicalParent(element);
+                    parent = GetLogicalParent(element);
                 }
             }
             else
             {
-                return GetLogicalParent(element);
+                parent = GetLogicalParent(element);
             }
 
-            return null;
+            return parent;
         }
 
         private DependencyObject GetVisualParent(DependencyObject element)
@@ -247,6 +273,12 @@ namespace XamlCSS.WPF.Dom
             if (element == null)
             {
                 return null;
+            }
+
+            if (element is Window ||
+                (isInDesigner && element.GetType().Name == "WindowInstance"))
+            {
+                return applicationDependencyObject;
             }
 
             if (element is Visual ||
