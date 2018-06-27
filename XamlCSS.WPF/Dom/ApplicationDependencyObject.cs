@@ -1,12 +1,16 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.Linq;
 using System.Windows;
+using System.Windows.Threading;
 
 namespace XamlCSS.WPF.Dom
 {
-    public class ApplicationDependencyObject : FrameworkElement
+    public class ApplicationDependencyObject : FrameworkElement, IStyleSheetHolder
     {
         private readonly Application application;
-        
+        private readonly DispatcherTimer dispatcherTimer;
+
         public ApplicationDependencyObject(Application application)
         {
             this.application = application;
@@ -26,6 +30,93 @@ namespace XamlCSS.WPF.Dom
                     };
                 }
             }
+
+            dispatcherTimer = new DispatcherTimer();
+            dispatcherTimer.Interval = TimeSpan.FromMilliseconds(100);
+            dispatcherTimer.Tick += (s, e) =>
+            {
+                CheckForSharedStyleSheet(application);
+            };
+
+            var isInDesigner = DesignerProperties.GetIsInDesignMode(this);
+
+            if (isInDesigner)
+            {
+                dispatcherTimer.Start();
+            }
+            else
+            {
+                dispatcherTimer.Stop();
+
+                application.Startup += (s, e) =>
+                {
+                    CheckForSharedStyleSheet(application);
+                };
+                application.Navigated += (s, e) =>
+                {
+                    CheckForSharedStyleSheet(application);
+                };
+                application.FragmentNavigation += (s, e) =>
+                {
+                    CheckForSharedStyleSheet(application);
+                };
+                application.LoadCompleted += (s, e) =>
+                {
+                    CheckForSharedStyleSheet(application);
+                };
+            }
         }
+
+        protected override void OnPropertyChanged(DependencyPropertyChangedEventArgs e)
+        {
+            base.OnPropertyChanged(e);
+
+            if (e.Property == DesignerProperties.IsInDesignModeProperty)
+            {
+                if ((bool)e.NewValue)
+                {
+                    dispatcherTimer.Start();
+                }
+                else
+                {
+                    dispatcherTimer.Stop();
+                }
+            }
+        }
+
+        private void CheckForSharedStyleSheet(Application application, bool force = false)
+        {
+            var allStyleSheets = application.Resources.Values.OfType<StyleSheet>()
+                                    .Concat(application.Resources.MergedDictionaries.SelectMany(x => x.Values.OfType<StyleSheet>()))
+                                    .ToList();
+
+            StyleSheet found = null;
+            foreach (var styleSheet in allStyleSheets)
+            {
+                if (styleSheet.IsSharedApplicationStyleSheet)
+                {
+                    found = styleSheet;
+                    break;
+                }
+            }
+
+            if (found == AttachedStyleSheet &&
+                force == false)
+            {
+                return;
+            }
+
+            AttachedStyleSheet = found;
+            if (found != null)
+            {
+                var content = found.Content;
+                found.Content = "";
+                found.Content = content;
+            }
+            Css.SetStyleSheet(this, null);
+            Css.SetStyleSheet(this, AttachedStyleSheet);
+        }
+
+        public StyleSheet AttachedStyleSheet { get; private set; }
     }
 }

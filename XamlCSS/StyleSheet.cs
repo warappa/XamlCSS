@@ -362,6 +362,7 @@ namespace XamlCSS
 
         private Dictionary<string, string> prefix2NamespaceUri = new Dictionary<string, string>();
         private Dictionary<string, string> namespaceUri2Alias = new Dictionary<string, string>();
+
         public string GetNamespaceUri(string alias, string shortTypename)
         {
             if (!prefix2NamespaceUri.TryGetValue(alias + shortTypename, out string value))
@@ -393,6 +394,7 @@ namespace XamlCSS
         }
 
         public string Id { get; protected set; }
+        public bool IsSharedApplicationStyleSheet { get; set; }
 
         protected StyleSheetCollection GetParentStyleSheets(object from)
         {
@@ -413,8 +415,11 @@ namespace XamlCSS
                 }
                 else if (current is IStyleSheetHolder styleSheetHolder)
                 {
-                    styleSheets.Add(styleSheet);
-                }
+                    if (styleSheetHolder.AttachedStyleSheet != null)
+                    {
+                        styleSheets.Add(styleSheetHolder.AttachedStyleSheet);
+                    }
+                }                
                 current = GetParent(current);
             }
 

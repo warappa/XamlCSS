@@ -119,6 +119,7 @@ namespace XamlCSS.WPF
             {
                 return;
             }
+
             var dom = Css.instance.treeNodeProvider.GetDomElement((DependencyObject)sender) as DomElement;
             dom.UpdateIsReady();
 

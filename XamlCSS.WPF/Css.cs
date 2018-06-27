@@ -259,11 +259,14 @@ namespace XamlCSS.WPF
                 return;
             }
 
-            if (e.OldValue != null)
+            if (e.OldValue is StyleSheet oldStyleSheet)
             {
-                (e.OldValue as StyleSheet).PropertyChanged -= StyleSheet_PropertyChanged;
+                oldStyleSheet.PropertyChanged -= StyleSheet_PropertyChanged;
 
-                instance?.EnqueueRemoveStyleSheet(element, (StyleSheet)e.OldValue);
+                if (oldStyleSheet.AttachedTo != null)
+                {
+                    instance?.EnqueueRemoveStyleSheet(element, (StyleSheet)e.OldValue);
+                }
             }
 
             var newStyleSheet = (StyleSheet)e.NewValue;

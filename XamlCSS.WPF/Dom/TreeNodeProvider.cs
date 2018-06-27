@@ -14,6 +14,7 @@ namespace XamlCSS.WPF.Dom
     {
         private ApplicationDependencyObject applicationDependencyObject;
         private readonly bool isInDesigner;
+        private DependencyObject designerWindowInstance;
 
         public TreeNodeProvider(IDependencyPropertyService<DependencyObject, Style, DependencyProperty> dependencyPropertyService)
             : base(dependencyPropertyService)
@@ -39,6 +40,15 @@ namespace XamlCSS.WPF.Dom
 
             if (element == applicationDependencyObject)
             {
+                if (isInDesigner)
+                {
+                    if (designerWindowInstance == null)
+                    {
+                        return list;
+                    }
+
+                    return new List<DependencyObject> { designerWindowInstance };
+                }
                 return Application.Current.Windows.Cast<Window>().ToList();
             }
 
@@ -206,7 +216,10 @@ namespace XamlCSS.WPF.Dom
 
             if (isInDesigner &&
                 element.GetType().Name == "WindowInstance")
+            {
+                EnsureDesignerWindowInstanceCaptured(element);
                 return true;
+            }
 
             var isParentInVisualTree = IsInVisualTree(p);
             var isElementInParentsChildren = GetChildren(p, SelectorType.VisualTree).Contains(element);
@@ -223,7 +236,10 @@ namespace XamlCSS.WPF.Dom
 
             if (isInDesigner &&
                 element.GetType().Name == "WindowInstance")
+            {
+                EnsureDesignerWindowInstanceCaptured(element);
                 return true;
+            }
 
             var isParentInLogicalTree = IsInLogicalTree(p);
             var isElementInParentsChildren = GetChildren(p, SelectorType.LogicalTree).Contains(element);
@@ -245,6 +261,7 @@ namespace XamlCSS.WPF.Dom
             if (element is Window ||
                 (isInDesigner && element.GetType().Name == "WindowInstance"))
             {
+                EnsureDesignerWindowInstanceCaptured(element);
                 return applicationDependencyObject;
             }
 
@@ -268,6 +285,16 @@ namespace XamlCSS.WPF.Dom
             return parent;
         }
 
+        private void EnsureDesignerWindowInstanceCaptured(DependencyObject element)
+        {
+            if (isInDesigner &&
+                designerWindowInstance == null &&
+                element is FrameworkElement fe && fe.Name == "windowInstance")
+            {
+                designerWindowInstance = element;
+            }
+        }
+
         private DependencyObject GetVisualParent(DependencyObject element)
         {
             if (element == null)
@@ -278,6 +305,7 @@ namespace XamlCSS.WPF.Dom
             if (element is Window ||
                 (isInDesigner && element.GetType().Name == "WindowInstance"))
             {
+                EnsureDesignerWindowInstanceCaptured(element);
                 return applicationDependencyObject;
             }
 
