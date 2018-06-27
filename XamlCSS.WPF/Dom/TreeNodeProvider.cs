@@ -30,7 +30,6 @@ namespace XamlCSS.WPF.Dom
 
         public override IEnumerable<DependencyObject> GetChildren(DependencyObject element, SelectorType type)
         {
-
             var list = new List<DependencyObject>();
 
             if (element == null)
@@ -72,29 +71,27 @@ namespace XamlCSS.WPF.Dom
         {
             if (element == null)
             {
-                return new List<DependencyObject>();
+                yield break;
             }
 
             if (element is ItemsControl ic)
             {
-                var list = new List<DependencyObject>();
                 for (int i = 0; i < ic.Items.Count; i++)
                 {
-                    var uiElement =
-                        ic.ItemContainerGenerator.ContainerFromIndex(i);
+                    var uiElement = ic.ItemContainerGenerator.ContainerFromIndex(i);
                     if (uiElement != null)
                     {
                         var found = GetLogicalChildren(uiElement).FirstOrDefault();
                         if (found == null)
-                            list.Add(uiElement);
+                        {
+                            yield return uiElement;
+                        }
                         else
                         {
-                            list.Add(found);
+                            yield return found;
                         }
                     }
                 }
-
-                return list;
             }
 
             if (element is ItemsPresenter itemsPresenter)
@@ -103,41 +100,52 @@ namespace XamlCSS.WPF.Dom
 
                 if (itemshost == null)
                 {
-                    return new DependencyObject[0] { };
+                    yield break;
                 }
 
                 var p = GetVisualChildren(itemshost).FirstOrDefault();
                 if (p != null)
-                    return GetLogicalChildren(p);
+                {
+                    var children = GetLogicalChildren(p);
+                    foreach (var child in children)
+                    {
+                        yield return child;
+                    }
+                }
 
-                return new DependencyObject[0];
+                yield break;
             }
             else if (element is ContentPresenter c)
             {
-                return GetChildrenOfLogicalParent(element, GetVisualChildren(element));
+                var childrenOfLogicalParent = GetChildrenOfLogicalParent(element, GetVisualChildren(element));
+                foreach (var child in childrenOfLogicalParent)
+                {
+                    yield return child;
+                }
+                yield break;
             }
             else if (element is ContentControl frame)
             {
                 var content = frame.Content as DependencyObject;
                 if (content != null)
                 {
-                    return new[] { content };
+                    yield return content;
                 }
-                return new DependencyObject[0];
+                yield break;
             }
 
-            var children = LogicalTreeHelper.GetChildren(element)
+            var childrenOfLogicalTreeHelper = LogicalTreeHelper.GetChildren(element)
                 .Cast<object>()
-                .OfType<DependencyObject>()
-                .ToList();
+                .OfType<DependencyObject>();
 
-            return children;
+            foreach (var child in childrenOfLogicalTreeHelper)
+            {
+                yield return child;
+            }
         }
 
-        private List<DependencyObject> GetChildrenOfLogicalParent(DependencyObject searchParent, IEnumerable<DependencyObject> elements)
+        private IEnumerable<DependencyObject> GetChildrenOfLogicalParent(DependencyObject searchParent, IEnumerable<DependencyObject> elements)
         {
-            var list = new List<DependencyObject>();
-
             foreach (var element in elements)
             {
                 var found = false;
@@ -146,7 +154,7 @@ namespace XamlCSS.WPF.Dom
                     if (f.Parent == searchParent ||
                         f.TemplatedParent == searchParent)
                     {
-                        list.Add(f);
+                        yield return f;
                         found = true;
                     }
                 }
@@ -155,50 +163,43 @@ namespace XamlCSS.WPF.Dom
                     if (fc.Parent == searchParent ||
                         fc.TemplatedParent == searchParent)
                     {
-                        list.Add(fc);
+                        yield return fc;
                         found = true;
                     }
                 }
 
                 if (!found)
                 {
-                    list.AddRange(GetChildrenOfLogicalParent(searchParent, GetVisualChildren(element)));
+                    var childrenOfLogicalParent = GetChildrenOfLogicalParent(searchParent, GetVisualChildren(element));
+                    foreach (var child in childrenOfLogicalParent)
+                    {
+                        yield return child;
+                    }
                 }
             }
-
-            return list;
         }
 
         public IEnumerable<DependencyObject> GetVisualChildren(DependencyObject element)
         {
-            var list = new List<DependencyObject>();
-
             if (element == null)
             {
-                return list;
+                yield break;
             }
 
-            try
+            if (element is Visual ||
+                element is Visual3D)
             {
-                if (element is Visual ||
-                    element is Visual3D)
+                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
                 {
-                    for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
-                    {
-                        var child = VisualTreeHelper.GetChild(element, i) as DependencyObject;
+                    var child = VisualTreeHelper.GetChild(element, i) as DependencyObject;
 
-                        if (child != null)
-                        {
-                            list.Add(child);
-                        }
+                    if (child != null)
+                    {
+                        yield return child;
                     }
                 }
-
             }
-            catch { }
-            return list;
         }
-
 
         public override bool IsInTree(DependencyObject element, SelectorType type)
         {
@@ -221,12 +222,9 @@ namespace XamlCSS.WPF.Dom
                 return true;
             }
 
-            var isParentInVisualTree = IsInVisualTree(p);
             var isElementInParentsChildren = GetChildren(p, SelectorType.VisualTree).Contains(element);
 
-            var res = isParentInVisualTree && isElementInParentsChildren;
-
-            return res;
+            return isElementInParentsChildren;
         }
         private bool IsInLogicalTree(DependencyObject element)
         {
@@ -241,12 +239,15 @@ namespace XamlCSS.WPF.Dom
                 return true;
             }
 
-            var isParentInLogicalTree = IsInLogicalTree(p);
+            if (element is ContentPresenter ||
+                element is ItemsPresenter)
+            {
+                return false;
+            }
+
             var isElementInParentsChildren = GetChildren(p, SelectorType.LogicalTree).Contains(element);
 
-            var res = isParentInLogicalTree && isElementInParentsChildren;
-
-            return res;
+            return isElementInParentsChildren;
         }
 
         public override DependencyObject GetParent(DependencyObject element, SelectorType type)
@@ -346,7 +347,6 @@ namespace XamlCSS.WPF.Dom
                     }
                 }
 
-
                 if (p == null)
                 {
                     p = GetVisualParent(element);
@@ -378,6 +378,5 @@ namespace XamlCSS.WPF.Dom
 
             return p;
         }
-
     }
 }

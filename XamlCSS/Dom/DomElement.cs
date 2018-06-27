@@ -11,9 +11,8 @@ namespace XamlCSS.Dom
         where TDependencyObject : class
         where TDependencyProperty : class
     {
-        private const string Undefined = "UNDEFINED";
-
         private static readonly CachedSelectorProvider cachedSelectorProvider = new CachedSelectorProvider();
+        private static readonly IDictionary<Type, string> cachedAssemblyQualifiedNamespaces = new Dictionary<Type, string>();
 
         public IList<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
 
@@ -25,7 +24,7 @@ namespace XamlCSS.Dom
         protected ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider;
 
         protected string id;
-        protected string assemblyQualifiedNamespaceName = Undefined;
+        protected string assemblyQualifiedNamespaceName;
         protected IList<IDomElement<TDependencyObject, TDependencyProperty>> childNodes = null;
         protected IList<IDomElement<TDependencyObject, TDependencyProperty>> logicalChildNodes = null;
         protected IDictionary<string, TDependencyProperty> attributes = null;
@@ -46,15 +45,15 @@ namespace XamlCSS.Dom
             this.logicalParent = logicalParent;
             this.treeNodeProvider = treeNodeProvider;
 
-            UpdateTreeAssociation();
-            UpdateIsReady();
-
             this.id = GetId(dependencyObject);
             this.TagName = dependencyObject.GetType().Name;
             this.classList = GetClassList(dependencyObject);
             this.assemblyQualifiedNamespaceName = GetAssemblyQualifiedNamespaceName(dependencyObject.GetType());
 
             AddIfNotAdded();
+
+            UpdateTreeAssociation();
+            UpdateIsReady();
         }
 
         protected void ElementLoaded(object element)
@@ -134,11 +133,6 @@ namespace XamlCSS.Dom
         public void ResetClassList()
         {
             classList = null;
-        }
-
-        public static string GetAssemblyQualifiedNamespaceName(Type type)
-        {
-            return type.AssemblyQualifiedName.Replace($".{type.Name},", ",");
         }
 
         public TDependencyObject Element { get { return dependencyObject; } }
@@ -261,16 +255,6 @@ namespace XamlCSS.Dom
             return Attributes.ContainsKey(name);
         }
 
-        //public string LookupNamespaceUri(string prefix)
-        //{
-        //    return namespaceProvider.LookupNamespaceUri(this, prefix);
-        //}
-
-        //public string LookupPrefix(string namespaceUri)
-        //{
-        //    return namespaceProvider.LookupPrefix(this, namespaceUri);
-        //}
-
         public MatchResult Matches(StyleSheet styleSheet, ISelector selector)
         {
             return selector.Match(styleSheet, this);
@@ -319,6 +303,14 @@ namespace XamlCSS.Dom
             return false;
         }
 
+        public static string GetAssemblyQualifiedNamespaceName(Type type)
+        {
+            if (!cachedAssemblyQualifiedNamespaces.TryGetValue(type, out string val))
+            {
+                cachedAssemblyQualifiedNamespaces[type] = val = type.AssemblyQualifiedName.Replace($".{type.Name},", ",");
+            }
+            return val;
+        }
 
         public override int GetHashCode()
         {
