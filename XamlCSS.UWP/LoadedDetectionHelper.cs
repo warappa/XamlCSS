@@ -121,31 +121,41 @@ namespace XamlCSS.UWP
         {
             var element = sender as FrameworkElement;
 
+            if (Css.instance == null)
+            {
+                return;
+            }
+
             var dom = Css.instance.treeNodeProvider.GetDomElement(element) as DomElement;
             dom.ElementLoaded();
 
-            Css.instance?.NewElement(sender as DependencyObject);
+            Css.instance.NewElement(sender as DependencyObject);
 
             if (dom.ApplyStyleImmediately)
             {
-                Css.instance?.ExecuteApplyStyles();
+                Css.instance.ExecuteApplyStyles();
             }
         }
 
         private static void LoadedDetectionHelper_Unloaded(object sender, RoutedEventArgs e)
         {
+            if (Css.instance == null)
+            {
+                return;
+            }
+
             var dependencyObject = sender as DependencyObject;
-            Css.instance?.RemoveElement(dependencyObject);
-            var dom = Css.instance?.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
+            Css.instance.RemoveElement(dependencyObject);
+            var dom = Css.instance.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
 
             dom.ElementUnloaded();
 
-            var logicalParent = dom?.LogicalParent?.Element;
-            var visualParent = dom?.Parent?.Element;
+            var logicalParent = dom.LogicalParent?.Element;
+            var visualParent = dom.Parent?.Element;
 
             if (logicalParent != visualParent)
-                Css.instance?.UpdateElement(visualParent);
-            Css.instance?.UpdateElement(logicalParent);
+                Css.instance.UpdateElement(visualParent);
+            Css.instance.UpdateElement(logicalParent);
         }
 
         #endregion

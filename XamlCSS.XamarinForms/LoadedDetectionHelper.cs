@@ -81,17 +81,22 @@ namespace XamlCSS.XamarinForms
 
         private static void ElementRemoved(Element dependencyObject)
         {
-            Css.instance?.RemoveElement(dependencyObject);
-            var dom = Css.instance?.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
+            if (Css.instance == null)
+            {
+                return;
+            }
+
+            Css.instance.RemoveElement(dependencyObject);
+            var dom = Css.instance.treeNodeProvider.GetDomElement(dependencyObject) as DomElement;
 
             dom.ElementUnloaded();
 
-            var logicalParent = dom?.LogicalParent?.Element;
-            var visualParent = dom?.Parent?.Element;
+            var logicalParent = dom.LogicalParent?.Element;
+            var visualParent = dom.Parent?.Element;
 
             if (logicalParent != visualParent)
-                Css.instance?.UpdateElement(visualParent);
-            Css.instance?.UpdateElement(logicalParent);
+                Css.instance.UpdateElement(visualParent);
+            Css.instance.UpdateElement(logicalParent);
         }
 
         private static void ElementAdded(Element dependencyObject)
