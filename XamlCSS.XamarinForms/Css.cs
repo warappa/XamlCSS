@@ -104,9 +104,6 @@ namespace XamlCSS.XamarinForms
 
                 Css.rootElement = rootElement;
 
-                //VisualTreeHelper.SubTreeAdded += VisualTreeHelper_ChildAdded;
-                //VisualTreeHelper.SubTreeRemoved += VisualTreeHelper_ChildRemoved;
-
                 LoadedDetectionHelper.Initialize(rootElement);
 
                 if (rootElement is Application)
@@ -118,10 +115,11 @@ namespace XamlCSS.XamarinForms
                         PropertyChangedEventHandler handler = null;
                         handler = (s, e) =>
                         {
-                            if (e.PropertyName == nameof(Application.MainPage))
+                            if (e.PropertyName == nameof(Application.MainPage) &&
+                                application.MainPage != null)
                             {
                                 application.PropertyChanged -= handler;
-                                //VisualTreeHelper.Include(application.MainPage);
+                                instance?.ExecuteApplyStyles();
                             }
                         };
 
