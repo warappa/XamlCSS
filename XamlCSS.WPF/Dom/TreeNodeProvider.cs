@@ -191,8 +191,15 @@ namespace XamlCSS.WPF.Dom
             {
                 for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
                 {
-                    var child = VisualTreeHelper.GetChild(element, i) as DependencyObject;
+                    DependencyObject child = null;
+                    try
+                    {
+                        child = VisualTreeHelper.GetChild(element, i) as DependencyObject;
+                    }
+                    catch
+                    {
 
+                    }
                     if (child != null)
                     {
                         yield return child;
