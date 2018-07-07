@@ -94,7 +94,7 @@ namespace XamlCSS
         {
             var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, matchedType);
 
-            var declaringType = Type.GetType(typeAndProperyName.Item1);
+            var declaringType = Type.GetType(typeAndProperyName.Item1) ?? matchedType;
 
             //DependencyPropertyInfo<TDependencyProperty> result;
             //TypeHelpers.DeclaredDependencyPropertyInfos<TDependencyProperty>(declaringType).TryGetValue(typeAndProperyName.Item2, out result);

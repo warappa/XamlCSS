@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
@@ -38,7 +39,7 @@ namespace XamlCSS.WPF.Dom
                 CheckForSharedStyleSheet(application);
             };
 
-            var isInDesigner = DesignerProperties.GetIsInDesignMode(this);
+            var isInDesigner = DesignerProperties.GetIsInDesignMode(this) || Debugger.IsAttached;
 
             if (isInDesigner)
             {
