@@ -101,23 +101,37 @@ namespace XamlCSS.WPF.Dom
                 }
             }
 
-            if (found == AttachedStyleSheet &&
-                force == false)
+            if (!force)
             {
-                return;
+                if ((found == AttachedStyleSheet && found?.Version == lastVersion))
+                {
+                    return;
+                }
+
+                if (found == null &&
+                    found == AttachedStyleSheet)
+                {
+                    return;
+                }
             }
 
             AttachedStyleSheet = found;
-            if (found != null)
+            
+            if (found != null && AttachedStyleSheet == null)
             {
                 var content = found.Content;
                 found.Content = "";
                 found.Content = content;
             }
+
+            lastVersion = AttachedStyleSheet?.Version ?? -1;
+
             Css.SetStyleSheet(this, null);
             Css.SetStyleSheet(this, AttachedStyleSheet);
         }
 
         public StyleSheet AttachedStyleSheet { get; private set; }
+
+        private int lastVersion;
     }
 }
