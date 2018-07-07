@@ -27,11 +27,21 @@ namespace XamlCSS.WPF.Dom
             {
                 f.Loaded += DomElement_Loaded;
                 f.Unloaded += DomElement_Unloaded;
+
+                if (f.IsLoaded)
+                {
+                    ElementLoaded(f);
+                }
             }
             if (dependencyObject is FrameworkContentElement fc)
             {
                 fc.Loaded += DomElement_Loaded;
                 fc.Unloaded += DomElement_Unloaded;
+
+                if (fc.IsLoaded)
+                {
+                    ElementLoaded(fc);
+                }
             }
         }
 
