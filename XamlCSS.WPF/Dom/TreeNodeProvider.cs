@@ -96,7 +96,7 @@ namespace XamlCSS.WPF.Dom
 
             if (element is ItemsPresenter itemsPresenter)
             {
-                var itemshost = itemsPresenter != null ? VisualTreeHelper.GetChild(itemsPresenter, 0) as Panel : null;
+                var itemshost = itemsPresenter != null ? VisualTreeHelper.GetChildrenCount(itemsPresenter) > 0 ? VisualTreeHelper.GetChild(itemsPresenter, 0) as Panel : null : null;
 
                 if (itemshost == null)
                 {
