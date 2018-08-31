@@ -2,7 +2,7 @@
 <package>
     <metadata>
         <id>XamlCSS.UWP</id>
-        <version>2.2.0-pre5</version>
+        <version>2.2.0-pre6</version>
         <title>XamlCSS.UWP</title>
         <authors>David Rettenbacher</authors>
         <owners></owners>
@@ -10,10 +10,14 @@
             Style UWP-apps with Css
         </description>
         <releaseNotes>
+            2.2.0-pre6
+            - Attached property "ApplyStyleImmediately"
+            - Performance improvement (IsInLogicalTree/IsInVisualTree)
+
             2.2.0-pre5
             - #78 WPF: Children Of Frame Don't See Parent
             - #79 Nth-Selectors With Negative Factor Are Not Handled Correctly
-            
+
             2.2.0-pre4
             - Major performance enhancements
             - #76 Support Attribute Selectors With Change-Tracking
@@ -134,7 +138,7 @@
         <copyright>© 2018 David Rettenbacher</copyright>
         <dependencies>
             <group targetFramework="uap10.0">
-                <dependency id="XamlCSS" version="2.2.0-pre5" />
+                <dependency id="XamlCSS" version="2.2.0-pre6" />
             </group>
         </dependencies>
         <references></references>
@@ -147,5 +151,8 @@
 
         <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\netstandard1.0" />
         <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\netstandard1.0" />
+        
+        <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.dll" target="lib\netstandard2.0" />
+        <file src="..\XamlCss.UWP\bin\Release\XamlCss.UWP.pdb" target="lib\netstandard2.0" />
     </files>
 </package>
