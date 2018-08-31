@@ -50,10 +50,10 @@ namespace XamlCSS.Dom
             this.classList = GetClassList(dependencyObject);
             this.assemblyQualifiedNamespaceName = GetAssemblyQualifiedNamespaceName(dependencyObject.GetType());
 
-            AddIfNotAdded();
-
             UpdateTreeAssociation();
             UpdateIsReady();
+
+            AddIfNotAdded();
         }
 
         protected void ElementLoaded(object element)
