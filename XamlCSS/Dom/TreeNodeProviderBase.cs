@@ -59,8 +59,9 @@ namespace XamlCSS.Dom
         }
 
         public abstract bool IsInTree(TDependencyObject dependencyObject, SelectorType type);
+        public abstract bool IsTopMost(TDependencyObject dependencyObject, SelectorType type);
 
-        private IDomElement<TDependencyObject, TDependencyProperty> GetFromDependencyObject(TDependencyObject obj)
+        protected IDomElement<TDependencyObject, TDependencyProperty> GetFromDependencyObject(TDependencyObject obj)
         {
             return dependencyPropertyService.GetDomElement(obj);
         }

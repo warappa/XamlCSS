@@ -208,6 +208,21 @@ namespace XamlCSS.WPF.Dom
             }
         }
 
+        public override bool IsTopMost(DependencyObject element, SelectorType type)
+        {
+            if (element is Window)
+            {
+                return true;
+            }
+            if (isInDesigner && element.GetType().Name == "WindowInstance")
+            {
+                EnsureDesignerWindowInstanceCaptured(element);
+                return true;
+            }
+
+            return false;
+        }
+
         public override bool IsInTree(DependencyObject element, SelectorType type)
         {
             if (type == SelectorType.LogicalTree)
@@ -218,16 +233,19 @@ namespace XamlCSS.WPF.Dom
         }
         private bool IsInVisualTree(DependencyObject element)
         {
-            var p = GetVisualParent(element);
-            if (p == null)
-                return element is Window || element == applicationDependencyObject;
-
-            if (isInDesigner &&
-                element.GetType().Name == "WindowInstance")
+            if (IsTopMost(element, SelectorType.VisualTree))
             {
-                EnsureDesignerWindowInstanceCaptured(element);
                 return true;
             }
+
+            if (element == applicationDependencyObject)
+            {
+                return true;
+            }
+
+            var p = GetVisualParent(element);
+            if (p == null)
+                return false;
 
             var isElementInParentsChildren = GetChildren(p, SelectorType.VisualTree).Contains(element);
 
@@ -235,14 +253,13 @@ namespace XamlCSS.WPF.Dom
         }
         private bool IsInLogicalTree(DependencyObject element)
         {
-            var p = GetLogicalParent(element);
-            if (p == null)
-                return element is Window || element == applicationDependencyObject;
-
-            if (isInDesigner &&
-                element.GetType().Name == "WindowInstance")
+            if (IsTopMost(element, SelectorType.LogicalTree))
             {
-                EnsureDesignerWindowInstanceCaptured(element);
+                return true;
+            }
+
+            if (element == applicationDependencyObject)
+            {
                 return true;
             }
 
@@ -251,6 +268,10 @@ namespace XamlCSS.WPF.Dom
             {
                 return false;
             }
+
+            var p = GetLogicalParent(element);
+            if (p == null)
+                return false;
 
             var isElementInParentsChildren = GetChildren(p, SelectorType.LogicalTree).Contains(element);
 
@@ -264,14 +285,12 @@ namespace XamlCSS.WPF.Dom
                 return null;
             }
 
-            DependencyObject parent = null;
-
-            if (element is Window ||
-                (isInDesigner && element.GetType().Name == "WindowInstance"))
+            if (IsTopMost(element, type))
             {
-                EnsureDesignerWindowInstanceCaptured(element);
                 return applicationDependencyObject;
             }
+
+            DependencyObject parent = null;
 
             if (type == SelectorType.VisualTree)
             {
@@ -310,10 +329,8 @@ namespace XamlCSS.WPF.Dom
                 return null;
             }
 
-            if (element is Window ||
-                (isInDesigner && element.GetType().Name == "WindowInstance"))
+            if (IsTopMost(element, SelectorType.VisualTree))
             {
-                EnsureDesignerWindowInstanceCaptured(element);
                 return applicationDependencyObject;
             }
 

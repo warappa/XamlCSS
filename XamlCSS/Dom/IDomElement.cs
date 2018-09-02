@@ -20,8 +20,8 @@ namespace XamlCSS.Dom
         bool HasAttribute(string attribute);
         object GetAttributeValue(TDependencyProperty dependencyProperty);
 
-        bool IsInLogicalTree { get; }
-        bool IsInVisualTree { get; }
+        bool? IsInLogicalTree { get; }
+        bool? IsInVisualTree { get; }
         bool IsReady { get; }
 
         StyleUpdateInfo StyleInfo { get; set; }

@@ -8,7 +8,7 @@ using XamlCSS.Dom;
 
 namespace XamlCSS.WPF.Dom
 {
-    [DebuggerDisplay("{IsInLogicalTree ? \"L\" : \" \"}{IsInVisualTree ? \"V\" : \" \"} {Element.GetType().Name} {(Element as System.Windows.Controls.TextBlock)?.Text} Id={Id} Class={string.Join(\", \", this.ClassList)}")]
+    [DebuggerDisplay("{IsInLogicalTree == true ? \"L\" : \" \"}{IsInVisualTree == true ? \"V\" : \" \"} {Element.GetType().Name} {(Element as System.Windows.Controls.TextBlock)?.Text} Id={Id} Class={string.Join(\", \", this.ClassList)}")]
     public class DomElement : DomElementBase<DependencyObject, DependencyProperty>
     {
         private IDictionary<DependencyProperty, Action<object, EventArgs>> watchers = new Dictionary<DependencyProperty, Action<object, EventArgs>>();

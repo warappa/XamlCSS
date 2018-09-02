@@ -16,8 +16,8 @@ namespace XamlCSS.Dom
 
         public IList<StyleSheet> XamlCssStyleSheets { get; protected set; } = new List<StyleSheet>();
 
-        public bool IsInLogicalTree { get; private set; }
-        public bool IsInVisualTree { get; private set; }
+        public bool? IsInLogicalTree { get; private set; }
+        public bool? IsInVisualTree { get; private set; }
 
         protected readonly static char[] classSplitter = { ' ' };
         protected readonly TDependencyObject dependencyObject;
@@ -56,6 +56,11 @@ namespace XamlCSS.Dom
             AddIfNotAdded();
         }
 
+        protected void InvalidateIsInTree()
+        {
+            IsInLogicalTree = IsInVisualTree = null;
+        }
+
         protected void ElementLoaded(object element)
         {
             if (!ReferenceEquals(element, dependencyObject))
@@ -76,7 +81,7 @@ namespace XamlCSS.Dom
                 return;
             }
 
-            if (IsInLogicalTree &&
+            if (IsInLogicalTree == true &&
                 logicalParent != null)
             {
                 if (((DomElementBase<TDependencyObject, TDependencyProperty>)logicalParent)?.logicalChildNodes?.Remove(this) == false)
@@ -85,7 +90,7 @@ namespace XamlCSS.Dom
                 }
             }
 
-            if (IsInVisualTree &&
+            if (IsInVisualTree == true &&
                 parent != null)
             {
                 if (((DomElementBase<TDependencyObject, TDependencyProperty>)parent)?.childNodes?.Remove(this) == false)
@@ -100,14 +105,14 @@ namespace XamlCSS.Dom
 
         private void AddIfNotAdded()
         {
-            if (IsInLogicalTree &&
+            if (IsInLogicalTree == true &&
                 logicalParent != null)
             {
                 if ((logicalParent as DomElementBase<TDependencyObject, TDependencyProperty>).logicalChildNodes?.Contains(this) == false)
                     (logicalParent as DomElementBase<TDependencyObject, TDependencyProperty>).logicalChildNodes?.Add(this);
             }
 
-            if (IsInVisualTree &&
+            if (IsInVisualTree == true &&
                 parent != null)
             {
                 if ((parent as DomElementBase<TDependencyObject, TDependencyProperty>).childNodes?.Contains(this) == false)
@@ -277,12 +282,12 @@ namespace XamlCSS.Dom
             }
 
             if (type == SelectorType.LogicalTree &&
-                !IsInLogicalTree)
+                IsInLogicalTree != true)
             {
                 return new List<IDomElement<TDependencyObject, TDependencyProperty>>();
             }
             else if (type == SelectorType.VisualTree &&
-                !IsInVisualTree)
+                IsInVisualTree != true)
             {
                 return new List<IDomElement<TDependencyObject, TDependencyProperty>>();
             }

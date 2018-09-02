@@ -365,21 +365,20 @@ namespace XamlCSS.Dom
                 var inTree = true;
                 var triedReduce = false;
 
-                if (type == SelectorType.LogicalTree &&
-                        !element.IsInLogicalTree)
+                if (!element.IsReady)
+                {
+                    inTree = false;
+                }
+                else if (type == SelectorType.LogicalTree &&
+                    element.IsInLogicalTree != true)
                 {
                     inTree = false;
                 }
                 else if (type == SelectorType.VisualTree &&
-                    !element.IsInVisualTree)
+                    element.IsInVisualTree != true)
                 {
                     inTree = false;
                 }
-                else if (!element.IsReady)
-                {
-                    inTree = false;
-                }
-
 
                 if (!skipThisLevel &&
                     inTree)

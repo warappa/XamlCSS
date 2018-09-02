@@ -10,6 +10,7 @@ namespace XamlCSS.Dom
         IEnumerable<TDependencyObject> GetChildren(TDependencyObject element, SelectorType type);
         TDependencyObject GetParent(TDependencyObject dependencyObject, SelectorType type);
         bool IsInTree(TDependencyObject dependencyObject, SelectorType type);
+        bool IsTopMost(TDependencyObject dependencyObject, SelectorType type);
         IDomElement<TDependencyObject, TDependencyProperty> CreateTreeNode(TDependencyObject dependencyObject);
     }
 }

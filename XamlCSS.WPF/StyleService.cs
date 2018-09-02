@@ -459,25 +459,31 @@ namespace XamlCSS.WPF
 
         public override void SetStyle(DependencyObject visualElement, Style style)
         {
-            if (visualElement is FrameworkElement)
+            if (visualElement is FrameworkElement fe)
             {
-                (visualElement as FrameworkElement).Style = style;
+                if (!ReferenceEquals(fe.Style, style))
+                {
+                    fe.Style = style;
+                }
             }
-            else if (visualElement is FrameworkContentElement)
+            else if (visualElement is FrameworkContentElement fce)
             {
-                (visualElement as FrameworkContentElement).Style = style;
+                if (!ReferenceEquals(fce.Style, style))
+                {
+                    fce.Style = style;
+                }
             }
         }
 
         public override Style GetStyle(DependencyObject visualElement)
         {
-            if (visualElement is FrameworkElement)
+            if (visualElement is FrameworkElement fe)
             {
-                return (visualElement as FrameworkElement).Style;
+                return fe.Style;
             }
-            else if (visualElement is FrameworkContentElement)
+            else if (visualElement is FrameworkContentElement fce)
             {
-                return (visualElement as FrameworkContentElement).Style;
+                return fce.Style;
             }
 
             return null;
