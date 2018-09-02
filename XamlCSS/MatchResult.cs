@@ -24,5 +24,6 @@
         public bool HasItemFailed { get; private set; }
         public bool HasDirectParentFailed { get; private set; }
         public bool HasGeneralParentFailed { get; private set; }
+        public int Group { get; internal set; }
     }
 }

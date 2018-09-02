@@ -36,8 +36,10 @@ namespace XamlCSS
 
         internal Selector(IEnumerable<SelectorMatcher> fragments)
         {
-            this.fragments = fragments.ToArray();
-            this.fragmentLength = this.fragments.Length;
+            this.selectorMatchers = fragments.ToArray();
+            this.selectorMatchersLength = this.selectorMatchers.Length;
+
+            SetGroups();
         }
 
         protected string val;
@@ -82,7 +84,7 @@ namespace XamlCSS
 
         private void SetFragmentsFromAst()
         {
-            fragments = selectorAst.Children.SelectMany(x =>
+            selectorMatchers = selectorAst.Children.SelectMany(x =>
             {
                 if (x.Type == CssNodeType.DirectDescendantCombinator ||
                     x.Type == CssNodeType.GeneralDescendantCombinator ||
@@ -94,15 +96,50 @@ namespace XamlCSS
                 return x.Children.Select(y => new SelectorMatcherFactory().Create(y.Type, y.Text));
             })
             .ToArray();
-            fragmentLength = fragments.Length;
+
+            selectorMatchersLength = selectorMatchers.Length;
+            SetGroups();
+        }
+
+        private void SetGroups()
+        {
+            var groupStartIndexes = new List<int>() { 0 };
+            var groupEndIndexes = new List<int>();
+
+            for (var i = 0; i < selectorMatchersLength; i++)
+            {
+                var selectorMatcher = selectorMatchers.ElementAt(i);
+                if (selectorMatcher.Type == CssNodeType.GeneralDescendantCombinator)
+                {
+                    groupEndIndexes.Add(i - 1);
+                    groupStartIndexes.Add(i);
+                }
+                else
+                {
+                }
+            }
+
+            if (groupEndIndexes.LastOrDefault() != selectorMatchersLength)
+            {
+                groupEndIndexes.Add(selectorMatchersLength - 1);
+            }
+
+            selectorMatcherGroupStartIndices = groupStartIndexes.ToArray();
+            selectorMatcherGroupEndIndices = groupEndIndexes.ToArray();
+            GroupCount = groupStartIndexes.Count;
         }
 
         public int SimpleSpecificity { get; private set; }
         public int ClassSpecificity { get; private set; }
         public int IdSpecificity { get; private set; }
 
-        internal SelectorMatcher[] fragments;
-        private int fragmentLength;
+        internal SelectorMatcher[] selectorMatchers;
+        private int[] selectorMatcherGroupStartIndices;
+        private int[] selectorMatcherGroupEndIndices;
+
+        public int GroupCount { get; private set; }
+
+        private int selectorMatchersLength;
 
         public string Specificity
         {
@@ -147,16 +184,31 @@ namespace XamlCSS
             return false;
         }
 
-        public MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, IDomElement<TDependencyObject, TDependencyProperty> domElement)
+        public MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, IDomElement<TDependencyObject, TDependencyProperty> domElement, int startGroupIndex, int endGroupIndex)
             where TDependencyObject : class
         {
-            for (var i = fragmentLength - 1; i >= 0; i--)
+            if (startGroupIndex == -1)
             {
-                var fragment = fragments[i];
+                startGroupIndex = GroupCount - 1;
+            }
 
-                var match = fragment.Match(styleSheet, ref domElement, fragments, ref i);
+            var currentGroupIndex = startGroupIndex;
+
+            var startOfIteration = selectorMatcherGroupEndIndices[startGroupIndex];
+            var endOfIteration = selectorMatcherGroupStartIndices[endGroupIndex];
+            
+            for (var i = startOfIteration; i >= endOfIteration; i--)
+            {
+                var selectorMatcher = selectorMatchers[i];
+                if (i < selectorMatcherGroupStartIndices[currentGroupIndex])
+                {
+                    currentGroupIndex--;
+                }
+
+                var match = selectorMatcher.Match(styleSheet, ref domElement, selectorMatchers, ref i);
                 if (!match.IsSuccess)
                 {
+                    match.Group = currentGroupIndex;
                     return match;
                 }
             }
@@ -164,10 +216,27 @@ namespace XamlCSS
             return MatchResult.Success;
         }
 
+        //public MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, IDomElement<TDependencyObject, TDependencyProperty> domElement)
+        //    where TDependencyObject : class
+        //{
+        //    for (var i = selectorMatchersLength - 1; i >= 0; i--)
+        //    {
+        //        var selectorMatcher = selectorMatchers[i];
+
+        //        var match = selectorMatcher.Match(styleSheet, ref domElement, selectorMatchers, ref i);
+        //        if (!match.IsSuccess)
+        //        {
+        //            return match;
+        //        }
+        //    }
+
+        //    return MatchResult.Success;
+        //}
+
         public bool StartOnVisualTree()
         {
-            if (fragments[fragmentLength - 1].Type == CssNodeType.PseudoSelector &&
-                fragments[fragmentLength - 1].Text == ":visualtree")
+            if (selectorMatchers[selectorMatchersLength - 1].Type == CssNodeType.PseudoSelector &&
+                selectorMatchers[selectorMatchersLength - 1].Text == ":visualtree")
             {
                 return true;
             }

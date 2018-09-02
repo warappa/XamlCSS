@@ -257,14 +257,14 @@ namespace XamlCSS.Dom
 
         public MatchResult Matches(StyleSheet styleSheet, ISelector selector)
         {
-            return selector.Match(styleSheet, this);
+            return selector.Match(styleSheet, this, -1, 0);
         }
 
         public IList<IDomElement<TDependencyObject, TDependencyProperty>> QuerySelectorAll(StyleSheet styleSheet, ISelector selector, SelectorType type)
         {
             var children = (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes);
 
-            return children.QuerySelectorAll(styleSheet, selector, type);
+            return children.QuerySelectorAll(styleSheet, selector, type, 0);
         }
 
         public IList<IDomElement<TDependencyObject, TDependencyProperty>> QuerySelectorAllWithSelf(StyleSheet styleSheet, ISelector selector, SelectorType type)
@@ -287,7 +287,9 @@ namespace XamlCSS.Dom
                 return new List<IDomElement<TDependencyObject, TDependencyProperty>>();
             }
 
-            var res = (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelectorAll(styleSheet, selector, type);
+            var endGroupIndex = GetEndGroupIndex(styleSheet, selector, type);
+
+            var res = (type == SelectorType.LogicalTree ? LogicalChildNodes : ChildNodes).QuerySelectorAll(styleSheet, selector, type, endGroupIndex);
 
             var match = Matches(styleSheet, selector);
             if (match.IsSuccess)
@@ -296,6 +298,32 @@ namespace XamlCSS.Dom
             }
 
             return res;
+        }
+
+        private int GetEndGroupIndex(StyleSheet styleSheet, ISelector selector, SelectorType type)
+        {
+            if (selector.GroupCount == 1)
+            {
+                return 0;
+            }
+
+            var testStartGroupIndex = selector.GroupCount - 2;
+            var testEndGroupIndex = 0;
+
+            while (testEndGroupIndex >= 0)
+            {
+                var match = selector.Match(styleSheet, this, testStartGroupIndex, testEndGroupIndex);
+                if (!match.IsSuccess)
+                {
+                    testEndGroupIndex--;
+                }
+                else
+                {
+                    return testEndGroupIndex;
+                }
+            }
+
+            return 0;
         }
 
         public bool HasFocus()
