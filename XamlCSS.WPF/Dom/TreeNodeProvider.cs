@@ -81,6 +81,17 @@ namespace XamlCSS.WPF.Dom
                     var uiElement = ic.ItemContainerGenerator.ContainerFromIndex(i);
                     if (uiElement != null)
                     {
+                        if (uiElement is ContentPresenter)
+                        {
+                            var found = GetLogicalChildren(uiElement).FirstOrDefault();
+                            if (found != null)
+                            {
+                                yield return found;
+                            }
+                        }
+                        else if (uiElement is Panel panel &&
+                            panel.IsItemsHost)
+                    {
                         var found = GetLogicalChildren(uiElement).FirstOrDefault();
                         if (found == null)
                         {
@@ -89,6 +100,11 @@ namespace XamlCSS.WPF.Dom
                         else
                         {
                             yield return found;
+                        }
+                    }
+                        else
+                        {
+                            yield return uiElement;
                         }
                     }
                 }
