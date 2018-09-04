@@ -67,6 +67,61 @@ namespace XamlCSS.WPF.Dom
             return list;
         }
 
+        private ContentPresenter SearchForContentPresenter(DependencyObject originalParent, DependencyObject element)
+        {
+            foreach(var child in GetVisualChildren(element))
+            {
+                if(child is ContentPresenter cp)
+                {
+                    if (cp.TemplatedParent != originalParent)
+                    {
+                        return null;
+                    }
+
+                    return cp;
+                }
+            }
+
+            foreach (var child in GetVisualChildren(element))
+            {
+                var res = SearchForContentPresenter(originalParent, child);
+                if(res != null)
+                {
+                    return res;
+                }
+            }
+
+            return null;
+        }
+
+
+        private ItemsPresenter SearchForItemsPresenter(DependencyObject originalParent, DependencyObject element)
+        {
+            foreach (var child in GetVisualChildren(element))
+            {
+                if (child is ItemsPresenter ip)
+                {
+                    if (ip.TemplatedParent != originalParent)
+                    {
+                        return null;
+                    }
+
+                    return ip;
+                }
+            }
+
+            foreach (var child in GetVisualChildren(element))
+            {
+                var res = SearchForItemsPresenter(originalParent, child);
+                if (res != null)
+                {
+                    return res;
+                }
+            }
+
+            return null;
+        }
+
         public IEnumerable<DependencyObject> GetLogicalChildren(DependencyObject element)
         {
             if (element == null)
@@ -76,38 +131,84 @@ namespace XamlCSS.WPF.Dom
 
             if (element is ItemsControl ic)
             {
+                var cp = SearchForContentPresenter(element, element);
+                var childrenOfLogicalParentaaa = GetChildrenOfLogicalParent(cp, GetVisualChildren(cp));
+                foreach (var child in childrenOfLogicalParentaaa)
+                {
+                    yield return child;
+                }
+
                 for (int i = 0; i < ic.Items.Count; i++)
                 {
                     var uiElement = ic.ItemContainerGenerator.ContainerFromIndex(i);
                     if (uiElement != null)
                     {
-                        if (uiElement is ContentPresenter)
+                        if (false)
+                        {
+                            yield return uiElement;
+                            
+
+                            //var ip = SearchForItemsPresenter(uiElement, uiElement);
+                            //var itemshost = ip != null ? VisualTreeHelper.GetChildrenCount(ip) > 0 ? VisualTreeHelper.GetChild(ip, 0) as Panel : null : null;
+
+                            //if (itemshost == null)
+                            //{
+                            //    yield break;
+                            //}
+
+                            ////var p = GetVisualChildren(itemshost).FirstOrDefault();
+                            ////if (p != null)
+                            ////{
+                            ////    var children = GetLogicalChildren(p);
+                            ////    foreach (var child in children)
+                            ////    {
+                            ////        yield return child;
+                            ////    }
+                            ////}
+                            //var itemsHostChildren = GetVisualChildren(itemshost);
+                            //foreach (var itemsHostChild in itemsHostChildren)
+                            //{
+                            //    yield return itemsHostChild;
+                            //    //var cpItemshost = SearchForContentPresenter(itemsHostChild, itemsHostChild);
+                            //    //var childrenOfLogicalParenttemshost = GetChildrenOfLogicalParent(cpItemshost, GetVisualChildren(cpItemshost));
+                            //    //foreach (var child in childrenOfLogicalParenttemshost)
+                            //    //{
+                            //    //    yield return child;
+                            //    //}
+                            //}
+
+                            //yield break;
+
+                        }
+                        else if (uiElement is ContentPresenter)
+                        {
+                            var childrenOfLogicalParent = GetChildrenOfLogicalParent(uiElement, GetVisualChildren(uiElement));
+                            foreach (var child in childrenOfLogicalParent)
+                            {
+                                yield return child;
+                            }                            
+                        }
+                        else if (uiElement is Panel panel &&
+                            panel.IsItemsHost)
                         {
                             var found = GetLogicalChildren(uiElement).FirstOrDefault();
-                            if (found != null)
+                            if (found == null)
+                            {
+                                yield return uiElement;
+                            }
+                            else
                             {
                                 yield return found;
                             }
                         }
-                        else if (uiElement is Panel panel &&
-                            panel.IsItemsHost)
-                    {
-                        var found = GetLogicalChildren(uiElement).FirstOrDefault();
-                        if (found == null)
-                        {
-                            yield return uiElement;
-                        }
-                        else
-                        {
-                            yield return found;
-                        }
-                    }
                         else
                         {
                             yield return uiElement;
                         }
                     }
                 }
+
+                yield break;
             }
 
             if (element is ItemsPresenter itemsPresenter)
