@@ -72,7 +72,7 @@ namespace XamlCSS
             }
 
             if (valueExpression != null &&
-                ((valueExpression.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(valueExpression)) ||
+                ((valueExpression.StartsWith("#", StringComparison.Ordinal) && !IsHexColorValue(valueExpression) && valueExpression.Length > 1) ||
                 valueExpression.StartsWith("{", StringComparison.Ordinal))) // color
             {
                 if (valueExpression.StartsWith("#", StringComparison.Ordinal))
