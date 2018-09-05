@@ -143,44 +143,7 @@ namespace XamlCSS.WPF.Dom
                     var uiElement = ic.ItemContainerGenerator.ContainerFromIndex(i);
                     if (uiElement != null)
                     {
-                        if (false)
-                        {
-                            yield return uiElement;
-                            
-
-                            //var ip = SearchForItemsPresenter(uiElement, uiElement);
-                            //var itemshost = ip != null ? VisualTreeHelper.GetChildrenCount(ip) > 0 ? VisualTreeHelper.GetChild(ip, 0) as Panel : null : null;
-
-                            //if (itemshost == null)
-                            //{
-                            //    yield break;
-                            //}
-
-                            ////var p = GetVisualChildren(itemshost).FirstOrDefault();
-                            ////if (p != null)
-                            ////{
-                            ////    var children = GetLogicalChildren(p);
-                            ////    foreach (var child in children)
-                            ////    {
-                            ////        yield return child;
-                            ////    }
-                            ////}
-                            //var itemsHostChildren = GetVisualChildren(itemshost);
-                            //foreach (var itemsHostChild in itemsHostChildren)
-                            //{
-                            //    yield return itemsHostChild;
-                            //    //var cpItemshost = SearchForContentPresenter(itemsHostChild, itemsHostChild);
-                            //    //var childrenOfLogicalParenttemshost = GetChildrenOfLogicalParent(cpItemshost, GetVisualChildren(cpItemshost));
-                            //    //foreach (var child in childrenOfLogicalParenttemshost)
-                            //    //{
-                            //    //    yield return child;
-                            //    //}
-                            //}
-
-                            //yield break;
-
-                        }
-                        else if (uiElement is ContentPresenter)
+                        if (uiElement is ContentPresenter)
                         {
                             var childrenOfLogicalParent = GetChildrenOfLogicalParent(uiElement, GetVisualChildren(uiElement));
                             foreach (var child in childrenOfLogicalParent)

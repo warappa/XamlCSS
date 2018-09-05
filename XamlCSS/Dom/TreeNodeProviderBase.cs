@@ -53,6 +53,7 @@ namespace XamlCSS.Dom
             }
 
             cached = CreateTreeNode(obj);
+            
             dependencyPropertyService.SetDomElement(obj, cached);
 
             return cached;

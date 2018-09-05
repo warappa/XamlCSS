@@ -101,25 +101,30 @@ namespace XamlCSS.UWP.Dom
             return IsInVisualTree(element);
         }
 
+        public override bool IsTopMost(DependencyObject element, SelectorType type)
+        {
+            return element is Frame;
+        }
+
         private DependencyObject GetParent(DependencyObject element)
         {
             return (element as FrameworkElement)?.Parent;
         }
 
-        public bool IsInLogicalTree(DependencyObject dependencyObject)
+        public bool IsInLogicalTree(DependencyObject element)
         {
-            var p = GetLogicalParent(dependencyObject);
+            var p = GetLogicalParent(element);
             if (p == null)
-                return dependencyObject is Frame;
+                return IsTopMost(element, SelectorType.LogicalTree);
 
-            return GetChildren(p, SelectorType.LogicalTree).Contains(dependencyObject);
+            return GetChildren(p, SelectorType.LogicalTree).Contains(element);
         }
 
         public bool IsInVisualTree(DependencyObject element)
         {
             var p = GetVisualParent(element);
             if (p == null)
-                return element is Frame;
+                return IsTopMost(element, SelectorType.LogicalTree);
 
             return GetChildren(p, SelectorType.VisualTree).Contains(element);
         }
@@ -153,7 +158,7 @@ namespace XamlCSS.UWP.Dom
         private DependencyObject GetLogicalParent(DependencyObject element)
         {
             if (element == null ||
-                element is Frame)
+                IsTopMost(element, SelectorType.LogicalTree))
             {
                 return null;
             }

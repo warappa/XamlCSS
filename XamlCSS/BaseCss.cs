@@ -79,7 +79,7 @@ namespace XamlCSS
 
             Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
 
-            // Investigate.Print();
+            //Investigate.Print();
             // HierarchyDebugExtensions.PrintHerarchyDebugInfo(treeNodeProvider, dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder, SelectorType.LogicalTree);
             executeApplyStylesExecuting = false;
         }
@@ -180,15 +180,7 @@ namespace XamlCSS
                         continue;
                     }
 
-                    //treeNodeProvider.Switch(SelectorType.VisualTree);
-
                     var domElement = treeNodeProvider.GetDomElement(start);
-                    //visual.StyleInfo = styleUpdateInfos[start];
-
-                    //if (!switchableTreeNodeProvider.IsInTree(start))
-                    //{
-                    //    visual = null;
-                    //}
 
                     //var task = Task.Run(() => UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService));
                     //tasks.Add(task);
@@ -206,7 +198,6 @@ namespace XamlCSS
                 {
                     var styleUpdateInfo = item.Value;
 
-                    // styleUpdateInfo.CurrentMatchedSelectors = new List<string>();
                     styleUpdateInfo.OldMatchedSelectors = new List<ISelector>();// new LinkedHashSet<ISelector>();
                     styleUpdateInfo.DoMatchCheck = SelectorType.None;
                     // remove style
@@ -347,8 +338,8 @@ namespace XamlCSS
                 object a;
                 a = current.ClassList;
                 //"Id".Measure(() => a = current.Id);
-                a = current.TagName;
-                a = current.AssemblyQualifiedNamespaceName;
+                //a = current.TagName;
+                //a = current.AssemblyQualifiedNamespaceName;
                 //"HasAttribute".Measure(() => a = current.HasAttribute("Name"));
                 /*// a = domElement.Parent;
                 */

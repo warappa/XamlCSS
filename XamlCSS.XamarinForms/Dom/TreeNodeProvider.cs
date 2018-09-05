@@ -100,12 +100,17 @@ namespace XamlCSS.XamarinForms.Dom
 
             if (p == null)
             {
-                return dependencyObject is Application;
+                return IsTopMost(dependencyObject, type);
             }
 
             var children = GetChildren(p, type);
 
             return children.Contains(dependencyObject);
+        }
+
+        public override bool IsTopMost(BindableObject dependencyObject, SelectorType type)
+        {
+            return dependencyObject is Application;
         }
     }
 }

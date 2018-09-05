@@ -87,14 +87,14 @@ namespace XamlCSS.Utils
             var providerParent = treeNodeProvider.GetParent(element, type);
             if (expectedParent != providerParent)
             {
-                Debug.WriteLine($"!!!!! element: '{element.ToString()}' '{((dynamic)element)?.DataContext}'");
-                Debug.WriteLine($"Expected parent: { dependencyPropertyService.GetName(expectedParent) } {expectedParent.GetType().Name} '{expectedParent.ToString()}' '{((dynamic)expectedParent)?.DataContext}'");
+                Debug.WriteLine($"!!!!! element: '{element.ToString()}'");
+                Debug.WriteLine($"Expected parent: { dependencyPropertyService.GetName(expectedParent) } {expectedParent.GetType().Name} '{expectedParent.ToString()}'");
                 
-                Debug.WriteLine($"Provider parent:   { (providerParent != null ? dependencyPropertyService.GetName(providerParent) : "NULL!") } {(providerParent != null ? treeNodeProvider.GetParent(element, type).GetType().Name : "NULL!")} '{((dynamic)providerParent)?.DataContext}'");
+                Debug.WriteLine($"Provider parent:   { (providerParent != null ? dependencyPropertyService.GetName(providerParent) : "NULL!") } {(providerParent != null ? treeNodeProvider.GetParent(element, type).GetType().Name : "NULL!")}");
                 Debug.WriteLine("!!!!!");
             }
 
-            Debug.WriteLine(new String(' ', level * 2) + element.GetType().Name + "#" + dependencyPropertyService.GetName(element)+$" '{ ((dynamic)element).DataContext}'");
+            Debug.WriteLine(new String(' ', level * 2) + element.GetType().Name + "#" + dependencyPropertyService.GetName(element));
             var children = treeNodeProvider.GetChildren(element, type);
             foreach (var child in children)
             {
@@ -112,23 +112,23 @@ namespace XamlCSS.Utils
 
             if (expectedParent != domParent)
             {
-                Debug.WriteLine($"!!!!! DomElement {domElement.Element.GetType().Name} '{((dynamic)domElement.Element)?.DataContext}'");
-                Debug.WriteLine($"Expected parent: { expectedParent.TagName + "#" + expectedParent.Id } {expectedParent.Element?.GetType().Name} '{((dynamic)expectedParent.Element)?.DataContext}'");
-                Debug.WriteLine($"Provider parent:   {domParent?.TagName + "#" + domParent?.Id } {domParent?.Element?.GetType().Name ?? "null"} '{((dynamic)domParent.Element)?.DataContext}'");
+                Debug.WriteLine($"!!!!! DomElement {domElement.Element.GetType().Name}");
+                Debug.WriteLine($"Expected parent: { expectedParent.TagName + "#" + expectedParent.Id } {expectedParent.Element?.GetType().Name}");
+                Debug.WriteLine($"Provider parent:   {domParent?.TagName + "#" + domParent?.Id } {domParent?.Element?.GetType().Name ?? "null"}");
                 Debug.WriteLine("!!!!!");
             }
 
             if (expectedParent != null &&
                 expectedParent.Element != treeNodeProvider.GetParent(domElement.Element, type))
             {
-                Debug.WriteLine($"XXXXX {domElement.Element.GetType().Name} '{((dynamic)domElement.Element)?.DataContext}'");
-                Debug.WriteLine($"  Expected parent: {expectedParent.Element.GetType().Name} '{((dynamic)expectedParent.Element)?.DataContext}'");
-                Debug.WriteLine($"  Provider parent:   { treeNodeProvider.GetParent(domElement.Element, type)?.GetType().Name} '{((dynamic)treeNodeProvider.GetParent(domElement.Element, type))?.DataContext}'");
+                Debug.WriteLine($"XXXXX {domElement.Element.GetType().Name}");
+                Debug.WriteLine($"  Expected parent: {expectedParent.Element.GetType().Name}");
+                Debug.WriteLine($"  Provider parent:   { treeNodeProvider.GetParent(domElement.Element, type)?.GetType().Name}");
                 Debug.WriteLine("XXXXX");
             }
 
             Debug.WriteLine(new String(' ', level * 2) + domElement.Element.GetType().Name + "#" + domElement.Id + " | " + string.Join(", ", domElement.StyleInfo?.CurrentMatchedSelectors.Select(x => x.Value) ?? new string[0])+
-                $" | {domElement.IsInLogicalTree}/{domElement.IsInVisualTree} '{ ((dynamic)domElement.Element).DataContext}'");
+                $" | {domElement.IsInLogicalTree}/{domElement.IsInVisualTree}");
 
             var children = treeNodeProvider.GetDomElementChildren(domElement, type);
             foreach (var child in children)
