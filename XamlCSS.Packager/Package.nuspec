@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>XamlCSS</id>
-    <version>2.2.0-pre6</version>
+    <version>2.2.0-pre7</version>
     <title>XamlCSS</title>
     <authors>David Rettenbacher</authors>
     <owners></owners>
@@ -10,6 +10,11 @@
       Style Xaml-apps with Css
     </description>
     <releaseNotes>
+        2.2.0-pre7
+        - #80 WPF: Style not applied to Items defined in Template - handle treeviews correctly
+        - Live edit: '#' should not crash application
+        - Tree-node-matching performance: if general parent selector already matched don't evaluate for elements down the tree
+        
         2.2.0-pre6
         - Attached property "ApplyStyleImmediately"
         - Performance improvement (IsInLogicalTree/IsInVisualTree)
