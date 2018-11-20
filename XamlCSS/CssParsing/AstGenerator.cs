@@ -1414,10 +1414,11 @@ namespace XamlCSS.CssParsing
             try
             {
                 SkipWhitespace();
-                SkipExpected(currentToken, CssTokenType.ParenthesisOpen);
-                ReadUntil(CssTokenType.ParenthesisClose, CssTokenType.Semicolon);
-                SkipIfFound(CssTokenType.ParenthesisClose);
+                
+                ReadUntil(CssTokenType.Semicolon);
+                
                 SkipIfFound(CssTokenType.Semicolon);
+
                 SkipWhitespace();
 
                 TrimCurrentNode();
