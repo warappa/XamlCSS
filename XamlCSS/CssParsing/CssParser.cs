@@ -397,9 +397,11 @@ namespace XamlCSS.CssParsing
                 .First(x => x.Type == CssNodeType.Selectors)
                 .Children
                 .Where(x => x.Type == CssNodeType.Selector)
-                .SelectMany(x => x.Children.Where(y => y.Type == CssNodeType.SimpleSelectorSequence))
-                .SelectMany(x => x.Children)
-                .Select(x => x.Text);
+                .Select(x => string.Join(" ", x.Children
+                    .Where(y => y.Type == CssNodeType.SimpleSelectorSequence)
+                    .Select(z => string.Join("", z.Children.Select(c => c.Text))))
+                )
+                .ToList();
 
             var selectorsToExtend = astStyleDeclarationBlock
                 .Children.Where(x => x.Type == CssNodeType.Extend)
