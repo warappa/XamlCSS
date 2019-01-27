@@ -20,6 +20,11 @@ namespace XamlCSS.Tests.Dom
             throw new NotImplementedException();
         }
 
+        public bool TryGetDomElement(UIElement obj, out IDomElement<UIElement, PropertyInfo> domElement)
+        {
+            throw new NotImplementedException();
+        }
+
         public IDomElement<UIElement, PropertyInfo> GetDomElement(UIElement obj)
         {
             throw new NotImplementedException();
@@ -38,6 +43,11 @@ namespace XamlCSS.Tests.Dom
         public bool IsInTree(UIElement dependencyObject, SelectorType type)
         {
             return true;
+        }
+
+        public bool IsTopMost(UIElement dependencyObject, SelectorType type)
+        {
+            throw new NotImplementedException();
         }
     }
 }

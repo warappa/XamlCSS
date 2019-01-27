@@ -444,9 +444,9 @@ Grid {
 
             var selector = styleSheet.Rules[0].Selectors.First() as Selector;
             selector.Value.Should().Be(@"[text]");
-            selector.fragments.Count().Should().Be(1);
+            selector.selectorMatchers.Count().Should().Be(1);
 
-            var attributeMatcher = selector.fragments[0] as AttributeMatcher;
+            var attributeMatcher = selector.selectorMatchers[0] as AttributeMatcher;
             attributeMatcher.PropertyName.Should().Be("text");
             attributeMatcher.Operator.Should().Be(null);
             attributeMatcher.Value.Should().Be(null);
@@ -467,9 +467,9 @@ Grid {
 
             var selector = styleSheet.Rules[0].Selectors.First() as Selector;
             selector.Value.Should().Be(@"[text=""hello world""]");
-            selector.fragments.Count().Should().Be(1);
+            selector.selectorMatchers.Count().Should().Be(1);
 
-            var attributeMatcher = selector.fragments[0] as AttributeMatcher;
+            var attributeMatcher = selector.selectorMatchers[0] as AttributeMatcher;
             attributeMatcher.PropertyName.Should().Be("text");
             attributeMatcher.Operator.Should().Be("=");
             attributeMatcher.Value.Should().Be("hello world");
@@ -490,14 +490,14 @@ Grid {
 
             styleSheet.Rules[0].SelectorString.Should().Be(@"[text=""hello world""]:hover");
             var selector = styleSheet.Rules[0].Selectors.First() as Selector;
-            selector.fragments.Count().Should().Be(2);
+            selector.selectorMatchers.Count().Should().Be(2);
 
-            var attributeMatcher = selector.fragments[0] as AttributeMatcher;
+            var attributeMatcher = selector.selectorMatchers[0] as AttributeMatcher;
             attributeMatcher.PropertyName.Should().Be("text");
             attributeMatcher.Operator.Should().Be("=");
             attributeMatcher.Value.Should().Be(@"hello world");
 
-            var pseudoMatche = selector.fragments[1] as SelectorMatcher;
+            var pseudoMatche = selector.selectorMatchers[1] as SelectorMatcher;
             pseudoMatche.Text.Should().Be(":hover");
         }
 
@@ -518,12 +518,12 @@ Grid {
 
             styleSheet.Rules[1].SelectorString.Should().Be(@"Grid TextBlock:nth-of-type(1).open");
             var selector = styleSheet.Rules[1].Selectors.First() as Selector;
-            selector.fragments.Count().Should().Be(5);
-            selector.fragments[0].Text.Should().Be("Grid");
-            selector.fragments[1].Text.Should().Be(" ");
-            selector.fragments[2].Text.Should().Be("TextBlock");
-            selector.fragments[3].Text.Should().Be("1");
-            selector.fragments[4].Text.Should().Be("open");
+            selector.selectorMatchers.Count().Should().Be(5);
+            selector.selectorMatchers[0].Text.Should().Be("Grid");
+            selector.selectorMatchers[1].Text.Should().Be(" ");
+            selector.selectorMatchers[2].Text.Should().Be("TextBlock");
+            selector.selectorMatchers[3].Text.Should().Be("1");
+            selector.selectorMatchers[4].Text.Should().Be("open");
         }
 
         [Test]

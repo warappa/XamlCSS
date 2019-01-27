@@ -184,6 +184,12 @@ namespace XamlCSS
             return false;
         }
 
+        public MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, IDomElement<TDependencyObject, TDependencyProperty> domElement)
+            where TDependencyObject : class
+        {
+            return Match(styleSheet, domElement, -1, 0);
+        }
+
         public MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, IDomElement<TDependencyObject, TDependencyProperty> domElement, int startGroupIndex, int endGroupIndex)
             where TDependencyObject : class
         {
