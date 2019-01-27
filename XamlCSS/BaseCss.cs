@@ -541,7 +541,7 @@ namespace XamlCSS
 
             foreach (var f in found)
             {
-                f.StyleInfo.DoMatchCheck = SelectorType.None;
+                f.StyleInfo.DoMatchCheck &= ~traversed;
 
                 f.StyleInfo.CurrentMatchedSelectors = f.StyleInfo.CurrentMatchedSelectors.Distinct()
                         .OrderBy(x => x.IdSpecificity)
@@ -553,13 +553,13 @@ namespace XamlCSS
             }
 
             if ((traversed & SelectorType.VisualTree) > 0)
-                SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.VisualTree);
+                MarkAsAlreadyProcessedForSelectorTypeInSubTree(startFrom, styleSheet, SelectorType.VisualTree);
             if ((traversed & SelectorType.LogicalTree) > 0)
-                SetDoMatchCheckToNoneInSubTree(startFrom, styleSheet, SelectorType.LogicalTree);
+                MarkAsAlreadyProcessedForSelectorTypeInSubTree(startFrom, styleSheet, SelectorType.LogicalTree);
             return found.ToList();
         }
 
-        private static void SetDoMatchCheckToNoneInSubTree(IDomElement<TDependencyObject, TDependencyProperty> domElement, StyleSheet styleSheet, SelectorType type)
+        private static void MarkAsAlreadyProcessedForSelectorTypeInSubTree(IDomElement<TDependencyObject, TDependencyProperty> domElement, StyleSheet styleSheet, SelectorType type)
         {
             if (domElement == null ||
                 !domElement.IsReady ||
@@ -568,12 +568,12 @@ namespace XamlCSS
                 return;
             }
 
-            domElement.StyleInfo.DoMatchCheck = SelectorType.None;
+            domElement.StyleInfo.DoMatchCheck &= ~type;
 
             var children = type == SelectorType.VisualTree ? domElement.ChildNodes : domElement.LogicalChildNodes;
             foreach (var child in children)
             {
-                SetDoMatchCheckToNoneInSubTree(child, styleSheet, type);
+                MarkAsAlreadyProcessedForSelectorTypeInSubTree(child, styleSheet, type);
             }
         }
 
