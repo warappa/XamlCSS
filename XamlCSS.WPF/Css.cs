@@ -222,11 +222,21 @@ namespace XamlCSS.WPF
                 typeof(StyleDeclarationBlock),
                 typeof(Css),
                 new PropertyMetadata(null, Css.StylePropertyAttached));
-        private static void StylePropertyAttached(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs e)
+        private static void StylePropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
-            if (instance?.treeNodeProvider.GetDomElement(dependencyObject)?.IsReady == true)
+            if (instance is null)
             {
-                instance?.UpdateElement(dependencyObject);
+                return;
+            }
+
+            if (instance.treeNodeProvider.TryGetDomElement(element, out var domElement) != true)
+            {
+                return; // doesn't exist yet, no update necessary
+            }
+
+            if (domElement.IsReady == true)
+            {
+                instance.UpdateElement(element);
             }
         }
         public static StyleDeclarationBlock GetStyle(DependencyObject obj)
@@ -310,12 +320,23 @@ namespace XamlCSS.WPF
 
         private static void ClassPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
-            var domElement = instance?.treeNodeProvider.GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
-
-            domElement?.ResetClassList();
-            if (domElement?.IsReady == true)
+            if (instance is null)
             {
-                instance?.UpdateElement(element);
+                return;
+            }
+
+            IDomElement<DependencyObject, DependencyProperty> domElementBase = null;
+            if (instance.treeNodeProvider.TryGetDomElement(element, out domElementBase) != true)
+            {
+                return;
+            }
+
+            var domElement = (DomElementBase<DependencyObject, DependencyProperty>)domElementBase;
+
+            domElement.ResetClassList();
+            if (domElement.IsReady == true)
+            {
+                instance.UpdateElement(element);
             }
         }
 
@@ -340,7 +361,7 @@ namespace XamlCSS.WPF
             DependencyProperty.RegisterAttached(
                 "ApplyStyleImmediately",
                 typeof(bool),
-                typeof(Css), 
+                typeof(Css),
                 new PropertyMetadata(false));
         public static bool GetApplyStyleImmediately(DependencyObject obj)
         {

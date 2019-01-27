@@ -211,10 +211,24 @@ namespace XamlCSS.XamarinForms
                 ClassPropertyChanged);
         private static void ClassPropertyChanged(BindableObject element, object oldValue, object newValue)
         {
-            var domElement = GetDomElement(element) as DomElementBase<BindableObject, BindableProperty>;
-            domElement?.ResetClassList();
+            if (instance is null)
+            {
+                return;
+            }
 
-            Css.instance?.UpdateElement(element);
+            IDomElement<BindableObject, BindableProperty> domElementBase = null;
+            if (instance.treeNodeProvider.TryGetDomElement(element, out domElementBase) != true)
+            {
+                return;
+            }
+
+            var domElement = (DomElementBase<BindableObject, BindableProperty>)domElementBase;
+
+            domElement.ResetClassList();
+            if (domElement.IsReady == true)
+            {
+                instance.UpdateElement(element);
+            }
         }
         public static string GetClass(BindableObject obj)
         {
@@ -292,9 +306,22 @@ namespace XamlCSS.XamarinForms
             }
         }
 
-        private static void StylePropertyAttached(BindableObject d, object oldValue, object newValue)
+        private static void StylePropertyAttached(BindableObject element, object oldValue, object newValue)
         {
-            instance?.UpdateElement(d as Element);
+            if (instance is null)
+            {
+                return;
+            }
+
+            if (instance.treeNodeProvider.TryGetDomElement(element, out var domElement) != true)
+            {
+                return; // doesn't exist yet, no update necessary
+            }
+
+            if (domElement.IsReady == true)
+            {
+                instance.UpdateElement(element);
+            }
         }
 
         public static readonly BindableProperty AdditionalChildrenProperty =

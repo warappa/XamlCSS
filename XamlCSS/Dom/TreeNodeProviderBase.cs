@@ -45,18 +45,34 @@ namespace XamlCSS.Dom
                 return null;
             }
 
-            var cached = GetFromDependencyObject(obj);
-
-            if (cached != null)
+            if (TryGetDomElement(obj, out var domElement))
             {
-                return cached;
+                return domElement;
             }
 
-            cached = CreateTreeNode(obj);
-            
-            dependencyPropertyService.SetDomElement(obj, cached);
+            domElement = CreateTreeNode(obj);
 
-            return cached;
+            dependencyPropertyService.SetDomElement(obj, domElement);
+
+            return domElement;
+        }
+
+        public bool TryGetDomElement(TDependencyObject obj, out IDomElement<TDependencyObject, TDependencyProperty> domElement)
+        {
+            domElement = null;
+            if (obj == null)
+            {
+                return false;
+            }
+
+            domElement = GetFromDependencyObject(obj);
+
+            if (domElement != null)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         public abstract bool IsInTree(TDependencyObject dependencyObject, SelectorType type);

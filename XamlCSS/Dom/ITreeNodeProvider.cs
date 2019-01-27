@@ -5,6 +5,7 @@ namespace XamlCSS.Dom
     public interface ITreeNodeProvider<TDependencyObject, TDependencyProperty>
         where TDependencyObject : class
     {
+        bool TryGetDomElement(TDependencyObject obj, out IDomElement<TDependencyObject, TDependencyProperty> domElement);
         IDomElement<TDependencyObject, TDependencyProperty> GetDomElement(TDependencyObject obj);
         IEnumerable<IDomElement<TDependencyObject, TDependencyProperty>> GetDomElementChildren(IDomElement<TDependencyObject, TDependencyProperty> node, SelectorType type);
         IEnumerable<TDependencyObject> GetChildren(TDependencyObject element, SelectorType type);

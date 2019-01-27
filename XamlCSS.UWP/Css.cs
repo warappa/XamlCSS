@@ -169,13 +169,24 @@ namespace XamlCSS.UWP
             typeof(Css), new PropertyMetadata(null, ClassPropertyAttached));
         private static void ClassPropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
-            var domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
-            domElement?.ResetClassList();
+            if (instance is null)
+            {
+                return;
+            }
 
-            domElement = GetDomElement(element) as DomElementBase<DependencyObject, DependencyProperty>;
-            domElement?.ResetClassList();
+            IDomElement<DependencyObject, DependencyProperty> domElementBase = null;
+            if (instance.treeNodeProvider.TryGetDomElement(element, out domElementBase) != true)
+            {
+                return;
+            }
 
-            Css.instance?.UpdateElement(element);
+            var domElement = (DomElementBase<DependencyObject, DependencyProperty>)domElementBase;
+
+            domElement.ResetClassList();
+            if (domElement.IsReady == true)
+            {
+                instance.UpdateElement(element);
+            }
         }
 
         public static string GetClass(DependencyObject obj)
@@ -255,9 +266,22 @@ namespace XamlCSS.UWP
             }
         }
 
-        private static void StylePropertyAttached(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void StylePropertyAttached(DependencyObject element, DependencyPropertyChangedEventArgs e)
         {
-            instance?.UpdateElement(d as FrameworkElement);
+            if (instance is null)
+            {
+                return;
+            }
+
+            if (instance.treeNodeProvider.TryGetDomElement(element, out var domElement) != true)
+            {
+                return; // doesn't exist yet, no update necessary
+            }
+
+            if (domElement.IsReady == true)
+            {
+                instance.UpdateElement(element);
+            }
         }
 
         #endregion
