@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using XamlCSS.Utils;
 
 namespace XamlCSS.Dom
 {
@@ -19,7 +18,7 @@ namespace XamlCSS.Dom
         public bool? IsInLogicalTree { get; private set; }
         public bool? IsInVisualTree { get; private set; }
 
-        protected readonly static char[] classSplitter = { ' ' };
+        protected static readonly char[] classSplitter = { ' ' };
         protected readonly TDependencyObject dependencyObject;
         protected ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider;
 
@@ -142,10 +141,10 @@ namespace XamlCSS.Dom
 
         public TDependencyObject Element { get { return dependencyObject; } }
 
-        abstract public void EnsureAttributeWatcher(TDependencyProperty dependencyProperty);
-        abstract public void ClearAttributeWatcher();
-        abstract protected IDictionary<string, TDependencyProperty> CreateNamedNodeMap(TDependencyObject dependencyObject);
-        abstract public bool ApplyStyleImmediately { get; }
+        public abstract void EnsureAttributeWatcher(TDependencyProperty dependencyProperty);
+        public abstract void ClearAttributeWatcher();
+        protected abstract IDictionary<string, TDependencyProperty> CreateNamedNodeMap(TDependencyObject dependencyObject);
+        public abstract bool ApplyStyleImmediately { get; }
 
         protected virtual IList<IDomElement<TDependencyObject, TDependencyProperty>> GetChildNodes(SelectorType type)
         {
@@ -155,11 +154,11 @@ namespace XamlCSS.Dom
                 .ToList();
         }
 
-        abstract protected HashSet<string> GetClassList(TDependencyObject dependencyObject);
+        protected abstract HashSet<string> GetClassList(TDependencyObject dependencyObject);
 
-        abstract protected string GetId(TDependencyObject dependencyObject);
+        protected abstract string GetId(TDependencyObject dependencyObject);
 
-        abstract public void UpdateIsReady();
+        public abstract void UpdateIsReady();
 
         public IDictionary<string, TDependencyProperty> Attributes => attributes ?? (attributes = CreateNamedNodeMap(dependencyObject));
         public abstract object GetAttributeValue(TDependencyProperty dependencyProperty);
@@ -315,20 +314,13 @@ namespace XamlCSS.Dom
             var testStartGroupIndex = selector.GroupCount - 2;
             var testEndGroupIndex = 0;
 
-            while (testEndGroupIndex >= 0)
+            var match = selector.Match(styleSheet, this, testStartGroupIndex, testEndGroupIndex);
+            if (match.IsSuccess)
             {
-                var match = selector.Match(styleSheet, this, testStartGroupIndex, testEndGroupIndex);
-                if (!match.IsSuccess)
-                {
-                    testEndGroupIndex--;
-                }
-                else
-                {
-                    return testEndGroupIndex;
-                }
+                testEndGroupIndex = selector.GroupCount - 1;
             }
 
-            return 0;
+            return testEndGroupIndex;
         }
 
         public bool HasFocus()

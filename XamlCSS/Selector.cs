@@ -101,32 +101,26 @@ namespace XamlCSS
             SetGroups();
         }
 
+        private SelectorMatcher[][] groups;
         private void SetGroups()
         {
-            var groupStartIndexes = new List<int>() { 0 };
-            var groupEndIndexes = new List<int>();
+            var currentGroup = new List<SelectorMatcher>();
+            var groups = new List<List<SelectorMatcher>>() { currentGroup };
 
             for (var i = 0; i < selectorMatchersLength; i++)
             {
-                var selectorMatcher = selectorMatchers.ElementAt(i);
+                var selectorMatcher = selectorMatchers[i];
+                currentGroup.Add(selectorMatcher);
+
                 if (selectorMatcher.Type == CssNodeType.GeneralDescendantCombinator)
                 {
-                    groupEndIndexes.Add(i - 1);
-                    groupStartIndexes.Add(i);
-                }
-                else
-                {
+                    currentGroup = new List<SelectorMatcher>();
+                    groups.Add(currentGroup);
                 }
             }
 
-            if (groupEndIndexes.LastOrDefault() != selectorMatchersLength)
-            {
-                groupEndIndexes.Add(selectorMatchersLength - 1);
-            }
-
-            selectorMatcherGroupStartIndices = groupStartIndexes.ToArray();
-            selectorMatcherGroupEndIndices = groupEndIndexes.ToArray();
-            GroupCount = groupStartIndexes.Count;
+            this.groups = groups.Select(x => x.ToArray()).ToArray();
+            GroupCount = this.groups.Length;
         }
 
         public int SimpleSpecificity { get; private set; }
@@ -134,8 +128,6 @@ namespace XamlCSS
         public int IdSpecificity { get; private set; }
 
         internal SelectorMatcher[] selectorMatchers;
-        private int[] selectorMatcherGroupStartIndices;
-        private int[] selectorMatcherGroupEndIndices;
 
         public int GroupCount { get; private set; }
 
@@ -198,46 +190,25 @@ namespace XamlCSS
                 startGroupIndex = GroupCount - 1;
             }
 
-            var currentGroupIndex = startGroupIndex;
-
-            var startOfIteration = selectorMatcherGroupEndIndices[startGroupIndex];
-            var endOfIteration = selectorMatcherGroupStartIndices[endGroupIndex];
-            
-            for (var i = startOfIteration; i >= endOfIteration; i--)
+            for (var groupIndex = startGroupIndex; groupIndex >= endGroupIndex; groupIndex--)
             {
-                var selectorMatcher = selectorMatchers[i];
-                if (i < selectorMatcherGroupStartIndices[currentGroupIndex])
-                {
-                    currentGroupIndex--;
-                }
+                var currentGroup = this.groups[groupIndex];
 
-                var match = selectorMatcher.Match(styleSheet, ref domElement, selectorMatchers, ref i);
-                if (!match.IsSuccess)
+                for (var matcherIndex = currentGroup.Length - 1; matcherIndex >= 0; matcherIndex--)
                 {
-                    match.Group = currentGroupIndex;
-                    return match;
+                    var selectorMatcher = currentGroup[matcherIndex];
+
+                    var match = selectorMatcher.Match(styleSheet, ref domElement, currentGroup, ref matcherIndex);
+                    if (!match.IsSuccess)
+                    {
+                        match.Group = groupIndex;
+                        return match;
+                    }
                 }
             }
 
             return MatchResult.Success;
         }
-
-        //public MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, IDomElement<TDependencyObject, TDependencyProperty> domElement)
-        //    where TDependencyObject : class
-        //{
-        //    for (var i = selectorMatchersLength - 1; i >= 0; i--)
-        //    {
-        //        var selectorMatcher = selectorMatchers[i];
-
-        //        var match = selectorMatcher.Match(styleSheet, ref domElement, selectorMatchers, ref i);
-        //        if (!match.IsSuccess)
-        //        {
-        //            return match;
-        //        }
-        //    }
-
-        //    return MatchResult.Success;
-        //}
 
         public bool StartOnVisualTree()
         {

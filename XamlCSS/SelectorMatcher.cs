@@ -15,23 +15,45 @@ namespace XamlCSS
             Text = text;
         }
 
-        virtual public MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, ref IDomElement<TDependencyObject, TDependencyProperty> domElement, SelectorMatcher[] fragments, ref int currentIndex)
+        public virtual MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, ref IDomElement<TDependencyObject, TDependencyProperty> domElement, SelectorMatcher[] fragments, ref int currentIndex)
         {
             if (Type == CssNodeType.GeneralDescendantCombinator)
             {
                 currentIndex--;
-                var fragment = fragments[currentIndex];
+                var savedIndex = currentIndex;
 
-                var current = domElement.LogicalParent;
+                var fragment = fragments[currentIndex];
+                var current = fragment.Type == CssNodeType.PseudoSelector && fragment.Text == ":visualtree" ? domElement.Parent : domElement.LogicalParent;
                 while (current != null)
                 {
-                    if (fragment.Match(styleSheet, ref current, fragments, ref currentIndex).IsSuccess)
+                    MatchResult res = null;
+                    while (currentIndex >= 0)
+                    {
+                        fragment = fragments[currentIndex];
+                        
+                        res = fragment.Match(styleSheet, ref current, fragments, ref currentIndex);
+                        if (!res.IsSuccess)
+                        {
+                            break;
+                        }
+
+                        currentIndex--;
+                    }
+
+                    currentIndex++;
+
+                    if (res.IsSuccess)
                     {
                         domElement = current;
                         return MatchResult.Success;
                     }
-                    current = current.LogicalParent;
+
+                    currentIndex = savedIndex;
+                    fragment = fragments[currentIndex];
+
+                    current = fragment.Type == CssNodeType.PseudoSelector && fragment.Text == ":visualtree" ? current.Parent : current.LogicalParent;
                 }
+
                 return MatchResult.GeneralParentFailed;
             }
 
@@ -91,21 +113,16 @@ namespace XamlCSS
                 return result;
             }
 
-            else if(Type == CssNodeType.PseudoSelector)
+            else if (Type == CssNodeType.PseudoSelector)
             {
                 if (Text == ":visualtree")
                 {
-                    if (currentIndex == fragments.Length - 1)
+                    if (domElement.IsInVisualTree == false)
                     {
-                        currentIndex--;
-                        if (currentIndex >= 0)
-                            return fragments[currentIndex].Match(styleSheet, ref domElement, fragments, ref currentIndex);
                         return MatchResult.ItemFailed;
                     }
-                    else
-                    {
-                        return GeneralVisualDescendantCombinator(styleSheet, ref domElement, fragments, ref currentIndex);
-                    }
+
+                    return MatchResult.Success;
                 }
             }
 
