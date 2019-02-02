@@ -1,10 +1,5 @@
 ﻿<ProjectConfiguration>
   <Settings>
-    <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
-    <ImplicitProjectDependencyPathsRelativeToSolutionDirectory>
-      <Value>XamlCSS\XamlCSS.csproj</Value>
-      <Value>XamlCSS.WPF\XamlCSS.WPF.csproj</Value>
-    </ImplicitProjectDependencyPathsRelativeToSolutionDirectory>
-    <MSTestThreadApartmentState>STA</MSTestThreadApartmentState>
+    <IgnoreThisComponentCompletely>True</IgnoreThisComponentCompletely>
   </Settings>
 </ProjectConfiguration>

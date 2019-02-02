@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netstandard13;netstandard20</TargetFrameworks>
+        <TargetFrameworks>netstandard20</TargetFrameworks>
         <PackageTargetFallback>$(PackageTargetFallback);portable-win+net45+wp8+win81+wpa8</PackageTargetFallback>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Version>2.2.0-pre8</Version>
@@ -12,21 +12,157 @@
         <PackageIconUrl>https://github.com/warappa/XamlCSS/blob/master/Content/Logo.jpg</PackageIconUrl>
         <RepositoryUrl>https://github.com/warappa/XamlCSS</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>xaml css xamarin xamarinforms</PackageTags>
-        <PackageReleaseNotes>2.2.0-pre8
-- .NET Standard 1.3
-- .NET Standard 2.0
+        <PackageTags>xamlcss xaml css xamarin xamarin.forms</PackageTags>
+        <PackageReleaseNotes>
+            2.2.0-pre8
+            - .NET Standard 2.0
+            - Xamarin.Forms 3+ required!
+            
+            2.2.0-pre7
+            - Live edit: '#' should not crash application
+            - Tree-node-matching performance: if general parent selector already matched don't evaluate for elements down the tree
 
-</PackageReleaseNotes>
+            2.2.0-pre6
+            - Attached property "ApplyStyleImmediately"
+            - Performance improvement (IsInLogicalTree/IsInVisualTree)
+            - Fixed element-loaded-issues
+            - Faster style-apply on app-start
+
+            2.2.0-pre5
+            - #79 Nth-Selectors With Negative Factor Are Not Handled Correctly
+
+            2.2.0-pre4
+            - Major performance enhancements
+            - #76 Support Attribute Selectors With Change-Tracking
+
+            2.2.0-pre3
+            - #72 StyleSheet Should Update If SingleBaseStyleSheet Changes
+            - Removed Measure calls used for exact performance profiling
+            - Remove missed debug messages
+
+            2.2.0-pre2
+            - #69 Support Selectors With Visual Tree Elements Like ScrollBar: :visualtree selector, logical tree and visual tree
+            - #71 Increase Performance Of Applying Styles: new tree traversing (performance, optimization)
+            - #73 Support AOT By Setting Preserve Attribute
+            - Wrong universal-selector if not first selector-fragment
+            - Pseudo-selector not parsed if combined with another selector (comma separated)
+
+            2.2.0-pre1
+            - #52 Attributes Cannot Be Matched - One-Time Matching
+            - #53 Asterisk Selector Has Wrong Specificity
+            - #54 String Value Throws Exception In Property- And DataTriggers
+            - #59 Preview-Friendly Basing StyleSheets On Others
+            - #62 Variable Cannot Reference Another Variable
+            - #64 Support Xml-Namespace mapping
+            - #65 Remove AngleSharp Dependency
+
+            2.1.0
+            - #39 Ampersand Could Be Anywhere in Selector
+            - #40 Support @extend
+            - #43 Wrong Selector Generated When Using Ampersand In The Middle Of Selector
+            - #44 DataTriggers: Support Custom Markup-Extension-Expressions
+            - #45 DataTriggers: Support Variables In Markup-Expressions And Values
+            - #46 PropertyTriggers: Support Variables In Value-Expressions
+            - #47 UWP, Xamarin.Forms Update Loop: Massive Performance Problems If Errors In CSS
+            - #48 Support Parsing Floating Point Numbers Without Leading Zero
+            - #49 Support Import Of Css Stored In Application.Resources
+            - #50 Css-Parser: Parser Hangs If Document Only Contains "At" Character
+
+            2.0.1
+            - #36 Fixed "XamlCSS does not support unicode escapes"
+
+            2.0.0
+            - #29 Support comments
+            - #30 Support enter/exit trigger actions
+            - #31 Better error information
+            - Rewritten tokenizer, css-parser (performance, maintainability)
+            - Fixed same selector property overrides
+            - Support namespaces in markup-extensions
+
+            2.0.0-pre1
+            - #11 Nested selectors, css-variables
+            - #23 Css imports
+            - #24 Sass-like mixins
+            - #27 Support triggers (property, data, event)
+            - #28 Fixed bracket parsing
+            - Dependency on PCLStorage
+
+            1.0.6
+            - #20 Performance: Selectors are parsed too often
+            - #21 [XamarinForms] UI Timer can overtake itself
+            - #22 [XamarinForms] ListView Cells broken again in 1.0.5
+
+            1.0.5
+            - #13 Xamarin.Forms: Style disappears when resuming Android app
+            - #19 Decimal Number not parsed correctly
+            - #18 Class not properly parsed in grouped selectors
+            - #13 CSS-Parser: Broken String-Literal Handling
+
+            1.0.4
+            - Fixed: Css namespacing support fixed
+            - Fixed: Style disappears when resuming Android app
+            - Fixed: Css.Initialize(Application.Current) doesn't always enable styling
+            - Fixed: CarouselPage is not supported
+
+            1.0.3
+            - Fixed NullReferenceException
+
+            1.0.2
+            - CssParser Tokenizer fixed
+            - Better Logical-/Visual-Tree handling
+
+            1.0.1
+            - Define stylesheet in Xaml-files with css text
+            - Fixed selector specificity
+
+            1.0.0
+            - Performance/memory improvements: Caching dom-elements, dom-children,...
+            - Batch-Rendering
+            - Better support for MarkupExtensions
+            - Xamarin.Forms 2.3.2.127
+
+            0.9.0-beta-1
+            - Added better css-quotes support
+            - Support modal pages
+            - fixed bool value support
+            - Fixed VisualTreeCell.Include="true"
+            - Performance improvement
+            - AngleSharp 0.9.8
+            - Xamarin.Forms 2.3.1.114
+
+            0.9.0-alpha-5
+            - Fix partial updates: not finding all parents while executing css-parser
+
+            0.9.0-alpha-4
+            - VisualTreeHelper.Include didn't work due to bug converting Element to VisualElement - always resulted in null
+
+            0.9.0-alpha-3
+            - Support more general UI types
+
+            0.9.0-alpha-2
+            - fixed NullReferenceException
+
+            0.9.0-alpha
+            - experimental support for MarkupExtensions
+
+            0.8.0
+            - Support for attached properties
+            - Support for CSS-namespaces
+        </PackageReleaseNotes>
         <Description>Style XAML applications with CSS</Description>
     </PropertyGroup>
 
+    <PropertyGroup Condition="'$(TargetFramework)' == 'uap10.0'">
+        <TargetPlatformMinVersion>10.0.16299.0</TargetPlatformMinVersion>
+    </PropertyGroup>
+    
     <ItemGroup>
         <!--<PackageReference Include="MSBuild.Sdk.Extras" Version="1.6.65" PrivateAssets="All"></PackageReference>-->
         <!-- <PackageReference Include="PCLStorage" version="1.0.2" condition="'$(TargetFramework)' == 'netstandard11'"></PackageReference> -->
         <!--<PackageReference Include="Xamarin.Forms" Version="2.3.3.180" Condition="'$(TargetFramework)' == 'netstandard11'"></PackageReference>-->
         <!--<PackageReference Include="Xamarin.Forms" Version="3.0.0.446417" Condition="'$(TargetFramework)' == 'netstandard20'"></PackageReference>-->
-        <PackageReference Include="Xamarin.Forms" Version="3.0.0.446417"></PackageReference>
+        <PackageReference Include="Xamarin.Forms" Version="3.0.0.446417"  Condition="'$(TargetFramework)' == 'netstandard20'"></PackageReference>
+        <PackageReference Include="Xamarin.Forms" Version="2.3.3.180"  Condition="'$(TargetFramework)' == 'netstandard13'"></PackageReference>
         <PackageReference Include="System.ComponentModel" Version="4.0.1" Condition="'$(TargetFramework)' == 'netstandard13'"></PackageReference>
     </ItemGroup>
 

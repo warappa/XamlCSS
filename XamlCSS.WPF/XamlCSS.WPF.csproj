@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net45;net461;net471</TargetFrameworks>
+        <TargetFrameworks>net451;net461;net471</TargetFrameworks>
 		<ExtrasEnableWpfProjectSetup>true</ExtrasEnableWpfProjectSetup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Version>2.2.0-pre8</Version>
@@ -12,7 +12,7 @@
         <PackageIconUrl>https://github.com/warappa/XamlCSS/blob/master/Content/Logo.jpg</PackageIconUrl>
         <RepositoryUrl>https://github.com/warappa/XamlCSS</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>xaml css wpf</PackageTags>
+        <PackageTags>xamlcss xaml css wpf</PackageTags>
         <PackageReleaseNotes>2.2.0-pre8
 - .NET Standard 1.4
 - .NET Standard 2.0

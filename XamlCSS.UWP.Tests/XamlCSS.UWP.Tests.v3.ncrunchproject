@@ -1,6 +1,5 @@
 ﻿<ProjectConfiguration>
   <Settings>
-    <IgnoreThisComponentCompletely>True</IgnoreThisComponentCompletely>
-    <UseCPUArchitecture>x86</UseCPUArchitecture>
+    <CopyReferencedAssembliesToWorkspace>True</CopyReferencedAssembliesToWorkspace>
   </Settings>
 </ProjectConfiguration>
