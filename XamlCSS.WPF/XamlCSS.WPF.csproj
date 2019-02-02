@@ -1,115 +1,160 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{73773B1F-0237-4028-881E-586C695F6652}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>XamlCSS.WPF</RootNamespace>
-    <AssemblyName>XamlCSS.WPF</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>bin\x64\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="..\SharedAssemblyInfo.cs">
-      <Link>Properties\SharedAssemblyInfo.cs</Link>
-    </Compile>
-    <Compile Include="ClassExtensions.cs" />
-    <Compile Include="CssParsing\CssFileProvider.cs" />
-    <Compile Include="Dom\ApplicationDependencyObject.cs" />
-    <Compile Include="Dom\DomElement.cs" />
-    <Compile Include="Css.cs" />
-    <Compile Include="Dom\TreeNodeProvider.cs" />
-    <Compile Include="LoadedDetectionHelper.cs" />
-    <Compile Include="MarkupExtensionParser.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StyleResourceService.cs" />
-    <Compile Include="DependencyPropertyService.cs" />
-    <Compile Include="StyleService.cs" />
-    <Compile Include="TypeDescriptorContext.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\XamlCSS\XamlCSS.csproj">
-      <Project>{a11ea228-bcdc-46ec-8f8b-57fc9227c1ac}</Project>
-      <Name>XamlCSS</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFrameworks>net45;net461;net471</TargetFrameworks>
+		<ExtrasEnableWpfProjectSetup>true</ExtrasEnableWpfProjectSetup>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Version>2.2.0-pre8</Version>
+        <Authors>David Rettenbacher</Authors>
+        <Company />
+        <Copyright>David Rettenbacher</Copyright>
+        <PackageProjectUrl>https://github.com/warappa/XamlCSS</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/warappa/XamlCSS/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageIconUrl>https://github.com/warappa/XamlCSS/blob/master/Content/Logo.jpg</PackageIconUrl>
+        <RepositoryUrl>https://github.com/warappa/XamlCSS</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <PackageTags>xaml css wpf</PackageTags>
+        <PackageReleaseNotes>2.2.0-pre8
+- .NET Standard 1.4
+- .NET Standard 2.0
+
+2.2.0-pre7
+            - #80 WPF: Style not applied to Items defined in Template - handle treeviews correctly
+            - Live edit: '#' should not crash application
+            - Tree-node-matching performance: if general parent selector already matched don't evaluate for elements down the tree
+
+            2.2.0-pre6
+            - Attached property "ApplyStyleImmediately"
+            - Performance improvement (IsInLogicalTree/IsInVisualTree)
+            - Enable global stylesheet with "StyleSheet.IsSharedApplicationStyleSheet"
+            - Fixed element-loaded-issues
+            - Fixed name not always correctly recognized
+
+            2.2.0-pre5
+            - #78 WPF: Children Of Frame Don't See Parent
+            - #79 Nth-Selectors With Negative Factor Are Not Handled Correctly
+
+            2.2.0-pre4
+            - Major performance enhancements
+            - #75 WPF: Setting Class On Window Chrome Element Causes Exception
+            - #76 Support Attribute Selectors With Change-Tracking
+            - #77 WPF: Support One StyleSheet For Multiple Windows
+
+            2.2.0-pre3
+            - #72 StyleSheet Should Update If SingleBaseStyleSheet Changes
+            - Removed Measure calls used for exact performance profiling
+            - Remove missed debug messages
+
+            2.2.0-pre2
+            - #69 Support Selectors With Visual Tree Elements Like ScrollBar: :visualtree selector, logical tree and visual tree
+            - #70 WPF: ItemsControl Children Are Not Styled
+            - #71 Increase Performance Of Applying Styles: new tree traversing (performance, optimization)
+            - #73 Support AOT By Setting Preserve Attribute
+            - Wrong universal-selector if not first selector-fragment
+            - Pseudo-selector not parsed if combined with another selector (comma separated)
+
+            2.2.0-pre1
+            - #52 Attributes Cannot Be Matched - One-Time Matching
+            - #53 Asterisk Selector Has Wrong Specificity
+            - #54 String Value Throws Exception In Property- And DataTriggers
+            - #59 Preview-Friendly Basing StyleSheets On Others
+            - #62 Variable Cannot Reference Another Variable
+            - #64 Support Xml-Namespace mapping
+            - #65 Remove AngleSharp Dependency
+
+            2.1.0
+            - #39 Ampersand Could Be Anywhere in Selector
+            - #40 Support @extend
+            - #42 WPF: Sometimes Skips Styling of Button Content
+            - #43 Wrong Selector Generated When Using Ampersand In The Middle Of Selector
+            - #44 DataTriggers: Support Custom Markup-Extension-Expressions
+            - #45 DataTriggers: Support Variables In Markup-Expressions And Values
+            - #46 PropertyTriggers: Support Variables In Value-Expressions
+            - #48 Support Parsing Floating Point Numbers Without Leading Zero
+            - #49 Support Import Of Css Stored In Application.Resources
+            - #50 Css-Parser: Parser Hangs If Document Only Contains "At" Character
+
+            2.0.1
+            - #36 Fixed "XamlCSS does not support unicode escapes"
+
+            2.0.0
+            - #29 Support comments
+            - #30 Support enter/exit trigger actions
+            - #31 Better error information
+            - Rewritten tokenizer, css-parser (performance, maintainability)
+            - Better markup-extension parsing
+            - Fixed same selector property overrides
+            - Support namespaces in markup-extensions
+
+            2.0.0-pre1
+            - #11 Nested selectors, css-variables
+            - #23 Css imports
+            - #24 Sass-like mixins
+            - #27 Support triggers (property, data, event)
+            - #28 Fixed bracket parsing
+
+            1.0.6
+            - #20 Performance: Selectors are parsed too often
+
+            1.0.5
+            - #16 WPF: Resource FontFamily doesn't work in Css
+            - #19 Decimal Number not parsed correctly
+            - #18 Class not properly parsed in grouped selectors
+            - #13 CSS-Parser: Broken String-Literal Handling
+
+            1.0.4
+            - Css namespacing support fixed
+            - Flickering when control added to view
+
+            1.0.3
+            - Fixed NullReferenceException
+
+            1.0.2
+            - Xaml-Designer Preview support
+            - CssParser Tokenizer fixed
+            - Better Logical-/Visual-Tree handling
+
+            1.0.1
+            - Define stylesheet in Xaml-files with css text
+            - Fixed selector specificity
+
+            1.0.0
+            - Performance/memory improvements: Caching dom-elements, dom-children,...
+            - Batch-Rendering
+            - Define stylesheet in Xaml-files with css text
+            - Fixed selector specificity
+
+            0.9.0-beta-1
+            - Added better css-quotes support
+            - Support modal pages
+            - fixed bool value support
+            - Fixed VisualTreeCell.Include="true"
+            - Performance improvement
+            - AngleSharp 0.9.8
+
+            0.9.0-alpha-5
+            - Fix partial updates: not finding all parents while executing css-parser
+
+            0.9.0-alpha-3
+            - Support more general UI types
+
+            0.9.0-alpha
+            - experimental support for MarkupExtensions
+
+            0.8.0
+            - Support for attached properties
+            - Support for CSS-namespaces</PackageReleaseNotes>
+        <Description>Style XAML applications with CSS</Description>
+    </PropertyGroup>
+    <ItemGroup>
+      <ProjectReference Include="..\XamlCSS\XamlCSS.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Reference Include="PresentationCore" />
+      <Reference Include="PresentationFramework" />
+      <Reference Include="System.Windows" />
+      <Reference Include="System.Windows.Presentation" />
+      <Reference Include="System.Xaml" />
+      <Reference Include="WindowsBase" />
+    </ItemGroup>
+
 </Project>
