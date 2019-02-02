@@ -87,7 +87,7 @@ namespace XamlCSS.XamarinForms.Internals
             {
                 throw new Exception("Expression did not end in '}'");
             }
-            return ((dynamic)Activator.CreateInstance(base.GetType())).Parse(match, ref expression, serviceProvider);
+            return ((MarkupExtensionParser)Activator.CreateInstance(base.GetType())).Parse(match, ref expression, serviceProvider);
         }
         protected void HandleProperty(string prop, IServiceProvider serviceProvider, ref string remaining, bool isImplicit)
         {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 
 namespace XamlCSS.XamarinForms.Internals
@@ -18,7 +19,7 @@ namespace XamlCSS.XamarinForms.Internals
 				while(parent != null)
 				{
 					yield return parent;
-					parent = ((dynamic)parent).Parent;
+					parent = ((Element)parent).Parent;
 				}
 			}
 		}

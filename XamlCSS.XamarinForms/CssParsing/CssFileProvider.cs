@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -27,27 +28,25 @@ namespace XamlCSS.XamarinForms.CssParsing
 
         protected override Stream TryGetFromFile(string source)
         {
-            Stream stream = null;
+            //StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+            var currentFolder = "."; // Environment.CurrentDirectory;
 
-            try
+            var absolutePath = source;
+            if (!Path.IsPathRooted(absolutePath))
             {
-                var fileSystem = PCLStorage.FileSystem.Current;
-
-                var filepath = Path.Combine(fileSystem.LocalStorage.Path, source);
-
-                if (fileSystem.GetFileFromPathAsync(filepath).Result != null)
-                {
-                    stream = fileSystem.GetFileFromPathAsync(filepath).Result.OpenAsync(PCLStorage.FileAccess.Read).Result;
-                }
+                absolutePath = Path.Combine(currentFolder, absolutePath);
             }
-            catch { }
 
-            return stream;
-        }
+            if (File.Exists(absolutePath))
+            {
+                try
+                {
+                    return File.OpenRead(absolutePath);
+                }
+                catch { }
+            }
 
-        protected override Stream TryGetFromEmbeddedResource(string source, params Assembly[] assemblies)
-        {
-            return base.TryGetFromEmbeddedResource(source, assemblies.Concat(this.assemblies).Distinct().ToArray());
+            return null;
         }
 
         protected override Stream TryLoadFromStaticApplicationResource(string source)

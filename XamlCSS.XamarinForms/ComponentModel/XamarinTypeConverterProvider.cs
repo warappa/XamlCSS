@@ -35,7 +35,7 @@ namespace XamlCSS.ComponentModel
             Register<Rectangle, RectangleTypeConverter>();
             Register<Thickness, ThicknessTypeConverter>();
             Register<Type, TypeTypeConverter>();
-            Register<Uri, UriTypeConverter>();
+            Register<Uri, Xamarin.Forms.UriTypeConverter>();
             Register<UrlWebViewSource, WebViewSourceTypeConverter>();
 
             RegisterEnum<AbsoluteLayoutFlags>();

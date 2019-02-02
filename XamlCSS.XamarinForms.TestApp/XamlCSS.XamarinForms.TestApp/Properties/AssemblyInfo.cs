@@ -7,16 +7,8 @@ using Xamarin.Forms.Xaml;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("XamlCSS.XamarinForms.TestApp")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("XamlCSS.XamarinForms.TestApp")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
-[assembly: NeutralResourcesLanguage("en")]
 
-// Version information for an assembly consists of the following four values:
+    // Version information for an assembly consists of the following four values:
 //
 //      Major Version
 //      Minor Version 
