@@ -42,14 +42,21 @@ namespace XamlCSS.XamarinForms
 
         private static void App_ModalPushing(object sender, ModalPushingEventArgs e)
         {
-            e.Modal.Parent = sender as Application;
+            var app = sender as Application;
+            e.Modal.Parent = app;
+
+            Css.AddAdditionalChild(app, e.Modal);
 
             ElementAdded(e.Modal);
         }
 
         private static void App_ModalPopped(object sender, ModalPoppedEventArgs e)
         {
+            var app = sender as Application;
+
             ElementRemoved(e.Modal);
+
+            Css.RemoveAdditionalChild(app, e.Modal);
         }
 
         private static void RootElement_DescendantAdded(object sender, ElementEventArgs e)
