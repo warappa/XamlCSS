@@ -3,7 +3,7 @@
         <TargetFrameworks>net451;net461;net471</TargetFrameworks>
 		<ExtrasEnableWpfProjectSetup>true</ExtrasEnableWpfProjectSetup>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>2.2.0-pre8</Version>
+        <Version>2.2.0</Version>
         <Authors>David Rettenbacher</Authors>
         <Company />
         <Copyright>David Rettenbacher</Copyright>
@@ -13,11 +13,13 @@
         <RepositoryUrl>https://github.com/warappa/XamlCSS</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>xamlcss xaml css wpf</PackageTags>
-        <PackageReleaseNotes>2.2.0-pre8
-- .NET Standard 1.4
-- .NET Standard 2.0
+        <PackageReleaseNotes>
+            2.2.0
+            - #32: .NET Standard
+            - #82: VisualTree/LogicalTree Match-Optimization Marks Not-Traversed Nodes as Traversed
+            - #84: WPF, UWP: :visual-tree Pseudo Selector Not Matching Correctly On Parent Elements
 
-2.2.0-pre7
+            2.2.0-pre7
             - #80 WPF: Style not applied to Items defined in Template - handle treeviews correctly
             - Live edit: '#' should not crash application
             - Tree-node-matching performance: if general parent selector already matched don't evaluate for elements down the tree
@@ -148,6 +150,7 @@
     <ItemGroup>
       <ProjectReference Include="..\XamlCSS\XamlCSS.csproj" />
     </ItemGroup>
+    
     <ItemGroup>
       <Reference Include="PresentationCore" />
       <Reference Include="PresentationFramework" />

@@ -6,6 +6,7 @@
 			 xmlns:cssXF="clr-namespace:XamlCSS.XamarinForms;assembly=XamlCSS.XamarinForms"
 			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
              cssXF:Css.StyleSheet="{StaticResource appStyleSheet}"
+             Title="MainPage"
 			 >
     <ContentPage.Resources>
         <ResourceDictionary>

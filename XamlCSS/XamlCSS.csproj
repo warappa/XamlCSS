@@ -3,7 +3,7 @@
     
     <PropertyGroup>
         <TargetFrameworks>netstandard20;net451;net461;netstandard11;netstandard14;netstandard16;uap10.0</TargetFrameworks>
-        <Version>2.2.0-pre8</Version>
+        <Version>2.2.0</Version>
         <Authors>David Rettenbacher</Authors>
         <Company />
         <Copyright>David Rettenbacher</Copyright>
@@ -14,9 +14,11 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>xamlcss xaml css wpf xamarin.forms uwp</PackageTags>
         <PackageReleaseNotes>
-            2.2.0-pre8
-            - .NET Standard 1.4
-            - .NET Standard 2.0
+            2.2.0
+            - #32: .NET Standard - Xamarin.Forms: minimum Xamarin.Forms 3.x required (.NET Standard 2.0)
+            - #82: VisualTree/LogicalTree Match-Optimization Marks Not-Traversed Nodes as Traversed
+            - #83: Xamarin.Forms: support modals
+            - #84: WPF, UWP: :visual-tree Pseudo Selector Not Matching Correctly On Parent Elements
 
             2.2.0-pre7
             - #80 WPF: Style not applied to Items defined in Template - handle treeviews correctly
