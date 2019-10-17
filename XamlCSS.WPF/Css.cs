@@ -63,7 +63,7 @@ namespace XamlCSS.WPF
 
             cssNamespaceMapping = cssNamespaceMapping ?? DefaultCssNamespaceMapping;
 
-            TypeHelpers.Initialze(cssNamespaceMapping);
+            TypeHelpers.Initialize(cssNamespaceMapping);
 
             var defaultCssNamespace = cssNamespaceMapping.Keys.First();
             var dispatcher = Application.Current?.Dispatcher ?? Dispatcher.CurrentDispatcher;

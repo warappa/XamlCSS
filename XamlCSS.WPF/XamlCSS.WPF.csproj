@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>net451;net461;net471</TargetFrameworks>
 		<ExtrasEnableWpfProjectSetup>true</ExtrasEnableWpfProjectSetup>
@@ -8,8 +8,8 @@
         <Company />
         <Copyright>David Rettenbacher</Copyright>
         <PackageProjectUrl>https://github.com/warappa/XamlCSS</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/warappa/XamlCSS/blob/master/LICENSE</PackageLicenseUrl>
-        <PackageIconUrl>https://github.com/warappa/XamlCSS/blob/master/Content/Logo.jpg</PackageIconUrl>
+        <License>https://github.com/warappa/XamlCSS/blob/master/LICENSE</License>
+        <Icon>https://github.com/warappa/XamlCSS/blob/master/Content/Logo.jpg</Icon>
         <RepositoryUrl>https://github.com/warappa/XamlCSS</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>xamlcss xaml css wpf</PackageTags>

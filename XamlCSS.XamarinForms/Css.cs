@@ -84,7 +84,7 @@ namespace XamlCSS.XamarinForms
 
                 cssNamespaceMapping = cssNamespaceMapping ?? DefaultCssNamespaceMapping;
 
-                TypeHelpers.Initialze(cssNamespaceMapping, true);
+                TypeHelpers.Initialize(cssNamespaceMapping, true);
 
                 var defaultCssNamespace = cssNamespaceMapping.Keys.First();
                 var markupExtensionParser = new MarkupExtensionParser();

@@ -24,8 +24,9 @@ namespace XamlCSS.Utils
 #if !INVESTIGATE
             action();
             return;
-#endif
+#else
             title.Measure(() => { action(); return true; });
+#endif
         }
 
         [DebuggerStepThrough]

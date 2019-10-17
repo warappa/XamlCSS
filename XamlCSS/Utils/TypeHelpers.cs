@@ -11,7 +11,7 @@ namespace XamlCSS.Utils
         private static bool dependencyPropertiesAreFields = true;
         private static IDictionary<string, List<string>> namespaceMapping = new Dictionary<string, List<string>>();
 
-        public static void Initialze(IDictionary<string, List<string>> namespaceMapping, bool dependencyPropertiesAreFields = true)
+        public static void Initialize(IDictionary<string, List<string>> namespaceMapping, bool dependencyPropertiesAreFields = true)
         {
             TypeHelpers.namespaceMapping = namespaceMapping;
             TypeHelpers.dependencyPropertiesAreFields = dependencyPropertiesAreFields;
