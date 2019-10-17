@@ -1,4 +1,4 @@
-﻿<Project Sdk="MSBuild.Sdk.Extras">
+<Project Sdk="MSBuild.Sdk.Extras">
     <!--<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="'$(TargetPlatformIdentifier)' == 'UAP' AND Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />-->
     
     <PropertyGroup>
@@ -8,8 +8,8 @@
         <Company />
         <Copyright>David Rettenbacher</Copyright>
         <PackageProjectUrl>https://github.com/warappa/XamlCSS</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/warappa/XamlCSS/blob/master/LICENSE</PackageLicenseUrl>
-        <PackageIconUrl>https://github.com/warappa/XamlCSS/blob/master/Content/Logo.jpg</PackageIconUrl>
+        <License>https://github.com/warappa/XamlCSS/blob/master/LICENSE</License>
+        <Icon>https://github.com/warappa/XamlCSS/blob/master/Content/Logo.jpg</Icon>
         <RepositoryUrl>https://github.com/warappa/XamlCSS</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>xamlcss xaml css wpf xamarin.forms uwp</PackageTags>
@@ -145,6 +145,10 @@
         <Description>Style XAML applications with CSS</Description>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net461'">
+      <Reference Include="System.Xaml"/>
+    </ItemGroup>
+
     <PropertyGroup Condition="'$(TargetFramework)' == 'uap10.0'">
         <!--<TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
         <OutputPath>bin\Debug\</OutputPath>
