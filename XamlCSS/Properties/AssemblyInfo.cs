@@ -1,10 +1,6 @@
 ﻿using System.Resources;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-#if NET451 || NET461
-using System.Windows.Markup;
-#endif
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
@@ -27,6 +23,6 @@ using System.Windows.Markup;
 [assembly: InternalsVisibleTo("XamlCSS.WPF")]
 [assembly: InternalsVisibleTo("XamlCSS.XamarinForms")]
 
-#if NET451 || NET461
-[assembly: XmlnsDefinition("http://schemas.microsoft.com/winfx/2006/xaml/presentation", "XamlCSS")]
+#if NETFRAMEWORK
+[assembly: System.Windows.Markup.XmlnsDefinition("http://schemas.microsoft.com/winfx/2006/xaml/presentation", "XamlCSS")]
 #endif

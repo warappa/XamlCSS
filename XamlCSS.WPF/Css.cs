@@ -138,6 +138,35 @@ namespace XamlCSS.WPF
                     .Where(x => !x.DeclaringType.ContainsGenericParameters && !x.DeclaringType.IsAbstract && !x.DeclaringType.IsGenericTypeDefinition)
                     .ToList()))
                 {
+#if NET40
+                    if (m.GetSetMethod() is MethodInfo getMethod &&
+                        !getMethod.ContainsGenericParameters &&
+                        !getMethod.IsAbstract)
+                    {
+                        try
+                        {
+                            System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(getMethod.MethodHandle);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                    if (m.GetGetMethod() is MethodInfo setMethod &&
+                        !setMethod.ContainsGenericParameters &&
+                        !setMethod.IsAbstract &&
+                        !setMethod.Attributes.HasFlag(MethodAttributes.PinvokeImpl))
+                    {
+                        try
+                        {
+                            System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(setMethod.MethodHandle);
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+#else
                     if (m.SetMethod != null &&
                         !m.SetMethod.ContainsGenericParameters &&
                         !m.SetMethod.IsAbstract)
@@ -165,6 +194,7 @@ namespace XamlCSS.WPF
 
                         }
                     }
+#endif
                 }
             }
         }

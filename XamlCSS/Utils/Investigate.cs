@@ -34,7 +34,7 @@ namespace XamlCSS.Utils
         {
 #if !INVESTIGATE
             return action();
-#endif
+#else
             var currentLevel = level;
             level++;
 
@@ -53,6 +53,7 @@ namespace XamlCSS.Utils
             level--;
 
             return result;
+#endif
         }
 
         public static void Print()

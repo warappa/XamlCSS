@@ -9,7 +9,11 @@ namespace XamlCSS
     {
         private StyleSheet initializedWith;
         private int styleSheetVersion;
+#if NET40
+        private System.Type ElementTypeInfo;
+#else
         private TypeInfo ElementTypeInfo;
+#endif
 
         public InheritedTypeMatcher(CssNodeType type, string text) : base(type, text)
         {
@@ -51,7 +55,11 @@ namespace XamlCSS
             // Hack
             try
             {
+#if NET40
+                this.ElementTypeInfo = System.Type.GetType(TypeHelpers.ResolveFullTypeName(styleSheet.Namespaces, Text), false);
+#else
                 this.ElementTypeInfo = System.Type.GetType(TypeHelpers.ResolveFullTypeName(styleSheet.Namespaces, Text), false)?.GetTypeInfo();
+#endif
             }
             catch { /* no valid type */ }
         }
@@ -68,8 +76,11 @@ namespace XamlCSS
             {
                 return MatchResult.ItemFailed;
             }
-
+#if NET40
+            var isMatch = ElementTypeInfo.IsAssignableFrom(domElement.Element.GetType());
+ #else
             var isMatch = ElementTypeInfo.IsAssignableFrom(domElement.Element.GetType().GetTypeInfo());
+#endif
             return isMatch ? MatchResult.Success : MatchResult.ItemFailed;
         }
 

@@ -10,7 +10,7 @@ using XamlCSS.Utils;
 
 namespace XamlCSS
 {
-#if NET451 || NET461
+#if NETFRAMEWORK
     [System.Windows.Markup.ContentProperty(nameof(Content))]
 #endif
     public class StyleSheet : INotifyPropertyChanged

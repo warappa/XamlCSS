@@ -206,7 +206,7 @@ namespace XamlCSS.CssParsing
             return variables;
         }
 
-        private static IReadOnlyDictionary<string, string> GetVariables(CssNode root)
+        private static IEnumerable<KeyValuePair<string, string>> GetVariables(CssNode root)
         {
             var dict = new Dictionary<string, string>();
 
