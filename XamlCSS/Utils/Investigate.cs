@@ -24,8 +24,9 @@ namespace XamlCSS.Utils
 #if !INVESTIGATE
             action();
             return;
-#endif
+#else
             title.Measure(() => { action(); return true; });
+#endif
         }
 
         [DebuggerStepThrough]
@@ -33,7 +34,7 @@ namespace XamlCSS.Utils
         {
 #if !INVESTIGATE
             return action();
-#endif
+#else
             var currentLevel = level;
             level++;
 
@@ -52,6 +53,7 @@ namespace XamlCSS.Utils
             level--;
 
             return result;
+#endif
         }
 
         public static void Print()

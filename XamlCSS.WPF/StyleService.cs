@@ -41,7 +41,9 @@ namespace XamlCSS.WPF
                 Indent = false,
                 CheckCharacters = false,
                 CloseOutput = true,
+#if !NET40
                 DoNotEscapeUriAttributes = false,
+#endif
                 ConformanceLevel = ConformanceLevel.Fragment,
                 OmitXmlDeclaration = true,
                 NamespaceHandling = NamespaceHandling.Default,
@@ -67,7 +69,9 @@ namespace XamlCSS.WPF
                 Indent = false,
                 CheckCharacters = false,
                 CloseOutput = true,
+#if !NET40
                 DoNotEscapeUriAttributes = false,
+#endif
                 ConformanceLevel = ConformanceLevel.Fragment,
                 OmitXmlDeclaration = true,
                 NamespaceHandling = NamespaceHandling.Default,
@@ -391,13 +395,21 @@ namespace XamlCSS.WPF
                     if (value is DynamicResourceExtension)
                     {
                         var dyn = value as DynamicResourceExtension;
+#if NET40
+                        serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current, null));
+#else
                         serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current));
+#endif
                         value = dyn.ProvideValue(serviceProvider);
                     }
                     else if (value is StaticResourceExtension)
                     {
                         var dyn = value as StaticResourceExtension;
+#if NET40
+                        serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current, null));
+#else
                         serviceProvider = serviceProvider ?? (serviceProvider = (IServiceProvider)typeof(Application).GetProperty("ServiceProvider", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(Application.Current));
+#endif
                         value = dyn.ProvideValue(serviceProvider);
                     }
                 }

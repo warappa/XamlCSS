@@ -184,7 +184,11 @@ namespace XamlCSS
 
                     //var task = Task.Run(() => UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService));
                     //tasks.Add(task);
+#if NET40
+                    tasks.Add(TaskEx.FromResult(UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
+#else
                     tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
+#endif
                 }
 
                 //Task.WaitAll(tasks.ToArray());

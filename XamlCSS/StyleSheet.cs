@@ -10,6 +10,9 @@ using XamlCSS.Utils;
 
 namespace XamlCSS
 {
+#if NETFRAMEWORK
+    [System.Windows.Markup.ContentProperty(nameof(Content))]
+#endif
     public class StyleSheet : INotifyPropertyChanged
     {
         public static readonly StyleSheet Empty = new StyleSheet();

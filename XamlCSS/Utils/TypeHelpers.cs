@@ -11,7 +11,7 @@ namespace XamlCSS.Utils
         private static bool dependencyPropertiesAreFields = true;
         private static IDictionary<string, List<string>> namespaceMapping = new Dictionary<string, List<string>>();
 
-        public static void Initialze(IDictionary<string, List<string>> namespaceMapping, bool dependencyPropertiesAreFields = true)
+        public static void Initialize(IDictionary<string, List<string>> namespaceMapping, bool dependencyPropertiesAreFields = true)
         {
             TypeHelpers.namespaceMapping = namespaceMapping;
             TypeHelpers.dependencyPropertiesAreFields = dependencyPropertiesAreFields;
@@ -51,6 +51,16 @@ namespace XamlCSS.Utils
 
         private static FieldInfo GetFieldInfo(Type type, string fieldName)
         {
+#if NET40
+            while (type != null)
+            {
+                if (type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance) is FieldInfo fieldInfo)
+                    return fieldInfo;
+                type = type.BaseType;
+            }
+
+            return null;
+#else
             var declaredFields = DeclaredFields(type);
             if (!declaredFields.TryGetValue(fieldName, out FieldInfo fieldInfo))
             {
@@ -73,10 +83,21 @@ namespace XamlCSS.Utils
             }
 
             return fieldInfo;
+#endif
         }
 
         private static PropertyInfo GetPropertyInfo(Type type, string propertyName)
         {
+#if NET40
+            while (type != null)
+            {
+                if (type.GetProperty(propertyName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static | BindingFlags.Instance) is PropertyInfo propertyInfo)
+                    return propertyInfo;
+                type = type.BaseType;
+            }
+
+            return null;
+#else
             var declaredProperties = DeclaredProperties(type);
             if (!declaredProperties.TryGetValue(propertyName, out PropertyInfo propertyInfo))
             {
@@ -99,6 +120,7 @@ namespace XamlCSS.Utils
             }
 
             return propertyInfo;
+#endif
         }
 
         public static object GetFieldValue(object obj, string fieldName)
@@ -107,8 +129,11 @@ namespace XamlCSS.Utils
             {
                 return null;
             }
-
+#if NET40
+            return obj.GetType().GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(obj);
+#else
             return obj.GetType().GetRuntimeField(fieldName)?.GetValue(obj);
+#endif
         }
 
         public static object GetFieldValue(Type type, string fieldName)
@@ -118,7 +143,11 @@ namespace XamlCSS.Utils
                 return null;
             }
 
+#if NET40
+            return type.GetField(fieldName, BindingFlags.NonPublic | BindingFlags.Public)?.GetValue(null);
+#else
             return type.GetRuntimeField(fieldName)?.GetValue(null);
+#endif
         }
 
         private static IDictionary<string, PropertyInfo> DeclaredProperties(Type type)
@@ -159,7 +188,11 @@ namespace XamlCSS.Utils
 
             if (!propertyAccessors.TryGetValue(propertyName, out accessor))
             {
+#if NET40
+                var propertyInfo = type.GetProperty(propertyName);
+#else
                 var propertyInfo = type.GetRuntimeProperty(propertyName);
+#endif
 
                 propertyAccessors[propertyName] = accessor = propertyInfo == null ? null : PropertyInfoHelper.GetAccessor(propertyInfo);
             }
@@ -213,7 +246,11 @@ namespace XamlCSS.Utils
                     var property = GetPropertyInfo(type, $"{propertyName}Property");
                     if (property != null)
                     {
+#if NET40
+                        dependencyPropertyInfo = new DependencyPropertyInfo<TDependencyProperty>(property.GetValue(null, null) as TDependencyProperty, property.DeclaringType, property.Name);
+#else
                         dependencyPropertyInfo = new DependencyPropertyInfo<TDependencyProperty>(property.GetValue(null) as TDependencyProperty, property.DeclaringType, property.Name);
+#endif
                     }
                 }
 
@@ -276,7 +313,11 @@ namespace XamlCSS.Utils
                     // UWP declares dependencyproperties as properties
                     dps = DeclaredProperties(type).Values
                         .Where(x => x.PropertyType == typeof(TDependencyProperty))
+#if NET40
+                        .Select(x => new DependencyPropertyInfo<TDependencyProperty>(x.GetValue(null, null) as TDependencyProperty, x.DeclaringType, x.Name))
+#else
                         .Select(x => new DependencyPropertyInfo<TDependencyProperty>(x.GetValue(null) as TDependencyProperty, x.DeclaringType, x.Name))
+#endif
                         .ToList();
                 }
 
@@ -296,8 +337,11 @@ namespace XamlCSS.Utils
 
             if (!properties.TryGetValue(propertyName, out PropertyInfo propertyInfo))
             {
+#if NET40
+                propertyInfo = properties[propertyName] = type.GetProperty(propertyName);
+#else
                 propertyInfo = properties[propertyName] = type.GetRuntimeProperty(propertyName);
-
+#endif
             }
 
             return propertyInfo;
@@ -566,6 +610,16 @@ namespace XamlCSS.Utils
         {
             this.PropertyInfo = PropertyInfo;
 
+#if NET40
+            MethodInfo GetterInfo = PropertyInfo.GetGetMethod();
+            MethodInfo SetterInfo = PropertyInfo.GetSetMethod();
+
+            if (GetterInfo != null)
+                Getter = (Func<TObject, TValue>)Delegate.CreateDelegate(typeof(Func<TObject, TValue>), null, GetterInfo);
+            
+            if (SetterInfo != null)
+                Setter = (Action<TObject, TValue>)Delegate.CreateDelegate(typeof(Action<TObject, TValue>), null, SetterInfo);
+#else
             MethodInfo GetterInfo = PropertyInfo.GetMethod;
             MethodInfo SetterInfo = PropertyInfo.SetMethod;
 
@@ -573,6 +627,7 @@ namespace XamlCSS.Utils
                     (typeof(Func<TObject, TValue>));
             Setter = (Action<TObject, TValue>)SetterInfo?.CreateDelegate
                     (typeof(Action<TObject, TValue>));
+#endif
         }
 
         object IPropertyAccessor.GetValue(object source)

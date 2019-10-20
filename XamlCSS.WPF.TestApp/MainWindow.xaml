@@ -1,20 +1,17 @@
-﻿<Window 
-		x:Class="XamlCSS.WPF.TestApp.MainWindow"
+﻿<Window x:Class="XamlCSS.WPF.TestApp.MainWindow"
 		x:Name="root"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:XamlCSS.WPF.TestApp"
-        xmlns:css="clr-namespace:XamlCSS;assembly=XamlCSS"
-		xmlns:cssWPF="clr-namespace:XamlCSS.WPF;assembly=XamlCSS.WPF"
 		xmlns:sys="clr-namespace:System;assembly=mscorlib"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance local:MainWindowViewModel, IsDesignTimeCreatable=True}"
-        cssWPF:Css.Class="main light"
+        Css.Class="main light"
         Title="MainWindow" Height="350" Width="525"
     xmlns:conv="clr-namespace:XamlCSS.WPF.TestApp.Converters"
-          cssWPF:Css.StyleSheet="{DynamicResource InternalStyle}">
+          Css.StyleSheet="{DynamicResource InternalStyle}">
     <!--<StackPanel>
         <Button Click="Button_Click_3">css</Button>
         <Button x:Name="buttonCss3" Click="Button_Click_3">css</Button>
@@ -27,8 +24,8 @@
             <DataTemplate
                  xmlns:cssWPF="clr-namespace:XamlCSS.WPF;assembly=XamlCSS.WPF">
                 <StackPanel>
-                    <StackPanel cssWPF:Css.Class="uuu">
-                        <Label cssWPF:Css.Class="aaa">a</Label>
+                    <StackPanel Css.Class="uuu">
+                        <Label Css.Class="aaa">a</Label>
                     </StackPanel>
                 </StackPanel>
             </DataTemplate>
@@ -46,8 +43,8 @@
     <Grid x:Name="thegrid"
           >
         <StackPanel x:Name="stack">
-            <StackPanel cssWPF:Css.Class="container">
-                <TextBlock Name="thetextblock" cssWPF:Css.Class="jumbo">Hello World</TextBlock>
+            <StackPanel Css.Class="container">
+                <TextBlock Name="thetextblock" Css.Class="jumbo">Hello World</TextBlock>
                 <Button Click="Button_Click_1">Add Content</Button>
             </StackPanel>
             <Grid>
@@ -65,10 +62,10 @@
             </Grid>
             <Button Click="Button_Click_2">Click me</Button>
 
-            <StackPanel Orientation="Horizontal" cssWPF:Css.Class="important-button-container">
+            <StackPanel Orientation="Horizontal" Css.Class="important-button-container">
                 <Button x:Name="buttonCss3" Click="Button_Click_3">
                     <TextBlock Name="textBox1">
-                        <Run x:Name="runCss3" cssWPF:Css.Class="fa fa-css3"></Run>
+                        <Run x:Name="runCss3" Css.Class="fa fa-css3"></Run>
                         <Run>Open live Style Editor</Run>
                     </TextBlock>
                 </Button>
@@ -92,8 +89,8 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <StackPanel>
-                            <StackPanel cssWPF:Css.Class="uuu">
-                                <Label cssWPF:Css.Class="aaa">a</Label>
+                            <StackPanel Css.Class="uuu">
+                                <Label Css.Class="aaa">a</Label>
                             </StackPanel>
                         </StackPanel>
                     </DataTemplate>
@@ -106,25 +103,25 @@
 
             <ItemsControl
 				x:Name="test" 
-                cssWPF:Css.Class="menu-items" 
+                Css.Class="menu-items" 
                 ItemsSource="{Binding MenuItems}"
                 MinHeight="10"
 					  >
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Template="{StaticResource ContainerButton}">
-                            <StackPanel cssWPF:Css.Class="menu-item-container">
-                                <DockPanel cssWPF:Css.Class="menu-item">
+                            <StackPanel Css.Class="menu-item-container">
+                                <DockPanel Css.Class="menu-item">
                                     <Button Template="{StaticResource ContainerButton}">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" cssWPF:Css.Class="fa" Text="{Binding Icon}" />
+                                            <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Css.Class="fa" Text="{Binding Icon}" />
                                             <TextBlock Text="{Binding Text}" />
                                         </StackPanel>
                                     </Button>
 
                                     
                                 </DockPanel>
-                                <ItemsControl cssWPF:Css.Class="sub-menu-item" ItemsSource="{Binding SubMenuItems}" Visibility="{Binding IsSubMenuVisible, Converter={StaticResource VisibilityConverter}}">
+                                <ItemsControl Css.Class="sub-menu-item" ItemsSource="{Binding SubMenuItems}" Visibility="{Binding IsSubMenuVisible, Converter={StaticResource VisibilityConverter}}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel>
@@ -151,18 +148,18 @@
                     <FlowDocumentScrollViewer>
                         <FlowDocument>
                             <Paragraph>
-                                <Run cssWPF:Css.Class="header" Text="asdfasdfasdf"></Run>
+                                <Run Css.Class="header" Text="asdfasdfasdf"></Run>
                             </Paragraph>
 
                             <Paragraph>
                                 <Run Text="asdfasdfadsf"></Run>
                             </Paragraph>
-                            <List cssWPF:Css.Class="list">
+                            <List Css.Class="list">
                                 <ListItem>
                                     <Paragraph>
-                                        <Run cssWPF:Css.Class="fa fa-graduation-cap"></Run> &#160;
+                                        <Run Css.Class="fa fa-graduation-cap"></Run> &#160;
                                         <Hyperlink NavigateUri="https://aka.ms/willowlearn" >
-                                            <Run cssWPF:Css.Class="subheader important" Text="asdfasdfasdf"></Run>
+                                            <Run Css.Class="subheader important" Text="asdfasdfasdf"></Run>
                                         </Hyperlink>
                                     </Paragraph>
                                     <Paragraph Margin="21,10,0,0">
@@ -171,12 +168,12 @@
                                 </ListItem>
                             </List>
 
-                            <List cssWPF:Css.Class="list">
+                            <List Css.Class="list">
                                 <ListItem>
                                     <Paragraph>
-                                        <Run cssWPF:Css.Class="fa fa-shoping-bag"></Run> &#160;
+                                        <Run Css.Class="fa fa-shoping-bag"></Run> &#160;
                                         <Hyperlink NavigateUri="https://aka.ms/willowmarketplace" >
-                                            <Run cssWPF:Css.Class="subheader important" Text="asdfasdfasfd"></Run>
+                                            <Run Css.Class="subheader important" Text="asdfasdfasfd"></Run>
                                         </Hyperlink>
                                     </Paragraph>
                                     <Paragraph Margin="21,10,0,0">
@@ -185,7 +182,7 @@
                                 </ListItem>
                             </List>
                             <Paragraph  Margin="0,21,0,5">
-                                <Run cssWPF:Css.Class="subheader" Text="asdfasdfasf"></Run>
+                                <Run Css.Class="subheader" Text="asdfasdfasf"></Run>
                             </Paragraph>
                             <Paragraph  Margin="0,0,0,0">
                                 <Run Text="asdfasdfasdf"></Run>

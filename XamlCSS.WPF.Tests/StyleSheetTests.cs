@@ -28,7 +28,7 @@ namespace XamlCSS.Tests.CssParsing
                 }
             };
 
-            TypeHelpers.Initialze(mapping);
+            TypeHelpers.Initialize(mapping);
 
             CssParser.Initialize(typeof(System.Windows.Controls.Button).AssemblyQualifiedName.Replace(".Button,", ","), null);
 

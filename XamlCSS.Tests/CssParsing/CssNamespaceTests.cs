@@ -40,7 +40,7 @@ namespace XamlCSS.Tests.CssParsing
         [Test]
         public void ClrNamespace_should_be_translated_to_qualifiednamespace()
         {
-            TypeHelpers.Initialze(new Dictionary<string, List<string>>{
+            TypeHelpers.Initialize(new Dictionary<string, List<string>>{
                 { 
                     "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
                     new List<string>

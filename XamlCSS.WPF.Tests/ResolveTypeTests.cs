@@ -31,7 +31,7 @@ namespace XamlCSS.WPF.Tests
                 }
             };
 
-            TypeHelpers.Initialze(mapping, true);
+            TypeHelpers.Initialize(mapping, true);
         }
 
         [Test]

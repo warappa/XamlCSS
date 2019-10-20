@@ -2,14 +2,14 @@
     <!--<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="'$(TargetPlatformIdentifier)' == 'UAP' AND Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />-->
     
     <PropertyGroup>
-        <TargetFrameworks>netstandard20;net451;net461;netstandard11;netstandard14;netstandard16;uap10.0</TargetFrameworks>
+        <TargetFrameworks>netstandard20;net40-client;net451;net461;netstandard11;netstandard14;netstandard16;uap10.0</TargetFrameworks>
         <Version>2.2.0</Version>
         <Authors>David Rettenbacher</Authors>
         <Company />
         <Copyright>David Rettenbacher</Copyright>
         <PackageProjectUrl>https://github.com/warappa/XamlCSS</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/warappa/XamlCSS/blob/master/LICENSE</PackageLicenseUrl>
-        <PackageIconUrl>https://github.com/warappa/XamlCSS/blob/master/Content/Logo.jpg</PackageIconUrl>
+        <License>https://github.com/warappa/XamlCSS/blob/master/LICENSE</License>
+        <Icon>https://github.com/warappa/XamlCSS/blob/master/Content/Logo.jpg</Icon>
         <RepositoryUrl>https://github.com/warappa/XamlCSS</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageTags>xamlcss xaml css wpf xamarin.forms uwp</PackageTags>
@@ -145,6 +145,22 @@
         <Description>Style XAML applications with CSS</Description>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
+    <ItemGroup Condition="'$(TargetFramework)' == 'net40-client' Or '$(TargetFramework)' == 'net451' Or '$(TargetFramework)' == 'net461'">
+      <Reference Include="System.Xaml" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(TargetFramework)' == 'net40-client'">
+      <PackageReference Include="Microsoft.Bcl" Version="1.1.10"/>
+      <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(TargetFramework)' == 'net40-client'">
+      <DefineConstants>$(DefineConstants);NET40</DefineConstants>
+      <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
+      <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+      <TargetFrameworkProfile>client</TargetFrameworkProfile>
+    </PropertyGroup>
+  
     <PropertyGroup Condition="'$(TargetFramework)' == 'uap10.0'">
         <!--<TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
         <OutputPath>bin\Debug\</OutputPath>
@@ -160,12 +176,17 @@
         <TargetPlatformMinVersion Condition=" '$(TargetPlatformMinVersion)' == '' ">10.0.16299.0</TargetPlatformMinVersion>-->
     </PropertyGroup>
 
-    <ItemGroup>
-        <!--<PackageReference Include="MSBuild.Sdk.Extras" Version="1.6.65" PrivateAssets="All"></PackageReference>-->
+    <ItemGroup><!--<PackageReference Include="MSBuild.Sdk.Extras" Version="1.6.65" PrivateAssets="All"></PackageReference>-->
         <!--<PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="5.2.2" Condition="'$(TargetFramework)' == 'uap10.0'" PrivateAssets="All"></PackageReference>-->
         <!--<PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.3" Condition="'$(TargetFramework)' == 'netstandard20'"></PackageReference>-->
         <!--<PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="5.2.2" Condition="'$(TargetFramework)' == 'uap10.0'" PrivateAssets="All"></PackageReference>
         <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.1.9" Condition="'$(TargetFramework)' == 'uap10.0.16229'" PrivateAssets="All"></PackageReference>-->
+    
+      <Compile Remove="Utils\Timer.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Include="Utils\Timer.cs" />
     </ItemGroup>
     <Target Name="GetPackagingOutputs" />
     <!--<Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" Condition="'$(TargetPlatformIdentifier)' == 'UAP'"/>-->

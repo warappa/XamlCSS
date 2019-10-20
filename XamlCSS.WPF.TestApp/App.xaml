@@ -1,43 +1,43 @@
-﻿<Application x:Class="XamlCSS.WPF.TestApp.App"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:XamlCSS.WPF.TestApp"
-			 xmlns:sys="clr-namespace:System;assembly=mscorlib"
-             xmlns:css="clr-namespace:XamlCSS;assembly=XamlCSS"
-             StartupUri="MainWindow.xaml">
+﻿<Application
+    x:Class="XamlCSS.WPF.TestApp.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="clr-namespace:XamlCSS.WPF.TestApp"
+    xmlns:css="clr-namespace:XamlCSS;assembly=XamlCSS"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    StartupUri="MainWindow.xaml">
     <Application.Resources>
         <local:StringToImageConverter x:Key="StringToImageConverter" />
         <sys:String x:Key="AppStaticResource">App Static Resource</sys:String>
         <sys:String x:Key="testString">Hello World from StaticResource!</sys:String>
-        <css:StyleSheet x:Key="appStyleSheet">
-            <css:StyleSheet.Content>
-                Button
+        <StyleSheet x:Key="appStyleSheet">
+            Button
             {
-                FontStyle: Italic;
+            FontStyle: Italic;
             }
-            </css:StyleSheet.Content>
-        </css:StyleSheet>
+        </StyleSheet>
 
-        <local:ListToStringConverter x:Key="ListToStringConverter"></local:ListToStringConverter>
+        <local:ListToStringConverter x:Key="ListToStringConverter" />
         <Brush x:Key="ToColor">#00aa00</Brush>
         <Storyboard x:Key="storyboard">
-            <ColorAnimation 
-						Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)" 
-                    To="Red" Duration="0:0:3" >
-            </ColorAnimation>
+            <ColorAnimation
+                Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)"
+                To="Red"
+                Duration="0:0:3" />
         </Storyboard>
-        <ControlTemplate x:Key="abc" TargetType="Button">            
+        <ControlTemplate x:Key="abc" TargetType="Button">
             <Border Background="{TemplateBinding Background}">
                 <ContentPresenter />
             </Border>
         </ControlTemplate>
         <Storyboard x:Key="storyboard2">
-            <ColorAnimation 
-						Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)" To="Green" Duration="0:0:5.25" >
-            </ColorAnimation>
+            <ColorAnimation
+                Storyboard.TargetProperty="(TextBlock.Background).(SolidColorBrush.Color)"
+                To="Green"
+                Duration="0:0:5.25" />
         </Storyboard>
-        <css:StyleSheet x:Key="InternalStyle" xml:space="preserve">
-                <css:StyleSheet.Content><![CDATA[
+        <StyleSheet x:Key="InternalStyle" xml:space="preserve">
+<![CDATA[
 // @import "appStyleSheet";
 // @import "Resources/baseStyle.scss";
 @namespace animation "System.Windows.Media.Animation, PresentationFramework, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
@@ -186,7 +186,6 @@ Grid
         }
     }
 }]]>
-                </css:StyleSheet.Content>
-            </css:StyleSheet>
+        </StyleSheet>
     </Application.Resources>
 </Application>

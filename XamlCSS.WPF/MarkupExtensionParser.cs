@@ -59,7 +59,7 @@ namespace XamlCSS.WPF
             }
             catch (Exception e)
             {
-                throw new Exception($@"Cannot evaluate markup-expression ""{expression}""!");
+                throw new Exception($@"Cannot evaluate markup-expression ""{expression}""!", e);
             }
 
             try
