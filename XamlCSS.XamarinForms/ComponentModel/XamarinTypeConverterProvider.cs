@@ -24,6 +24,7 @@ namespace XamlCSS.ComponentModel
             Register<float, NumberTypeConverter<float>>();
             Register<double, NumberTypeConverter<double>>();
 
+            Register<IVisual, VisualTypeConverter>();
             Register<Font, FontTypeConverter>();
             Register<Binding, BindingTypeConverter>();
             Register<BoundsConstraint, BoundsTypeConverter>();
