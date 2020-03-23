@@ -168,7 +168,7 @@
     </ItemGroup>
 
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard20'">
-        <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="6.2.3"></PackageReference>
+        <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform" Version="5.2.4"></PackageReference>
     </ItemGroup>
 
     <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" Condition="'$(NCrunch)' == '1'" />
