@@ -12,11 +12,11 @@ using XamlCSS.WPF.Dom;
 
 namespace XamlCSS.WPF
 {
-    public class MarkupExtensionParser : IMarkupExtensionParser
+    public class MarkupExtensionParserSlow : IMarkupExtensionParser
     {
         public const string MarkupParserHelperId = "__markupParserHelper";
 
-        static MarkupExtensionParser()
+        static MarkupExtensionParserSlow()
         {
             
         }

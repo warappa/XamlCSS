@@ -1,0 +1,506 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using System.Windows;
+using System.Windows.Data;
+using System.Windows.Markup;
+using System.Xaml;
+using System.Xml;
+using XamlCSS.Utils;
+using XamlCSS.WPF.Dom;
+
+namespace XamlCSS.WPF.Internals
+{
+    [XamlCSS.Linker.Preserve(AllMembers = true)]
+    public class MarkupExtensionParser : IMarkupExtensionParser
+    {
+        private MarkupExtension markupExtension;
+
+        internal static bool MatchMarkup(out string match, string expression, out int end)
+        {
+            if (expression.Length < 2)
+            {
+                end = 1;
+                match = null;
+                return false;
+            }
+            if (expression[0] != '{')
+            {
+                end = 2;
+                match = null;
+                return false;
+            }
+            bool found = false;
+            int i;
+            for (i = 1; i < expression.Length; i++)
+            {
+                if (expression[i] != ' ')
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                end = 3;
+                match = null;
+                return false;
+            }
+            int c = 0;
+            while (c + i < expression.Length && expression[i + c] != ' ' && expression[i + c] != '}')
+            {
+                c++;
+            }
+            if (i + c == expression.Length)
+            {
+                end = 6;
+                match = null;
+                return false;
+            }
+            end = i + c;
+            match = expression.Substring(i, c);
+            return true;
+        }
+
+        private object ParseExpression(ref string expression, IServiceProvider serviceProvider)
+        {
+            if (serviceProvider == null)
+            {
+                throw new ArgumentNullException("serviceProvider");
+            }
+            if (expression.StartsWith("{}", StringComparison.Ordinal))
+            {
+                return expression.Substring(2);
+            }
+            if (expression[expression.Length - 1] != '}')
+            {
+                throw new Exception("Expression must end with '}'");
+            }
+            string match;
+            int len;
+            if (!MatchMarkup(out match, expression, out len))
+            {
+                return false;
+            }
+            expression = expression.Substring(len).TrimStart(new char[0]);
+            if (expression.Length == 0)
+            {
+                throw new Exception("Expression did not end in '}'");
+            }
+            return ((MarkupExtensionParser)Activator.CreateInstance(base.GetType())).Parse(match, ref expression, serviceProvider);
+        }
+        protected void HandleProperty(string prop, IServiceProvider serviceProvider, ref string remaining, bool isImplicit)
+        {
+            object value = null;
+            if (isImplicit)
+            {
+                this.SetPropertyValue(null, prop, null, serviceProvider);
+                return;
+            }
+            remaining = remaining.TrimStart(new char[0]);
+            string str_value;
+            if (remaining.StartsWith("{", StringComparison.Ordinal))
+            {
+                value = this.ParseExpression(ref remaining, serviceProvider);
+                remaining = remaining.TrimStart(new char[0]);
+                if (remaining.Length > 0 && remaining[0] == ',')
+                {
+                    remaining = remaining.Substring(1);
+                }
+                str_value = (value as string);
+            }
+            else
+            {
+                char next;
+                str_value = this.GetNextPiece(ref remaining, out next);
+            }
+            this.SetPropertyValue(prop, str_value, value, serviceProvider);
+        }
+        protected string GetNextPiece(ref string remaining, out char next)
+        {
+            bool inString = false;
+            int end = 0;
+            char stringTerminator = '\0';
+            remaining = remaining.TrimStart(new char[0]);
+            if (remaining.Length == 0)
+            {
+                next = '￿';
+                return null;
+            }
+            StringBuilder piece = new StringBuilder();
+            while (end < remaining.Length && (inString || (remaining[end] != '}' && remaining[end] != ',' && remaining[end] != '=')))
+            {
+                if (inString)
+                {
+                    if (remaining[end] == stringTerminator)
+                    {
+                        inString = false;
+                        end++;
+                        break;
+                    }
+                }
+                else if (remaining[end] == '\'' || remaining[end] == '"')
+                {
+                    inString = true;
+                    stringTerminator = remaining[end];
+                    end++;
+                    continue;
+                }
+                if (remaining[end] == '\\')
+                {
+                    end++;
+                    if (end == remaining.Length)
+                    {
+                        break;
+                    }
+                }
+                piece.Append(remaining[end]);
+                end++;
+            }
+            if (inString && end == remaining.Length)
+            {
+                throw new Exception("Unterminated quoted string");
+            }
+            if (end == remaining.Length && !remaining.EndsWith("}", StringComparison.Ordinal))
+            {
+                throw new Exception("Expression did not end with '}'");
+            }
+            if (end == 0)
+            {
+                next = '￿';
+                return null;
+            }
+            next = remaining[end];
+            remaining = remaining.Substring(end + 1);
+            while (piece.Length > 0 && char.IsWhiteSpace(piece[piece.Length - 1]))
+            {
+                StringBuilder expr_133 = piece;
+                int length = expr_133.Length;
+                expr_133.Length = length - 1;
+            }
+            if (piece.Length >= 2)
+            {
+                char first = piece[0];
+                char last = piece[piece.Length - 1];
+                if ((first == '\'' && last == '\'') || (first == '"' && last == '"'))
+                {
+                    piece.Remove(piece.Length - 1, 1);
+                    piece.Remove(0, 1);
+                }
+            }
+            return piece.ToString();
+        }
+
+        private object Parse(string expression)
+        {
+            expression = expression.Trim().Substring(1);
+
+            var strs = expression.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            var remaining = string.Join(" ", strs.Skip(1));
+
+            return Parse(strs[0], ref remaining, new CustomServiceProvider());
+        }
+
+        private object Parse(string match, ref string remaining, IServiceProvider serviceProvider)
+        {
+            IXamlTypeResolver typeResolver = serviceProvider.GetService(typeof(IXamlTypeResolver)) as IXamlTypeResolver;
+            if (match == "Binding")
+            {
+                this.markupExtension = new Binding();
+            }
+            else if (match == "TemplateBinding")
+            {
+                this.markupExtension = new TemplateBindingExtension();
+            }
+            else if (match == "StaticResource")
+            {
+                this.markupExtension = new StaticResourceExtension();
+            }
+            else if (match == "DynamicResource")
+            {
+                this.markupExtension = new DynamicResourceExtension();
+            }
+            else
+            {
+                if (typeResolver == null)
+                {
+                    return null;
+                }
+                Type type = typeResolver.Resolve(match + "Extension");
+                if (type is null)
+                {
+                    type = typeResolver.Resolve(match);
+                }
+                //if (!typeResolver.TryResolve(match + "Extension", out type) && !typeResolver.TryResolve(match, out type))
+                if (type is null)
+                {
+                    throw new System.Windows.Markup.XamlParseException(string.Format("MarkupExtension not found for {0}", new object[] { match }));
+                }
+
+                this.markupExtension = (Activator.CreateInstance(type) as MarkupExtension);
+            }
+            if (this.markupExtension == null)
+            {
+                throw new System.Windows.Markup.XamlParseException(string.Format("Missing public default constructor for MarkupExtension {0}", new object[] { match }));
+            }
+            if (remaining == "}")
+            {
+                return this.markupExtension;
+            }
+            char next;
+            string piece;
+            while ((piece = GetNextPiece(ref remaining, out next)) != null)
+            {
+                HandleProperty(piece, serviceProvider, ref remaining, next != '=');
+            }
+            return this.markupExtension;
+        }
+
+        internal static string GetContentPropertyName(TypeInfo typeInfo)
+        {
+            if (typeInfo == typeof(Binding).GetTypeInfo())
+            {
+                return "Path";
+            }
+            if (typeInfo == typeof(StaticResourceExtension).GetTypeInfo())
+            {
+                return "ResourceKey";
+            }
+            if (typeInfo == typeof(DynamicResourceExtension).GetTypeInfo())
+            {
+                return "ResourceKey";
+            }
+            while (typeInfo != null)
+            {
+                //string propName = typeInfo.CustomAttributes
+                //    .FirstOrDefault(x => x.AttributeType == typeof(ContentPropertyAttribute))
+                //    ?.ConstructorArguments
+                //    .Select(x => x.Value as string)
+                //    .FirstOrDefault();
+                var propName = typeInfo.GetProperties()
+                    .Select(x => x.GetCustomAttribute<ConstructorArgumentAttribute>().ArgumentName)
+                    .Where(x => x != null)
+                    .Select(x => x.Substring(0, 1).ToUpperInvariant() + x.Substring(1))
+                    .FirstOrDefault();
+
+                if (propName != null)
+                {
+                    return propName;
+                }
+                TypeInfo arg_2B_0;
+                if (typeInfo == null)
+                {
+                    arg_2B_0 = null;
+                }
+                else
+                {
+                    Type expr_1F = typeInfo.BaseType;
+                    arg_2B_0 = ((expr_1F != null) ? expr_1F.GetTypeInfo() : null);
+                }
+                typeInfo = arg_2B_0;
+            }
+            return null;
+        }
+
+        protected void SetPropertyValue(string prop, string strValue, object value, IServiceProvider serviceProvider)
+        {
+            MethodInfo setter;
+            if (prop == null)
+            {
+                Type t = this.markupExtension.GetType();
+                prop = GetContentPropertyName(t.GetTypeInfo());
+                if (prop == null)
+                {
+                    return;
+                }
+                setter = t.GetPropertyReliable(prop).SetMethod;
+            }
+            else
+            {
+                setter = this.markupExtension.GetType().GetPropertyReliable(prop).SetMethod;
+            }
+            if (value == null && strValue != null)
+            {
+                value = ConvertTo(strValue, this.markupExtension.GetType().GetPropertyReliable(prop).PropertyType, null, serviceProvider);
+            }
+            setter.Invoke(this.markupExtension, new object[]
+            {
+                value
+            });
+        }
+
+        internal static object ConvertTo(object value, Type toType, Func<object> getConverter, IServiceProvider serviceProvider)
+        {
+            if (value == null)
+            {
+                return null;
+            }
+            string str = value as string;
+            if (str != null)
+            {
+                object converter = (getConverter != null) ? getConverter() : null;
+                TypeConverter xfTypeConverter = converter as TypeConverter;
+                //IExtendedTypeConverter xfExtendedTypeConverter = xfTypeConverter as IExtendedTypeConverter;
+                //if (xfExtendedTypeConverter != null)
+                //{
+                //    return value = xfExtendedTypeConverter.ConvertFromInvariantString(str, serviceProvider);
+                //}
+                if (xfTypeConverter != null)
+                {
+                    return value = xfTypeConverter.ConvertFromInvariantString(str);
+                }
+                Type converterType = (converter != null) ? converter.GetType() : null;
+                if (converterType != null)
+                {
+                    MethodInfo convertFromStringInvariant = converterType.GetRuntimeMethod("ConvertFromInvariantString", new Type[]
+                    {
+                        typeof(string)
+                    });
+                    if (convertFromStringInvariant != null)
+                    {
+                        return value = convertFromStringInvariant.Invoke(converter, new object[]
+                        {
+                            str
+                        });
+                    }
+                }
+                if (toType.GetTypeInfo().IsGenericType && toType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    toType = Nullable.GetUnderlyingType(toType);
+                }
+                if (toType.GetTypeInfo().IsEnum)
+                {
+                    return Enum.Parse(toType, str);
+                }
+                if (toType == typeof(int))
+                {
+                    return int.Parse(str, CultureInfo.InvariantCulture);
+                }
+                if (toType == typeof(float))
+                {
+                    return float.Parse(str, CultureInfo.InvariantCulture);
+                }
+                if (toType == typeof(double))
+                {
+                    return double.Parse(str, CultureInfo.InvariantCulture);
+                }
+                if (toType == typeof(bool))
+                {
+                    return bool.Parse(str);
+                }
+                if (toType == typeof(TimeSpan))
+                {
+                    return TimeSpan.Parse(str, CultureInfo.InvariantCulture);
+                }
+                if (toType == typeof(DateTime))
+                {
+                    return DateTime.Parse(str, CultureInfo.InvariantCulture);
+                }
+                if (toType == typeof(string) && str.StartsWith("{}", StringComparison.Ordinal))
+                {
+                    return str.Substring(2);
+                }
+                if (toType == typeof(string))
+                {
+                    return value;
+                }
+                if (toType == typeof(PropertyPath))
+                {
+                    return new PropertyPath(value as string, (object[])null);
+                }
+            }
+            if (value != null)
+            {
+                MethodInfo cast = value.GetType().GetRuntimeMethod("op_Implicit", new Type[]
+                {
+                    value.GetType()
+                });
+                if (cast != null && cast.ReturnType == toType)
+                {
+                    value = cast.Invoke(null, new object[]
+                    {
+                        value
+                    });
+                }
+            }
+            return value;
+        }
+
+        public object ProvideValue(string expression, object targetObject, IEnumerable<CssNamespace> namespaces, bool unwrap = true)
+        {
+            //var serviceProvider = new CustomServiceProvider();
+            //serviceProvider.Add(typeof(IProvideValueTarget), new ProvideValueTarget(targetObject));
+            //serviceProvider.Add(typeof(IXamlSchemaContextProvider), new ProvideValueTarget(targetObject));
+            //serviceProvider.Add(typeof(IAmbientProvider), new ProvideValueTarget(targetObject));
+            var parseResult = (object)(Parse(expression) as MarkupExtension);
+
+            if (parseResult is DynamicResourceExtension dre)
+            {
+                return GetDynamicResourceValue(dre.ResourceKey, targetObject);
+            }
+            if (parseResult is StaticResourceExtension sre)
+            {
+                return GetDynamicResourceValue(sre.ResourceKey, targetObject);
+            }
+
+            parseResult = (parseResult as MarkupExtension)?.ProvideValue(null);
+
+            if (parseResult is Binding binding)
+            {
+                parseResult = binding.ProvideValue(null);
+            }
+            else if (unwrap == true &&
+                parseResult?.GetType().Name == "ResourceReferenceExpression")
+            {
+                var resourceKey = TypeHelpers.GetPropertyValue(parseResult, "ResourceKey");
+
+                parseResult = new DynamicResourceExtension(resourceKey);
+            }
+
+            return parseResult;
+        }
+
+        internal static object GetDynamicResourceValue(object resourceKey, object element)
+        {
+            if (element is ApplicationDependencyObject)
+            {
+                Application.Current.TryFindResource(resourceKey);
+            }
+            else if (element is FrameworkElement)
+            {
+                return ((FrameworkElement)element).TryFindResource(resourceKey);
+            }
+            else if (element is FrameworkContentElement)
+            {
+                return ((FrameworkContentElement)element).TryFindResource(resourceKey);
+            }
+
+            return null;
+        }
+    }
+
+    public class CustomServiceProvider : IServiceProvider
+    {
+        private Dictionary<Type, object> registered = new Dictionary<Type, object>();
+
+        public object GetService(Type serviceType)
+        {
+            if (registered.TryGetValue(serviceType, out var result))
+            {
+                return result;
+            }
+
+            return null;
+        }
+
+        public void Add(Type type, object value)
+        {
+            registered[type] = value;
+        }
+
+    }
+}

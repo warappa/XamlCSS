@@ -14,6 +14,7 @@ using XamlCSS.Dom;
 using XamlCSS.Utils;
 using XamlCSS.WPF.CssParsing;
 using XamlCSS.WPF.Dom;
+using XamlCSS.WPF.Internals;
 
 namespace XamlCSS.WPF
 {
@@ -86,7 +87,7 @@ namespace XamlCSS.WPF
 
             // mix CompositionTarget.Rendering and DispatcherTimer for better UI responsiveness
             CompositionTarget.Rendering += RenderingHandler;
-
+            
             timer = new DispatcherTimer(DispatcherPriority.Render);
             timer.Interval = TimeSpan.FromMilliseconds(5);
             timer.Tick += (s, e) =>
@@ -169,10 +170,10 @@ namespace XamlCSS.WPF
             }
         }
 
-        private static void Warmup(MarkupExtensionParser markupExtensionParser, string defaultCssNamespace)
+        private static void Warmup(IMarkupExtensionParser markupExtensionParser, string defaultCssNamespace)
         {
             // warmup parser
-            markupExtensionParser.Parse("true", Application.Current?.MainWindow ?? new FrameworkElement(), new[] { new CssNamespace("", defaultCssNamespace) });
+            markupExtensionParser.ProvideValue("true", Application.Current?.MainWindow ?? new FrameworkElement(), new[] { new CssNamespace("", defaultCssNamespace) });
 
             TypeHelpers.GetPropertyAccessor(typeof(FrameworkElement), "IsLoaded");
 
