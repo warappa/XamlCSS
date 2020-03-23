@@ -3,7 +3,7 @@
         <TargetFrameworks>netstandard20</TargetFrameworks>
         <PackageTargetFallback>$(PackageTargetFallback);portable-win+net45+wp8+win81+wpa8</PackageTargetFallback>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>2.2.0</Version>
+        <Version>2.2.1</Version>
         <Authors>David Rettenbacher</Authors>
         <Company />
         <Copyright>David Rettenbacher</Copyright>
@@ -159,22 +159,10 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <!--<PackageReference Include="MSBuild.Sdk.Extras" Version="1.6.65" PrivateAssets="All"></PackageReference>-->
-        <!-- <PackageReference Include="PCLStorage" version="1.0.2" condition="'$(TargetFramework)' == 'netstandard11'"></PackageReference> -->
-        <!--<PackageReference Include="Xamarin.Forms" Version="2.3.3.180" Condition="'$(TargetFramework)' == 'netstandard11'"></PackageReference>-->
-        <!--<PackageReference Include="Xamarin.Forms" Version="3.0.0.446417" Condition="'$(TargetFramework)' == 'netstandard20'"></PackageReference>-->
-        <PackageReference Include="Xamarin.Forms" Version="3.0.0.446417"  Condition="'$(TargetFramework)' == 'netstandard20'"></PackageReference>
-        <PackageReference Include="Xamarin.Forms" Version="2.3.3.180"  Condition="'$(TargetFramework)' == 'netstandard13'"></PackageReference>
-        <PackageReference Include="System.ComponentModel" Version="4.0.1" Condition="'$(TargetFramework)' == 'netstandard13'"></PackageReference>
+        <PackageReference Include="Xamarin.Forms" Version="4.3.0.991250"></PackageReference>
     </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\XamlCSS\XamlCSS.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <!--<Reference Include="System.ComponentModel" Condition="'$(TargetFramework)' == 'netstandard11'"></Reference>
-        
-        <Reference Include="System.Dynamic.Runtime" Condition="'$(TargetFramework)' == 'netstandard11'"></Reference>
-        <Reference Include="Microsoft.CSharp" Condition="'$(TargetFramework)' == 'netstandard11'"></Reference>-->        
-    </ItemGroup>
+    </ItemGroup>    
 </Project>
