@@ -108,7 +108,7 @@ namespace XamlCSS.Utils
                 return null;
             }
 
-            return obj.GetType().GetRuntimeField(fieldName)?.GetValue(obj);
+            return obj.GetType().GetFieldReliable(fieldName)?.GetValue(obj);
         }
 
         public static object GetFieldValue(Type type, string fieldName)
@@ -118,7 +118,8 @@ namespace XamlCSS.Utils
                 return null;
             }
 
-            return type.GetRuntimeField(fieldName)?.GetValue(null);
+            var field = type.GetFieldReliable(fieldName);
+            return field?.GetValue(null); 
         }
 
         private static IDictionary<string, PropertyInfo> DeclaredProperties(Type type)
@@ -159,7 +160,7 @@ namespace XamlCSS.Utils
 
             if (!propertyAccessors.TryGetValue(propertyName, out accessor))
             {
-                var propertyInfo = type.GetRuntimeProperty(propertyName);
+                var propertyInfo = type.GetPropertyReliable(propertyName);
 
                 propertyAccessors[propertyName] = accessor = propertyInfo == null ? null : PropertyInfoHelper.GetAccessor(propertyInfo);
             }
@@ -296,7 +297,7 @@ namespace XamlCSS.Utils
 
             if (!properties.TryGetValue(propertyName, out PropertyInfo propertyInfo))
             {
-                propertyInfo = properties[propertyName] = type.GetRuntimeProperty(propertyName);
+                propertyInfo = properties[propertyName] = type.GetPropertyReliable(propertyName);
 
             }
 

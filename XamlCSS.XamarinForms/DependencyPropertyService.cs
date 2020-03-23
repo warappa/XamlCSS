@@ -46,7 +46,7 @@ namespace XamlCSS.XamarinForms
                 else if (propertyType == typeof(Color))
                     return Color.FromHex(propertyValueString as string);
                 else if (propertyType == typeof(LayoutOptions))
-                    return propertyType.GetRuntimeFields().First(x => x.Name == propertyValueString as string).GetValue(null);
+                    return propertyType.GetFieldReliable(propertyValueString).GetValue(null);
                 else if (propertyType.GetTypeInfo().IsEnum)
                     return Enum.Parse(propertyType, propertyValueString as string);
                 else
@@ -85,7 +85,7 @@ namespace XamlCSS.XamarinForms
                 else if (propertyType == typeof(Color))
                     propertyValue = Color.FromHex(propertyValue as string);
                 else if (propertyType == typeof(LayoutOptions))
-                    propertyValue = propertyType.GetRuntimeFields().First(x => x.Name == propertyValue as string).GetValue(null);
+                    propertyValue = propertyType.GetFieldReliable(propertyValue as string).GetValue(null);
                 else if (propertyType.GetTypeInfo().IsEnum)
                     propertyValue = Enum.Parse(propertyType, propertyValue as string);
                 else

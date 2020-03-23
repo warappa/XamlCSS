@@ -180,6 +180,7 @@
   <ItemGroup>
     <None Include="app.config" />
     <AndroidAsset Include="Assets\Assets\fonts\fontawesomewebfont.ttf" />
+    <AndroidAsset Include="Assets\fontawesomewebfont.ttf" />
     <None Include="packages.config" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Assets\AboutAssets.txt" />

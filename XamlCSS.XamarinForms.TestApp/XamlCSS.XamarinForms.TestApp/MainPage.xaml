@@ -16,7 +16,7 @@
                     @namespace local "XamlCSS.XamarinForms.TestApp, XamlCSS.XamarinForms.TestApp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
 
 .fa {
-    FontFamily: "Assets/fonts/fontawesomewebfont.ttf#FontAwesome";
+    FontFamily: "fontawesomewebfont.ttf#FontAwesome";
     &amp;.fa-heart {
         Text: "\f004";
     }
@@ -24,6 +24,9 @@
 
 Button
 {         
+                        @Property IsEnabled false {
+                    BackgroundColor: #f0f;
+                    }
     @Property Text "Clicked!"
     {
         @Enter:
@@ -181,6 +184,7 @@ Grid
             </Grid>
             <Button x:Name="thebutton" cssXF:Css.Id="thebutton" Clicked="Button_Click" Text="Change Style"></Button>
             <Button Text="Click me" Clicked="Button_Clicked"></Button>
+            <Button Text="Click me not" IsEnabled="false" Clicked="Button_Clicked"></Button>
             <ListView ItemsSource="{Binding TestList}">
                 <ListView.ItemTemplate>
                     <DataTemplate>

@@ -8,6 +8,7 @@ using System.Xml;
 using Xamarin.Forms;
 using Xamarin.Forms.Xaml;
 using Xamarin.Forms.Xaml.Internals;
+using XamlCSS.Utils;
 
 namespace XamlCSS.XamarinForms.Internals
 {
@@ -319,15 +320,15 @@ namespace XamlCSS.XamarinForms.Internals
                 {
                     return;
                 }
-                setter = t.GetRuntimeProperty(prop).SetMethod;
+                setter = t.GetPropertyReliable(prop).SetMethod;
             }
             else
             {
-                setter = this.markupExtension.GetType().GetRuntimeProperty(prop).SetMethod;
+                setter = this.markupExtension.GetType().GetPropertyReliable(prop).SetMethod;
             }
             if (value == null && strValue != null)
             {
-                value = ConvertTo(strValue, this.markupExtension.GetType().GetRuntimeProperty(prop).PropertyType, null, serviceProvider);
+                value = ConvertTo(strValue, this.markupExtension.GetType().GetPropertyReliable(prop).PropertyType, null, serviceProvider);
             }
             setter.Invoke(this.markupExtension, new object[]
             {
