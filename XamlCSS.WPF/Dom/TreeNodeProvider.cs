@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using System.Windows.Media.Media3D;
 using XamlCSS.Dom;
@@ -69,9 +70,9 @@ namespace XamlCSS.WPF.Dom
 
         private ContentPresenter SearchForContentPresenter(DependencyObject originalParent, DependencyObject element)
         {
-            foreach(var child in GetVisualChildren(element))
+            foreach (var child in GetVisualChildren(element))
             {
-                if(child is ContentPresenter cp)
+                if (child is ContentPresenter cp)
                 {
                     if (cp.TemplatedParent != originalParent)
                     {
@@ -85,7 +86,7 @@ namespace XamlCSS.WPF.Dom
             foreach (var child in GetVisualChildren(element))
             {
                 var res = SearchForContentPresenter(originalParent, child);
-                if(res != null)
+                if (res != null)
                 {
                     return res;
                 }
@@ -128,7 +129,7 @@ namespace XamlCSS.WPF.Dom
             {
                 yield break;
             }
-
+            
             if (element is ItemsControl ic)
             {
                 var cp = SearchForContentPresenter(element, element);
@@ -149,7 +150,7 @@ namespace XamlCSS.WPF.Dom
                             foreach (var child in childrenOfLogicalParent)
                             {
                                 yield return child;
-                            }                            
+                            }
                         }
                         else if (uiElement is Panel panel &&
                             panel.IsItemsHost)
@@ -173,37 +174,6 @@ namespace XamlCSS.WPF.Dom
 
                 yield break;
             }
-
-            if (element is ItemsPresenter itemsPresenter)
-            {
-                var itemshost = itemsPresenter != null ? VisualTreeHelper.GetChildrenCount(itemsPresenter) > 0 ? VisualTreeHelper.GetChild(itemsPresenter, 0) as Panel : null : null;
-
-                if (itemshost == null)
-                {
-                    yield break;
-                }
-
-                var p = GetVisualChildren(itemshost).FirstOrDefault();
-                if (p != null)
-                {
-                    var children = GetLogicalChildren(p);
-                    foreach (var child in children)
-                    {
-                        yield return child;
-                    }
-                }
-
-                yield break;
-            }
-            else if (element is ContentPresenter c)
-            {
-                var childrenOfLogicalParent = GetChildrenOfLogicalParent(element, GetVisualChildren(element));
-                foreach (var child in childrenOfLogicalParent)
-                {
-                    yield return child;
-                }
-                yield break;
-            }
             else if (element is ContentControl frame)
             {
                 var content = frame.Content as DependencyObject;
@@ -213,14 +183,17 @@ namespace XamlCSS.WPF.Dom
                 }
                 yield break;
             }
-
-            var childrenOfLogicalTreeHelper = LogicalTreeHelper.GetChildren(element)
-                .Cast<object>()
-                .OfType<DependencyObject>();
-
-            foreach (var child in childrenOfLogicalTreeHelper)
+            else
             {
-                yield return child;
+
+                var childrenOfLogicalTreeHelper = LogicalTreeHelper.GetChildren(element)
+                    .Cast<object>()
+                    .OfType<DependencyObject>();
+
+                foreach (var child in childrenOfLogicalTreeHelper)
+                {
+                    yield return child;
+                }
             }
         }
 
