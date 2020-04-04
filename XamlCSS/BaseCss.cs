@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,6 +27,7 @@ namespace XamlCSS
         private List<RenderInfo<TDependencyObject>> items = new List<RenderInfo<TDependencyObject>>();
         private CssTypeHelper<TDependencyObject, TDependencyProperty, TStyle> cssTypeHelper;
         private int noopCount = 0;
+        private static readonly IList<ISelector> emptySelectorList = new ReadOnlyCollection<ISelector>(new List<ISelector>());
 
         public BaseCss(IDependencyPropertyService<TDependencyObject, TStyle, TDependencyProperty> dependencyPropertyService,
             ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider,
@@ -199,7 +201,7 @@ namespace XamlCSS
                 {
                     var styleUpdateInfo = item.Value;
 
-                    styleUpdateInfo.OldMatchedSelectors = new List<ISelector>();// new LinkedHashSet<ISelector>();
+                    styleUpdateInfo.OldMatchedSelectors = emptySelectorList;// new LinkedHashSet<ISelector>();
                     styleUpdateInfo.DoMatchCheck = SelectorType.None;
                     // remove style
                     var initialStyle = (TStyle)styleUpdateInfo.InitialStyle; //dependencyPropertyService.GetInitialStyle(item.Key);
@@ -414,7 +416,6 @@ namespace XamlCSS
 
                 if (matchingResourceKeys == null)
                 {
-                    // RemoveOutdatedStylesFromElementInternal(visualElement, styleSheet, true, true);
                 }
                 else if (matchingResourceKeys.Count == 1)
                 {
@@ -423,14 +424,27 @@ namespace XamlCSS
                         styleToApply = applicationResourcesService.GetResource(matchingResourceKeys.First());
                     }
 
-                    if (styleToApply != null)
+                    try
                     {
-                        nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
+                        if (styleToApply != null)
+                        {
+                            nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
+                            domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToList();
+                        }
+                        else
+                        {
+                            nativeStyleService.SetStyle(visualElement, null);
+                            domElement.StyleInfo.OldMatchedSelectors = emptySelectorList;
+                            // Debug.WriteLine("    Style not found! " + matchingResourceKeys[0]);
+                        }
                     }
-                    else
+                    catch (Exception exc)
                     {
+                        applicationResourcesService.RemoveResource(matchingResourceKeys.First());
+                        domElement.StyleInfo.OldMatchedSelectors = emptySelectorList;
+                        domElement.XamlCssStyleSheets.First().AddError($"Cannot apply style to an element matching {string.Join(", ", matchingStyles.Select(x => x.Value))}: {exc.Message}");
                         nativeStyleService.SetStyle(visualElement, null);
-                        // Debug.WriteLine("    Style not found! " + matchingResourceKeys[0]);
+                        return;
                     }
                 }
                 else if (matchingResourceKeys.Count > 1)
@@ -438,7 +452,19 @@ namespace XamlCSS
                     var resourceKey = string.Join(", ", matchingResourceKeys);
                     if (applicationResourcesService.Contains(resourceKey))
                     {
-                        nativeStyleService.SetStyle(visualElement, (TStyle)applicationResourcesService.GetResource(resourceKey));
+                        try
+                        {
+                            nativeStyleService.SetStyle(visualElement, (TStyle)applicationResourcesService.GetResource(resourceKey));
+                            domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToList();
+                        }
+                        catch (Exception exc)
+                        {
+                            applicationResourcesService.RemoveResource(resourceKey);
+                            domElement.StyleInfo.OldMatchedSelectors = emptySelectorList;
+                            domElement.XamlCssStyleSheets.First().AddError($"Cannot apply style to an element matching {string.Join(", ", matchingStyles.Select(x => x.Value))}: {exc.Message}");
+                            nativeStyleService.SetStyle(visualElement, null);
+                            return;
+                        }
                     }
                     else
                     {
@@ -477,19 +503,34 @@ namespace XamlCSS
                             styleToApply = nativeStyleService.CreateFrom(dict, listTriggers, visualElement.GetType());
                         }
 
-                        if (styleToApply != null)
+                        try
                         {
-                            applicationResourcesService.SetResource(resourceKey, styleToApply);
-                            nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
+
+                            if (styleToApply != null)
+                            {
+                                nativeStyleService.SetStyle(visualElement, (TStyle)styleToApply);
+                                applicationResourcesService.SetResource(resourceKey, styleToApply);
+                            }
+                            else
+                            {
+                                nativeStyleService.SetStyle(visualElement, null);
+                            }
+                            domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToList();
                         }
-                        else
+                        catch (Exception exc)
                         {
+                            applicationResourcesService.RemoveResource(resourceKey);
+                            domElement.StyleInfo.OldMatchedSelectors = emptySelectorList;
                             nativeStyleService.SetStyle(visualElement, null);
+                            domElement.XamlCssStyleSheets.First().AddError($"Cannot apply style to an element matching {string.Join(", ", matchingStyles.Select(x => x.Value))}: {exc.Message}");
+                            return;
                         }
                     }
                 }
-
-                domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToList();//.ToLinkedHashSet();
+                else
+                {
+                    domElement.StyleInfo.OldMatchedSelectors = matchingStyles.ToList();
+                }
             }
         }
 
@@ -658,7 +699,7 @@ namespace XamlCSS
 
             if (styleChanged)
             {
-                styleUpdateInfo.OldMatchedSelectors.Clear();// = new LinkedHashSet<ISelector>();
+                styleUpdateInfo.OldMatchedSelectors = null;
             }
             styleUpdateInfo.CurrentMatchedSelectors.Clear();
             styleUpdateInfo.CurrentMatchedResourceKeys.Clear();
