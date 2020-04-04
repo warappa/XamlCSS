@@ -15,23 +15,7 @@ namespace XamlCSS.WPF.Tests
         [TestFixtureSetUp]
         public void Setup()
         {
-            namespaces = new List<CssNamespace>
-            {
-                new CssNamespace("", "http://schemas.microsoft.com/winfx/2006/xaml/presentation")
-            };
-
-            mapping = new Dictionary<string, List<string>>
-            {
-                {
-                    "http://schemas.microsoft.com/winfx/2006/xaml/presentation",
-                    new List<string>
-                    {
-                        typeof(Button).AssemblyQualifiedName.Replace(".Button", "")
-                    }
-                }
-            };
-
-            TypeHelpers.Initialze(mapping, true);
+            TypeHelpers.Initialze(Css.DefaultCssNamespaceMapping, true);
         }
 
         [Test]
