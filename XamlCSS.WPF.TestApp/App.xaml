@@ -47,6 +47,20 @@ TextBlock {
     TextOptions.TextRenderingMode: ClearType;
 }
                     
+Menu {
+    Height: 40;
+    > MenuItem {
+        IsSubmenuOpen: True;
+        Height: 40;
+        Background: Orange;
+        > MenuItem {
+            Background: Red;
+            Foreground: Pink; 
+            FontSize: 20;
+        }
+    }                        
+}
+                    
 ItemsControl:visualtree .uuu Label {
     Foreground: Red;
 }
@@ -133,7 +147,7 @@ TextBlock
     Foreground: Red;
 }
                     
-Grid
+#thegrid
 {
     Grid 
     {
@@ -142,6 +156,7 @@ Grid
 	        Grid.Row: 1;
 	        Grid.Column: 1;
 	        Text: #Binding Message;
+            Background: #ff00ff;
                     
             @Data Message "Hello World from DataContext!"
             {
@@ -153,9 +168,8 @@ Grid
                     }
                 }
                     
-                Background: #ff00ff;
                 Grid.Row: 0;
-	            Grid.Column: 0;
+                Grid.Column: 0;
                     
                 @Exit:
                 {

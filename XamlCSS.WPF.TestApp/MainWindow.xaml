@@ -42,10 +42,15 @@
             </Border>
         </ControlTemplate>
         <conv:VisibilityConverter x:Key="VisibilityConverter"></conv:VisibilityConverter>
-    </Window.Resources>
+    </Window.Resources>    
     <Grid x:Name="thegrid"
           >
         <StackPanel x:Name="stack">
+            <Menu>
+                <MenuItem Header="_File">
+                    <MenuItem Header="_Open"></MenuItem>
+                </MenuItem>
+            </Menu>
             <StackPanel cssWPF:Css.Class="container">
                 <TextBlock Name="thetextblock" cssWPF:Css.Class="jumbo">Hello World</TextBlock>
                 <Button Click="Button_Click_1">Add Content</Button>
@@ -59,9 +64,9 @@
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
-                <TextBlock Background="Transparent"></TextBlock>
-                <TextBlock></TextBlock>
-                <TextBlock></TextBlock>
+                <TextBlock Name="transparent" Background="Transparent"></TextBlock>
+                <TextBlock Name="second"></TextBlock>
+                <TextBlock Name="third"></TextBlock>
             </Grid>
             <Button Click="Button_Click_2">Click me</Button>
 
@@ -117,8 +122,8 @@
                                 <DockPanel cssWPF:Css.Class="menu-item">
                                     <Button Template="{StaticResource ContainerButton}">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" cssWPF:Css.Class="fa" Text="{Binding Icon}" />
-                                            <TextBlock Text="{Binding Text}" />
+                                            <TextBlock Name="dockIcon" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" cssWPF:Css.Class="fa" Text="{Binding Icon}" />
+                                            <TextBlock Name="dockText" Text="{Binding Text}" />
                                         </StackPanel>
                                     </Button>
 
@@ -128,14 +133,14 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <StackPanel>
-                                                <TextBlock Text="{Binding Text}">
+                                                <TextBlock Name="submenuTextBlock" Text="{Binding Text}">
                                                     <!--
                                                     <TextBlock.GestureRecognizers>
                                                         <TapGestureRecognizer Command="{Binding RemoveFromParent}" NumberOfTapsRequired="1"></TapGestureRecognizer>
                                                     </TextBlock.GestureRecognizers>
                                                     -->
                                                 </TextBlock>
-                                                <TextBox Text="{Binding Text}"></TextBox>
+                                                <TextBox Name="submenuTextBox" Text="{Binding Text}"></TextBox>
                                             </StackPanel>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>

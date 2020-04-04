@@ -117,6 +117,7 @@ namespace XamlCSS
                 RemoveOldStyleObjects(copy, nativeStyleService, applicationResourcesService);
                 SetAttachedToToNull(copy, dependencyPropertyService, treeNodeProvider, nativeStyleService);
                 SetAttachedToToNewStyleSheet(copy, dependencyPropertyService, treeNodeProvider, nativeStyleService);
+                RemoveRemovedDomElements(copy, treeNodeProvider);
 
                 var styleUpdateInfos = new Dictionary<TDependencyObject, StyleUpdateInfo>();
 
@@ -296,6 +297,36 @@ namespace XamlCSS
                 ReevaluateStylesheetInSubTree(domElement, removedStyleSheet, dependencyPropertyService, nativeStyleService, newStyleSheet);
 
                 removedStyleSheet.AttachedTo = null;
+            }
+        }
+
+        private static void RemoveRemovedDomElements(List<RenderInfo<TDependencyObject>> copy,
+            ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider)
+        {
+            var updatedOrRemovedStyleSheets = copy
+                            .Where(x => x.RenderTargetKind == RenderTargetKind.Element)
+                            .Where(x =>
+                                x.ChangeKind == ChangeKind.Remove)
+                            .Select(x => x.StartFrom)
+                            .Distinct()
+                            .ToList();
+
+            foreach (var item in updatedOrRemovedStyleSheets)
+            {
+                var domElement = treeNodeProvider.GetDomElement(item);
+                domElement.StyleInfo = null;
+
+                RemoveRemovedDomElementsInternal(domElement);
+            }
+        }
+
+        private static void RemoveRemovedDomElementsInternal(IDomElement<TDependencyObject, TDependencyProperty> domElement)
+        {
+            foreach (var item in domElement.ChildNodes)
+            {
+                item.StyleInfo = null;
+
+                RemoveRemovedDomElementsInternal(item);
             }
         }
 
