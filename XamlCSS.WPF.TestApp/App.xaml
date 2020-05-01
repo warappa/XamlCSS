@@ -45,12 +45,13 @@
                     
 TextBlock {
     TextOptions.TextRenderingMode: ClearType;
+    Background: Transparent;
 }
                     
 Menu {
     Height: 40;
     > MenuItem {
-        IsSubmenuOpen: True;
+        IsSubmenuOpen: False;
         Height: 40;
         Background: Orange;
         > MenuItem {
@@ -164,6 +165,7 @@ TextBlock
                 {
                     animation|BeginStoryboard: 
                     {
+                        Name: "aaa";
                         Storyboard: #DynamicResource storyboard;
                     }
                 }

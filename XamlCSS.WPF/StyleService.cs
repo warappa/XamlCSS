@@ -380,6 +380,12 @@ namespace XamlCSS.WPF
                 parameterName = parameter.Property;
                 parameterValueExpression = parameter.Value.Trim();
                 type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, nativeTriggerAction, parameterName);
+
+                if (type is null)
+                {
+                    throw new Exception($"Could not resolve parameter '{parameter.Property}' on action '{action.Action}'");
+                }
+
                 if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                 {
                     value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces, false);
@@ -416,7 +422,16 @@ namespace XamlCSS.WPF
 
                 }
 
-                dependencyService.SetValue(nativeTriggerAction, parameterName, value);
+
+                var info = TypeHelpers.GetDependencyPropertyInfo<DependencyProperty>(nativeTriggerAction.GetType(), parameterName);
+                if (info is object)
+                {
+                    dependencyService.SetValue(nativeTriggerAction, parameterName, value);
+                }
+                else
+                {
+                    TypeHelpers.SetPropertyValue(nativeTriggerAction, parameterName, value);
+                }
             }
 
             return nativeTriggerAction;

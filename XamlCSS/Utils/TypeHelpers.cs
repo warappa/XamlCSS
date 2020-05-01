@@ -317,7 +317,7 @@ namespace XamlCSS.Utils
             var typeAndProperyName = ResolveFullTypeNameAndPropertyName(namespaces, propertyExpression, obj.GetType());
 
             var type = Type.GetType(typeAndProperyName.Item1);
-            return TypeHelpers.DeclaredProperty(type, typeAndProperyName.Item2).PropertyType;
+            return TypeHelpers.DeclaredProperty(type, typeAndProperyName.Item2)?.PropertyType;
         }
 
         private static IDictionary<string, IDictionary<Type, Tuple<string, string>>> resolveFullTypeNameAndPropertyNameDictionary = new Dictionary<string, IDictionary<Type, Tuple<string, string>>>();

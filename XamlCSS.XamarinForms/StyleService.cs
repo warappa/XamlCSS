@@ -217,6 +217,11 @@ namespace XamlCSS.XamarinForms
                 DependencyPropertyInfo<BindableProperty> propertyInfo;
                 var type = typeNameResolver.GetClrPropertyType(styleSheet.Namespaces, nativeTriggerAction, parameterName);
 
+                if (type is null)
+                {
+                    throw new Exception($"Could not resolve parameter '{parameter.Property}' on action '{action.Action}'");
+                }
+
                 if (typeNameResolver.IsMarkupExtension(parameterValueExpression))
                 {
                     value = typeNameResolver.GetMarkupExtensionValue(styleResourceReferenceHolder, parameterValueExpression, styleSheet.Namespaces, true);
