@@ -3,7 +3,7 @@
         <TargetFrameworks>netstandard20</TargetFrameworks>
         <PackageTargetFallback>$(PackageTargetFallback);portable-win+net45+wp8+win81+wpa8</PackageTargetFallback>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>2.2.1-pre1</Version>
+        <Version>2.2.1-pre2</Version>
         <Authors>David Rettenbacher</Authors>
         <Company />
         <Copyright>David Rettenbacher</Copyright>
@@ -14,6 +14,10 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>xamlcss xaml css xamarin xamarin.forms</PackageTags>
         <PackageReleaseNotes>
+          2.2.1-pre2
+          - #100: Cannot Set Non-Dependency Property of Trigger-Action
+          - #101: Re-Adding Removed Element With Triggers Slows Down Application
+          
           2.2.1-pre1
           - #95: XamlCSS cannot find IsEnabled on Button in Xamarin.Forms
           - #96: XF: XamlCSS cannot read IVisual

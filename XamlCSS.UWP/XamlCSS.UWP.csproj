@@ -5,7 +5,7 @@
         <TargetFrameworks>uap10.0</TargetFrameworks>
         <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-        <Version>2.2.1-pre1</Version>
+        <Version>2.2.1-pre2</Version>
         <Authors>David Rettenbacher</Authors>
         <Company />
         <Copyright>David Rettenbacher</Copyright>
@@ -16,11 +16,14 @@
         <RepositoryType>git</RepositoryType>
         <PackageTags>xamlcss xaml css uwp</PackageTags>
         <PackageReleaseNotes>
+          2.2.1-pre2
+          - #101: Re-Adding Removed Element With Triggers Slows Down Application
+          
           2.2.1-pre1
           - #95: XamlCSS cannot find IsEnabled on Button in Xamarin.Forms
           - #97: New Style Property Values not Applied to Menus
           - #98: Invalid Trigger-Element Combinations Crash Application
-          
+
           2.2.0
           - #82: VisualTree/LogicalTree Match-Optimization Marks Not-Traversed Nodes as Traversed
           - #84: WPF, UWP: :visual-tree Pseudo Selector Not Matching Correctly On Parent Elements
