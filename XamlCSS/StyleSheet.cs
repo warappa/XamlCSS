@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
@@ -44,9 +44,7 @@ namespace XamlCSS
             }
             set
             {
-                localNamespaces = value;
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalNamespaces"));
+                SetPropertyIfChanged(ref localNamespaces, value);
             }
         }
 
@@ -54,18 +52,24 @@ namespace XamlCSS
         {
             get
             {
-                return BaseStyleSheets.FirstOrDefault();
+                return BaseStyleSheets?.FirstOrDefault();
             }
             set
             {
-                UninitializeBaseStyleSheet(BaseStyleSheets);
+                if (BaseStyleSheets?.Count == 1 &&
+                    BaseStyleSheets[0] == value)
+                {
+                    return;
+                }
+
+                UninitializeBaseStyleSheet(baseStyleSheets);                
                 BaseStyleSheets.Clear();
                 BaseStyleSheets.Add(value);
                 InitializeBaseStyleSheet(BaseStyleSheets);
 
                 Invalidate();
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("SingleBaseStyleSheet"));
+                OnPropertyChanged();
             }
         }
 
@@ -77,9 +81,7 @@ namespace XamlCSS
             }
             set
             {
-                localRules = value;
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalRules"));
+                SetPropertyIfChanged(ref localRules, value);
             }
         }
 
@@ -91,11 +93,10 @@ namespace XamlCSS
             }
             set
             {
-                variables = value;
-
-                //Invalidate();
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Variables"));
+                SetPropertyIfChanged(ref variables, value, () =>
+                {
+                    //Invalidate();
+                });
             }
         }
 
@@ -107,9 +108,10 @@ namespace XamlCSS
             }
             set
             {
-                content = value;
-
-                Invalidate();
+                SetPropertyIfChanged(ref content, value, () =>
+                {
+                    Invalidate();
+                });
             }
         }
 
@@ -135,11 +137,11 @@ namespace XamlCSS
 
             EagerLoading();
 
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Content"));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalRules"));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalNamespaces"));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Warnings"));
+            OnPropertyChanged(nameof(Content));
+            OnPropertyChanged(nameof(LocalRules));
+            OnPropertyChanged(nameof(LocalNamespaces));
+            OnPropertyChanged(nameof(Errors));
+            OnPropertyChanged(nameof(Warnings));
         }
 
         private void EagerLoading()
@@ -173,9 +175,7 @@ namespace XamlCSS
             }
             set
             {
-                localErrors = value;
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalErrors"));
+                SetPropertyIfChanged(ref localErrors, value);
             }
         }
 
@@ -188,9 +188,7 @@ namespace XamlCSS
             }
             set
             {
-                localWarnings = value;
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("LocalWarnings"));
+                SetPropertyIfChanged(ref localWarnings, value);
             }
         }
 
@@ -215,6 +213,7 @@ namespace XamlCSS
             {
                 if (attachedTo == value)
                 {
+                    // TODO: why is this return commented out!?
                     // return;
                 }
 
@@ -224,7 +223,7 @@ namespace XamlCSS
 
                 Reset();
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("AttachedTo"));
+                OnPropertyChanged();
 
                 // EagerLoading();
             }
@@ -235,13 +234,13 @@ namespace XamlCSS
             get { return inheritStyleSheets; }
             set
             {
-                inheritStyleSheets = value;
+                SetPropertyIfChanged(ref inheritStyleSheets, value, () =>
+                {
 
-                inheritedStyleSheets = null;
+                    inheritedStyleSheets = null;
 
-                Reset();
-
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("InheritStyleSheets"));
+                    Reset();
+                });
             }
         }
 
@@ -317,7 +316,7 @@ namespace XamlCSS
 
                 InitializeBaseStyleSheet(baseStyleSheets);
 
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("BaseStyleSheets"));
+                OnPropertyChanged();
 
                 // EagerLoading();
             }
@@ -419,7 +418,7 @@ namespace XamlCSS
                     {
                         styleSheets.Add(styleSheetHolder.AttachedStyleSheet);
                     }
-                }                
+                }
                 current = GetParent(current);
             }
 
@@ -566,7 +565,29 @@ namespace XamlCSS
         internal void AddError(string error)
         {
             Errors.Add(error);
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Errors"));
+            OnPropertyChanged(nameof(Errors));
+        }
+
+        private void SetPropertyIfChanged<T>(ref T field, T value, Action action = null, [CallerMemberName] string propertyName = null)
+        {
+            if(object.ReferenceEquals(field, value))
+            {
+                return;
+            }
+
+            if (object.ReferenceEquals(field, null) ||
+                object.ReferenceEquals(value, null) ||
+                !field.Equals(value))
+            {
+                field = value;
+                action?.Invoke();
+                OnPropertyChanged(propertyName);
+            }
+        }
+
+        private void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
