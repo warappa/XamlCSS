@@ -119,7 +119,7 @@ namespace XamlCSS
                 RemoveOldStyleObjects(copy, nativeStyleService, applicationResourcesService);
                 SetAttachedToToNull(copy, dependencyPropertyService, treeNodeProvider, nativeStyleService);
                 SetAttachedToToNewStyleSheet(copy, dependencyPropertyService, treeNodeProvider, nativeStyleService);
-                RemoveRemovedDomElements(copy, treeNodeProvider);
+                RemoveRemovedDomElements(copy, treeNodeProvider, nativeStyleService);
 
                 var styleUpdateInfos = new Dictionary<TDependencyObject, StyleUpdateInfo>();
 
@@ -303,7 +303,7 @@ namespace XamlCSS
         }
 
         private static void RemoveRemovedDomElements(List<RenderInfo<TDependencyObject>> copy,
-            ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider)
+            ITreeNodeProvider<TDependencyObject, TDependencyProperty> treeNodeProvider, INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             var updatedOrRemovedStyleSheets = copy
                             .Where(x => x.RenderTargetKind == RenderTargetKind.Element)
@@ -316,19 +316,27 @@ namespace XamlCSS
             foreach (var item in updatedOrRemovedStyleSheets)
             {
                 var domElement = treeNodeProvider.GetDomElement(item);
-                domElement.StyleInfo = null;
+                if (domElement.StyleInfo is object)
+                {
+                    nativeStyleService.SetStyle(item, (TStyle)domElement.StyleInfo.InitialStyle);
+                    domElement.StyleInfo = null;
+                }
 
-                RemoveRemovedDomElementsInternal(domElement);
+                RemoveRemovedDomElementsInternal(domElement, nativeStyleService);
             }
         }
 
-        private static void RemoveRemovedDomElementsInternal(IDomElement<TDependencyObject, TDependencyProperty> domElement)
+        private static void RemoveRemovedDomElementsInternal(IDomElement<TDependencyObject, TDependencyProperty> domElement, INativeStyleService<TStyle, TDependencyObject, TDependencyProperty> nativeStyleService)
         {
             foreach (var item in domElement.ChildNodes)
             {
-                item.StyleInfo = null;
+                if (item.StyleInfo is object)
+                {
+                    nativeStyleService.SetStyle(item.Element, (TStyle)item.StyleInfo.InitialStyle);
+                    item.StyleInfo = null;
+                }
 
-                RemoveRemovedDomElementsInternal(item);
+                RemoveRemovedDomElementsInternal(item, nativeStyleService);
             }
         }
 
