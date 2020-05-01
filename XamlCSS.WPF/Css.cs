@@ -186,21 +186,6 @@ namespace XamlCSS.WPF
             instance.ExecuteApplyStyles();
         }
 
-        public static readonly DependencyProperty SerializedTriggerProperty =
-            DependencyProperty.RegisterAttached(
-                "SerializedTrigger",
-                typeof(string),
-                typeof(Css),
-                new PropertyMetadata(null));
-        public static string GetSerializedTrigger(DependencyObject obj)
-        {
-            return ReadSafe<string>(obj, SerializedTriggerProperty);
-        }
-        public static void SetSerializedTrigger(DependencyObject obj, string value)
-        {
-            obj.SetValue(SerializedTriggerProperty, value);
-        }
-
         public static readonly DependencyProperty InitialStyleProperty =
             DependencyProperty.RegisterAttached(
                 "InitialStyle",
