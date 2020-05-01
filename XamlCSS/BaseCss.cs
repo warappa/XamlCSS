@@ -171,7 +171,7 @@ namespace XamlCSS
                     SetupStyleInfo(domElement, item.StyleSheet, styleUpdateInfos, treeNodeProvider, dependencyPropertyService, nativeStyleService, discardOldMatchingStyles, item.ChangeKind == ChangeKind.Remove, SelectorType.VisualTree);
                 }
 
-                var tasks = new List<Task<IList<IDomElement<TDependencyObject, TDependencyProperty>>>>();
+                var results = new List<IList<IDomElement<TDependencyObject, TDependencyProperty>>>();
                 var distinctCopy = copy.Select(x => new { x.StartFrom, x.StyleSheetHolder, x.StyleSheet }).Distinct().ToList();
 
                 foreach (var item in distinctCopy)
@@ -185,13 +185,11 @@ namespace XamlCSS
 
                     var domElement = treeNodeProvider.GetDomElement(start);
 
-                    //var task = Task.Run(() => UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService));
-                    //tasks.Add(task);
-                    tasks.Add(Task.FromResult(UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService)));
+                    var result = UpdateMatchingStyles(item.StyleSheet, domElement, styleUpdateInfos, dependencyPropertyService, nativeStyleService);
+                    results.Add(result);
                 }
 
-                //Task.WaitAll(tasks.ToArray());
-                var allFound = tasks.SelectMany(x => x.Result).ToList();
+                var allFound = results.SelectMany(x => x);
                 var allFoundElements = allFound.Select(x => x.Element).ToHashSet();
                 var allNotFoundKeys = styleUpdateInfos
                     .Where(x => !allFoundElements.Contains(x.Key))
@@ -201,10 +199,10 @@ namespace XamlCSS
                 {
                     var styleUpdateInfo = item.Value;
 
-                    styleUpdateInfo.OldMatchedSelectors = emptySelectorList;// new LinkedHashSet<ISelector>();
+                    styleUpdateInfo.OldMatchedSelectors = emptySelectorList;
                     styleUpdateInfo.DoMatchCheck = SelectorType.None;
                     // remove style
-                    var initialStyle = (TStyle)styleUpdateInfo.InitialStyle; //dependencyPropertyService.GetInitialStyle(item.Key);
+                    var initialStyle = (TStyle)styleUpdateInfo.InitialStyle;
 
                     nativeStyleService.SetStyle(item.Key, initialStyle);
                 }
