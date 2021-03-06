@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
     <PropertyGroup>
-        <TargetFrameworks>net451;net461;net471</TargetFrameworks>
-		<ExtrasEnableWpfProjectSetup>true</ExtrasEnableWpfProjectSetup>
+        <TargetFrameworks>net461;netcoreapp3.1;net5.0-windows</TargetFrameworks>
+        <UseWpf>true</UseWpf>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Version>2.2.1-pre2</Version>
         <Authors>David Rettenbacher</Authors>
@@ -160,7 +160,7 @@
       <ProjectReference Include="..\XamlCSS\XamlCSS.csproj" />
     </ItemGroup>
     
-    <ItemGroup>
+    <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
       <Reference Include="PresentationCore" />
       <Reference Include="PresentationFramework" />
       <Reference Include="System.Windows" />
