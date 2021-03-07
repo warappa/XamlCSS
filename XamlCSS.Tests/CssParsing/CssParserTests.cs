@@ -329,7 +329,7 @@ Button
             StyleSheet styleSheet = null;
             Action action = () => styleSheet = CssParser.Parse(@"@");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(1);
             styleSheet.Errors.First().Contains("Next:");
         }
@@ -340,7 +340,7 @@ Button
             StyleSheet styleSheet = null;
             Action action = () => styleSheet = CssParser.Parse(@"@a");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(1);
             styleSheet.Errors[0].Should().Contain("unexpected token");
             //styleSheet.Errors[1].Should().Contain("Reached end of tokens");
@@ -355,7 +355,7 @@ Button[Content=""Some Content""] {
             FontWeight: Bold;
 }");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(0);
             styleSheet.Rules.Count.Should().Be(1);
 
@@ -374,7 +374,7 @@ Button { &[Content=""Some Content""] {
 }
 }");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(0);
             styleSheet.Rules.Count.Should().Be(2);
 
@@ -392,7 +392,7 @@ Button[Content='Some Content'] {
             FontWeight: Bold;
 }");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(0);
             styleSheet.Rules.Count.Should().Be(1);
 
@@ -416,7 +416,7 @@ Grid {
     }
 }");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(0);
             styleSheet.Rules.Count.Should().Be(3);
 
@@ -438,7 +438,7 @@ Grid {
     Background: Red;
 }");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(0);
             styleSheet.Rules.Count.Should().Be(1);
 
@@ -461,7 +461,7 @@ Grid {
     Background: Red;
 }");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(0);
             styleSheet.Rules.Count.Should().Be(1);
 
@@ -484,7 +484,7 @@ Grid {
     Background: Red;
 }");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(0);
             styleSheet.Rules.Count.Should().Be(1);
 
@@ -512,7 +512,7 @@ Grid {
     }
 }");
 
-            action.ShouldNotThrow();
+            action.Should().NotThrow();
             styleSheet.Errors.Count.Should().Be(0);
             styleSheet.Rules.Count.Should().Be(2);
 

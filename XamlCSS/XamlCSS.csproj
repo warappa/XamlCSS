@@ -2,7 +2,7 @@
     <!--<Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="'$(TargetPlatformIdentifier)' == 'UAP' AND Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />-->
     
     <PropertyGroup>
-        <TargetFrameworks>netstandard20;net451;net461;uap10.0</TargetFrameworks>
+        <TargetFrameworks>netstandard20;net461;uap10.0</TargetFrameworks>
         <Version>2.2.1-pre2</Version>
         <Authors>David Rettenbacher</Authors>
         <Company />

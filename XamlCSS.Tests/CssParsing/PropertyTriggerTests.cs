@@ -198,7 +198,7 @@ Button
         }
 
         [Test]
-        [Ignore]
+        [Ignore("animations not yet supported")]
         public void Animations()
         {
             var content = @"

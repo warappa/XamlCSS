@@ -37,7 +37,7 @@ ui|Grid
         private TestNode section;
         private TestNode gridSpecial;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
             this.selectorEngine = new CssParser();

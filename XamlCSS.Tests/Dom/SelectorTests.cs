@@ -31,8 +31,8 @@ namespace XamlCSS.Tests.Dom
         {
             var selector = new Selector(".button a> #bbb");
             
-            selector.selectorMatchers.Select(x => x.Text).ShouldBeEquivalentTo(new[] { "button", " ", "a", ">", "bbb" }.ToList());
-            selector.selectorMatchers.Select(x => x.Type).ShouldBeEquivalentTo(new[] {
+            selector.selectorMatchers.Select(x => x.Text).Should().BeEquivalentTo(new[] { "button", " ", "a", ">", "bbb" }.ToList());
+            selector.selectorMatchers.Select(x => x.Type).Should().BeEquivalentTo(new[] {
                 CssNodeType.ClassSelector,
                 CssNodeType.GeneralDescendantCombinator,
                 CssNodeType.TypeSelector,

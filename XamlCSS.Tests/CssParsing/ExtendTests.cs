@@ -57,7 +57,7 @@ namespace XamlCSS.Tests.CssParsing
 
             var styleSheet2 = CssParser.Parse(expected);
 
-            styleSheet.ShouldBeEquivalentTo(styleSheet2, options => options.Excluding(x => x.Id));
+            styleSheet.Should().BeEquivalentTo(styleSheet2, options => options.Excluding(x => x.Id));
         }
 
         [Test]
@@ -120,7 +120,7 @@ namespace XamlCSS.Tests.CssParsing
 
             var styleSheet2 = CssParser.Parse(expected);
 
-            styleSheet.ShouldBeEquivalentTo(styleSheet2, options => options.Excluding(x => x.Id));
+            styleSheet.Should().BeEquivalentTo(styleSheet2, options => options.Excluding(x => x.Id));
         }
     }
 }
