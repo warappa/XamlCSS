@@ -483,8 +483,8 @@ namespace XamlCSS.Utils
                 var shortTypename = strs[1];
 
                 var namespaceUri = namespaces
-                    .FirstOrDefault(x => x.Alias == alias)
-                    ?.Namespace;
+                    ?.FirstOrDefault(x => x.Alias == alias)
+                    ?.Namespace ?? namespaceMapping.First().Key;
 
                 namespaceUri = EnsureAssemblyQualifiedName(namespaceUri, shortTypename);
 
@@ -504,8 +504,8 @@ namespace XamlCSS.Utils
                 var shortTypename = strs[0];
 
                 var namespaceUri = namespaces
-                    .First(x => x.Alias == "")
-                    .Namespace;
+                    ?.FirstOrDefault(x => x.Alias == "")
+                    ?.Namespace ?? namespaceMapping.First().Key;
 
                 var namespaceFragments = EnsureAssemblyQualifiedName(namespaceUri, shortTypename)
                     .Split(separator, 2);
