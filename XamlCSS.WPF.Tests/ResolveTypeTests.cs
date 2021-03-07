@@ -1,18 +1,20 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using System.Collections.Generic;
+using System.Threading;
 using System.Windows.Controls;
 using XamlCSS.Utils;
 
 namespace XamlCSS.WPF.Tests
 {
     [TestFixture]
+    [Apartment(ApartmentState.STA)]
     public class ResolveTypeTests
     {
         private List<CssNamespace> namespaces;
         private Dictionary<string, List<string>> mapping;
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void Setup()
         {
             TypeHelpers.Initialze(Css.DefaultCssNamespaceMapping, true);

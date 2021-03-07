@@ -13,16 +13,16 @@ using XamlCSS.WPF;
 namespace XamlCSS.WPF.Tests
 {
     [TestFixture]
+    [Apartment(ApartmentState.STA)]
     public class CssClassExtensionsTests
     {
         private DependencyObject dp;
 
-        [SetUp]
-        [STAThread]
         
+        [SetUp]
         public void Initialize()
         {
-            Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
+            
             dp = new Button();
             Css.SetClass(dp, "main light");
         }
