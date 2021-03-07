@@ -36,7 +36,7 @@ namespace XamlCSS.UWP
         {
             if (!Windows.ApplicationModel.DesignMode.DesignModeEnabled)
             {
-                CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () => action());
+                _ = CoreApplication.MainView.CoreWindow.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () => action());
             }
             else
             {

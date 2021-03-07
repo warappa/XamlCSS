@@ -33,66 +33,6 @@ namespace XamlCSS.WPF
             style.Triggers.Add((TriggerBase)trigger);
         }
 
-        private T Clone<T>(T obj)
-        {
-            var sb = new StringBuilder();
-            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings
-            {
-                Indent = false,
-                CheckCharacters = false,
-                CloseOutput = true,
-                DoNotEscapeUriAttributes = false,
-                ConformanceLevel = ConformanceLevel.Fragment,
-                OmitXmlDeclaration = true,
-                NamespaceHandling = NamespaceHandling.Default,
-            }))
-            {
-                var mgr = new XamlDesignerSerializationManager(writer);
-                mgr.XamlWriterMode = XamlWriterMode.Expression;
-
-                XamlWriter.Save(obj, mgr);
-                using (var stringReader = new StringReader(sb.ToString()))
-                using (var xmlReader = XmlReader.Create(stringReader))
-                {
-                    return (T)XamlReader.Load(xmlReader);
-                }
-            }
-        }
-
-        private string SerializeObject(object obj)
-        {
-            var sb = new StringBuilder();
-            using (var writer = XmlWriter.Create(sb, new XmlWriterSettings
-            {
-                Indent = false,
-                CheckCharacters = false,
-                CloseOutput = true,
-                DoNotEscapeUriAttributes = false,
-                ConformanceLevel = ConformanceLevel.Fragment,
-                OmitXmlDeclaration = true,
-                NamespaceHandling = NamespaceHandling.Default,
-            }))
-            {
-                var mgr = new XamlDesignerSerializationManager(writer);
-                mgr.XamlWriterMode = XamlWriterMode.Expression;
-
-                XamlWriter.Save(obj, mgr);
-                return sb.ToString();
-            }
-        }
-
-        private T Clone2<T>(T obj)
-        {
-            using (var ms = new MemoryStream())
-            {
-                var formatter = new BinaryFormatter();
-                formatter.Serialize(ms, obj);
-                ms.Position = 0;
-
-                return (T)formatter.Deserialize(ms);
-            }
-        }
-
         public override IEnumerable<DependencyObject> GetTriggersAsList(Style style)
         {
             return style.Triggers.ToList();
