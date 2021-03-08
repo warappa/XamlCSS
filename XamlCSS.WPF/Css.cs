@@ -2,14 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Reflection;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Markup;
 using System.Windows.Media;
-using System.Windows.Media.Animation;
 using System.Windows.Threading;
-using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
 using XamlCSS.WPF.CssParsing;
@@ -20,7 +15,9 @@ namespace XamlCSS.WPF
     public class Css
     {
         public static BaseCss<DependencyObject, Style, DependencyProperty> instance;
-        private static DispatcherTimer timer;
+        //private static DispatcherTimer timer;
+        private static System.Timers.Timer timer;
+
         public static readonly IDictionary<string, List<string>> DefaultCssNamespaceMapping = new Dictionary<string, List<string>>
         {
             {
@@ -38,11 +35,6 @@ namespace XamlCSS.WPF
                 }
             }
         };
-
-        private static void RenderingHandler(object sender, EventArgs e)
-        {
-            instance?.ExecuteApplyStyles();
-        }
 
         static Css()
         {
@@ -71,7 +63,7 @@ namespace XamlCSS.WPF
             var visualTreeNodeWithLogicalFallbackProvider = new TreeNodeProvider(dependencyPropertyService);
             var markupExtensionParser = new MarkupExtensionParser();
             var cssTypeHelper = new CssTypeHelper<DependencyObject, DependencyProperty, Style>(markupExtensionParser, dependencyPropertyService);
-
+            
             instance = new BaseCss<DependencyObject, Style, DependencyProperty>(
                 dependencyPropertyService,
                 visualTreeNodeWithLogicalFallbackProvider,
@@ -84,15 +76,11 @@ namespace XamlCSS.WPF
                 );
 
 
-            // mix CompositionTarget.Rendering and DispatcherTimer for better UI responsiveness
+            // add CompositionTarget.Rendering handler for startup
             CompositionTarget.Rendering += RenderingHandler;
 
-            timer = new DispatcherTimer(DispatcherPriority.Render);
-            timer.Interval = TimeSpan.FromMilliseconds(5);
-            timer.Tick += (s, e) =>
-            {
-                instance?.ExecuteApplyStyles();
-            };
+            timer = new System.Timers.Timer(16);
+            timer.Elapsed += Timer_Elapsed;
             timer.Start();
 
             // Warmup(markupExtensionParser, defaultCssNamespace);
@@ -101,89 +89,25 @@ namespace XamlCSS.WPF
             LoadedDetectionHelper.Initialize();
         }
 
-        private static void Warm()
+        private static void RenderingHandler(object sender, EventArgs e)
         {
-            XamlWriter.Save(new Storyboard());
-            XamlWriter.Save(new DoubleAnimation());
-            //XamlWriter.Save(new Trigger());
-            XamlWriter.Save(new TriggerAction());
-            XamlWriter.Save(new DataTrigger());
-            XamlWriter.Save(new EventTrigger());
-
-            foreach (var ass in AppDomain.CurrentDomain.GetAssemblies()
-                .Where(x => !x.IsDynamic))
+            if (instance?.ExecuteApplyStyles() == true)
             {
-                Console.WriteLine($"{ass.FullName}");
-
-                foreach (var m in ass.GetExportedTypes().SelectMany(y =>
-                    y.GetMethods(BindingFlags.DeclaredOnly
-                        | BindingFlags.NonPublic
-                        | BindingFlags.Public
-                        | BindingFlags.Instance
-                        | BindingFlags.Static)
-                    .Where(x => !x.ContainsGenericParameters && !x.IsAbstract && !x.Attributes.HasFlag(MethodAttributes.PinvokeImpl))
-                    .ToList()))
-                {
-                    try
-                    {
-                        System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(m.MethodHandle);
-                    }
-                    catch { }
-                }
-
-                foreach (var m in ass.GetExportedTypes()
-                    .Where(x => !x.ContainsGenericParameters && !x.IsAbstract && !x.IsGenericTypeDefinition)
-                    .SelectMany(y =>
-                    y.GetProperties()
-                    .Where(x => !x.DeclaringType.ContainsGenericParameters && !x.DeclaringType.IsAbstract && !x.DeclaringType.IsGenericTypeDefinition)
-                    .ToList()))
-                {
-                    if (m.SetMethod != null &&
-                        !m.SetMethod.ContainsGenericParameters &&
-                        !m.SetMethod.IsAbstract)
-                    {
-                        try
-                        {
-                            System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(m.SetMethod.MethodHandle);
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-                    if (m.GetMethod != null &&
-                        !m.GetMethod.ContainsGenericParameters &&
-                        !m.GetMethod.IsAbstract &&
-                        !m.GetMethod.Attributes.HasFlag(MethodAttributes.PinvokeImpl))
-                    {
-                        try
-                        {
-                            System.Runtime.CompilerServices.RuntimeHelpers.PrepareMethod(m.GetMethod.MethodHandle);
-                        }
-                        catch
-                        {
-
-                        }
-                    }
-                }
+                // after the first successful applying remove the handler.
+                CompositionTarget.Rendering -= RenderingHandler;
             }
         }
 
-        private static void Warmup(MarkupExtensionParser markupExtensionParser, string defaultCssNamespace)
+        private static void Timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
         {
-            // warmup parser
-            markupExtensionParser.Parse("true", Application.Current?.MainWindow ?? new FrameworkElement(), new[] { new CssNamespace("", defaultCssNamespace) });
-
-            TypeHelpers.GetPropertyAccessor(typeof(FrameworkElement), "IsLoaded");
-
-            var styleSheet = CssParser.Parse("*{Background: #DynamicResource no;}");
-
-            var f = new Button();
-            f.SetValue(Css.StyleSheetProperty, styleSheet);
-            f.Content = new TextBlock();
-
-            instance.EnqueueNewElement(f, styleSheet, f);
-            instance.ExecuteApplyStyles();
+            try
+            {
+                instance?.ExecuteApplyStyles();
+            }
+            catch (Exception exc)
+            {
+                
+            }
         }
 
         public static readonly DependencyProperty InitialStyleProperty =
@@ -310,8 +234,7 @@ namespace XamlCSS.WPF
                 return;
             }
 
-            IDomElement<DependencyObject, DependencyProperty> domElementBase = null;
-            if (instance.treeNodeProvider.TryGetDomElement(element, out domElementBase) != true)
+            if (instance.treeNodeProvider.TryGetDomElement(element, out var domElementBase) != true)
             {
                 return;
             }

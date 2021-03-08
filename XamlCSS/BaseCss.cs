@@ -51,39 +51,44 @@ namespace XamlCSS
             StyleSheet.GetStyleSheet = treeNode => dependencyPropertyService.GetStyleSheet((TDependencyObject)treeNode);
         }
 
-        public void ExecuteApplyStyles()
+        public bool ExecuteApplyStyles()
         {
             if (executeApplyStylesExecuting)
             {
-                return;
+                return false;
             }
 
-            executeApplyStylesExecuting = true;
-
-            List<RenderInfo<TDependencyObject>> copy;
-
-            //lock (items)
+            if (items.Count == 0)
             {
-                if (items.Count == 0)
+                noopCount++;
+                //executeApplyStylesExecuting = false;
+                return false;
+            }
+
+
+            uiInvoker(() =>
+            {
+                executeApplyStylesExecuting = true;
+
+                List<RenderInfo<TDependencyObject>> copy;
+
+                //lock (items)
                 {
-                    noopCount++;
-                    executeApplyStylesExecuting = false;
-                    return;
+                
+
+                    copy = items.Distinct().ToList();
+                    items.Clear();
                 }
 
-                copy = items.Distinct().ToList();
-                items.Clear();
-            }
-
-            noopCount = 0;
-
-            //var styleholder = copy.First().StyleSheetHolder;
-
-            Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
+                noopCount = 0;
+                Render(copy, treeNodeProvider, dependencyPropertyService, nativeStyleService, applicationResourcesService, cssTypeHelper);
+                executeApplyStylesExecuting = false;
+            });
 
             //Investigate.Print();
             // HierarchyDebugExtensions.PrintHerarchyDebugInfo(treeNodeProvider, dependencyPropertyService, copy.First().StyleSheetHolder, copy.First().StyleSheetHolder, SelectorType.LogicalTree);
-            executeApplyStylesExecuting = false;
+
+            return true;
         }
 
         private static void RemoveStyleResourcesInternal(
