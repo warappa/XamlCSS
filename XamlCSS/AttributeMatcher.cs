@@ -7,7 +7,7 @@ namespace XamlCSS
 {
     public class AttributeMatcher : SelectorMatcher
     {
-        private static Regex attributeMatcher = new Regex(@"^\[([a-zA-Z0-9]+)(\|?\~?=)?(.+)?\]$", RegexOptions.CultureInvariant);
+        private static Regex attributeMatcher = new Regex(@"^\[([a-zA-Z0-9]+)(\|?\~?=)?(.+)?\]$", RegexOptions.CultureInvariant | RegexOptions.Compiled);
 
         public string PropertyName { get; protected set; }
         public string Operator { get; protected set; }

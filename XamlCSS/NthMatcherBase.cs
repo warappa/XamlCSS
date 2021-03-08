@@ -5,7 +5,7 @@ namespace XamlCSS
 {
     public abstract class NthMatcherBase : SelectorMatcher
     {
-        private static Regex nthRegex = new Regex(@"((?<factor>[\-0-9]+)?(?<n>n))?(?<distance>([\+\-]?[0-9]+))?");
+        private static Regex nthRegex = new Regex(@"((?<factor>[\-0-9]+)?(?<n>n))?(?<distance>([\+\-]?[0-9]+))?", RegexOptions.Compiled);
 
         protected int factor;
         protected int distance;
