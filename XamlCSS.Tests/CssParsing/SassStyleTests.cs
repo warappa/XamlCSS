@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using System.Collections.Generic;
 using System.Linq;
 using XamlCSS.CssParsing;
 
@@ -8,6 +9,18 @@ namespace XamlCSS.Tests.CssParsing
     [TestFixture]
     public class SassStyleTests
     {
+        [SetUp]
+        public void Setup()
+        {
+            CssParser.cssFileProvider = new TestCssFileProvider();
+        }
+
+        [TearDown]
+        public void Teardown()
+        {
+            CssParser.cssFileProvider = new TestCssFileProvider();
+        }
+
         [Test]
         public void Can_parse_rule_to_ast()
         {
@@ -442,6 +455,71 @@ $textVariable3: ""Title 3"" !default;
             styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Title");
             styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Title 2");
             styleSheet.Rules[0].DeclarationBlock[2].Value.Should().Be("Title");
+        }
+
+        [Test]
+        public void Can_parse_and_use_variables_with_default_modifier_with_imports()
+        {
+            var css = @"
+
+@import ""CssParsing/TestData/defaultVariables.scss"";
+
+$textVariable1: Title !default;
+$textVariable2: Title2 !default;
+$textVariable2: $textVariable1 !default;
+$textVariable3: $textVariable1 !default;
+$textVariable3: Title3 !default;
+
+
+.header {
+    Title: $textVariable1;
+    SubTitle: $textVariable2;
+    SubSubTitle: $textVariable3;
+    SubSubTitle2: $textVariable4;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("extern1");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Title2");
+            styleSheet.Rules[0].DeclarationBlock[2].Value.Should().Be("extern1");
+            styleSheet.Rules[0].DeclarationBlock[3].Value.Should().Be("extern2");
+        }
+
+
+        [Test]
+        public void Can_parse_and_use_variables_with_default_modifier_with_imports_2()
+        {
+            var css = @"
+$textVariable1: Title !default;
+$textVariable2: Title2 !default;
+$textVariable2: $textVariable1 !default;
+$textVariable3: $textVariable1 !default;
+$textVariable3: Title3 !default;
+
+@import ""CssParsing/TestData/defaultVariables.scss"";
+
+.header {
+    Title: $textVariable1;
+    SubTitle: $textVariable2;
+    SubSubTitle: $textVariable3;
+    SubSubTitle2: $textVariable4;
+}
+";
+
+            var styleSheet = CssParser.Parse(css);
+
+            styleSheet.Rules.Count.Should().Be(1);
+
+            styleSheet.Rules[0].SelectorString.Should().Be(".header");
+            styleSheet.Rules[0].DeclarationBlock[0].Value.Should().Be("Title");
+            styleSheet.Rules[0].DeclarationBlock[1].Value.Should().Be("Title2");
+            styleSheet.Rules[0].DeclarationBlock[2].Value.Should().Be("Title");
+            styleSheet.Rules[0].DeclarationBlock[3].Value.Should().Be("extern2");
         }
     }
 }

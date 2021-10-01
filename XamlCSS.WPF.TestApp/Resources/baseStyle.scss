@@ -1,3 +1,5 @@
-﻿Button {
-    FontSize: 8;
+﻿$buttonSize: 8 !default;
+
+Button {
+    FontSize: $buttonSize;
 }

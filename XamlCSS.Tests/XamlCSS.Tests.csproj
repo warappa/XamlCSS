@@ -27,6 +27,9 @@
   </ItemGroup>
   
   <ItemGroup>
+    <None Update="CssParsing\TestData\defaultVariables.scss">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="CssParsing\TestData\ImportCss.scss">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
