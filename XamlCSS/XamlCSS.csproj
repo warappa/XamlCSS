@@ -153,6 +153,7 @@
         </PackageReleaseNotes>
         <Description>Style XAML applications with CSS</Description>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TargetFramework)' == 'uap10.0'">
         <!--<TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>

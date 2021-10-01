@@ -155,6 +155,7 @@
           - Support for attached properties
           - Support for CSS-namespaces</PackageReleaseNotes>
         <Description>Style XAML applications with CSS</Description>
+        <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
     <ItemGroup>
       <ProjectReference Include="..\XamlCSS\XamlCSS.csproj" />
