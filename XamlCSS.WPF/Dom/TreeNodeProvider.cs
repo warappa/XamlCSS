@@ -187,7 +187,6 @@ namespace XamlCSS.WPF.Dom
             {
 
                 var childrenOfLogicalTreeHelper = LogicalTreeHelper.GetChildren(element)
-                    .Cast<object>()
                     .OfType<DependencyObject>();
 
                 foreach (var child in childrenOfLogicalTreeHelper)

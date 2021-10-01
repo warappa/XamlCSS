@@ -120,7 +120,11 @@ namespace XamlCSS
             Version++;
             Reset();
 
-            var sheet = CssParser.Parse(content ?? "", BaseStyleSheets.LastOrDefault()?.Namespaces.FirstOrDefault(x => x.Alias == "")?.Namespace ?? CssParser.defaultCssNamespace, GetCombinedVariables());
+            var sheet = CssParser.Parse(content ?? "", BaseStyleSheets.LastOrDefault()?
+                .Namespaces
+                .FirstOrDefault(x => x.Alias == "")?
+                .Namespace ?? 
+                CssParser.defaultCssNamespace, GetCombinedVariables());
 
             foreach (var error in sheet.Errors)
             {

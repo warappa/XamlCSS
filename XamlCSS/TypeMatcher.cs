@@ -40,6 +40,7 @@ namespace XamlCSS
             }
 
             this.Alias = alias;
+            this.isWildcard = Alias == "*";
             this.TagName = tagName;
             this.NamespaceUri = @namespace;
             this.initializedWith = styleSheet;
@@ -54,11 +55,14 @@ namespace XamlCSS
                 Initialize(styleSheet);
             }
 
-            var isMatch = domElement.TagName == TagName && (Alias == "*" || domElement.AssemblyQualifiedNamespaceName == NamespaceUri);
+            var isMatch = domElement.TagName == TagName && (isWildcard || domElement.AssemblyQualifiedNamespaceName == NamespaceUri);
             return isMatch ? MatchResult.Success : MatchResult.ItemFailed;
         }
 
         public string Alias { get; private set; }
+
+        private bool isWildcard;
+
         public string TagName { get; private set; }
         public string NamespaceUri { get; private set; }
     }

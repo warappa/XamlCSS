@@ -8,11 +8,13 @@ namespace XamlCSS
     {
         public CssNodeType Type { get; protected set; }
         public string Text { get; protected set; }
+        public bool IsVisualTree { get; }
 
         public SelectorMatcher(CssNodeType type, string text)
         {
             Type = type;
             Text = text;
+            IsVisualTree = Text == ":visualtree";
         }
 
         public virtual MatchResult Match<TDependencyObject, TDependencyProperty>(StyleSheet styleSheet, ref IDomElement<TDependencyObject, TDependencyProperty> domElement, SelectorMatcher[] fragments, ref int currentIndex)
@@ -23,14 +25,14 @@ namespace XamlCSS
                 var savedIndex = currentIndex;
 
                 var fragment = fragments[currentIndex];
-                var current = fragment.Type == CssNodeType.PseudoSelector && fragment.Text == ":visualtree" ? domElement.Parent : domElement.LogicalParent;
+                var current = fragment.Type == CssNodeType.PseudoSelector && fragment.IsVisualTree ? domElement.Parent : domElement.LogicalParent;
                 while (current != null)
                 {
                     MatchResult res = null;
                     while (currentIndex >= 0)
                     {
                         fragment = fragments[currentIndex];
-                        
+
                         res = fragment.Match(styleSheet, ref current, fragments, ref currentIndex);
                         if (!res.IsSuccess)
                         {
@@ -51,7 +53,7 @@ namespace XamlCSS
                     currentIndex = savedIndex;
                     fragment = fragments[currentIndex];
 
-                    current = fragment.Type == CssNodeType.PseudoSelector && fragment.Text == ":visualtree" ? current.Parent : current.LogicalParent;
+                    current = fragment.Type == CssNodeType.PseudoSelector && fragment.IsVisualTree ? current.Parent : current.LogicalParent;
                 }
 
                 return MatchResult.GeneralParentFailed;
@@ -115,7 +117,7 @@ namespace XamlCSS
 
             else if (Type == CssNodeType.PseudoSelector)
             {
-                if (Text == ":visualtree")
+                if (IsVisualTree)
                 {
                     if (domElement.IsInVisualTree == false)
                     {

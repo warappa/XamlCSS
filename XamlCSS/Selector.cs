@@ -213,7 +213,7 @@ namespace XamlCSS
         public bool StartOnVisualTree()
         {
             if (selectorMatchers[selectorMatchersLength - 1].Type == CssNodeType.PseudoSelector &&
-                selectorMatchers[selectorMatchersLength - 1].Text == ":visualtree")
+                selectorMatchers[selectorMatchersLength - 1].IsVisualTree)
             {
                 return true;
             }

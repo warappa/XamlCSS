@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Threading.Tasks;
 using XamlCSS.CssParsing;
 using XamlCSS.Dom;
 using XamlCSS.Utils;
@@ -44,7 +42,7 @@ namespace XamlCSS
             this.nativeStyleService = nativeStyleService;
             this.markupExpressionParser = markupExpressionParser;
             this.uiInvoker = uiInvoker;
-            this.cssTypeHelper = new CssTypeHelper<TDependencyObject, TDependencyProperty, TStyle>(markupExpressionParser, dependencyPropertyService);
+            cssTypeHelper = new CssTypeHelper<TDependencyObject, TDependencyProperty, TStyle>(markupExpressionParser, dependencyPropertyService);
 
             CssParser.Initialize(defaultCssNamespace, fileProvider);
             StyleSheet.GetParent = parent => treeNodeProvider.GetParent((TDependencyObject)parent, SelectorType.VisualTree);
@@ -496,14 +494,14 @@ namespace XamlCSS
 
                             if (s != null)
                             {
-                                var subDict = nativeStyleService.GetStyleAsDictionary(s as TStyle);
+                                var subDict = nativeStyleService.GetStyleAsDictionary(s);
 
                                 foreach (var i in subDict)
                                 {
                                     dict[i.Key] = i.Value;
                                 }
 
-                                var triggers = nativeStyleService.GetTriggersAsList(s as TStyle);
+                                var triggers = nativeStyleService.GetTriggersAsList(s);
                                 listTriggers.AddRange(triggers);
                             }
                         }
@@ -578,7 +576,9 @@ namespace XamlCSS
 
                 var type = SelectorType.LogicalTree;
                 if (rule.Selectors[0].StartOnVisualTree())
+                {
                     type = SelectorType.VisualTree;
+                }
 
                 if ((type == SelectorType.LogicalTree && startFrom.IsInLogicalTree != true) ||
                     (type == SelectorType.VisualTree && startFrom.IsInVisualTree != true)
@@ -636,9 +636,15 @@ namespace XamlCSS
             }
 
             if ((traversed & SelectorType.VisualTree) > 0)
+            {
                 MarkAsAlreadyProcessedForSelectorTypeInSubTree(startFrom, styleSheet, SelectorType.VisualTree);
+            }
+
             if ((traversed & SelectorType.LogicalTree) > 0)
+            {
                 MarkAsAlreadyProcessedForSelectorTypeInSubTree(startFrom, styleSheet, SelectorType.LogicalTree);
+            }
+
             return found.ToList();
         }
 
@@ -945,7 +951,7 @@ namespace XamlCSS
                 return;
             }
 
-            var parent = GetStyleSheetParent(sender as TDependencyObject);
+            var parent = GetStyleSheetParent(sender);
             if (parent == null)
             {
                 return;
@@ -985,7 +991,7 @@ namespace XamlCSS
                 return;
             }
 
-            var parent = GetStyleSheetParent(sender as TDependencyObject);
+            var parent = GetStyleSheetParent(sender);
             if (parent == null)
             {
                 return;
@@ -1004,7 +1010,7 @@ namespace XamlCSS
                 return;
             }
 
-            var parent = GetStyleSheetParent(sender as TDependencyObject);
+            var parent = GetStyleSheetParent(sender);
             if (parent == null)
             {
                 return;
@@ -1065,7 +1071,7 @@ namespace XamlCSS
                     }
 
                     // TODO: Only Logical Tree?
-                    currentDependencyObject = treeNodeProvider.GetParent(currentDependencyObject as TDependencyObject, SelectorType.LogicalTree);
+                    currentDependencyObject = treeNodeProvider.GetParent(currentDependencyObject, SelectorType.LogicalTree);
                 }
             }
             finally

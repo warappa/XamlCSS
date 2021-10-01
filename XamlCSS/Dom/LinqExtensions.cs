@@ -241,7 +241,7 @@ namespace XamlCSS.Dom
         private static bool MatchesOnVisualTree(SelectorMatcher lastFragment)
         {
             return lastFragment.Type == CssParsing.CssNodeType.PseudoSelector &&
-                                    lastFragment.Text == ":visualtree";
+                                    lastFragment.IsVisualTree;
         }
 
         //private static void TestGeneralParentsDown<TDependencyObject, TDependencyProperty>(
@@ -384,8 +384,8 @@ namespace XamlCSS.Dom
                     inTree)
                 {
                     var shouldNotProcess =
-                        !object.ReferenceEquals(element.StyleInfo != null ? element.StyleInfo.CurrentStyleSheet : null, styleSheet) ||
-                        (element.StyleInfo.DoMatchCheck & type) != type;
+                        !object.ReferenceEquals(element.StyleInfo?.CurrentStyleSheet, styleSheet) ||
+                        element.StyleInfo?.DoMatchCheck.HasFlag(type) != true;
 
                     if (shouldNotProcess)
                     {

@@ -50,12 +50,12 @@ namespace XamlCSS.WPF
                         return "xmlns:" + x.Alias + "=\"" + x.Namespace + "\"";
                     }
                 }));
-
+            
             var test = $@"<FrameworkElement xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation"" xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"" {xmlnamespaces} x:Name=""{MarkupParserHelperId}"" Tag=""{expression}"" />";
 
             try
             {
-                textBlock = (FrameworkElement)XamlReader.Parse(test);
+                textBlock = (FrameworkElement)XamlReader.Parse(test, new ParserContext());
             }
             catch (Exception e)
             {
