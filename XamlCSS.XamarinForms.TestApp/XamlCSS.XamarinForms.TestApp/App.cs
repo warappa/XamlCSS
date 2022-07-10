@@ -12,10 +12,10 @@ namespace XamlCSS.XamarinForms.TestApp
             Resources.Add("testString", "Hello World from StaticResource!");
             Resources.Add("appStyleSheet", new StyleSheet { Content = "Button { FontAttributes: Italic;}" });
             Resources.Add("appVariables", "$base-color: #00ff00;");
-            // The root page of your application
+            //The root page of your application
             MainPage = new MainPage();
             //VisualTreeHelper.Include(MainPage);
-            //Css.instance.ExecuteApplyStyles();
+            Css.instance.ExecuteApplyStyles();
         }
 
         public string cssStyle1 = @"

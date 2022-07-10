@@ -169,7 +169,8 @@
     </PropertyGroup>
     
     <ItemGroup>
-        <PackageReference Include="Xamarin.Forms" Version="4.3.0.991250"></PackageReference>
+        <PackageReference Include="Xamarin.Essentials" Version="1.7.3" />
+        <PackageReference Include="Xamarin.Forms" Version="5.0.0.2478"></PackageReference>
     </ItemGroup>
 
     <ItemGroup>

@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Xamarin.Forms" Version="4.3.0.991250"></PackageReference>
+        <PackageReference Include="Xamarin.Forms" Version="5.0.0.2478"></PackageReference>
         <PackageReference Include="System.ComponentModel" Version="4.0.1" Condition="'$(TargetFramework)' == 'netstandard13'"></PackageReference>
     </ItemGroup>
 
