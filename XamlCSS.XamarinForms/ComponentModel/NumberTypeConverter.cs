@@ -73,7 +73,7 @@ namespace XamlCSS.ComponentModel
 		}
 		public override object ConvertFrom(object o)
 		{
-			return this.ConvertFrom(CultureInfo.CurrentUICulture, o);
+			 return this.ConvertFrom(CultureInfo.InvariantCulture, o);
 		}
 		public override object ConvertFromInvariantString(string value)
 		{
